@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Menu } from "lucide-react";
+import { LayoutDashboard, Wrench, Menu, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,6 +17,11 @@ const navItems = [
     title: "Ordens de Serviço",
     href: "/orders",
     icon: Wrench,
+  },
+  {
+    title: "Clientes",
+    href: "/clients",
+    icon: Users,
   },
 ];
 
