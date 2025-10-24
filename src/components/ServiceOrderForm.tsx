@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { showSuccess } from "@/utils/toast";
+import ClientSelector from "./ClientSelector"; // Importando o novo componente
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -81,7 +82,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             <FormItem>
               <FormLabel>Cliente</FormLabel>
               <FormControl>
-                <Input placeholder="Nome do Cliente ou Empresa" {...field} />
+                {/* Usando o novo ClientSelector */}
+                <ClientSelector 
+                  value={field.value} 
+                  onChange={field.onChange} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
