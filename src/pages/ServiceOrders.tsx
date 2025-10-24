@@ -6,12 +6,11 @@ import ServiceOrderCard from "@/components/ServiceOrderCard";
 import Layout from "@/components/Layout";
 import { useNavigate } from "react-router-dom";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 // Definição de tipo para Ordem de Serviço (mantida aqui para mock data)
 interface ServiceOrder {
@@ -33,8 +32,8 @@ const mockOrders: ServiceOrder[] = [
   { id: "OS-003", title: "Manutenção Preventiva", client: "Indústria C", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
   { id: "OS-004", title: "Substituição de Peça", client: "Loja D", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
   { id: "OS-005", title: "Configuração de Servidor", client: "Empresa A", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
+  { id: "OS-006", title: "Revisão Geral", client: "Cliente F", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
 ];
-
 
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
@@ -45,15 +44,23 @@ const ServiceOrders: React.FC = () => {
     navigate("/orders/new");
   };
 
-  const filteredOrders = useMemo(() => {
-    let orders = mockOrders;
+  const sortedAndFilteredOrders = useMemo(() => {
+    // 1. Ordenar por data (mais recente primeiro)
+    const sortedOrders = [...mockOrders].sort((a, b) => {
+      // Assumindo formato YYYY-MM-DD para comparação direta
+      if (a.date > b.date) return -1;
+      if (a.date < b.date) return 1;
+      return 0;
+    });
 
-    // 1. Filtrar por Loja
+    let orders = sortedOrders;
+
+    // 2. Filtrar por Loja
     if (selectedStore !== 'ALL') {
       orders = orders.filter(order => order.store === selectedStore);
     }
 
-    // 2. Filtrar por Termo de Busca
+    // 3. Filtrar por Termo de Busca
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
       orders = orders.filter(order => 
@@ -65,6 +72,24 @@ const ServiceOrders: React.FC = () => {
 
     return orders;
   }, [selectedStore, searchTerm]);
+
+  const renderOrderGrid = (orders: ServiceOrder[]) => (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {orders.map((order) => (
+        <ServiceOrderCard key={order.id} order={order} />
+      ))}
+      {orders.length === 0 && (
+        <div className="col-span-full text-center py-12 text-muted-foreground">
+          Nenhuma ordem de serviço encontrada para os filtros aplicados.
+        </div>
+      )}
+    </div>
+  );
+
+  const allOrders = sortedAndFilteredOrders.filter(o => selectedStore === 'ALL' || o.store === selectedStore);
+  const caldasOrders = sortedAndFilteredOrders.filter(o => o.store === 'CALDAS DA RAINHA');
+  const portoOrders = sortedAndFilteredOrders.filter(o => o.store === 'PORTO DE MÓS');
+
 
   return (
     <Layout>
@@ -79,47 +104,37 @@ const ServiceOrders: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-          {/* Filtro de Loja */}
-          <div className="w-full md:w-64">
-            <Select 
-              onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
-              defaultValue={selectedStore}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar por Loja" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Todas as Lojas</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Campo de Busca */}
-          <div className="relative flex-grow w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar por ID, cliente ou título..." 
-              className="pl-10" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        {/* Campo de Busca */}
+        <div className="relative flex-grow w-full">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input 
+            placeholder="Buscar por ID, cliente ou título..." 
+            className="pl-10" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredOrders.map((order) => (
-            <ServiceOrderCard key={order.id} order={order} />
-          ))}
-        </div>
-        
-        {filteredOrders.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            Nenhuma ordem de serviço encontrada para os filtros aplicados.
-          </div>
-        )}
+        {/* Abas de Loja */}
+        <Tabs value={selectedStore} onValueChange={(value) => setSelectedStore(value as StoreFilter)}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="ALL">Todas ({allOrders.length})</TabsTrigger>
+            <TabsTrigger value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrders.length})</TabsTrigger>
+            <TabsTrigger value="PORTO DE MÓS">Porto de Mós ({portoOrders.length})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="ALL" className="mt-6">
+            {renderOrderGrid(allOrders)}
+          </TabsContent>
+          
+          <TabsContent value="CALDAS DA RAINHA" className="mt-6">
+            {renderOrderGrid(caldasOrders)}
+          </TabsContent>
+
+          <TabsContent value="PORTO DE MÓS" className="mt-6">
+            {renderOrderGrid(portoOrders)}
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );
