@@ -2,7 +2,10 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
+import ActivityLog from "@/components/ActivityLog";
+import TimeEntryComponent from "@/components/TimeEntry";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -50,6 +53,18 @@ const ServiceOrderDetails: React.FC = () => {
 
   const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${id}`;
 
+  if (!isNew && !order) {
+    return (
+      <Layout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">OS não encontrada</h2>
+          <p className="text-muted-foreground">A Ordem de Serviço com ID {id} não existe.</p>
+          <Button onClick={() => navigate("/orders")} className="mt-4">Voltar para a lista</Button>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -60,14 +75,43 @@ const ServiceOrderDetails: React.FC = () => {
           <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ServiceOrderForm initialData={initialData} onSubmit={handleSubmit} />
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="details">Detalhes</TabsTrigger>
+            <TabsTrigger value="activity">Atividades</TabsTrigger>
+            <TabsTrigger value="time">Tempo</TabsTrigger>
+          </TabsList>
+          
+          {/* Aba de Detalhes/Edição */}
+          <TabsContent value="details" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ServiceOrderForm initialData={initialData} onSubmit={handleSubmit} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Aba de Atividades */}
+          <TabsContent value="activity" className="mt-6">
+            {isNew ? (
+              <p className="text-center text-muted-foreground py-8">Salve a OS para registrar atividades.</p>
+            ) : (
+              <ActivityLog orderId={id!} />
+            )}
+          </TabsContent>
+
+          {/* Aba de Tempo */}
+          <TabsContent value="time" className="mt-6">
+            {isNew ? (
+              <p className="text-center text-muted-foreground py-8">Salve a OS para registrar tempo.</p>
+            ) : (
+              <TimeEntryComponent orderId={id!} />
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );
