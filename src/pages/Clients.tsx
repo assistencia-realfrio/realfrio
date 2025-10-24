@@ -5,23 +5,27 @@ import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ClientTable, { Client } from "@/components/ClientTable";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
+import ClientOrdersTab from "@/components/ClientOrdersTab"; // Importando o novo componente
+
+// Tipo para o cliente que está sendo editado (pode ser undefined para criação)
+type EditableClient = Client | undefined;
 
 const Clients: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<ClientFormValues | undefined>(undefined);
+  const [editingClient, setEditingClient] = useState<EditableClient>(undefined);
+  const [activeTab, setActiveTab] = useState("details");
 
   const handleNewClient = () => {
     setEditingClient(undefined);
+    setActiveTab("details");
     setIsModalOpen(true);
   };
 
   const handleEditClient = (client: Client) => {
-    setEditingClient({
-      name: client.name,
-      contact: client.contact,
-      email: client.email,
-    });
+    setEditingClient(client);
+    setActiveTab("details");
     setIsModalOpen(true);
   };
 
@@ -29,8 +33,15 @@ const Clients: React.FC = () => {
     console.log("Dados do Cliente submetidos:", data);
     // Aqui você faria a lógica de salvar/atualizar o cliente
     setIsModalOpen(false);
-    // Nota: A tabela ClientTable precisará ser atualizada para receber um prop de callback para edição/criação real.
   };
+
+  const initialFormData = editingClient ? {
+    name: editingClient.name,
+    contact: editingClient.contact,
+    email: editingClient.email,
+  } : undefined;
+
+  const isEditing = !!editingClient;
 
   return (
     <Layout>
@@ -45,15 +56,33 @@ const Clients: React.FC = () => {
                 Novo Cliente
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
-                <DialogTitle>{editingClient ? "Editar Cliente" : "Criar Novo Cliente"}</DialogTitle>
+                <DialogTitle>
+                  {isEditing ? `Editar Cliente: ${editingClient.name}` : "Criar Novo Cliente"}
+                </DialogTitle>
               </DialogHeader>
-              <ClientForm 
-                initialData={editingClient} 
-                onSubmit={handleFormSubmit} 
-                onCancel={() => setIsModalOpen(false)}
-              />
+              
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full" style={{ gridTemplateColumns: isEditing ? 'repeat(2, 1fr)' : '1fr' }}>
+                  <TabsTrigger value="details">Detalhes</TabsTrigger>
+                  {isEditing && <TabsTrigger value="orders">Ordens de Serviço</TabsTrigger>}
+                </TabsList>
+
+                <TabsContent value="details" className="mt-4">
+                  <ClientForm 
+                    initialData={initialFormData} 
+                    onSubmit={handleFormSubmit} 
+                    onCancel={() => setIsModalOpen(false)}
+                  />
+                </TabsContent>
+
+                {isEditing && (
+                  <TabsContent value="orders" className="mt-4">
+                    <ClientOrdersTab clientId={editingClient.id} />
+                  </TabsContent>
+                )}
+              </Tabs>
             </DialogContent>
           </Dialog>
         </div>
