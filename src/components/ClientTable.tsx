@@ -12,13 +12,17 @@ import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { showSuccess } from "@/utils/toast";
 
-interface Client {
+export interface Client {
   id: string;
   name: string;
   contact: string;
   email: string;
   totalOrders: number;
   status: "Ativo" | "Inativo";
+}
+
+interface ClientTableProps {
+    onEdit: (client: Client) => void;
 }
 
 const mockClients: Client[] = [
@@ -28,13 +32,8 @@ const mockClients: Client[] = [
   { id: "C-004", name: "Loja Delta Varejo", contact: "(41) 96655-4433", email: "delta@exemplo.com", totalOrders: 7, status: "Ativo" },
 ];
 
-const ClientTable: React.FC = () => {
+const ClientTable: React.FC<ClientTableProps> = ({ onEdit }) => {
   const [clients, setClients] = React.useState(mockClients);
-
-  const handleEdit = (client: Client) => {
-    // Simulação de edição
-    showSuccess(`Editando cliente: ${client.name}`);
-  };
 
   const handleDelete = (id: string) => {
     setClients(clients.filter(c => c.id !== id));
@@ -71,7 +70,7 @@ const ClientTable: React.FC = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(client)} aria-label="Editar">
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDelete(client.id)} aria-label="Excluir">
