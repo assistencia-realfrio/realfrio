@@ -13,15 +13,16 @@ interface ServiceOrder {
   client: string;
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
   priority: "Alta" | "Média" | "Baixa";
+  store: "CALDAS DA RAINHA" | "PORTO DE MÓS"; // Novo campo
   date: string;
 }
 
 // Dados mock
 const mockOrders: ServiceOrder[] = [
-  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa A", status: "Em Progresso", priority: "Alta", date: "2024-10-27" },
-  { id: "OS-002", title: "Instalação de Rede", client: "Cliente B", status: "Pendente", priority: "Média", date: "2024-10-28" },
-  { id: "OS-003", title: "Manutenção Preventiva", client: "Indústria C", status: "Concluída", priority: "Baixa", date: "2024-10-26" },
-  { id: "OS-004", title: "Substituição de Peça", client: "Loja D", status: "Pendente", priority: "Alta", date: "2024-10-29" },
+  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa A", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
+  { id: "OS-002", title: "Instalação de Rede", client: "Cliente B", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
+  { id: "OS-003", title: "Manutenção Preventiva", client: "Indústria C", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
+  { id: "OS-004", title: "Substituição de Peça", client: "Loja D", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
 ];
 
 

@@ -29,6 +29,7 @@ const formSchema = z.object({
   description: z.string().min(10, { message: "A descrição deve ter pelo menos 10 caracteres." }),
   priority: z.enum(["Alta", "Média", "Baixa"]),
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
+  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]), // Novo campo
 });
 
 type ServiceOrderFormValues = z.infer<typeof formSchema>;
@@ -47,6 +48,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       description: "",
       priority: "Média",
       status: "Pendente",
+      store: "CALDAS DA RAINHA", // Valor padrão
     },
   });
 
@@ -148,6 +150,29 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
         </div>
+        
+        {/* Novo campo de Loja */}
+        <FormField
+          control={form.control}
+          name="store"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Loja</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a loja" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <Button type="submit" className="w-full">
           {initialData ? "Salvar Alterações" : "Criar Ordem de Serviço"}

@@ -18,6 +18,7 @@ interface ServiceOrder {
   description: string;
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
   priority: "Alta" | "Média" | "Baixa";
+  store: "CALDAS DA RAINHA" | "PORTO DE MÓS"; // Novo campo
   date: string;
 }
 
@@ -25,8 +26,8 @@ interface ServiceOrder {
 const fetchOrderById = (id: string): ServiceOrder | undefined => {
   // In a real app, this would be an API call
   const mockOrders: ServiceOrder[] = [
-    { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa A", description: "Troca de compressor e recarga de gás.", status: "Em Progresso", priority: "Alta", date: "2024-10-27" },
-    { id: "OS-002", title: "Instalação de Rede", client: "Cliente B", description: "Instalação de 5 pontos de rede CAT6.", status: "Pendente", priority: "Média", date: "2024-10-28" },
+    { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa A", description: "Troca de compressor e recarga de gás.", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
+    { id: "OS-002", title: "Instalação de Rede", client: "Cliente B", description: "Instalação de 5 pontos de rede CAT6.", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
   ];
   return mockOrders.find(order => order.id === id);
 };
@@ -44,6 +45,7 @@ const ServiceOrderDetails: React.FC = () => {
     description: order.description,
     priority: order.priority,
     status: order.status,
+    store: order.store, // Incluindo a loja
   } : undefined;
 
   const handleSubmit = (data: any) => {

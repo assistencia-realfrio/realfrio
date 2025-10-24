@@ -10,6 +10,7 @@ interface ServiceOrder {
   client: string;
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
   priority: "Alta" | "Média" | "Baixa";
+  store: "CALDAS DA RAINHA" | "PORTO DE MÓS"; // Novo campo
   date: string;
 }
 
@@ -60,7 +61,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             </CardHeader>
             <CardContent>
                 <div className="text-xl font-bold mb-2 text-primary">{order.id}</div>
-                <p className="text-sm text-muted-foreground mb-3 truncate">Cliente: {order.client}</p>
+                <p className="text-sm text-muted-foreground mb-1 truncate">Cliente: {order.client}</p>
+                <p className="text-xs text-muted-foreground mb-3 truncate">Loja: {order.store}</p>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                     <Badge className={cn("text-xs font-semibold", getPriorityClasses(order.priority))}>
                         Prioridade: {order.priority}
