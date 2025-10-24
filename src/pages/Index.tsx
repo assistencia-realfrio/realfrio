@@ -1,8 +1,8 @@
-import ServiceOrders from "./ServiceOrders";
+import Dashboard from "./Dashboard";
 
 const Index = () => {
   return (
-    <ServiceOrders />
+    <Dashboard />
   );
 };
 
