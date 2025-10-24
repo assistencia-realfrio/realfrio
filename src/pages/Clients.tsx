@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import ClientTable from "@/components/ClientTable"; // Importando a tabela
 
 const Clients: React.FC = () => {
   return (
@@ -23,10 +24,8 @@ const Clients: React.FC = () => {
           </div>
         </div>
 
-        <div className="py-12 text-center border-2 border-dashed p-8 rounded-lg text-muted-foreground">
-            <p className="text-lg font-semibold mb-2">Em Construção</p>
-            <p>A listagem e gestão de clientes será implementada aqui.</p>
-        </div>
+        {/* Tabela de Clientes */}
+        <ClientTable />
       </div>
     </Layout>
   );
