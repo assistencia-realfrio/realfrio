@@ -22,13 +22,23 @@ interface ServiceOrder {
   date: string;
 }
 
+// Lista completa de Ordens de Serviço mock
+const mockOrders: ServiceOrder[] = [
+  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa Alpha Soluções", description: "Troca de compressor e recarga de gás.", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
+  { id: "OS-002", title: "Instalação de Rede", client: "Cliente Beta Individual", description: "Instalação de 5 pontos de rede CAT6.", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
+  { id: "OS-003", title: "Manutenção Preventiva", client: "Empresa Alpha Soluções", description: "Verificação de rotina em todos os equipamentos.", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
+  { id: "OS-004", title: "Substituição de Peça", client: "Loja Delta Varejo", description: "Substituição de peça defeituosa no sistema de ventilação.", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
+  { id: "OS-005", title: "Configuração de Servidor", client: "Empresa Alpha Soluções", description: "Configuração inicial de novo servidor de arquivos.", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
+  { id: "OS-006", title: "Revisão Geral", client: "Cliente Beta Individual", description: "Revisão completa do sistema elétrico.", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
+  { id: "OS-007", title: "OS Cancelada", client: "Indústria Gama Pesada", description: "Serviço cancelado pelo cliente antes do início.", status: "Cancelada", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-02" },
+  { id: "OS-008", title: "Reparo Urgente de Eletricidade", client: "Empresa Alpha Soluções", description: "Curto-circuito na sala de servidores. Prioridade máxima.", status: "Pendente", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-11-03" },
+  { id: "OS-009", title: "Instalação de Software", client: "Cliente Beta Individual", description: "Instalação e configuração de software de gestão.", status: "Concluída", priority: "Média", store: "PORTO DE MÓS", date: "2024-11-04" },
+  { id: "OS-010", title: "Limpeza de Equipamento", client: "Loja Delta Varejo", description: "Limpeza profunda de equipamentos de refrigeração.", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-05" },
+];
+
+
 // Mock function to simulate fetching/saving data
 const fetchOrderById = (id: string): ServiceOrder | undefined => {
-  // In a real app, this would be an API call
-  const mockOrders: ServiceOrder[] = [
-    { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa A", description: "Troca de compressor e recarga de gás.", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
-    { id: "OS-002", title: "Instalação de Rede", client: "Cliente B", description: "Instalação de 5 pontos de rede CAT6.", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
-  ];
   return mockOrders.find(order => order.id === id);
 };
 
