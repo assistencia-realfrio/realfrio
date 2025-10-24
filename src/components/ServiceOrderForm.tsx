@@ -27,7 +27,7 @@ import ClientSelector from "./ClientSelector"; // Importando o novo componente
 const formSchema = z.object({
   title: z.string().min(5, { message: "O título deve ter pelo menos 5 caracteres." }),
   client: z.string().min(3, { message: "O nome do cliente é obrigatório." }),
-  description: z.string().min(10, { message: "A descrição deve ter pelo menos 10 caracteres." }),
+  description: z.string().min(1, { message: "A descrição é obrigatória." }), // Alterado: removido min(10) e garantido que não seja vazio
   priority: z.enum(["Alta", "Média", "Baixa"]),
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]), // Novo campo
