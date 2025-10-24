@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import ActivityLog from "@/components/ActivityLog";
 import TimeEntryComponent from "@/components/TimeEntry";
+import Attachments from "@/components/Attachments"; // Importando o novo componente
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
@@ -76,10 +77,11 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4"> {/* Alterado para 4 colunas */}
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="activity">Atividades</TabsTrigger>
             <TabsTrigger value="time">Tempo</TabsTrigger>
+            <TabsTrigger value="attachments">Anexos</TabsTrigger> {/* Nova aba */}
           </TabsList>
           
           {/* Aba de Detalhes/Edição */}
@@ -109,6 +111,15 @@ const ServiceOrderDetails: React.FC = () => {
               <p className="text-center text-muted-foreground py-8">Salve a OS para registrar tempo.</p>
             ) : (
               <TimeEntryComponent orderId={id!} />
+            )}
+          </TabsContent>
+
+          {/* Aba de Anexos */}
+          <TabsContent value="attachments" className="mt-6">
+            {isNew ? (
+              <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar anexos.</p>
+            ) : (
+              <Attachments orderId={id!} />
             )}
           </TabsContent>
         </Tabs>
