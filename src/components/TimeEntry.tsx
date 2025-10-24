@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clock, Timer, Plus } from "lucide-react";
+import { Clock, Plus } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
-import { Badge } from "@/components/ui/badge"; // Importação adicionada
+import { Badge } from "@/components/ui/badge";
 
 interface TimeEntry {
   id: number;

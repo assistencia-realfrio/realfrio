@@ -77,11 +77,11 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-4"> {/* Alterado para 4 colunas */}
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="activity">Atividades</TabsTrigger>
             <TabsTrigger value="time">Tempo</TabsTrigger>
-            <TabsTrigger value="attachments">Anexos</TabsTrigger> {/* Nova aba */}
+            <TabsTrigger value="attachments">Anexos</TabsTrigger>
           </TabsList>
           
           {/* Aba de Detalhes/Edição */}
