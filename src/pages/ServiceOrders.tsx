@@ -35,13 +35,16 @@ type StatusFilter = ServiceOrder['status'] | 'ALL';
 
 // Dados mock
 const mockOrders: ServiceOrder[] = [
-  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa A", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
-  { id: "OS-002", title: "Instalação de Rede", client: "Cliente B", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
-  { id: "OS-003", title: "Manutenção Preventiva", client: "Indústria C", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
-  { id: "OS-004", title: "Substituição de Peça", client: "Loja D", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
-  { id: "OS-005", title: "Configuração de Servidor", client: "Empresa A", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
-  { id: "OS-006", title: "Revisão Geral", client: "Cliente F", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
-  { id: "OS-007", title: "OS Cancelada", client: "Cliente G", status: "Cancelada", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-02" },
+  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa Alpha Soluções", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
+  { id: "OS-002", title: "Instalação de Rede", client: "Cliente Beta Individual", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
+  { id: "OS-003", title: "Manutenção Preventiva", client: "Empresa Alpha Soluções", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
+  { id: "OS-004", title: "Substituição de Peça", client: "Loja Delta Varejo", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
+  { id: "OS-005", title: "Configuração de Servidor", client: "Empresa Alpha Soluções", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
+  { id: "OS-006", title: "Revisão Geral", client: "Cliente Beta Individual", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
+  { id: "OS-007", title: "OS Cancelada", client: "Indústria Gama Pesada", status: "Cancelada", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-02" },
+  { id: "OS-008", title: "Reparo Urgente de Eletricidade", client: "Empresa Alpha Soluções", status: "Pendente", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-11-03" },
+  { id: "OS-009", title: "Instalação de Software", client: "Cliente Beta Individual", status: "Concluída", priority: "Média", store: "PORTO DE MÓS", date: "2024-11-04" },
+  { id: "OS-010", title: "Limpeza de Equipamento", client: "Loja Delta Varejo", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-05" },
 ];
 
 const ServiceOrders: React.FC = () => {
@@ -64,10 +67,7 @@ const ServiceOrders: React.FC = () => {
 
     let orders = sortedOrders;
 
-    // 2. Filtrar por Loja (apenas para calcular os totais corretos nas abas)
-    // A filtragem final por loja será feita no renderOrderGrid
-
-    // 3. Filtrar por Termo de Busca
+    // 2. Filtrar por Termo de Busca
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
       orders = orders.filter(order => 
@@ -77,13 +77,13 @@ const ServiceOrders: React.FC = () => {
       );
     }
     
-    // 4. Filtrar por Status
+    // 3. Filtrar por Status
     if (selectedStatus !== 'ALL') {
       orders = orders.filter(order => order.status === selectedStatus);
     }
 
     return orders;
-  }, [selectedStatus, searchTerm]); // Removido selectedStore daqui, pois a filtragem por loja é feita no renderOrderGrid
+  }, [selectedStatus, searchTerm]);
 
   const renderOrderGrid = (orders: ServiceOrder[]) => {
     // Filtragem final por loja, se necessário
