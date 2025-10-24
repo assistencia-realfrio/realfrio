@@ -11,6 +11,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Definição de tipo para Ordem de Serviço (mantida aqui para mock data)
 interface ServiceOrder {
@@ -24,6 +31,7 @@ interface ServiceOrder {
 }
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
+type StatusFilter = ServiceOrder['status'] | 'ALL';
 
 // Dados mock
 const mockOrders: ServiceOrder[] = [
@@ -33,11 +41,13 @@ const mockOrders: ServiceOrder[] = [
   { id: "OS-004", title: "Substituição de Peça", client: "Loja D", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
   { id: "OS-005", title: "Configuração de Servidor", client: "Empresa A", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
   { id: "OS-006", title: "Revisão Geral", client: "Cliente F", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
+  { id: "OS-007", title: "OS Cancelada", client: "Cliente G", status: "Cancelada", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-02" },
 ];
 
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL'); // Novo estado para status
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleNewOrder = () => {
@@ -47,7 +57,6 @@ const ServiceOrders: React.FC = () => {
   const sortedAndFilteredOrders = useMemo(() => {
     // 1. Ordenar por data (mais recente primeiro)
     const sortedOrders = [...mockOrders].sort((a, b) => {
-      // Assumindo formato YYYY-MM-DD para comparação direta
       if (a.date > b.date) return -1;
       if (a.date < b.date) return 1;
       return 0;
@@ -55,10 +64,8 @@ const ServiceOrders: React.FC = () => {
 
     let orders = sortedOrders;
 
-    // 2. Filtrar por Loja
-    if (selectedStore !== 'ALL') {
-      orders = orders.filter(order => order.store === selectedStore);
-    }
+    // 2. Filtrar por Loja (apenas para calcular os totais corretos nas abas)
+    // A filtragem final por loja será feita no renderOrderGrid
 
     // 3. Filtrar por Termo de Busca
     if (searchTerm.trim()) {
@@ -69,26 +76,40 @@ const ServiceOrders: React.FC = () => {
         order.title.toLowerCase().includes(lowerCaseSearch)
       );
     }
+    
+    // 4. Filtrar por Status
+    if (selectedStatus !== 'ALL') {
+      orders = orders.filter(order => order.status === selectedStatus);
+    }
 
     return orders;
-  }, [selectedStore, searchTerm]);
+  }, [selectedStatus, searchTerm]); // Removido selectedStore daqui, pois a filtragem por loja é feita no renderOrderGrid
 
-  const renderOrderGrid = (orders: ServiceOrder[]) => (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {orders.map((order) => (
-        <ServiceOrderCard key={order.id} order={order} />
-      ))}
-      {orders.length === 0 && (
-        <div className="col-span-full text-center py-12 text-muted-foreground">
-          Nenhuma ordem de serviço encontrada para os filtros aplicados.
-        </div>
-      )}
-    </div>
-  );
+  const renderOrderGrid = (orders: ServiceOrder[]) => {
+    // Filtragem final por loja, se necessário
+    const finalOrders = selectedStore === 'ALL' 
+      ? orders 
+      : orders.filter(order => order.store === selectedStore);
 
-  const allOrders = sortedAndFilteredOrders.filter(o => selectedStore === 'ALL' || o.store === selectedStore);
-  const caldasOrders = sortedAndFilteredOrders.filter(o => o.store === 'CALDAS DA RAINHA');
-  const portoOrders = sortedAndFilteredOrders.filter(o => o.store === 'PORTO DE MÓS');
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {finalOrders.map((order) => (
+          <ServiceOrderCard key={order.id} order={order} />
+        ))}
+        {finalOrders.length === 0 && (
+          <div className="col-span-full text-center py-12 text-muted-foreground">
+            Nenhuma ordem de serviço encontrada para os filtros aplicados.
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Recalculando os totais para as abas com base nos filtros de busca e status
+  const ordersForTabs = sortedAndFilteredOrders;
+  const allOrdersCount = ordersForTabs.length;
+  const caldasOrdersCount = ordersForTabs.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = ordersForTabs.filter(o => o.store === 'PORTO DE MÓS').length;
 
 
   return (
@@ -104,35 +125,57 @@ const ServiceOrders: React.FC = () => {
           </div>
         </div>
 
-        {/* Campo de Busca */}
-        <div className="relative flex-grow w-full">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input 
-            placeholder="Buscar por ID, cliente ou título..." 
-            className="pl-10" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        {/* Filtros de Busca e Status */}
+        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
+          {/* Campo de Busca */}
+          <div className="relative flex-grow w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar por ID, cliente ou título..." 
+              className="pl-10" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {/* Filtro de Status */}
+          <div className="w-full md:w-48">
+            <Select 
+              onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
+              defaultValue={selectedStatus}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrar por Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Todos os Status</SelectItem>
+                <SelectItem value="Pendente">Pendente</SelectItem>
+                <SelectItem value="Em Progresso">Em Progresso</SelectItem>
+                <SelectItem value="Concluída">Concluída</SelectItem>
+                <SelectItem value="Cancelada">Cancelada</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Abas de Loja */}
         <Tabs value={selectedStore} onValueChange={(value) => setSelectedStore(value as StoreFilter)}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="ALL">Todas ({allOrders.length})</TabsTrigger>
-            <TabsTrigger value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrders.length})</TabsTrigger>
-            <TabsTrigger value="PORTO DE MÓS">Porto de Mós ({portoOrders.length})</TabsTrigger>
+            <TabsTrigger value="ALL">Todas ({allOrdersCount})</TabsTrigger>
+            <TabsTrigger value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</TabsTrigger>
+            <TabsTrigger value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="ALL" className="mt-6">
-            {renderOrderGrid(allOrders)}
+            {renderOrderGrid(ordersForTabs)}
           </TabsContent>
           
           <TabsContent value="CALDAS DA RAINHA" className="mt-6">
-            {renderOrderGrid(caldasOrders)}
+            {renderOrderGrid(ordersForTabs)}
           </TabsContent>
 
           <TabsContent value="PORTO DE MÓS" className="mt-6">
-            {renderOrderGrid(portoOrders)}
+            {renderOrderGrid(ordersForTabs)}
           </TabsContent>
         </Tabs>
       </div>
