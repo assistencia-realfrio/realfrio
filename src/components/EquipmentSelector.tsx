@@ -21,9 +21,10 @@ interface EquipmentSelectorProps {
   clientId: string;
   value: string; // Deve ser o ID do equipamento
   onChange: (equipmentId: string, equipmentDetails: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => void;
+  disabled?: boolean; // Adicionando a prop disabled
 }
 
-const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, onChange }) => {
+const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, onChange, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { equipments, isLoading } = useEquipments(clientId);
@@ -102,6 +103,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             role="combobox"
             aria-expanded={isPopoverOpen}
             className="w-full justify-between"
+            disabled={disabled} // Aplica a prop disabled aqui
           >
             {displayValue}
             <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />

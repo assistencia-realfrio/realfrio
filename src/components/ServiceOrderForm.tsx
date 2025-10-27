@@ -174,6 +174,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <ClientSelector 
                   value={field.value} 
                   onChange={field.onChange} 
+                  disabled={isEditing} // Desabilita o seletor se estiver editando
                 />
               </FormControl>
               <FormMessage />
@@ -193,6 +194,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             clientId={clientId}
                             value={field.value}
                             onChange={handleEquipmentChange}
+                            disabled={isEditing} // Desabilita o seletor se estiver editando
                         />
                     </FormControl>
                     <FormMessage />
