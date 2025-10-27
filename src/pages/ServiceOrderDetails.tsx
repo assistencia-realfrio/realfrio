@@ -125,6 +125,35 @@ const ServiceOrderDetails: React.FC = () => {
                 {/* Título da OS com tamanho reduzido */}
                 <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
             </div>
+            {/* Botão de Excluir (visível apenas se não for uma nova OS), movido para o cabeçalho */}
+            {!isNew && (
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
+                            <Trash2 className="h-5 w-5 text-destructive" />
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
+                                <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                                onClick={handleDelete} 
+                                className="bg-destructive hover:bg-destructive/90"
+                                disabled={deleteOrder.isPending}
+                            >
+                                Excluir
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
 
         {/* Select para navegação entre as seções */}
@@ -171,39 +200,6 @@ const ServiceOrderDetails: React.FC = () => {
           ) : (
             <Attachments orderId={currentOrderId!} />
           )
-        )}
-
-        {/* Botão de Excluir (visível apenas se não for uma nova OS), movido para o final da página */}
-        {!isNew && (
-            <div className="mt-8 flex justify-center"> {/* Alterado de justify-end para justify-center */}
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive" disabled={deleteOrder.isPending}>
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Excluir OS
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
-                                <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction 
-                                onClick={handleDelete} 
-                                className="bg-destructive hover:bg-destructive/90"
-                                disabled={deleteOrder.isPending}
-                            >
-                                Excluir
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
         )}
       </div>
     </Layout>
