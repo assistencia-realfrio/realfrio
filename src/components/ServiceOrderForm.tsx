@@ -94,6 +94,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
 
     try {
+        // --- Lógica de Formatação Atualizada ---
+        // Invertendo a ordem: NOME / MARCA
+        const equipmentName = equipmentDetails.name;
+        const equipmentBrand = equipmentDetails.brand;
+        
+        const formattedEquipment = equipmentBrand 
+            ? `${equipmentName} / ${equipmentBrand}` 
+            : equipmentName;
+        // --------------------------------------
+
         // Mapeia os dados do formulário + detalhes do equipamento para a mutação
         const mutationData: MutationServiceOrderFormValues = {
             client_id: data.client_id,
@@ -101,7 +111,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             status: data.status,
             store: data.store,
             // Detalhes do equipamento vêm do estado
-            equipment: `${equipmentDetails.brand ? equipmentDetails.brand + ' / ' : ''}${equipmentDetails.name}`, // Incluindo a marca no nome da OS
+            equipment: formattedEquipment, // Usando o novo formato: NOME / MARCA
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id, // Passando o ID do equipamento
