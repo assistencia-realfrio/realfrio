@@ -32,7 +32,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     };
     
     // Formata a data para exibição
-    const date = new Date(order.created_at).toLocaleDateString('pt-BR');
+    // const date = new Date(order.created_at).toLocaleDateString('pt-BR'); // Removido conforme solicitação
 
     // Define a cor da barra lateral com base na loja
     const storeColorClass = order.store === 'CALDAS DA RAINHA' 
@@ -72,10 +72,11 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         {order.description}
                     </p>
                     
-                    <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t">
+                    {/* Removido: Informações de Loja e Data */}
+                    {/* <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t">
                         <span>Loja: {order.store}</span>
                         <span>Criada em: {date}</span>
-                    </div>
+                    </div> */}
                 </CardContent>
             </div>
         </Card>
