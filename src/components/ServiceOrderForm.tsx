@@ -244,7 +244,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormLabel>Estado *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
+                    <SelectTrigger> {/* Destaque removido */}
                       <SelectValue placeholder="Selecione o estado" />
                     </SelectTrigger>
                   </FormControl>
@@ -269,7 +269,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormLabel>Loja *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
+                    <SelectTrigger> {/* Destaque removido */}
                       <SelectValue placeholder="Selecione a loja" />
                     </SelectTrigger>
                   </FormControl>

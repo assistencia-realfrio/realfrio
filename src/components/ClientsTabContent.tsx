@@ -97,7 +97,7 @@ const ClientsTabContent: React.FC = () => {
             onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
             defaultValue={selectedStore}
           >
-            <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
+            <SelectTrigger> {/* Destaque removido */}
               <SelectValue placeholder="Filtrar por Loja" />
             </SelectTrigger>
             <SelectContent>

@@ -119,7 +119,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
               <FormLabel>Loja *</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
+                  <SelectTrigger> {/* Destaque removido */}
                     <SelectValue placeholder="Selecione a loja" />
                   </SelectTrigger>
                 </FormControl>
