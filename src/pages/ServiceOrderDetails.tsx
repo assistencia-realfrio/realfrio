@@ -7,10 +7,22 @@ import TimeEntryComponent from "@/components/TimeEntry";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
+import { showSuccess, showError } from "@/utils/toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +31,7 @@ const ServiceOrderDetails: React.FC = () => {
   const isNew = id === 'new';
   
   // Se for edição, buscamos a ordem específica
-  const { order, isLoading } = useServiceOrders(isNew ? undefined : id);
+  const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   // Estado para armazenar o ID da OS recém-criada, se aplicável
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
@@ -50,6 +62,19 @@ const ServiceOrderDetails: React.FC = () => {
     } else {
         // Para edição, voltamos
         handleGoBack(); 
+    }
+  };
+  
+  const handleDelete = async () => {
+    if (!currentOrderId) return;
+
+    try {
+        await deleteOrder.mutateAsync(currentOrderId);
+        showSuccess(`Ordem de Serviço ${order?.display_id || currentOrderId} excluída com sucesso.`);
+        navigate('/orders', { replace: true }); // Redireciona para a lista de OS
+    } catch (error) {
+        console.error("Erro ao deletar OS:", error);
+        showError("Erro ao excluir Ordem de Serviço. Tente novamente.");
     }
   };
 
@@ -87,11 +112,44 @@ const ServiceOrderDetails: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={handleGoBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+                <Button variant="outline" size="icon" onClick={handleGoBack}>
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+            </div>
+            
+            {/* Botão de Excluir (visível apenas se não for uma nova OS) */}
+            {!isNew && (
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" disabled={deleteOrder.isPending}>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Excluir OS
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
+                                <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                                onClick={handleDelete} 
+                                className="bg-destructive hover:bg-destructive/90"
+                                disabled={deleteOrder.isPending}
+                            >
+                                Excluir
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </div>
 
         <Tabs defaultValue="details" className="w-full">

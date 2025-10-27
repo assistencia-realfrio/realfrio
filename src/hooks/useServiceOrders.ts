@@ -175,6 +175,21 @@ export const useServiceOrders = (id?: string) => {
       queryClient.invalidateQueries({ queryKey: ['serviceOrders', id] });
     },
   });
+  
+  const deleteOrderMutation = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase
+        .from('service_orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      // Invalida todas as queries de OS para atualizar a lista
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+    },
+  });
 
   return {
     orders: orders || [],
@@ -182,5 +197,6 @@ export const useServiceOrders = (id?: string) => {
     isLoading,
     createOrder: createOrderMutation,
     updateOrder: updateOrderMutation,
+    deleteOrder: deleteOrderMutation,
   };
 };
