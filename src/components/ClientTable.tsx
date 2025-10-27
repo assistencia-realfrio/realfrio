@@ -79,7 +79,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             clients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell 
-                    className="font-medium text-primary hover:underline cursor-pointer" 
+                    className="font-medium text-foreground hover:underline cursor-pointer" // Alterado para text-foreground
                     onClick={() => onEdit(client)}
                 >
                     {client.name}
@@ -89,7 +89,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell> {/* EXIBINDO OS ABERTAS */}
                 <TableCell className="hidden md:table-cell">{client.store || 'N/A'}</TableCell> {/* EXIBINDO A LOJA */}
                 <TableCell>
-                  <Badge variant={getStatusVariant(client.status)}>{client.status}</Badge>
+                  <Badge variant={getStatusVariant(client.status)} className="text-foreground">{client.status}</Badge> {/* Adicionado text-foreground */}
                 </TableCell>
                 <TableCell className="text-right"> {/* Célula para as ações */}
                     <div className="flex justify-end space-x-2">

@@ -23,7 +23,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     .from('clients')
     .select('id, name, contact, email, status, created_at, store') // Selecionando o novo campo 'store'
     .eq('created_by', userId)
-    .order('created_at', { ascending: false });
+    .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
   if (error) throw error;
 
@@ -171,7 +171,7 @@ export const useClientNames = () => {
         .from('clients')
         .select('id, name')
         .eq('created_by', user.id)
-        .order('name', { ascending: true });
+        .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
       if (error) throw error;
       return data as Client[];
