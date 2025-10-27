@@ -152,7 +152,7 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4"> {/* Ajustado para 2 colunas em mobile, 4 em sm+ */}
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="activity" disabled={!canAccessTabs}>Atividades</TabsTrigger>
             <TabsTrigger value="time" disabled={!canAccessTabs}>Tempo</TabsTrigger>

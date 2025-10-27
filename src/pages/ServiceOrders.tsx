@@ -140,7 +140,7 @@ const ServiceOrders: React.FC = () => {
 
         {/* Abas de Loja */}
         <Tabs value={selectedStore} onValueChange={(value) => setSelectedStore(value as StoreFilter)}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3"> {/* Ajustado para 1 coluna em mobile, 3 em sm+ */}
             <TabsTrigger value="ALL">Todas ({allOrdersCount})</TabsTrigger>
             <TabsTrigger value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</TabsTrigger>
             <TabsTrigger value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</TabsTrigger>

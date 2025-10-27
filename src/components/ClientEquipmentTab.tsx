@@ -99,7 +99,7 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
       </CardHeader>
       <CardContent className="p-0">
         {equipments.length > 0 ? (
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto"> {/* Adicionado overflow-x-auto */}
             <Table>
               <TableHeader>
                 <TableRow>

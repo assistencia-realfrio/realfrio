@@ -49,7 +49,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto"> {/* Adicionado overflow-x-auto */}
       <Table>
         <TableHeader>
           <TableRow>
