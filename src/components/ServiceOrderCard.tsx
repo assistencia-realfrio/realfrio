@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Importando Link
 import { cn } from "@/lib/utils";
 import { ServiceOrder } from "@/hooks/useServiceOrders"; // Importando o tipo ServiceOrder do hook
 
@@ -56,7 +56,14 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </Badge>
                 </CardHeader>
                 <CardContent className="p-0 pt-1 flex flex-col flex-grow"> {/* Reduzido pt-2 para pt-1 */}
-                    <p className="text-base font-semibold text-foreground mb-0.5 truncate">Cliente: {order.client}</p> {/* Reduzido text-lg para text-base, mb-1 para mb-0.5 */}
+                    {/* NOME DO CLIENTE AGORA É UM LINK */}
+                    <Link 
+                        to={`/clients/${order.client_id}`} 
+                        className="text-base font-semibold text-foreground mb-0.5 truncate hover:underline"
+                        onClick={(e) => e.stopPropagation()} // Impede que o clique no link acione o handleClick do card
+                    >
+                        Cliente: {order.client}
+                    </Link>
                     
                     <CardTitle className="text-base font-bold truncate mb-1"> {/* Reduzido text-lg para text-base, mb-2 para mb-1 */}
                         {order.equipment}

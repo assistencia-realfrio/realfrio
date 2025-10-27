@@ -12,119 +12,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
-import ClientOrdersTab from "@/components/ClientOrdersTab";
-import ClientEquipmentTab from "@/components/ClientEquipmentTab";
-import { useClients } from "@/hooks/useClients";
+import { useClientsList } from "@/hooks/useClients"; // Usando useClientsList
 import { showSuccess, showError } from "@/utils/toast";
 
-// Tipo para o cliente que está sendo editado (pode ser undefined para criação)
-type EditableClient = Client | undefined;
 type StoreFilter = Client['store'] | 'ALL'; // Tipo para o filtro de loja
 
 const ClientsTabContent: React.FC = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<EditableClient>(undefined);
-  const [activeView, setActiveView] = useState<"details" | "orders" | "equipments">("details");
+  const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false); // Renomeado para clareza
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL'); // Novo estado para o filtro de loja
   
-  const { createClient, updateClient } = useClients(searchTerm, selectedStore); // Passando o filtro de loja
+  const { createClient } = useClientsList(searchTerm, selectedStore); // Usando useClientsList
 
-  const handleNewClient = () => {
-    setEditingClient(undefined);
-    setActiveView("details");
-    setIsModalOpen(true);
-  };
-
-  const handleEditClient = (client: Client) => {
-    setEditingClient(client);
-    setActiveView("details");
-    setIsModalOpen(true);
-  };
-
-  const handleFormSubmit = async (data: ClientFormValues) => {
+  const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
-        if (editingClient) {
-            // Atualizar
-            await updateClient.mutateAsync({ id: editingClient.id, ...data });
-            showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
-        } else {
-            // Criar
-            await createClient.mutateAsync(data);
-            showSuccess(`Cliente ${data.name} criado com sucesso!`);
-        }
-        setIsModalOpen(false);
+        await createClient.mutateAsync(data);
+        showSuccess(`Cliente ${data.name} criado com sucesso!`);
+        setIsNewClientModalOpen(false);
     } catch (error) {
-        console.error("Erro ao salvar cliente:", error); // Log do erro completo
-        showError("Erro ao salvar cliente. Verifique os dados.");
+        console.error("Erro ao criar cliente:", error); // Log do erro completo
+        showError("Erro ao criar cliente. Verifique os dados.");
     }
   };
-
-  const initialFormData = editingClient ? {
-    name: editingClient.name,
-    contact: editingClient.contact || "", // Garante string vazia para o formulário
-    email: editingClient.email || "",     // Garante string vazia para o formulário
-    store: editingClient.store || "CALDAS DA RAINHA", // Garante um valor padrão
-    address: editingClient.address || "", // Garante string vazia para o formulário
-  } : undefined;
-
-  const isEditing = !!editingClient;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Gestão de Clientes</h2>
         
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <Dialog open={isNewClientModalOpen} onOpenChange={setIsNewClientModalOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto" onClick={handleNewClient}>
+            <Button className="w-full sm:w-auto" onClick={() => setIsNewClientModalOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Novo Cliente
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
+          <DialogContent className="sm:max-w-[425px]"> {/* Tamanho ajustado para o formulário de criação */}
             <DialogHeader>
-              <DialogTitle>
-                {isEditing ? `Editar Cliente: ${editingClient?.name}` : "Criar Novo Cliente"}
-              </DialogTitle>
+              <DialogTitle>Criar Novo Cliente</DialogTitle>
             </DialogHeader>
-            
-            {/* Select para navegação entre as seções do cliente */}
-            <div className="w-full">
-              <Select value={activeView} onValueChange={(value: "details" | "orders" | "equipments") => setActiveView(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a seção" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="details">Detalhes</SelectItem>
-                  {isEditing && <SelectItem value="orders">Ordens de Serviço</SelectItem>}
-                  {isEditing && <SelectItem value="equipments">Equipamentos</SelectItem>}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Conteúdo baseado na seleção */}
-            {activeView === "details" && (
-              <div className="mt-4">
-                <ClientForm 
-                  initialData={initialFormData} 
-                  onSubmit={handleFormSubmit} 
-                  onCancel={() => setIsModalOpen(false)}
-                />
-              </div>
-            )}
-
-            {isEditing && activeView === "orders" && (
-              <div className="mt-4">
-                <ClientOrdersTab clientId={editingClient!.id} />
-              </div>
-            )}
-
-            {isEditing && activeView === "equipments" && (
-              <div className="mt-4">
-                <ClientEquipmentTab clientId={editingClient!.id} />
-              </div>
-            )}
+            <ClientForm 
+              onSubmit={handleNewClientSubmit} 
+              onCancel={() => setIsNewClientModalOpen(false)}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -160,7 +90,7 @@ const ClientsTabContent: React.FC = () => {
       </div>
 
       {/* Tabela de Clientes - Passando o callback de edição e o termo de busca */}
-      <ClientTable onEdit={handleEditClient} searchTerm={searchTerm} storeFilter={selectedStore} />
+      <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} />
     </div>
   );
 };

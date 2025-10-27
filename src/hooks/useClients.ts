@@ -15,8 +15,8 @@ export interface Client {
   address: string | null; // NOVO: Campo para a morada
 }
 
-// Função de fetch
-const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
+// Função de fetch para buscar TODOS os clientes (para a lista)
+const fetchClientsList = async (userId: string | undefined): Promise<Client[]> => {
   if (!userId) return [];
   
   const { data, error } = await supabase
@@ -37,15 +37,42 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   })) as Client[];
 };
 
-// Hook principal
-export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client['store'] | null = "ALL") => {
+// Função para buscar um ÚNICO cliente por ID (para a página de detalhes)
+const fetchClientDetails = async (userId: string | undefined, clientId: string): Promise<Client | null> => {
+  if (!userId || !clientId) return null;
+
+  const { data, error } = await supabase
+    .from('clients')
+    .select('id, name, contact, email, created_at, store, address')
+    .eq('created_by', userId)
+    .eq('id', clientId)
+    .single();
+
+  if (error && error.code === 'PGRST116') { // PGRST116 significa que nenhuma linha foi encontrada
+    return null;
+  }
+  if (error) {
+    throw error;
+  }
+
+  return data ? {
+    ...data,
+    totalOrders: 0, // Será populado pelo useServiceOrders se necessário
+    openOrders: 0,
+    store: data.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null,
+    address: data.address || null,
+  } : null;
+};
+
+// Hook para a lista de clientes (com busca e filtro)
+export const useClientsList = (searchTerm: string = "", storeFilter: "ALL" | Client['store'] | null = "ALL") => {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const { orders } = useServiceOrders(); // Obtém todas as ordens de serviço
 
   const { data: rawClients = [], isLoading: isLoadingClients } = useQuery<Client[], Error>({
-    queryKey: ['clients', user?.id],
-    queryFn: () => fetchClients(user?.id),
+    queryKey: ['clientsList', user?.id],
+    queryFn: () => fetchClientsList(user?.id),
     enabled: !!user?.id,
   });
 
@@ -86,7 +113,6 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
     mutationFn: async (clientData: ClientFormValues) => {
       if (!user?.id) throw new Error("Usuário não autenticado.");
       
-      console.log("Dados do cliente para criação:", clientData); // Log para depuração
       const { data, error } = await supabase
         .from('clients')
         .insert({
@@ -108,23 +134,75 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       return data as Client;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
     },
   });
 
+  const deleteClientMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
+      queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
+    },
+  });
+
+  return {
+    clients: filteredClients,
+    isLoading: isLoadingClients,
+    createClient: createClientMutation,
+    deleteClient: deleteClientMutation, // EXPOR A MUTATION DE DELETE AQUI
+  };
+};
+
+// Hook para os detalhes de um cliente específico
+export const useClientDetails = (clientId: string | undefined) => {
+  const { user } = useSession();
+  const queryClient = useQueryClient();
+  const { orders } = useServiceOrders();
+
+  const { data: rawClient, isLoading: isLoadingClientDetails } = useQuery<Client | null, Error>({
+    queryKey: ['clientDetails', clientId, user?.id],
+    queryFn: () => fetchClientDetails(user?.id, clientId!),
+    enabled: !!user?.id && !!clientId,
+  });
+
+  // Calcular a contagem de OS para este cliente específico
+  const orderCounts = orders.reduce((acc, order) => {
+    if (order.client_id === clientId) {
+      acc.total = (acc.total || 0) + 1;
+      if (order.status === "Pendente" || order.status === "Em Progresso") {
+        acc.open = (acc.open || 0) + 1;
+      }
+    }
+    return acc;
+  }, { total: 0, open: 0 } as { total: number; open: number });
+
+  const clientWithCounts = rawClient ? {
+    ...rawClient,
+    totalOrders: orderCounts.total,
+    openOrders: orderCounts.open,
+  } : null;
+
   const updateClientMutation = useMutation({
     mutationFn: async ({ id, ...clientData }: ClientFormValues & { id: string }) => {
-      console.log("Dados do cliente para atualização:", clientData); // Log para depuração
       const { data, error } = await supabase
         .from('clients')
         .update({
           name: clientData.name,
-          contact: clientData.contact, // Usando o valor transformado pelo Zod
-          email: clientData.email,     // Usando o valor transformado pelo Zod
+          contact: clientData.contact,
+          email: clientData.email,
           store: clientData.store,
-          address: clientData.address, // Usando o valor transformado pelo Zod
+          address: clientData.address,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -132,13 +210,14 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .single();
 
       if (error) {
-        console.error("Erro do Supabase na atualização do cliente:", error); // Log do erro do Supabase
+        console.error("Erro do Supabase na atualização do cliente:", error);
         throw error;
       }
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
+    onSuccess: (updatedClient) => {
+      queryClient.invalidateQueries({ queryKey: ['clientDetails', updatedClient.id] });
+      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
     },
   });
@@ -153,22 +232,21 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
     },
   });
 
   return {
-    clients: filteredClients,
-    isLoading: isLoadingClients,
-    createClient: createClientMutation,
+    client: clientWithCounts,
+    isLoading: isLoadingClientDetails,
     updateClient: updateClientMutation,
     deleteClient: deleteClientMutation,
   };
 };
 
-// Hook para buscar um cliente específico (usado no ServiceOrderForm)
+// Hook para buscar apenas nomes de clientes (para seletores)
 export const useClientNames = () => {
   const { user } = useSession();
   return useQuery<Client[], Error>({

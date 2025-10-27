@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, MapPin } from "lucide-react"; // Importando MapPin
 import { Badge } from "@/components/ui/badge";
 import { showSuccess, showError } from "@/utils/toast";
-import { useClients, Client } from "@/hooks/useClients";
+import { useClientsList, Client } from "@/hooks/useClients"; // Usando useClientsList
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
@@ -25,11 +25,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils"; // Importar cn para combinar classes
+import { Link, useNavigate } from "react-router-dom"; // Importando Link e useNavigate
 
 export type { Client }; // Exportando o tipo Client do hook
 
 interface ClientTableProps {
-    onEdit: (client: Client) => void;
     searchTerm: string;
     storeFilter: "ALL" | Client['store'] | null; // Adicionando a prop storeFilter
 }
@@ -51,8 +51,9 @@ const isGoogleMapsLink = (address: string | null): boolean => {
   return address.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(address);
 };
 
-const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilter }) => {
-  const { clients, isLoading, deleteClient } = useClients(searchTerm, storeFilter); // Passando o storeFilter para o hook
+const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) => {
+  const { clients, isLoading, deleteClient } = useClientsList(searchTerm, storeFilter); // Usando useClientsList
+  const navigate = useNavigate();
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -92,16 +93,18 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             clients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell 
-                    className="font-medium text-foreground hover:underline cursor-pointer"
-                    onClick={() => onEdit(client)}
+                    className="font-medium text-foreground"
                 >
-                    <div className="flex items-center gap-2">
+                    <Link 
+                        to={`/clients/${client.id}`} 
+                        className="flex items-center gap-2 hover:underline cursor-pointer"
+                    >
                         <Badge 
                             variant="default" 
                             className={cn("h-3 w-3 p-0 rounded-full", getStoreBadgeColor(client.store))}
                         />
                         {client.name}
-                    </div>
+                    </Link>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
                 <TableCell className="hidden lg:table-cell"> {/* Célula da Morada */}
@@ -128,7 +131,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
                 <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
+                        <Button variant="ghost" size="icon" onClick={() => navigate(`/clients/${client.id}`)} aria-label="Editar">
                             <Edit className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
