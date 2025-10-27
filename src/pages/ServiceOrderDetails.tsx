@@ -41,9 +41,8 @@ const ServiceOrderDetails: React.FC = () => {
 
   const initialData = order ? {
     id: order.id,
-    equipment: order.equipment,
-    model: order.model || undefined, // Trata null como undefined para o formulário
-    serial_number: order.serial_number || undefined,
+    // equipment, model, serial_number são preenchidos pelo hook, mas o form agora precisa do equipment_id
+    equipment_id: order.equipment_id || undefined, 
     client_id: order.client_id,
     description: order.description,
     status: order.status,

@@ -11,16 +11,18 @@ export interface ServiceOrder {
   serial_number: string | null; 
   client: string;
   client_id: string;
+  equipment_id: string | null; // Novo campo para referenciar o equipamento
   description: string;
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
 }
 
-// O tipo ServiceOrderFormValues deve ser baseado apenas nos campos que o formulário envia para o banco.
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'serial_number' | 'model' | 'display_id'> & {
+// O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id'> & {
     serial_number: string | undefined;
     model: string | undefined;
+    equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
@@ -54,6 +56,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       store, 
       created_at,
       client_id,
+      equipment_id,
       clients (name)
     `)
     .eq('created_by', userId)
@@ -78,6 +81,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         created_at: order.created_at,
         serial_number: order.serial_number,
         model: order.model,
+        equipment_id: order.equipment_id,
     };
   }) as ServiceOrder[];
 };
@@ -120,6 +124,7 @@ export const useServiceOrders = (id?: string) => {
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
+          equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
           created_by: user.id,
         })
         .select('id')
@@ -161,6 +166,7 @@ export const useServiceOrders = (id?: string) => {
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
+          equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
