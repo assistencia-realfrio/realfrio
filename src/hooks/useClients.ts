@@ -7,8 +7,8 @@ import { useServiceOrders } from "./useServiceOrders"; // Importando o hook de O
 export interface Client {
   id: string;
   name: string;
-  contact: string;
-  email: string;
+  contact: string | null; // Pode ser string ou null
+  email: string | null; // Pode ser string ou null
   totalOrders: number; // Este campo será calculado no frontend
   openOrders: number; // NOVO: Campo para OS em aberto
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS" | null; // NOVO: Campo para a loja associada
@@ -90,11 +90,11 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .from('clients')
         .insert({
           name: clientData.name,
-          contact: clientData.contact || null,
-          email: clientData.email || null,
+          contact: clientData.contact, // Usando o valor transformado pelo Zod
+          email: clientData.email,     // Usando o valor transformado pelo Zod
           created_by: user.id,
           store: clientData.store,
-          address: clientData.address || null, // Inserindo o campo 'address'
+          address: clientData.address, // Usando o valor transformado pelo Zod
         })
         .select()
         .single();
@@ -116,10 +116,10 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .from('clients')
         .update({
           name: clientData.name,
-          contact: clientData.contact || null,
-          email: clientData.email || null,
+          contact: clientData.contact, // Usando o valor transformado pelo Zod
+          email: clientData.email,     // Usando o valor transformado pelo Zod
           store: clientData.store,
-          address: clientData.address || null, // Atualizando o campo 'address'
+          address: clientData.address, // Usando o valor transformado pelo Zod
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)

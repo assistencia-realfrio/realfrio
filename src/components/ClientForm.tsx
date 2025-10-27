@@ -24,10 +24,11 @@ import { showSuccess } from "@/utils/toast";
 // Definição do Schema de Validação
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
-  contact: z.string().nullable().optional(),
-  email: z.string().email({ message: "E-mail inválido." }).nullable().optional().or(z.literal('')),
+  // Campos opcionais que devem ser null se vazios
+  contact: z.string().optional().transform(e => e === "" ? null : e),
+  email: z.string().email({ message: "E-mail inválido." }).or(z.literal("")).optional().transform(e => e === "" ? null : e),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], { message: "Selecione uma loja." }),
-  address: z.string().nullable().optional(), // Novo campo para morada
+  address: z.string().optional().transform(e => e === "" ? null : e),
 });
 
 export type ClientFormValues = z.infer<typeof formSchema>;
@@ -46,7 +47,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
       contact: "",
       email: "",
       store: "CALDAS DA RAINHA",
-      address: "", // Valor padrão para novas criações
+      address: "",
     },
   });
 
@@ -72,7 +73,6 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           )}
         />
 
-        {/* Campo para a morada, movido para baixo do nome */}
         <FormField
           control={form.control}
           name="address"
