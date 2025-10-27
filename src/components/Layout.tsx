@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Link } from "react-router-dom"; // Importar Link
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -41,12 +42,12 @@ const Header = () => {
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-4">
           <MobileSidebar />
-          <div className="hidden lg:flex items-center space-x-2"> {/* Ajustado para usar o logo */}
-            <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-8" /> {/* Logo para desktop */}
-          </div>
-          <div className="lg:hidden flex items-center space-x-2"> {/* Ajustado para usar o logo */}
-            <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-7" /> {/* Logo para mobile */}
-          </div>
+          <Link to="/orders" className="hidden lg:flex items-center space-x-2"> {/* Logo para desktop */}
+            <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-8" />
+          </Link>
+          <Link to="/orders" className="lg:hidden flex items-center space-x-2"> {/* Logo para mobile */}
+            <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-7" />
+          </Link>
         </div>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" size="icon" aria-label="Notificações">
