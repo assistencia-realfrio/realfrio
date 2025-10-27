@@ -36,6 +36,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         ? 'bg-blue-500' 
         : 'bg-red-500';
 
+    // Determina o nome e a marca a serem exibidos
+    const equipmentDisplayName = order.equipment_name_from_equipment_table || order.equipment;
+    const equipmentDisplayBrand = order.equipment_brand_from_equipment_table;
+
     return (
         <Card 
             className={cn(
@@ -62,7 +66,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </p>
                     
                     <CardTitle className="text-base font-bold truncate mb-1"> {/* Reduzido text-lg para text-base, mb-2 para mb-1 */}
-                        {order.equipment}
+                        {equipmentDisplayName} {equipmentDisplayBrand && `(${equipmentDisplayBrand})`}
                     </CardTitle>
                     
                     <p className="text-xs text-muted-foreground line-clamp-2 flex-grow"> {/* Reduzido text-sm para text-xs, removido mb-3 h-10 */}

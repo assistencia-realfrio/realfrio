@@ -6,7 +6,9 @@ import { format } from "date-fns";
 export interface ServiceOrder {
   id: string;
   display_id: string; // Novo campo para o ID formatado
-  equipment: string;
+  equipment: string; // Este campo ainda existe na tabela service_orders (pode ser um nome customizado ou o nome do equipamento)
+  equipment_name_from_equipment_table: string | null; // NOVO: Nome do equipamento vindo da tabela 'equipments'
+  equipment_brand_from_equipment_table: string | null; // NOVO: Marca do equipamento vindo da tabela 'equipments'
   model: string | null;
   serial_number: string | null; 
   client: string;
@@ -19,15 +21,16 @@ export interface ServiceOrder {
 }
 
 // O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_name_from_equipment_table' | 'equipment_brand_from_equipment_table'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
-type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
+type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'equipment_name_from_equipment_table' | 'equipment_brand_from_equipment_table'> & {
     clients: { name: string } | { name: string }[] | null;
+    equipments: { name: string, brand: string | null } | null; // Adicionado join para equipamentos
 };
 
 // Função auxiliar para gerar o ID formatado
@@ -56,7 +59,8 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       created_at,
       client_id,
       equipment_id,
-      clients (name)
+      clients (name),
+      equipments (name, brand)
     `)
     .eq('created_by', userId)
     .order('created_at', { ascending: false });
@@ -81,6 +85,9 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
+        // Preenche os novos campos com dados do join, se existirem
+        equipment_name_from_equipment_table: order.equipments?.name || null,
+        equipment_brand_from_equipment_table: order.equipments?.brand || null,
     };
   }) as ServiceOrder[];
 };
