@@ -22,8 +22,6 @@ const getStatusVariant = (status: ServiceOrder['status']): "default" | "secondar
   }
 };
 
-// Removendo getPriorityClasses, pois a prioridade foi removida.
-
 interface ServiceOrderCardProps {
     order: ServiceOrder;
 }
@@ -41,7 +39,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     return (
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleClick}>
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                <CardTitle className="text-base font-semibold truncate pr-2">{order.title}</CardTitle>
+                <CardTitle className="text-base font-semibold truncate pr-2">{order.equipment} - {order.model}</CardTitle>
                 <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">{order.status}</Badge>
             </CardHeader>
             <CardContent>
@@ -49,7 +47,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 <p className="text-sm text-muted-foreground mb-1 truncate">Cliente: {order.client}</p>
                 <p className="text-xs text-muted-foreground mb-3 truncate">Loja: {order.store}</p>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
-                    {/* Prioridade removida */}
                     <span>{date}</span>
                 </div>
             </CardContent>

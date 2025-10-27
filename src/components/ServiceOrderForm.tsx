@@ -26,10 +26,11 @@ import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormVal
 
 // Definição do Schema de Validação
 const formSchema = z.object({
-  title: z.string().min(5, { message: "O título deve ter pelo menos 5 caracteres." }),
-  client_id: z.string().uuid({ message: "Selecione um cliente válido." }), // Agora usamos o ID do cliente
+  equipment: z.string().min(3, { message: "O equipamento é obrigatório." }),
+  model: z.string().min(1, { message: "O modelo é obrigatório." }),
+  serial_number: z.string().optional().or(z.literal('')), // Opcional
+  client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
-  // Prioridade removida
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
 });
@@ -52,10 +53,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      title: "",
-      client_id: "", // Deve ser o ID do cliente
+      equipment: "",
+      model: "",
+      serial_number: "",
+      client_id: "",
       description: "",
-      // priority: "Média", // Removido
       status: "Pendente",
       store: "CALDAS DA RAINHA",
     },
@@ -66,9 +68,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     try {
-        // Erro 2 corrigido: 'data' é garantido pelo Zod como ServiceOrderFormValues completo.
-        // Usamos o cast para garantir que o TypeScript saiba que é o tipo de mutação esperado.
-        const mutationData = data as MutationServiceOrderFormValues;
+        // Ajusta serial_number para undefined se for string vazia, para que o Supabase insira NULL.
+        // Usamos um cast para garantir que o tipo de mutação seja satisfeito,
+        // já que o Zod garante que os campos obrigatórios estão presentes.
+        const mutationData: MutationServiceOrderFormValues = {
+            ...data,
+            serial_number: data.serial_number || undefined,
+        } as MutationServiceOrderFormValues; // Forçando o cast após o tratamento de serial_number
 
         if (isEditing && initialData.id) {
             await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
@@ -90,20 +96,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Título da OS</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: Reparo de Ar Condicionado" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        
+        {/* Cliente */}
         <FormField
           control={form.control}
           name="client_id"
@@ -121,6 +115,49 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
+        {/* Equipamento, Modelo, Nº de Série */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+                control={form.control}
+                name="equipment"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Equipamento *</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Ex: Computador, Impressora" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="model"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Modelo *</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Ex: Dell XPS 13, HP LaserJet" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="serial_number"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Nº de Série (Opcional)</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Ex: ABC123XYZ" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
+
         <FormField
           control={form.control}
           name="description"
@@ -136,8 +173,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Campo de Prioridade removido */}
-
           <FormField
             control={form.control}
             name="status"
@@ -161,29 +196,29 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               </FormItem>
             )}
           />
-        </div>
         
-        <FormField
-          control={form.control}
-          name="store"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Loja</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a loja" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                  <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="store"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Loja</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a loja" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="flex justify-end space-x-2 pt-4">
           {onCancel && (

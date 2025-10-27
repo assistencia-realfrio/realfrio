@@ -29,10 +29,12 @@ const ServiceOrderDetails: React.FC = () => {
 
   const initialData = order ? {
     id: order.id,
-    title: order.title,
-    client_id: order.client_id, // Usamos client_id agora
+    // title: order.title, // Removido
+    equipment: order.equipment,
+    model: order.model,
+    serial_number: order.serial_number || undefined,
+    client_id: order.client_id,
     description: order.description,
-    // priority: order.priority, // Removido
     status: order.status,
     store: order.store,
   } : undefined;

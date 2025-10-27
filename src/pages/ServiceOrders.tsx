@@ -50,7 +50,8 @@ const ServiceOrders: React.FC = () => {
       filtered = filtered.filter(order => 
         order.id.toLowerCase().includes(lowerCaseSearch) ||
         order.client.toLowerCase().includes(lowerCaseSearch) ||
-        order.title.toLowerCase().includes(lowerCaseSearch)
+        order.equipment.toLowerCase().includes(lowerCaseSearch) || // Novo campo de busca
+        order.model.toLowerCase().includes(lowerCaseSearch) // Novo campo de busca
       );
     }
     
@@ -110,7 +111,7 @@ const ServiceOrders: React.FC = () => {
           <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
-              placeholder="Buscar por ID, cliente ou título..." 
+              placeholder="Buscar por ID, cliente, equipamento ou modelo..." 
               className="pl-10" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

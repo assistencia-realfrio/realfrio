@@ -38,12 +38,11 @@ const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
     return (
         <div className="flex justify-between items-center py-2 hover:bg-muted/50 px-2 rounded-md transition-colors">
             <div className="flex flex-col">
-                <span className="font-medium text-sm">{order.title}</span>
+                <span className="font-medium text-sm">{order.equipment} - {order.model}</span>
                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                     <span>{order.id.substring(0, 8)}...</span>
                     <span>|</span>
                     <span>{date}</span>
-                    {/* Prioridade removida */}
                 </div>
             </div>
             <div className="flex items-center space-x-2">

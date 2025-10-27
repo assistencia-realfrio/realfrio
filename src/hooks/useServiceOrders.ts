@@ -4,19 +4,22 @@ import { useSession } from "@/contexts/SessionContext";
 
 export interface ServiceOrder {
   id: string;
-  title: string;
+  // title: string; // Removido
+  equipment: string; // Novo
+  model: string; // Novo
+  serial_number: string | null; // Novo
   client: string; // Nome do cliente
   client_id: string; // ID do cliente
   description: string;
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
-  // priority: "Alta" | "Média" | "Baixa"; // Removido
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
 }
 
 // O tipo ServiceOrderFormValues deve ser baseado apenas nos campos que o formulário envia para o banco.
-// O campo 'client' (nome do cliente) é um campo de leitura/join e não deve ser incluído aqui.
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client'>;
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'serial_number'> & {
+    serial_number: string | undefined; // Tornando opcional no formulário
+};
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
 type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
@@ -31,7 +34,9 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
     .from('service_orders')
     .select(`
       id, 
-      title, 
+      equipment, 
+      model, 
+      serial_number, 
       description, 
       status, 
       store, 
@@ -56,9 +61,9 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         id: order.id,
         client: clientName, 
         status: order.status as ServiceOrder['status'],
-        // priority: order.priority as ServiceOrder['priority'], // Removido
         store: order.store as ServiceOrder['store'],
         created_at: order.created_at,
+        serial_number: order.serial_number,
     };
   }) as ServiceOrder[];
 };
@@ -93,9 +98,10 @@ export const useServiceOrders = (id?: string) => {
       const { data, error } = await supabase
         .from('service_orders')
         .insert({
-          title: orderData.title,
+          equipment: orderData.equipment,
+          model: orderData.model,
+          serial_number: orderData.serial_number || null,
           description: orderData.description,
-          // priority: orderData.priority, // Removido
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
@@ -117,9 +123,10 @@ export const useServiceOrders = (id?: string) => {
       const { data, error } = await supabase
         .from('service_orders')
         .update({
-          title: orderData.title,
+          equipment: orderData.equipment,
+          model: orderData.model,
+          serial_number: orderData.serial_number || null,
           description: orderData.description,
-          // priority: orderData.priority, // Removido
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
