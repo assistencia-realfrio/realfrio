@@ -68,9 +68,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   // Observa o client_id para habilitar o EquipmentSelector
   const clientId = form.watch("client_id");
   
-  // Estado para armazenar os detalhes do equipamento selecionado (nome, modelo, serial)
-  // Estes detalhes serão usados na mutação para preencher os campos da OS
-  const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, model: string | null, serial_number: string | null } | null>(null);
+  // Estado para armazenar os detalhes do equipamento selecionado (nome, marca, modelo, serial)
+  const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null } | null>(null);
 
   // Se estiver editando, precisamos carregar os detalhes iniciais do equipamento
   useEffect(() => {
@@ -78,14 +77,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         // Em um cenário real, buscaríamos os detalhes do equipamento aqui.
         // Por enquanto, vamos assumir que o hook de OS já forneceu os detalhes necessários
         // e que o ServiceOrderDetails.tsx será atualizado para passar esses dados.
-        // Como estamos refatorando, vamos simplificar: o ServiceOrderDetails.tsx
-        // precisará ser atualizado para buscar o equipment_id.
         // Por enquanto, vamos focar na criação.
     }
   }, [initialData]);
 
 
-  const handleEquipmentChange = (equipmentId: string, details: { name: string, model: string | null, serial_number: string | null }) => {
+  const handleEquipmentChange = (equipmentId: string, details: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => {
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
     setEquipmentDetails(details);
   };
@@ -104,9 +101,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             status: data.status,
             store: data.store,
             // Detalhes do equipamento vêm do estado
-            equipment: equipmentDetails.name,
+            equipment: `${equipmentDetails.brand ? equipmentDetails.brand + ' / ' : ''}${equipmentDetails.name}`, // Incluindo a marca no nome da OS
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
+            equipment_id: data.equipment_id, // Passando o ID do equipamento
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {

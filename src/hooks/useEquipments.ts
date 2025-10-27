@@ -6,6 +6,7 @@ export interface Equipment {
   id: string;
   client_id: string;
   name: string;
+  brand: string | null; // Novo campo
   model: string | null;
   serial_number: string | null;
   created_at: string;
@@ -14,6 +15,7 @@ export interface Equipment {
 export interface EquipmentFormValues {
   client_id: string;
   name: string;
+  brand?: string; // Novo campo
   model?: string;
   serial_number?: string;
 }
@@ -53,6 +55,7 @@ export const useEquipments = (clientId: string) => {
         .insert({
           client_id: equipmentData.client_id,
           name: equipmentData.name,
+          brand: equipmentData.brand || null, // Salvando a marca
           model: equipmentData.model || null,
           serial_number: equipmentData.serial_number || null,
           created_by: user.id,

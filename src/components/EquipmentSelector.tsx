@@ -29,6 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Schema de validação para o formulário de novo equipamento
 const newEquipmentSchema = z.object({
   name: z.string().min(3, { message: "O nome do equipamento é obrigatório." }),
+  brand: z.string().optional().or(z.literal('')), // Novo campo
   model: z.string().optional().or(z.literal('')),
   serial_number: z.string().optional().or(z.literal('')),
 });
@@ -38,13 +39,13 @@ type NewEquipmentFormValues = z.infer<typeof newEquipmentSchema>;
 interface EquipmentSelectorProps {
   clientId: string;
   value: string; // Deve ser o ID do equipamento
-  onChange: (equipmentId: string, equipmentDetails: { name: string, model: string | null, serial_number: string | null }) => void;
+  onChange: (equipmentId: string, equipmentDetails: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => void;
 }
 
 const EquipmentForm: React.FC<{ clientId: string, onSubmit: (data: Equipment) => void, onCancel: () => void }> = ({ clientId, onSubmit, onCancel }) => {
     const form = useForm<NewEquipmentFormValues>({
         resolver: zodResolver(newEquipmentSchema),
-        defaultValues: { name: "", model: "", serial_number: "" },
+        defaultValues: { name: "", brand: "", model: "", serial_number: "" },
     });
     const { createEquipment } = useEquipments(clientId);
 
@@ -53,6 +54,7 @@ const EquipmentForm: React.FC<{ clientId: string, onSubmit: (data: Equipment) =>
             const newEquipment = await createEquipment.mutateAsync({
                 client_id: clientId,
                 name: data.name,
+                brand: data.brand || undefined, // Passando a marca
                 model: data.model || undefined,
                 serial_number: data.serial_number || undefined,
             });
@@ -80,6 +82,22 @@ const EquipmentForm: React.FC<{ clientId: string, onSubmit: (data: Equipment) =>
                         </FormItem>
                     )}
                 />
+                
+                {/* Novo Campo: Marca */}
+                <FormField
+                    control={form.control}
+                    name="brand"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Marca (Opcional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Ex: Dell, Apple, Samsung" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
                 <FormField
                     control={form.control}
                     name="model"
@@ -87,7 +105,7 @@ const EquipmentForm: React.FC<{ clientId: string, onSubmit: (data: Equipment) =>
                         <FormItem>
                             <FormLabel>Modelo (Opcional)</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: Dell XPS 13" {...field} />
+                                <Input placeholder="Ex: XPS 13, iPhone 15" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -130,6 +148,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
         const firstEquipment = equipments[0];
         onChange(firstEquipment.id, { 
             name: firstEquipment.name, 
+            brand: firstEquipment.brand, // Incluindo a marca
             model: firstEquipment.model, 
             serial_number: firstEquipment.serial_number 
         });
@@ -144,6 +163,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
       if (selectedEquipment) {
         onChange(selectedEquipment.id, {
             name: selectedEquipment.name,
+            brand: selectedEquipment.brand, // Incluindo a marca
             model: selectedEquipment.model,
             serial_number: selectedEquipment.serial_number,
         });
@@ -155,6 +175,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
     // Seleciona o novo equipamento criado
     onChange(newEquipment.id, {
         name: newEquipment.name,
+        brand: newEquipment.brand, // Incluindo a marca
         model: newEquipment.model,
         serial_number: newEquipment.serial_number,
     });
@@ -177,7 +198,9 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   }
 
   const selectedEquipment = equipments.find(e => e.id === value);
-  const displayValue = selectedEquipment ? `${selectedEquipment.name} (${selectedEquipment.model || 'N/A'})` : "Selecione ou adicione um equipamento";
+  const displayValue = selectedEquipment 
+    ? `${selectedEquipment.name} (${selectedEquipment.brand || 'N/A'} - ${selectedEquipment.model || 'N/A'})` 
+    : "Selecione ou adicione um equipamento";
 
   return (
     <>
@@ -190,7 +213,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
         <SelectContent>
           {equipments.map((equipment) => (
             <SelectItem key={equipment.id} value={equipment.id}>
-              {equipment.name} ({equipment.model || 'N/A'})
+              {equipment.name} ({equipment.brand || 'N/A'} - {equipment.model || 'N/A'})
             </SelectItem>
           ))}
           <SelectItem value="NEW_EQUIPMENT" className="text-primary font-medium">
