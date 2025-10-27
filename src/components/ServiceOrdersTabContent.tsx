@@ -116,7 +116,7 @@ const ServiceOrdersTabContent: React.FC = () => {
             onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
             defaultValue={selectedStatus}
           >
-            <SelectTrigger>
+            <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
               <SelectValue placeholder="Filtrar por Estado" />
             </SelectTrigger>
             <SelectContent>
@@ -136,7 +136,7 @@ const ServiceOrdersTabContent: React.FC = () => {
           onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
           defaultValue={selectedStore}
         >
-          <SelectTrigger>
+          <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
             <SelectValue placeholder="Filtrar por Loja" />
           </SelectTrigger>
           <SelectContent>

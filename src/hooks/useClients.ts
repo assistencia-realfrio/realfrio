@@ -9,6 +9,7 @@ export interface Client {
   name: string;
   contact: string | null; // Pode ser string ou null
   email: string | null; // Pode ser string ou null
+  status: "Ativo" | "Inativo";
   totalOrders: number; // Este campo será calculado no frontend
   openOrders: number; // NOVO: Campo para OS em aberto
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS" | null; // NOVO: Campo para a loja associada
@@ -21,7 +22,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   
   const { data, error } = await supabase
     .from('clients')
-    .select('id, name, contact, email, created_at, store, address') // Adicionando 'address'
+    .select('id, name, contact, email, status, created_at, store, address') // Adicionando 'address'
     .eq('created_by', userId)
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
@@ -32,6 +33,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     ...client,
     totalOrders: 0, // Inicializa com 0
     openOrders: 0, // Inicializa com 0
+    status: client.status as "Ativo" | "Inativo",
     store: client.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null, // Tipagem para o campo 'store'
     address: client.address || null, // Garante que address seja string ou null
   })) as Client[];
@@ -84,6 +86,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           contact: clientData.contact, // Usando o valor transformado pelo Zod
           email: clientData.email,     // Usando o valor transformado pelo Zod
           created_by: user.id,
+          status: 'Ativo', // Default status
           store: clientData.store,
           address: clientData.address, // Usando o valor transformado pelo Zod
         })

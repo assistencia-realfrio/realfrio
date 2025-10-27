@@ -159,7 +159,7 @@ const ServiceOrderDetails: React.FC = () => {
         {/* Select para navegação entre as seções */}
         <div className="w-full">
           <Select value={selectedView} onValueChange={(value: "details" | "time" | "attachments") => setSelectedView(value)}>
-            <SelectTrigger>
+            <SelectTrigger className="border-2 border-primary/70"> {/* Destaque adicionado */}
               <SelectValue placeholder="Selecione a seção" />
             </SelectTrigger>
             <SelectContent>
