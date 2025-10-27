@@ -3,13 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import Index from "./pages/Index"; // A nova página inicial com abas
 import NotFound from "./pages/NotFound";
-import ServiceOrders from "./pages/ServiceOrders";
-import ServiceOrderDetails from "./pages/ServiceOrderDetails";
-import Clients from "./pages/Clients";
-import Login from "./pages/Login"; // Importando a página de Login
-import ProtectedRoute from "./components/ProtectedRoute"; // Importando o ProtectedRoute
+import ServiceOrderDetails from "./pages/ServiceOrderDetails"; // Detalhes de OS ainda é uma página
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard"; // Mantendo o Dashboard como uma página separada
 
 const queryClient = new QueryClient();
 
@@ -27,15 +26,15 @@ const App = () => (
             path="/" 
             element={
               <ProtectedRoute>
-                <Index />
+                <Index /> {/* Nova página inicial com abas para OS e Clientes */}
               </ProtectedRoute>
             } 
           />
           <Route 
-            path="/orders" 
+            path="/dashboard" 
             element={
               <ProtectedRoute>
-                <ServiceOrders />
+                <Dashboard /> {/* Dashboard continua sendo uma página separada */}
               </ProtectedRoute>
             } 
           />
@@ -47,14 +46,8 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
-          <Route 
-            path="/clients" 
-            element={
-              <ProtectedRoute>
-                <Clients />
-              </ProtectedRoute>
-            } 
-          />
+          {/* As rotas /orders e /clients diretas foram removidas, pois agora estão nas abas da página inicial */}
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

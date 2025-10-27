@@ -9,15 +9,16 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   {
-    title: "Ordens de Serviço",
-    href: "/", // Aponta para a nova página inicial
-    icon: Wrench,
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
-    title: "Clientes",
-    href: "/clients",
-    icon: Users,
+    title: "Ordens de Serviço",
+    href: "/", // Aponta para a nova página inicial com abas
+    icon: Wrench,
   },
+  // O link para Clientes foi removido, pois agora está na aba da página inicial
 ];
 
 interface NavLinkProps {
@@ -28,8 +29,8 @@ interface NavLinkProps {
 
 const NavLink: React.FC<NavLinkProps> = ({ item, isMobile = false, onClick }) => {
   const location = useLocation();
-  // Verifica se a rota atual é a rota base do item (tratando '/' como ativo para '/orders' se for o caso)
-  const isActive = location.pathname === item.href || (item.href === '/' && location.pathname === '/orders');
+  // Verifica se a rota atual é a rota base do item
+  const isActive = location.pathname === item.href;
   const Icon = item.icon;
 
   const baseClasses = "flex items-center gap-3 rounded-lg px-3 py-2 transition-all";
