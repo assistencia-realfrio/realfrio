@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react"; // Removendo MapPin
+import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { showSuccess, showError } from "@/utils/toast";
 import { useClients, Client } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
@@ -75,7 +75,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead className="hidden sm:table-cell">Contato</TableHead>
-            {/* Removendo a coluna Morada */}
+            <TableHead className="hidden sm:table-cell">Morada</TableHead> {/* Adicionando a coluna Morada */}
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
             <TableHead className="hidden md:table-cell">OS Abertas</TableHead>
             <TableHead className="text-right">Ações</TableHead>
@@ -88,7 +88,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
                 <TableCell 
                     className="font-medium text-foreground"
                 >
-                    <div className="flex items-center gap-2"> {/* Removendo Link */}
+                    <div className="flex items-center gap-2">
                         <Badge 
                             variant="default" 
                             className={cn("h-3 w-3 p-0 rounded-full", getStoreBadgeColor(client.store))}
@@ -97,12 +97,12 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
                     </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
-                {/* Removendo a célula da Morada */}
+                <TableCell className="hidden sm:table-cell">{client.address || 'N/A'}</TableCell> {/* Célula da Morada */}
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
                 <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar"> {/* Chamando onEdit */}
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
                             <Edit className="h-4 w-4" />
                         </Button>
                         <AlertDialog>
@@ -142,7 +142,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 5 */}
+              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 6 */}
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>
