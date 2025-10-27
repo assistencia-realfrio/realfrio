@@ -11,6 +11,7 @@ export interface Client {
   email: string;
   status: "Ativo" | "Inativo";
   totalOrders: number; // Este campo será calculado no frontend
+  openOrders: number; // NOVO: Campo para OS em aberto
 }
 
 // Função de fetch
@@ -25,10 +26,11 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
 
   if (error) throw error;
 
-  // Retorna os dados brutos do cliente, sem o totalOrders ainda
+  // Retorna os dados brutos do cliente, sem o totalOrders e openOrders ainda
   return data.map(client => ({
     ...client,
     totalOrders: 0, // Inicializa com 0
+    openOrders: 0, // Inicializa com 0
     status: client.status as "Ativo" | "Inativo",
   })) as Client[];
 };
@@ -45,16 +47,21 @@ export const useClients = (searchTerm: string = "") => {
     enabled: !!user?.id,
   });
 
-  // 1. Calcular a contagem de OS por cliente
+  // 1. Calcular a contagem de OS por cliente (total e em aberto)
   const orderCounts = orders.reduce((acc, order) => {
-    acc[order.client_id] = (acc[order.client_id] || 0) + 1;
+    acc[order.client_id] = acc[order.client_id] || { total: 0, open: 0 };
+    acc[order.client_id].total++;
+    if (order.status === "Pendente" || order.status === "Em Progresso") {
+      acc[order.client_id].open++;
+    }
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, { total: number; open: number }>);
 
   // 2. Adicionar a contagem de OS aos dados do cliente
   const clientsWithCounts = rawClients.map(client => ({
     ...client,
-    totalOrders: orderCounts[client.id] || 0,
+    totalOrders: orderCounts[client.id]?.total || 0,
+    openOrders: orderCounts[client.id]?.open || 0, // Adiciona a contagem de OS em aberto
   }));
 
   const filteredClients = clientsWithCounts.filter(client => {

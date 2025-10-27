@@ -56,6 +56,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
             <TableHead>Nome</TableHead>
             <TableHead className="hidden sm:table-cell">Contato</TableHead>
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
+            <TableHead className="hidden md:table-cell">OS Abertas</TableHead> {/* NOVA COLUNA */}
             <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
@@ -71,6 +72,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
+                <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell> {/* EXIBINDO OS ABERTAS */}
                 <TableCell>
                   <Badge variant={getStatusVariant(client.status)}>{client.status}</Badge>
                 </TableCell>
@@ -78,7 +80,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 5 */}
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>
