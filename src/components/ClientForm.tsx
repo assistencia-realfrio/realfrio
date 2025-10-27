@@ -83,7 +83,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
               <FormLabel>Morada (Opcional)</FormLabel>
               <FormControl>
                 <Input 
-                  placeholder="Ex: Rua Exemplo, 123, Cidade" 
+                  placeholder="Ex: Rua Exemplo, 123, Cidade ou link do Google Maps" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
                 />
