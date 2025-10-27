@@ -4,43 +4,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Send, MessageSquare } from "lucide-react";
-import { showSuccess } from "@/utils/toast";
-
-interface Activity {
-  id: number;
-  timestamp: string;
-  user: string;
-  content: string;
-  type: 'note' | 'status_update';
-}
+import { showSuccess, showError } from "@/utils/toast";
+import { useOrderActivities, OrderActivity } from "@/hooks/useOrderActivities"; // Importar o novo hook
+import { useSession } from "@/contexts/SessionContext"; // Para obter o nome do usuário
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ActivityLogProps {
   orderId: string;
 }
 
 const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
-  // Inicializando com array vazio
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const { user } = useSession();
+  const { activities, isLoading, createActivity } = useOrderActivities(orderId);
   const [newNote, setNewNote] = useState("");
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (newNote.trim() === "") return;
 
-    const newActivity: Activity = {
-      id: activities.length + 1,
-      timestamp: new Date().toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }),
-      user: "Usuário Atual", // Em um app real, seria o usuário logado
-      content: newNote,
-      type: 'note',
-    };
-
-    setActivities([newActivity, ...activities]);
-    setNewNote("");
-    showSuccess("Nota adicionada com sucesso!");
+    try {
+      await createActivity.mutateAsync({
+        order_id: orderId,
+        content: newNote.trim(),
+        type: 'note',
+      });
+      setNewNote("");
+      showSuccess("Nota adicionada com sucesso!");
+    } catch (error) {
+      console.error("Erro ao adicionar nota:", error);
+      showError("Erro ao adicionar nota. Tente novamente.");
+    }
   };
 
-  const renderActivity = (activity: Activity) => {
+  const getUserDisplayName = (activity: OrderActivity) => {
+    if (activity.profiles && activity.profiles.first_name) {
+      return `${activity.profiles.first_name} ${activity.profiles.last_name || ''}`.trim();
+    }
+    return user?.email || "Usuário Desconhecido"; // Fallback para email ou genérico
+  };
+
+  const renderActivity = (activity: OrderActivity) => {
     const isNote = activity.type === 'note';
+    const activityDate = new Date(activity.created_at).toLocaleDateString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     
     return (
       <div key={activity.id} className={`flex space-x-3 ${isNote ? 'p-3 bg-muted/50 rounded-md' : 'py-2'}`}>
@@ -53,9 +57,9 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
         </div>
         <div className="flex-grow">
           <p className="text-sm font-medium">
-            {activity.user}
+            {getUserDisplayName(activity)}
             <span className="text-xs text-muted-foreground ml-2 font-normal">
-              {activity.timestamp}
+              {activityDate}
             </span>
           </p>
           <p className={`text-sm ${isNote ? 'text-foreground' : 'text-muted-foreground italic'}`}>
@@ -79,8 +83,9 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             rows={3}
+            disabled={createActivity.isPending}
           />
-          <Button onClick={handleAddNote} disabled={newNote.trim() === ""}>
+          <Button onClick={handleAddNote} disabled={newNote.trim() === "" || createActivity.isPending}>
             <Send className="h-4 w-4 mr-2" />
             Enviar Nota
           </Button>
@@ -90,7 +95,13 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
 
         {/* Histórico de Atividades */}
         <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-          {activities.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ) : activities.length > 0 ? (
             activities.map(renderActivity)
           ) : (
             <p className="text-center text-muted-foreground">Nenhuma atividade registrada ainda.</p>
