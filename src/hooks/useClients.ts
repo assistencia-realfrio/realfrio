@@ -38,7 +38,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
 };
 
 // Hook principal
-export const useClients = (searchTerm: string = "") => {
+export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client['store'] | null = "ALL") => {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const { orders } = useServiceOrders(); // Obtém todas as ordens de serviço
@@ -66,12 +66,18 @@ export const useClients = (searchTerm: string = "") => {
     openOrders: orderCounts[client.id]?.open || 0, // Adiciona a contagem de OS em aberto
   }));
 
-  const filteredClients = clientsWithCounts.filter(client => {
+  // 3. Filtrar por loja primeiro
+  const filteredByStore = storeFilter === "ALL"
+    ? clientsWithCounts
+    : clientsWithCounts.filter(client => client.store === storeFilter);
+
+  // 4. Em seguida, filtrar por termo de busca
+  const filteredClients = filteredByStore.filter(client => {
     const lowerCaseSearch = searchTerm.toLowerCase();
     return (
       client.name.toLowerCase().includes(lowerCaseSearch) ||
-      client.contact.toLowerCase().includes(lowerCaseSearch) ||
-      client.email.toLowerCase().includes(lowerCaseSearch)
+      client.contact?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para contact
+      client.email?.toLowerCase().includes(lowerCaseSearch) // Adicionado '?' para email
     );
   });
 

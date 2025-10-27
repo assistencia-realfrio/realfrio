@@ -13,16 +13,28 @@ import { Badge } from "@/components/ui/badge";
 import { showSuccess, showError } from "@/utils/toast";
 import { useClients, Client } from "@/hooks/useClients";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export type { Client }; // Exportando o tipo Client do hook
 
 interface ClientTableProps {
     onEdit: (client: Client) => void;
     searchTerm: string;
+    storeFilter: "ALL" | Client['store'] | null; // Adicionando a prop storeFilter
 }
 
-const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
-  const { clients, isLoading, deleteClient } = useClients(searchTerm);
+const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilter }) => {
+  const { clients, isLoading, deleteClient } = useClients(searchTerm, storeFilter); // Passando o storeFilter para o hook
 
   const handleDelete = async (id: string, name: string) => {
     try {
@@ -59,6 +71,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
             <TableHead className="hidden md:table-cell">OS Abertas</TableHead> {/* NOVA COLUNA */}
             <TableHead className="hidden md:table-cell">Loja</TableHead> {/* NOVA COLUNA */}
             <TableHead>Status</TableHead>
+            <TableHead className="text-right">Ações</TableHead> {/* Adicionando coluna de Ações */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -78,11 +91,49 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
                 <TableCell>
                   <Badge variant={getStatusVariant(client.status)}>{client.status}</Badge>
                 </TableCell>
+                <TableCell className="text-right"> {/* Célula para as ações */}
+                    <div className="flex justify-end space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    aria-label="Excluir"
+                                    disabled={deleteClient.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
+                                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        onClick={() => handleDelete(client.id, client.name)} 
+                                        className="bg-destructive hover:bg-destructive/90"
+                                        disabled={deleteClient.isPending}
+                                    >
+                                        Excluir
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 6 */}
+              <TableCell colSpan={7} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 7 */}
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>
