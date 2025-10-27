@@ -16,7 +16,7 @@ export interface Client {
 }
 
 // Função de fetch para buscar TODOS os clientes (para a lista)
-const fetchClientsList = async (userId: string | undefined): Promise<Client[]> => {
+const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   if (!userId) return [];
   
   const { data, error } = await supabase
@@ -37,68 +37,32 @@ const fetchClientsList = async (userId: string | undefined): Promise<Client[]> =
   })) as Client[];
 };
 
-// Função para buscar um ÚNICO cliente por ID (para a página de detalhes)
-const fetchClientDetails = async (userId: string | undefined, clientId: string): Promise<Client | null> => {
-  if (!userId || !clientId) return null;
-
-  const { data, error } = await supabase
-    .from('clients')
-    .select('id, name, contact, email, created_at, store, address')
-    .eq('created_by', userId)
-    .eq('id', clientId)
-    .single();
-
-  if (error && error.code === 'PGRST116') { // PGRST116 significa que nenhuma linha foi encontrada
-    return null;
-  }
-  if (error) {
-    throw error;
-  }
-
-  return data ? {
-    ...data,
-    totalOrders: 0, // Será populado pelo useServiceOrders se necessário
-    openOrders: 0,
-    store: data.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null,
-    address: data.address || null,
-  } : null;
-};
-
-// Hook para a lista de clientes (com busca e filtro)
-export const useClientsList = (searchTerm: string = "", storeFilter: "ALL" | Client['store'] | null = "ALL") => {
+// Hook principal para clientes (lista, criação, atualização, exclusão)
+export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client['store'] | null = "ALL") => {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const { orders } = useServiceOrders(); // Obtém todas as ordens de serviço
 
   const { data: rawClients = [], isLoading: isLoadingClients } = useQuery<Client[], Error>({
-    queryKey: ['clientsList', user?.id],
-    queryFn: () => fetchClientsList(user?.id),
+    queryKey: ['clients', user?.id],
+    queryFn: () => fetchClients(user?.id),
     enabled: !!user?.id,
   });
 
   // 1. Calcular a contagem de OS por cliente (total e em aberto)
-  const orderCounts = orders.reduce((acc, order) => {
-    acc[order.client_id] = acc[order.client_id] || { total: 0, open: 0 };
-    acc[order.client_id].total++;
-    if (order.status === "Pendente" || order.status === "Em Progresso") {
-      acc[order.client_id].open++;
-    }
-    return acc;
-  }, {} as Record<string, { total: number; open: number }>);
+  const clientsWithCounts = rawClients.map(client => {
+    const clientOrders = orders.filter(order => order.client_id === client.id);
+    const totalOrders = clientOrders.length;
+    const openOrders = clientOrders.filter(order => order.status === "Pendente" || order.status === "Em Progresso").length;
+    return { ...client, totalOrders, openOrders };
+  });
 
-  // 2. Adicionar a contagem de OS aos dados do cliente
-  const clientsWithCounts = rawClients.map(client => ({
-    ...client,
-    totalOrders: orderCounts[client.id]?.total || 0,
-    openOrders: orderCounts[client.id]?.open || 0, // Adiciona a contagem de OS em aberto
-  }));
-
-  // 3. Filtrar por loja primeiro
+  // 2. Filtrar por loja primeiro
   const filteredByStore = storeFilter === "ALL"
     ? clientsWithCounts
     : clientsWithCounts.filter(client => client.store === storeFilter);
 
-  // 4. Em seguida, filtrar por termo de busca
+  // 3. Em seguida, filtrar por termo de busca
   const filteredClients = filteredByStore.filter(client => {
     const lowerCaseSearch = searchTerm.toLowerCase();
     return (
@@ -134,64 +98,11 @@ export const useClientsList = (searchTerm: string = "", storeFilter: "ALL" | Cli
       return data as Client;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
     },
   });
-
-  const deleteClientMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
-      queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
-    },
-  });
-
-  return {
-    clients: filteredClients,
-    isLoading: isLoadingClients,
-    createClient: createClientMutation,
-    deleteClient: deleteClientMutation, // EXPOR A MUTATION DE DELETE AQUI
-  };
-};
-
-// Hook para os detalhes de um cliente específico
-export const useClientDetails = (clientId: string | undefined) => {
-  const { user } = useSession();
-  const queryClient = useQueryClient();
-  const { orders } = useServiceOrders();
-
-  const { data: rawClient, isLoading: isLoadingClientDetails } = useQuery<Client | null, Error>({
-    queryKey: ['clientDetails', clientId, user?.id],
-    queryFn: () => fetchClientDetails(user?.id, clientId!),
-    enabled: !!user?.id && !!clientId,
-  });
-
-  // Calcular a contagem de OS para este cliente específico
-  const orderCounts = orders.reduce((acc, order) => {
-    if (order.client_id === clientId) {
-      acc.total = (acc.total || 0) + 1;
-      if (order.status === "Pendente" || order.status === "Em Progresso") {
-        acc.open = (acc.open || 0) + 1;
-      }
-    }
-    return acc;
-  }, { total: 0, open: 0 } as { total: number; open: number });
-
-  const clientWithCounts = rawClient ? {
-    ...rawClient,
-    totalOrders: orderCounts.total,
-    openOrders: orderCounts.open,
-  } : null;
 
   const updateClientMutation = useMutation({
     mutationFn: async ({ id, ...clientData }: ClientFormValues & { id: string }) => {
@@ -216,9 +127,9 @@ export const useClientDetails = (clientId: string | undefined) => {
       return data;
     },
     onSuccess: (updatedClient) => {
-      queryClient.invalidateQueries({ queryKey: ['clientDetails', updatedClient.id] });
-      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
     },
   });
 
@@ -232,21 +143,22 @@ export const useClientDetails = (clientId: string | undefined) => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clientsList'] });
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
     },
   });
 
   return {
-    client: clientWithCounts,
-    isLoading: isLoadingClientDetails,
+    clients: filteredClients,
+    isLoading: isLoadingClients,
+    createClient: createClientMutation,
     updateClient: updateClientMutation,
     deleteClient: deleteClientMutation,
   };
 };
 
-// Hook para buscar apenas nomes de clientes (para seletores)
+// Hook para buscar apenas nomes de clientes (para seletores) - Mantido separado para simplicidade
 export const useClientNames = () => {
   const { user } = useSession();
   return useQuery<Client[], Error>({

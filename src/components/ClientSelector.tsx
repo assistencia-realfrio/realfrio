@@ -9,7 +9,7 @@ import { UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
 import { showSuccess, showError } from "@/utils/toast";
-import { useClientNames, useClientsList } from "@/hooks/useClients"; // Corrigido: useClientsList para createClient
+import { useClients, Client } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
@@ -33,8 +33,7 @@ interface ClientSelectorProps {
 const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { data: clients = [], isLoading: isLoadingClients } = useClientNames();
-  const { createClient } = useClientsList(); // Usando useClientsList para a mutação de criação
+  const { clients, isLoading: isLoadingClients, createClient } = useClients(); // Usando useClients
 
   // Mapeia o ID para o nome para exibir no SelectValue
   const selectedClient = clients.find(c => c.id === value);

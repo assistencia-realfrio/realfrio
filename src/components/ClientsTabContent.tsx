@@ -12,17 +12,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
-import { useClientsList } from "@/hooks/useClients"; // Usando useClientsList
+import { useClients } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
 import { showSuccess, showError } from "@/utils/toast";
 
 type StoreFilter = Client['store'] | 'ALL'; // Tipo para o filtro de loja
 
 const ClientsTabContent: React.FC = () => {
-  const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false); // Renomeado para clareza
+  const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Estado para modal de edição
+  const [editingClient, setEditingClient] = useState<Client | undefined>(undefined); // Estado para cliente em edição
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL'); // Novo estado para o filtro de loja
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
-  const { createClient } = useClientsList(searchTerm, selectedStore); // Usando useClientsList
+  const { createClient, updateClient } = useClients(searchTerm, selectedStore); // Usando useClients
 
   const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
@@ -30,8 +32,26 @@ const ClientsTabContent: React.FC = () => {
         showSuccess(`Cliente ${data.name} criado com sucesso!`);
         setIsNewClientModalOpen(false);
     } catch (error) {
-        console.error("Erro ao criar cliente:", error); // Log do erro completo
+        console.error("Erro ao criar cliente:", error);
         showError("Erro ao criar cliente. Verifique os dados.");
+    }
+  };
+
+  const handleEditClient = (client: Client) => {
+    setEditingClient(client);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClientSubmit = async (data: ClientFormValues) => {
+    if (!editingClient?.id) return;
+    try {
+      await updateClient.mutateAsync({ id: editingClient.id, ...data });
+      showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
+      setIsEditModalOpen(false);
+      setEditingClient(undefined);
+    } catch (error) {
+      console.error("Erro ao atualizar cliente:", error);
+      showError("Erro ao atualizar cliente. Tente novamente.");
     }
   };
 
@@ -47,7 +67,7 @@ const ClientsTabContent: React.FC = () => {
               Novo Cliente
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]"> {/* Tamanho ajustado para o formulário de criação */}
+          <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Criar Novo Cliente</DialogTitle>
             </DialogHeader>
@@ -90,7 +110,23 @@ const ClientsTabContent: React.FC = () => {
       </div>
 
       {/* Tabela de Clientes - Passando o callback de edição e o termo de busca */}
-      <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} />
+      <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} onEdit={handleEditClient} />
+
+      {/* Modal de Edição de Cliente */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Cliente</DialogTitle>
+          </DialogHeader>
+          {editingClient && (
+            <ClientForm 
+              initialData={editingClient} 
+              onSubmit={handleEditClientSubmit} 
+              onCancel={() => setIsEditModalOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

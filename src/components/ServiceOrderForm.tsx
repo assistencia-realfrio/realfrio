@@ -24,7 +24,9 @@ import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
-import { Skeleton } from "@/components/ui/skeleton"; // Importação adicionada
+import { Skeleton } from "@/components/ui/skeleton";
+import { User } from "lucide-react"; // Importando o ícone User
+import ClientDetailsModal from "./ClientDetailsModal"; // Importando o novo modal
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -74,11 +76,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
 
   // Estado para armazenar os detalhes do equipamento selecionado (nome, marca, modelo, serial)
-  const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null } | null>(null);
+  const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null }>({ name: '', brand: null, model: null, serial_number: null });
+
+  // Estado para controlar o modal de detalhes do cliente
+  const [isClientDetailsModalOpen, setIsClientDetailsModalOpen] = useState(false);
 
   // Efeito para inicializar equipmentDetails quando estiver editando e o singleEquipment for carregado
   useEffect(() => {
-    if (isEditing && singleEquipment && !equipmentDetails) {
+    if (isEditing && singleEquipment && !equipmentDetails.name) { // Verifica se equipmentDetails.name ainda não foi preenchido
       setEquipmentDetails({
         name: singleEquipment.name,
         brand: singleEquipment.brand,
@@ -86,7 +91,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         serial_number: singleEquipment.serial_number,
       });
     }
-  }, [isEditing, singleEquipment, equipmentDetails]);
+  }, [isEditing, singleEquipment, equipmentDetails.name]);
 
 
   const handleEquipmentChange = (equipmentId: string, details: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => {
@@ -95,7 +100,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   };
 
   const handleSubmit = async (data: ServiceOrderFormValues) => {
-    if (!equipmentDetails) {
+    if (!equipmentDetails.name) { // Verifica se o nome do equipamento está preenchido
         showError("Selecione um equipamento válido.");
         return;
     }
@@ -170,13 +175,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           render={({ field }) => (
             <FormItem>
               <FormLabel>Cliente *</FormLabel>
-              <FormControl>
-                <ClientSelector 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  disabled={isEditing} // Desabilita o seletor se estiver editando
-                />
-              </FormControl>
+              <div className="flex items-center gap-2"> {/* Flex container para o seletor e o botão */}
+                <div className="flex-grow">
+                  <ClientSelector 
+                    value={field.value} 
+                    onChange={field.onChange} 
+                    disabled={isEditing}
+                  />
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setIsClientDetailsModalOpen(true)} 
+                  disabled={!field.value} // Desabilita se nenhum cliente estiver selecionado
+                  aria-label="Ver detalhes do cliente"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -194,7 +211,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             clientId={clientId}
                             value={field.value}
                             onChange={handleEquipmentChange}
-                            disabled={isEditing} // Desabilita o seletor se estiver editando
+                            disabled={isEditing}
                         />
                     </FormControl>
                     <FormMessage />
@@ -267,7 +284,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        <div className="flex justify-center space-x-2 pt-4"> {/* Alterado de justify-end para justify-center */}
+        <div className="flex justify-center space-x-2 pt-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending}>
               Cancelar
@@ -278,6 +295,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </Button>
         </div>
       </form>
+
+      {/* Modal de Detalhes do Cliente */}
+      <ClientDetailsModal 
+        clientId={clientId} 
+        isOpen={isClientDetailsModalOpen} 
+        onOpenChange={setIsClientDetailsModalOpen} 
+      />
     </Form>
   );
 };

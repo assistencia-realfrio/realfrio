@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index"; // A nova página inicial com abas
 import NotFound from "./pages/NotFound";
 import ServiceOrderDetails from "./pages/ServiceOrderDetails"; // Detalhes de OS ainda é uma página
-import ClientDetails from "./pages/ClientDetails"; // NOVA PÁGINA: Detalhes do Cliente
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard"; // Mantendo o Dashboard como uma página separada
@@ -44,15 +43,6 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ServiceOrderDetails />
-              </ProtectedRoute>
-            } 
-          />
-          {/* NOVA ROTA PARA DETALHES DO CLIENTE */}
-          <Route 
-            path="/clients/:id" 
-            element={
-              <ProtectedRoute>
-                <ClientDetails />
               </ProtectedRoute>
             } 
           />
