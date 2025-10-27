@@ -7,7 +7,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ServiceOrders from "./pages/ServiceOrders";
 import ServiceOrderDetails from "./pages/ServiceOrderDetails";
-import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients"; // Importando a nova página
 
 const queryClient = new QueryClient();
@@ -19,10 +18,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Index />} /> {/* Rota raiz agora usa Index (ServiceOrders) */}
           <Route path="/orders" element={<ServiceOrders />} />
           <Route path="/orders/:id" element={<ServiceOrderDetails />} />
-          <Route path="/clients" element={<Clients />} /> {/* Nova Rota */}
+          <Route path="/clients" element={<Clients />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
