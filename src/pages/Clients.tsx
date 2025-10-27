@@ -4,11 +4,17 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ClientTable, { Client } from "@/components/ClientTable";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"; // Importação de DialogTrigger adicionada
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
-import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Importar o novo componente
+import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 
@@ -18,20 +24,20 @@ type EditableClient = Client | undefined;
 const Clients: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<EditableClient>(undefined);
-  const [activeTab, setActiveTab] = useState("details");
+  const [activeView, setActiveView] = useState<"details" | "orders" | "equipments">("details");
   const [searchTerm, setSearchTerm] = useState("");
   
   const { createClient, updateClient } = useClients();
 
   const handleNewClient = () => {
     setEditingClient(undefined);
-    setActiveTab("details");
+    setActiveView("details");
     setIsModalOpen(true);
   };
 
   const handleEditClient = (client: Client) => {
     setEditingClient(client);
-    setActiveTab("details");
+    setActiveView("details");
     setIsModalOpen(true);
   };
 
@@ -81,33 +87,42 @@ const Clients: React.FC = () => {
                 </DialogTitle>
               </DialogHeader>
               
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full" style={{ gridTemplateColumns: isEditing ? 'repeat(3, 1fr)' : '1fr' }}>
-                  <TabsTrigger value="details">Detalhes</TabsTrigger>
-                  {isEditing && <TabsTrigger value="orders">Ordens de Serviço</TabsTrigger>}
-                  {isEditing && <TabsTrigger value="equipments">Equipamentos</TabsTrigger>} {/* Novo Tab Trigger */}
-                </TabsList>
+              {/* Select para navegação entre as seções do cliente */}
+              <div className="w-full">
+                <Select value={activeView} onValueChange={(value: "details" | "orders" | "equipments") => setActiveView(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a seção" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="details">Detalhes</SelectItem>
+                    {isEditing && <SelectItem value="orders">Ordens de Serviço</SelectItem>}
+                    {isEditing && <SelectItem value="equipments">Equipamentos</SelectItem>}
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <TabsContent value="details" className="mt-4">
+              {/* Conteúdo baseado na seleção */}
+              {activeView === "details" && (
+                <div className="mt-4">
                   <ClientForm 
                     initialData={initialFormData} 
                     onSubmit={handleFormSubmit} 
                     onCancel={() => setIsModalOpen(false)}
                   />
-                </TabsContent>
+                </div>
+              )}
 
-                {isEditing && (
-                  <TabsContent value="orders" className="mt-4">
-                    <ClientOrdersTab clientId={editingClient.id} />
-                  </TabsContent>
-                )}
+              {isEditing && activeView === "orders" && (
+                <div className="mt-4">
+                  <ClientOrdersTab clientId={editingClient.id} />
+                </div>
+              )}
 
-                {isEditing && (
-                  <TabsContent value="equipments" className="mt-4"> {/* Novo Tab Content */}
-                    <ClientEquipmentTab clientId={editingClient.id} />
-                  </TabsContent>
-                )}
-              </Tabs>
+              {isEditing && activeView === "equipments" && (
+                <div className="mt-4">
+                  <ClientEquipmentTab clientId={editingClient.id} />
+                </div>
+              )}
             </DialogContent>
           </Dialog>
         </div>
