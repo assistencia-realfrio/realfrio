@@ -3,16 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { ServiceOrder } from "@/hooks/useServiceOrders"; // Importando o tipo ServiceOrder do hook
 
-interface ServiceOrder {
-  id: string;
-  title: string;
-  client: string;
-  status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
-  priority: "Alta" | "Média" | "Baixa";
-  store: "CALDAS DA RAINHA" | "PORTO DE MÓS"; // Novo campo
-  date: string;
-}
+// O tipo ServiceOrder agora é importado do hook, mas mantemos a lógica de visualização.
 
 const getStatusVariant = (status: ServiceOrder['status']): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
@@ -52,6 +45,9 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const handleClick = () => {
         navigate(`/orders/${order.id}`);
     };
+    
+    // Formata a data para exibição
+    const date = new Date(order.created_at).toLocaleDateString('pt-BR');
 
     return (
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleClick}>
@@ -60,14 +56,14 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">{order.status}</Badge>
             </CardHeader>
             <CardContent>
-                <div className="text-xl font-bold mb-2 text-primary">{order.id}</div>
+                <div className="text-xl font-bold mb-2 text-primary truncate">{order.id.substring(0, 8)}...</div>
                 <p className="text-sm text-muted-foreground mb-1 truncate">Cliente: {order.client}</p>
                 <p className="text-xs text-muted-foreground mb-3 truncate">Loja: {order.store}</p>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                     <Badge className={cn("text-xs font-semibold", getPriorityClasses(order.priority))}>
                         Prioridade: {order.priority}
                     </Badge>
-                    <span>{order.date}</span>
+                    <span>{date}</span>
                 </div>
             </CardContent>
         </Card>

@@ -20,24 +20,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { showSuccess } from "@/utils/toast";
-import ClientSelector from "./ClientSelector"; // Importando o novo componente
+import { showSuccess, showError } from "@/utils/toast";
+import ClientSelector from "./ClientSelector";
+import { useServiceOrders, ServiceOrderFormValues as BaseServiceOrderFormValues } from "@/hooks/useServiceOrders";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
   title: z.string().min(5, { message: "O título deve ter pelo menos 5 caracteres." }),
-  client: z.string().min(3, { message: "O nome do cliente é obrigatório." }),
-  description: z.string().min(1, { message: "A descrição é obrigatória." }), // Alterado: removido min(10) e garantido que não seja vazio
+  client_id: z.string().uuid({ message: "Selecione um cliente válido." }), // Agora usamos o ID do cliente
+  description: z.string().min(1, { message: "A descrição é obrigatória." }),
   priority: z.enum(["Alta", "Média", "Baixa"]),
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
-  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]), // Novo campo
+  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
 });
 
-type ServiceOrderFormValues = z.infer<typeof formSchema>;
+// Tipo de dados para o formulário (inclui o ID do cliente)
+export type ServiceOrderFormValues = z.infer<typeof formSchema>;
+
+// Tipo de dados iniciais (pode incluir o ID da OS se for edição)
+interface InitialData extends ServiceOrderFormValues {
+    id?: string;
+}
 
 interface ServiceOrderFormProps {
-  initialData?: ServiceOrderFormValues;
-  onSubmit: (data: ServiceOrderFormValues) => void;
+  initialData?: InitialData;
+  onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
 }
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit }) => {
@@ -45,17 +52,34 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       title: "",
-      client: "",
+      client_id: "", // Deve ser o ID do cliente
       description: "",
       priority: "Média",
       status: "Pendente",
-      store: "CALDAS DA RAINHA", // Valor padrão
+      store: "CALDAS DA RAINHA",
     },
   });
 
-  const handleSubmit = (data: ServiceOrderFormValues) => {
-    onSubmit(data);
-    showSuccess("Ordem de Serviço salva com sucesso!");
+  const { createOrder, updateOrder } = useServiceOrders();
+  const isEditing = !!initialData?.id;
+
+  const handleSubmit = async (data: ServiceOrderFormValues) => {
+    try {
+        if (isEditing && initialData.id) {
+            await updateOrder.mutateAsync({ id: initialData.id, ...data });
+            showSuccess("Ordem de Serviço atualizada com sucesso!");
+        } else {
+            const newOrder = await createOrder.mutateAsync(data);
+            showSuccess("Ordem de Serviço criada com sucesso!");
+            // Passa o ID da nova OS para o componente pai, se necessário
+            onSubmit({ ...data, id: newOrder.id });
+            return;
+        }
+        onSubmit(data); // Para edição, apenas sinaliza que terminou
+    } catch (error) {
+        console.error("Erro ao salvar OS:", error);
+        showError("Erro ao salvar Ordem de Serviço. Tente novamente.");
+    }
   };
 
   return (
@@ -77,12 +101,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         <FormField
           control={form.control}
-          name="client"
+          name="client_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Cliente</FormLabel>
               <FormControl>
-                {/* Usando o novo ClientSelector */}
                 <ClientSelector 
                   value={field.value} 
                   onChange={field.onChange} 
@@ -156,7 +179,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
         
-        {/* Novo campo de Loja */}
         <FormField
           control={form.control}
           name="store"
@@ -179,8 +201,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
-        <Button type="submit" className="w-full">
-          {initialData ? "Salvar Alterações" : "Criar Ordem de Serviço"}
+        <Button type="submit" className="w-full" disabled={createOrder.isPending || updateOrder.isPending}>
+          {isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}
         </Button>
       </form>
     </Form>

@@ -10,39 +10,43 @@ import {
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast";
+import { useClients, Client } from "@/hooks/useClients";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export interface Client {
-  id: string;
-  name: string;
-  contact: string;
-  email: string;
-  totalOrders: number;
-  status: "Ativo" | "Inativo";
-}
+export type { Client }; // Exportando o tipo Client do hook
 
 interface ClientTableProps {
     onEdit: (client: Client) => void;
+    searchTerm: string;
 }
 
-const mockClients: Client[] = [
-  { id: "C-001", name: "Empresa Alpha Soluções", contact: "(11) 98765-4321", email: "alpha@exemplo.com", totalOrders: 12, status: "Ativo" },
-  { id: "C-002", name: "Cliente Beta Individual", contact: "(21) 99887-6655", email: "beta@exemplo.com", totalOrders: 3, status: "Ativo" },
-  { id: "C-003", name: "Indústria Gama Pesada", contact: "(31) 97766-5544", email: "gama@exemplo.com", totalOrders: 0, status: "Inativo" },
-  { id: "C-004", name: "Loja Delta Varejo", contact: "(41) 96655-4433", email: "delta@exemplo.com", totalOrders: 7, status: "Ativo" },
-];
+const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm }) => {
+  const { clients, isLoading, deleteClient } = useClients(searchTerm);
 
-const ClientTable: React.FC<ClientTableProps> = ({ onEdit }) => {
-  const [clients, setClients] = React.useState(mockClients);
-
-  const handleDelete = (id: string) => {
-    setClients(clients.filter(c => c.id !== id));
-    showSuccess(`Cliente ${id} removido com sucesso.`);
+  const handleDelete = async (id: string, name: string) => {
+    try {
+        await deleteClient.mutateAsync(id);
+        showSuccess(`Cliente ${name} removido com sucesso.`);
+    } catch (error) {
+        console.error("Erro ao deletar cliente:", error);
+        showError("Erro ao deletar cliente. Tente novamente.");
+    }
   };
 
   const getStatusVariant = (status: Client['status']): "default" | "secondary" | "outline" => {
     return status === "Ativo" ? "default" : "outline";
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-md border">
@@ -61,7 +65,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit }) => {
           {clients.length > 0 ? (
             clients.map((client) => (
               <TableRow key={client.id}>
-                <TableCell className="font-medium">{client.id}</TableCell>
+                <TableCell className="font-medium truncate">{client.id.substring(0, 8)}...</TableCell>
                 <TableCell>{client.name}</TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
@@ -73,7 +77,13 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit }) => {
                     <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(client.id)} aria-label="Excluir">
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleDelete(client.id, client.name)} 
+                        aria-label="Excluir"
+                        disabled={deleteClient.isPending}
+                    >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

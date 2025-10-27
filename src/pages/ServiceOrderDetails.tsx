@@ -1,88 +1,85 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import ServiceOrderForm from "@/components/ServiceOrderForm";
+import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOrderForm";
 import ActivityLog from "@/components/ActivityLog";
 import TimeEntryComponent from "@/components/TimeEntry";
-import Attachments from "@/components/Attachments"; // Importando o novo componente
+import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Mock data structure (needs to match ServiceOrderFormValues + id/date)
-interface ServiceOrder {
-  id: string;
-  title: string;
-  client: string;
-  description: string;
-  status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
-  priority: "Alta" | "Média" | "Baixa";
-  store: "CALDAS DA RAINHA" | "PORTO DE MÓS"; // Novo campo
-  date: string;
-}
-
-// Lista completa de Ordens de Serviço mock
-const mockOrders: ServiceOrder[] = [
-  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa Alpha Soluções", description: "Troca de compressor e recarga de gás.", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
-  { id: "OS-002", title: "Instalação de Rede", client: "Cliente Beta Individual", description: "Instalação de 5 pontos de rede CAT6.", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
-  { id: "OS-003", title: "Manutenção Preventiva", client: "Empresa Alpha Soluções", description: "Verificação de rotina em todos os equipamentos.", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
-  { id: "OS-004", title: "Substituição de Peça", client: "Loja Delta Varejo", description: "Substituição de peça defeituosa no sistema de ventilação.", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
-  { id: "OS-005", title: "Configuração de Servidor", client: "Empresa Alpha Soluções", description: "Configuração inicial de novo servidor de arquivos.", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
-  { id: "OS-006", title: "Revisão Geral", client: "Cliente Beta Individual", description: "Revisão completa do sistema elétrico.", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
-  { id: "OS-007", title: "OS Cancelada", client: "Indústria Gama Pesada", description: "Serviço cancelado pelo cliente antes do início.", status: "Cancelada", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-02" },
-  { id: "OS-008", title: "Reparo Urgente de Eletricidade", client: "Empresa Alpha Soluções", description: "Curto-circuito na sala de servidores. Prioridade máxima.", status: "Pendente", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-11-03" },
-  { id: "OS-009", title: "Instalação de Software", client: "Cliente Beta Individual", description: "Instalação e configuração de software de gestão.", status: "Concluída", priority: "Média", store: "PORTO DE MÓS", date: "2024-11-04" },
-  { id: "OS-010", title: "Limpeza de Equipamento", client: "Loja Delta Varejo", description: "Limpeza profunda de equipamentos de refrigeração.", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-05" },
-];
-
-
-// Mock function to simulate fetching/saving data
-const fetchOrderById = (id: string): ServiceOrder | undefined => {
-  return mockOrders.find(order => order.id === id);
-};
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
   const isNew = id === 'new';
-  const order = !isNew ? fetchOrderById(id!) : undefined;
+  
+  // Se for edição, buscamos a ordem específica
+  const { order, isLoading } = useServiceOrders(isNew ? undefined : id);
+  
+  // Estado para armazenar o ID da OS recém-criada, se aplicável
+  const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
+
+  // O ID real a ser usado para logs/anexos
+  const currentOrderId = newOrderId || id;
 
   const initialData = order ? {
+    id: order.id,
     title: order.title,
-    client: order.client,
+    client_id: order.client_id, // Usamos client_id agora
     description: order.description,
     priority: order.priority,
     status: order.status,
-    store: order.store, // Incluindo a loja
+    store: order.store,
   } : undefined;
 
-  const handleSubmit = (data: any) => {
-    console.log("Dados da OS submetidos:", data);
-    // Aqui você faria a chamada API para salvar/atualizar
-    // Redireciona para a página anterior
-    navigate(-1); 
+  const handleSubmit = (data: ServiceOrderFormValues & { id?: string }) => {
+    if (isNew && data.id) {
+        // Se for uma nova OS e a mutação retornou um ID, navegamos para a página de detalhes
+        setNewOrderId(data.id);
+        navigate(`/orders/${data.id}`, { replace: true });
+    } else {
+        // Para edição, voltamos
+        navigate(-1); 
+    }
   };
 
-  // Função para voltar (usada no botão de seta)
   const handleGoBack = () => {
     navigate(-1);
   };
 
-  const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${id}`;
+  const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${currentOrderId}`;
 
-  if (!isNew && !order) {
+  if (!isNew && isLoading) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-96 w-full" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!isNew && !order && !newOrderId) {
     return (
       <Layout>
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold">OS não encontrada</h2>
-          <p className="text-muted-foreground">A Ordem de Serviço com ID {id} não existe.</p>
+          <p className="text-muted-foreground">A Ordem de Serviço com ID {id} não existe ou você não tem permissão para vê-la.</p>
           <Button onClick={handleGoBack} className="mt-4">Voltar</Button>
         </div>
       </Layout>
     );
   }
+
+  // Se estivermos em uma OS existente ou recém-criada
+  const canAccessTabs = !isNew || !!newOrderId;
 
   return (
     <Layout>
@@ -97,9 +94,9 @@ const ServiceOrderDetails: React.FC = () => {
         <Tabs defaultValue="details" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="details">Detalhes</TabsTrigger>
-            <TabsTrigger value="activity">Atividades</TabsTrigger>
-            <TabsTrigger value="time">Tempo</TabsTrigger>
-            <TabsTrigger value="attachments">Anexos</TabsTrigger>
+            <TabsTrigger value="activity" disabled={!canAccessTabs}>Atividades</TabsTrigger>
+            <TabsTrigger value="time" disabled={!canAccessTabs}>Tempo</TabsTrigger>
+            <TabsTrigger value="attachments" disabled={!canAccessTabs}>Anexos</TabsTrigger>
           </TabsList>
           
           {/* Aba de Detalhes/Edição */}
@@ -114,30 +111,28 @@ const ServiceOrderDetails: React.FC = () => {
             </Card>
           </TabsContent>
 
-          {/* Aba de Atividades */}
+          {/* Abas de Acompanhamento (só acessíveis após a criação) */}
           <TabsContent value="activity" className="mt-6">
-            {isNew ? (
+            {!canAccessTabs ? (
               <p className="text-center text-muted-foreground py-8">Salve a OS para registrar atividades.</p>
             ) : (
-              <ActivityLog orderId={id!} />
+              <ActivityLog orderId={currentOrderId!} />
             )}
           </TabsContent>
 
-          {/* Aba de Tempo */}
           <TabsContent value="time" className="mt-6">
-            {isNew ? (
+            {!canAccessTabs ? (
               <p className="text-center text-muted-foreground py-8">Salve a OS para registrar tempo.</p>
             ) : (
-              <TimeEntryComponent orderId={id!} />
+              <TimeEntryComponent orderId={currentOrderId!} />
             )}
           </TabsContent>
 
-          {/* Aba de Anexos */}
           <TabsContent value="attachments" className="mt-6">
-            {isNew ? (
+            {!canAccessTabs ? (
               <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar anexos.</p>
             ) : (
-              <Attachments orderId={id!} />
+              <Attachments orderId={currentOrderId!} />
             )}
           </TabsContent>
         </Tabs>

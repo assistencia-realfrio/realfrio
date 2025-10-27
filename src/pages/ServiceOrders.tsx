@@ -18,78 +18,58 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Definição de tipo para Ordem de Serviço (mantida aqui para mock data)
-interface ServiceOrder {
-  id: string;
-  title: string;
-  client: string;
-  status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
-  priority: "Alta" | "Média" | "Baixa";
-  store: "CALDAS DA RAINHA" | "PORTO DE MÓS"; // Novo campo
-  date: string;
-}
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrder['status'] | 'ALL';
 
-// Dados mock
-const mockOrders: ServiceOrder[] = [
-  { id: "OS-001", title: "Reparo de Ar Condicionado", client: "Empresa Alpha Soluções", status: "Em Progresso", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-10-27" },
-  { id: "OS-002", title: "Instalação de Rede", client: "Cliente Beta Individual", status: "Pendente", priority: "Média", store: "PORTO DE MÓS", date: "2024-10-28" },
-  { id: "OS-003", title: "Manutenção Preventiva", client: "Empresa Alpha Soluções", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-10-26" },
-  { id: "OS-004", title: "Substituição de Peça", client: "Loja Delta Varejo", status: "Pendente", priority: "Alta", store: "PORTO DE MÓS", date: "2024-10-29" },
-  { id: "OS-005", title: "Configuração de Servidor", client: "Empresa Alpha Soluções", status: "Em Progresso", priority: "Média", store: "CALDAS DA RAINHA", date: "2024-10-30" },
-  { id: "OS-006", title: "Revisão Geral", client: "Cliente Beta Individual", status: "Pendente", priority: "Baixa", store: "PORTO DE MÓS", date: "2024-11-01" },
-  { id: "OS-007", title: "OS Cancelada", client: "Indústria Gama Pesada", status: "Cancelada", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-02" },
-  { id: "OS-008", title: "Reparo Urgente de Eletricidade", client: "Empresa Alpha Soluções", status: "Pendente", priority: "Alta", store: "CALDAS DA RAINHA", date: "2024-11-03" },
-  { id: "OS-009", title: "Instalação de Software", client: "Cliente Beta Individual", status: "Concluída", priority: "Média", store: "PORTO DE MÓS", date: "2024-11-04" },
-  { id: "OS-010", title: "Limpeza de Equipamento", client: "Loja Delta Varejo", status: "Concluída", priority: "Baixa", store: "CALDAS DA RAINHA", date: "2024-11-05" },
-];
-
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL'); // Novo estado para status
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL');
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const { orders, isLoading } = useServiceOrders();
 
   const handleNewOrder = () => {
     navigate("/orders/new");
   };
 
-  const sortedAndFilteredOrders = useMemo(() => {
-    // 1. Ordenar por data (mais recente primeiro)
-    const sortedOrders = [...mockOrders].sort((a, b) => {
-      if (a.date > b.date) return -1;
-      if (a.date < b.date) return 1;
-      return 0;
-    });
+  const filteredOrders = useMemo(() => {
+    let filtered = orders;
 
-    let orders = sortedOrders;
+    // 1. Filtrar por Status
+    if (selectedStatus !== 'ALL') {
+      filtered = filtered.filter(order => order.status === selectedStatus);
+    }
 
     // 2. Filtrar por Termo de Busca
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
-      orders = orders.filter(order => 
+      filtered = filtered.filter(order => 
         order.id.toLowerCase().includes(lowerCaseSearch) ||
         order.client.toLowerCase().includes(lowerCaseSearch) ||
         order.title.toLowerCase().includes(lowerCaseSearch)
       );
     }
     
-    // 3. Filtrar por Status
-    if (selectedStatus !== 'ALL') {
-      orders = orders.filter(order => order.status === selectedStatus);
-    }
+    return filtered;
+  }, [orders, selectedStatus, searchTerm]);
 
-    return orders;
-  }, [selectedStatus, searchTerm]);
-
-  const renderOrderGrid = (orders: ServiceOrder[]) => {
+  const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     // Filtragem final por loja, se necessário
     const finalOrders = selectedStore === 'ALL' 
-      ? orders 
-      : orders.filter(order => order.store === selectedStore);
+      ? ordersToRender 
+      : ordersToRender.filter(order => order.store === selectedStore);
+
+    if (isLoading) {
+        return (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
+            </div>
+        );
+    }
 
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -106,10 +86,9 @@ const ServiceOrders: React.FC = () => {
   };
 
   // Recalculando os totais para as abas com base nos filtros de busca e status
-  const ordersForTabs = sortedAndFilteredOrders;
-  const allOrdersCount = ordersForTabs.length;
-  const caldasOrdersCount = ordersForTabs.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = ordersForTabs.filter(o => o.store === 'PORTO DE MÓS').length;
+  const allOrdersCount = filteredOrders.length;
+  const caldasOrdersCount = filteredOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = filteredOrders.filter(o => o.store === 'PORTO DE MÓS').length;
 
 
   return (
@@ -167,15 +146,15 @@ const ServiceOrders: React.FC = () => {
           </TabsList>
 
           <TabsContent value="ALL" className="mt-6">
-            {renderOrderGrid(ordersForTabs)}
+            {renderOrderGrid(filteredOrders)}
           </TabsContent>
           
           <TabsContent value="CALDAS DA RAINHA" className="mt-6">
-            {renderOrderGrid(ordersForTabs)}
+            {renderOrderGrid(filteredOrders)}
           </TabsContent>
 
           <TabsContent value="PORTO DE MÓS" className="mt-6">
-            {renderOrderGrid(ordersForTabs)}
+            {renderOrderGrid(filteredOrders)}
           </TabsContent>
         </Tabs>
       </div>
