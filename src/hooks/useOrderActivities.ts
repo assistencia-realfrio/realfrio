@@ -39,7 +39,6 @@ const fetchOrderActivities = async (orderId: string, userId: string | undefined)
 
   if (error) throw error;
 
-  // Corrigindo o erro de tipagem: cast para unknown primeiro
   return data as unknown as OrderActivity[];
 };
 
@@ -47,6 +46,7 @@ export const useOrderActivities = (orderId: string) => {
   const { user } = useSession();
   const queryClient = useQueryClient();
 
+  // A chave da query deve ser consistente
   const queryKey = ['orderActivities', orderId];
 
   const { data: activities = [], isLoading } = useQuery<OrderActivity[], Error>({
@@ -74,7 +74,8 @@ export const useOrderActivities = (orderId: string) => {
       return data as OrderActivity;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKey });
+      // Invalida a query específica para este orderId
+      queryClient.invalidateQueries({ queryKey: ['orderActivities', orderId] });
     },
   });
 
