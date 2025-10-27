@@ -45,9 +45,10 @@ interface InitialData extends ServiceOrderFormValues {
 interface ServiceOrderFormProps {
   initialData?: InitialData;
   onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
+  onCancel?: () => void; // Tornando onCancel opcional
 }
 
-const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit }) => {
+const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -205,9 +206,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={createOrder.isPending || updateOrder.isPending}>
-          {isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}
-        </Button>
+        <div className="flex justify-end space-x-2 pt-4">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending}>
+              Cancelar
+            </Button>
+          )}
+          <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending}>
+            {isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

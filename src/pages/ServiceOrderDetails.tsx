@@ -37,6 +37,10 @@ const ServiceOrderDetails: React.FC = () => {
     store: order.store,
   } : undefined;
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   const handleSubmit = (data: ServiceOrderFormValues & { id?: string }) => {
     if (isNew && data.id) {
         // Se for uma nova OS e a mutação retornou um ID, navegamos para a página de detalhes
@@ -44,12 +48,8 @@ const ServiceOrderDetails: React.FC = () => {
         navigate(`/orders/${data.id}`, { replace: true });
     } else {
         // Para edição, voltamos
-        navigate(-1); 
+        handleGoBack(); 
     }
-  };
-
-  const handleGoBack = () => {
-    navigate(-1);
   };
 
   const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${currentOrderId}`;
@@ -106,7 +106,11 @@ const ServiceOrderDetails: React.FC = () => {
                 <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
               </CardHeader>
               <CardContent>
-                <ServiceOrderForm initialData={initialData} onSubmit={handleSubmit} />
+                <ServiceOrderForm 
+                  initialData={initialData} 
+                  onSubmit={handleSubmit} 
+                  onCancel={isNew ? handleGoBack : undefined} // Adiciona o botão de cancelar apenas na criação
+                />
               </CardContent>
             </Card>
           </TabsContent>
