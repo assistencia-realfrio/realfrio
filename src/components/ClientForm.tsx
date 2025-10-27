@@ -72,6 +72,25 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           )}
         />
 
+        {/* Campo para a morada, movido para baixo do nome */}
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Morada (Opcional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Ex: Rua Exemplo, 123, Cidade" 
+                  {...field} 
+                  value={field.value || ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="contact"
@@ -125,25 +144,6 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Novo campo para a morada */}
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Morada (Opcional)</FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="Ex: Rua Exemplo, 123, Cidade" 
-                  {...field} 
-                  value={field.value || ""}
-                />
-              </FormControl>
               <FormMessage />
             </FormItem>
           )}
