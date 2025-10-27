@@ -4,10 +4,9 @@ import { useSession } from "@/contexts/SessionContext";
 
 export interface ServiceOrder {
   id: string;
-  // title: string; // Removido
   equipment: string; // Novo
-  model: string; // Novo
-  serial_number: string | null; // Novo
+  model: string | null; // Agora pode ser null
+  serial_number: string | null; 
   client: string; // Nome do cliente
   client_id: string; // ID do cliente
   description: string;
@@ -17,8 +16,9 @@ export interface ServiceOrder {
 }
 
 // O tipo ServiceOrderFormValues deve ser baseado apenas nos campos que o formulário envia para o banco.
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'serial_number'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'serial_number' | 'model'> & {
     serial_number: string | undefined; // Tornando opcional no formulário
+    model: string | undefined; // Tornando opcional no formulário
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
@@ -64,6 +64,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         store: order.store as ServiceOrder['store'],
         created_at: order.created_at,
         serial_number: order.serial_number,
+        model: order.model,
     };
   }) as ServiceOrder[];
 };
@@ -99,7 +100,7 @@ export const useServiceOrders = (id?: string) => {
         .from('service_orders')
         .insert({
           equipment: orderData.equipment,
-          model: orderData.model,
+          model: orderData.model || null, // Trata undefined/vazio como null
           serial_number: orderData.serial_number || null,
           description: orderData.description,
           status: orderData.status,
@@ -124,7 +125,7 @@ export const useServiceOrders = (id?: string) => {
         .from('service_orders')
         .update({
           equipment: orderData.equipment,
-          model: orderData.model,
+          model: orderData.model || null, // Trata undefined/vazio como null
           serial_number: orderData.serial_number || null,
           description: orderData.description,
           status: orderData.status,

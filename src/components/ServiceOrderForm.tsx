@@ -27,7 +27,8 @@ import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormVal
 // Definição do Schema de Validação
 const formSchema = z.object({
   equipment: z.string().min(3, { message: "O equipamento é obrigatório." }),
-  model: z.string().min(1, { message: "O modelo é obrigatório." }),
+  // Modelo agora é opcional
+  model: z.string().optional().or(z.literal('')), 
   serial_number: z.string().optional().or(z.literal('')), // Opcional
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
@@ -54,7 +55,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       equipment: "",
-      model: "",
+      model: "", // Valor padrão vazio
       serial_number: "",
       client_id: "",
       description: "",
@@ -68,13 +69,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     try {
-        // Ajusta serial_number para undefined se for string vazia, para que o Supabase insira NULL.
-        // Usamos um cast para garantir que o tipo de mutação seja satisfeito,
-        // já que o Zod garante que os campos obrigatórios estão presentes.
+        // Ajusta serial_number e model para undefined/null se forem strings vazias
         const mutationData: MutationServiceOrderFormValues = {
             ...data,
             serial_number: data.serial_number || undefined,
-        } as MutationServiceOrderFormValues; // Forçando o cast após o tratamento de serial_number
+            // Se model for string vazia, tratamos como undefined para o Supabase (se a coluna permitir NULL)
+            model: data.model || undefined, 
+        } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
             await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
@@ -97,13 +98,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
-        {/* Cliente */}
+        {/* Cliente (Obrigatório) */}
         <FormField
           control={form.control}
           name="client_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cliente</FormLabel>
+              <FormLabel>Cliente *</FormLabel>
               <FormControl>
                 <ClientSelector 
                   value={field.value} 
@@ -135,7 +136,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="model"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Modelo *</FormLabel>
+                        <FormLabel>Modelo (Opcional)</FormLabel>
                         <FormControl>
                             <Input placeholder="Ex: Dell XPS 13, HP LaserJet" {...field} />
                         </FormControl>
@@ -158,12 +159,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             />
         </div>
 
+        {/* Descrição (Obrigatório) */}
         <FormField
           control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Descrição do Serviço</FormLabel>
+              <FormLabel>Descrição do Serviço *</FormLabel>
               <FormControl>
                 <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
               </FormControl>
@@ -173,12 +175,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Estado (Obrigatório) */}
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Estado</FormLabel>
+                <FormLabel>Estado *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -197,12 +200,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
         
+          {/* Loja (Obrigatório) */}
           <FormField
             control={form.control}
             name="store"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Loja</FormLabel>
+                <FormLabel>Loja *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>

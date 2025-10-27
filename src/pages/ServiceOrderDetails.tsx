@@ -29,9 +29,8 @@ const ServiceOrderDetails: React.FC = () => {
 
   const initialData = order ? {
     id: order.id,
-    // title: order.title, // Removido
     equipment: order.equipment,
-    model: order.model,
+    model: order.model || undefined, // Trata null como undefined para o formulário
     serial_number: order.serial_number || undefined,
     client_id: order.client_id,
     description: order.description,
