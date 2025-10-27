@@ -24,11 +24,10 @@ import { showSuccess } from "@/utils/toast";
 // Definição do Schema de Validação
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
-  // Alterado para permitir null ou string vazia
   contact: z.string().nullable().optional(),
-  // Alterado para permitir null ou string vazia, e validação de e-mail
   email: z.string().email({ message: "E-mail inválido." }).nullable().optional().or(z.literal('')),
-  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], { message: "Selecione uma loja." }), // Campo 'store' obrigatório
+  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], { message: "Selecione uma loja." }),
+  address: z.string().nullable().optional(), // Novo campo para morada
 });
 
 export type ClientFormValues = z.infer<typeof formSchema>;
@@ -46,7 +45,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
       name: "",
       contact: "",
       email: "",
-      store: "CALDAS DA RAINHA", // Valor padrão para novas criações
+      store: "CALDAS DA RAINHA",
+      address: "", // Valor padrão para novas criações
     },
   });
 
@@ -82,7 +82,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                 <Input 
                   placeholder="(XX) XXXXX-XXXX" 
                   {...field} 
-                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -100,7 +100,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                 <Input 
                   placeholder="contato@exemplo.com" 
                   {...field} 
-                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
@@ -108,7 +108,6 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           )}
         />
 
-        {/* Novo campo para a loja */}
         <FormField
           control={form.control}
           name="store"
@@ -126,6 +125,25 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Novo campo para a morada */}
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Morada (Opcional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Ex: Rua Exemplo, 123, Cidade" 
+                  {...field} 
+                  value={field.value || ""}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

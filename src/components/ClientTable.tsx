@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, MapPin } from "lucide-react"; // Importando MapPin
 import { Badge } from "@/components/ui/badge";
 import { showSuccess, showError } from "@/utils/toast";
 import { useClients, Client } from "@/hooks/useClients";
@@ -45,6 +45,12 @@ const getStoreBadgeColor = (store: Client['store'] | null) => {
   }
 };
 
+// Função para verificar se a morada é um link do Google Maps
+const isGoogleMapsLink = (address: string | null): boolean => {
+  if (!address) return false;
+  return address.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(address);
+};
+
 const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilter }) => {
   const { clients, isLoading, deleteClient } = useClients(searchTerm, storeFilter); // Passando o storeFilter para o hook
 
@@ -75,9 +81,10 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead className="hidden sm:table-cell">Contato</TableHead>
+            <TableHead className="hidden lg:table-cell">Morada</TableHead> {/* NOVA COLUNA: Morada */}
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
-            <TableHead className="hidden md:table-cell">OS Abertas</TableHead> {/* NOVA COLUNA */}
-            <TableHead className="text-right">Ações</TableHead> {/* Adicionando coluna de Ações */}
+            <TableHead className="hidden md:table-cell">OS Abertas</TableHead>
+            <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -85,21 +92,41 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             clients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell 
-                    className="font-medium text-foreground hover:underline cursor-pointer" // Alterado para text-foreground
+                    className="font-medium text-foreground hover:underline cursor-pointer"
                     onClick={() => onEdit(client)}
                 >
                     <div className="flex items-center gap-2">
                         <Badge 
                             variant="default" 
-                            className={cn("h-3 w-3 p-0 rounded-full", getStoreBadgeColor(client.store))} // Badge como círculo
+                            className={cn("h-3 w-3 p-0 rounded-full", getStoreBadgeColor(client.store))}
                         />
                         {client.name}
                     </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
+                <TableCell className="hidden lg:table-cell"> {/* Célula da Morada */}
+                  {client.address ? (
+                    isGoogleMapsLink(client.address) ? (
+                      <a 
+                        href={client.address.startsWith("http") ? client.address : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.address)}`}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center gap-1 text-blue-600 hover:underline"
+                        onClick={(e) => e.stopPropagation()} // Impede que o clique na morada abra o modal de edição
+                      >
+                        <MapPin className="h-4 w-4" />
+                        Ver no Mapa
+                      </a>
+                    ) : (
+                      client.address
+                    )
+                  ) : (
+                    'N/A'
+                  )}
+                </TableCell>
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
-                <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell> {/* EXIBINDO OS ABERTAS */}
-                <TableCell className="text-right"> {/* Célula para as ações */}
+                <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
+                <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
                             <Edit className="h-4 w-4" />
@@ -141,7 +168,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 5 */}
+              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 6 */}
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>

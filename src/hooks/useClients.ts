@@ -12,6 +12,7 @@ export interface Client {
   totalOrders: number; // Este campo será calculado no frontend
   openOrders: number; // NOVO: Campo para OS em aberto
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS" | null; // NOVO: Campo para a loja associada
+  address: string | null; // NOVO: Campo para a morada
 }
 
 // Função de fetch
@@ -20,7 +21,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   
   const { data, error } = await supabase
     .from('clients')
-    .select('id, name, contact, email, created_at, store') // Removendo 'status'
+    .select('id, name, contact, email, created_at, store, address') // Adicionando 'address'
     .eq('created_by', userId)
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
@@ -32,6 +33,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     totalOrders: 0, // Inicializa com 0
     openOrders: 0, // Inicializa com 0
     store: client.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null, // Tipagem para o campo 'store'
+    address: client.address || null, // Garante que address seja string ou null
   })) as Client[];
 };
 
@@ -75,7 +77,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
     return (
       client.name.toLowerCase().includes(lowerCaseSearch) ||
       client.contact?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para contact
-      client.email?.toLowerCase().includes(lowerCaseSearch) // Adicionado '?' para email
+      client.email?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para email
+      client.address?.toLowerCase().includes(lowerCaseSearch) // NOVO: Busca por morada
     );
   });
 
@@ -90,7 +93,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           contact: clientData.contact || null,
           email: clientData.email || null,
           created_by: user.id,
-          store: clientData.store, // Inserindo o campo 'store'
+          store: clientData.store,
+          address: clientData.address || null, // Inserindo o campo 'address'
         })
         .select()
         .single();
@@ -101,9 +105,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
-      // NOVO: Invalida a query de nomes de clientes para atualizar o seletor
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
-      // Invalida ordens também, caso a contagem seja necessária imediatamente
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
     },
   });
@@ -116,7 +118,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           name: clientData.name,
           contact: clientData.contact || null,
           email: clientData.email || null,
-          store: clientData.store, // Atualizando o campo 'store'
+          store: clientData.store,
+          address: clientData.address || null, // Atualizando o campo 'address'
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
