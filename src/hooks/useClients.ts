@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { ClientFormValues } from "@/components/ClientForm";
+import { useServiceOrders } from "./useServiceOrders"; // Importando o hook de OS
 
 export interface Client {
   id: string;
@@ -9,7 +10,7 @@ export interface Client {
   contact: string;
   email: string;
   status: "Ativo" | "Inativo";
-  totalOrders: number; // Este campo será mockado ou calculado no frontend por enquanto
+  totalOrders: number; // Este campo será calculado no frontend
 }
 
 // Função de fetch
@@ -24,10 +25,10 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
 
   if (error) throw error;
 
-  // Mocking totalOrders as it requires a join/count query which is complex for a simple fetch
+  // Retorna os dados brutos do cliente, sem o totalOrders ainda
   return data.map(client => ({
     ...client,
-    totalOrders: Math.floor(Math.random() * 10), // Mocked value
+    totalOrders: 0, // Inicializa com 0
     status: client.status as "Ativo" | "Inativo",
   })) as Client[];
 };
@@ -36,14 +37,27 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
 export const useClients = (searchTerm: string = "") => {
   const { user } = useSession();
   const queryClient = useQueryClient();
+  const { orders } = useServiceOrders(); // Obtém todas as ordens de serviço
 
-  const { data: clients = [], isLoading } = useQuery<Client[], Error>({
+  const { data: rawClients = [], isLoading: isLoadingClients } = useQuery<Client[], Error>({
     queryKey: ['clients', user?.id],
     queryFn: () => fetchClients(user?.id),
     enabled: !!user?.id,
   });
 
-  const filteredClients = clients.filter(client => {
+  // 1. Calcular a contagem de OS por cliente
+  const orderCounts = orders.reduce((acc, order) => {
+    acc[order.client_id] = (acc[order.client_id] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // 2. Adicionar a contagem de OS aos dados do cliente
+  const clientsWithCounts = rawClients.map(client => ({
+    ...client,
+    totalOrders: orderCounts[client.id] || 0,
+  }));
+
+  const filteredClients = clientsWithCounts.filter(client => {
     const lowerCaseSearch = searchTerm.toLowerCase();
     return (
       client.name.toLowerCase().includes(lowerCaseSearch) ||
@@ -60,7 +74,7 @@ export const useClients = (searchTerm: string = "") => {
         .from('clients')
         .insert({
           name: clientData.name,
-          contact: clientData.contact,
+          contact: clientData.contact || null,
           email: clientData.email || null,
           created_by: user.id,
           status: 'Ativo', // Default status
@@ -73,6 +87,8 @@ export const useClients = (searchTerm: string = "") => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
+      // Invalida ordens também, caso a contagem seja necessária imediatamente
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
     },
   });
 
@@ -82,7 +98,7 @@ export const useClients = (searchTerm: string = "") => {
         .from('clients')
         .update({
           name: clientData.name,
-          contact: clientData.contact,
+          contact: clientData.contact || null,
           email: clientData.email || null,
           updated_at: new Date().toISOString(),
         })
@@ -109,12 +125,13 @@ export const useClients = (searchTerm: string = "") => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
     },
   });
 
   return {
     clients: filteredClients,
-    isLoading,
+    isLoading: isLoadingClients,
     createClient: createClientMutation,
     updateClient: updateClientMutation,
     deleteClient: deleteClientMutation,
