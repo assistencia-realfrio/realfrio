@@ -61,7 +61,13 @@ const ServiceOrderDetails: React.FC = () => {
   const handleSubmit = (data: any) => {
     console.log("Dados da OS submetidos:", data);
     // Aqui você faria a chamada API para salvar/atualizar
-    navigate("/orders");
+    // Redireciona para a página anterior
+    navigate(-1); 
+  };
+
+  // Função para voltar (usada no botão de seta)
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
   const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${id}`;
@@ -72,7 +78,7 @@ const ServiceOrderDetails: React.FC = () => {
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold">OS não encontrada</h2>
           <p className="text-muted-foreground">A Ordem de Serviço com ID {id} não existe.</p>
-          <Button onClick={() => navigate("/orders")} className="mt-4">Voltar para a lista</Button>
+          <Button onClick={handleGoBack} className="mt-4">Voltar</Button>
         </div>
       </Layout>
     );
@@ -82,7 +88,7 @@ const ServiceOrderDetails: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate("/orders")}>
+          <Button variant="outline" size="icon" onClick={handleGoBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
