@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Select,
   SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
 import { showSuccess, showError } from "@/utils/toast";
 import { useClientNames, useClients } from "@/hooks/useClients";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ClientSelectorProps {
   value: string; // Deve ser o ID do cliente
@@ -21,18 +31,18 @@ interface ClientSelectorProps {
 
 const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { data: clients = [], isLoading: isLoadingClients } = useClientNames();
   const { createClient } = useClients();
 
   // Mapeia o ID para o nome para exibir no SelectValue
-  const selectedClientName = clients.find(c => c.id === value)?.name || "";
+  const selectedClient = clients.find(c => c.id === value);
+  const selectedClientName = selectedClient?.name || "";
 
   const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
-        // A mutação agora retorna o objeto completo do cliente, incluindo o ID
         const newClient = await createClient.mutateAsync(data);
         
-        // Seleciona o novo cliente criado (usando o ID)
         onChange(newClient.id);
         
         setIsModalOpen(false);
@@ -47,8 +57,8 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange }) => {
     if (selectedValue === "NEW_CLIENT") {
       setIsModalOpen(true);
     } else {
-      // O valor selecionado é o ID do cliente
       onChange(selectedValue);
+      setIsPopoverOpen(false); // Fecha o popover após a seleção
     }
   };
 
@@ -58,26 +68,55 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange }) => {
 
   return (
     <>
-      <Select onValueChange={handleSelectChange} value={value}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecione ou adicione um cliente">
-            {selectedClientName}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {clients.map((client) => (
-            <SelectItem key={client.id} value={client.id}>
-              {client.name}
-            </SelectItem>
-          ))}
-          <SelectItem value="NEW_CLIENT" className="text-primary font-medium">
-            <div className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                Adicionar Novo Cliente
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={isPopoverOpen}
+            className="w-full justify-between"
+          >
+            {selectedClientName || "Selecione ou adicione um cliente"}
+            <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+          <Command>
+            <CommandInput placeholder="Buscar cliente..." />
+            <CommandList>
+              <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+              <CommandGroup>
+                {clients.map((client) => (
+                  <CommandItem
+                    key={client.id}
+                    value={client.name}
+                    onSelect={() => handleSelectChange(client.id)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === client.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {client.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandGroup>
+                <CommandItem
+                  key="NEW_CLIENT"
+                  value="Adicionar Novo Cliente"
+                  onSelect={() => handleSelectChange("NEW_CLIENT")}
+                  className="text-primary font-medium cursor-pointer"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Adicionar Novo Cliente
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       {/* Modal de Criação de Cliente */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

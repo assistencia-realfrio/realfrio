@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, HardDrive } from "lucide-react";
+import { PlusCircle, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +18,16 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import { useEquipments, EquipmentFormValues, Equipment } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 // Schema de validação para o formulário de novo equipamento
 const newEquipmentSchema = z.object({
@@ -140,6 +143,7 @@ const EquipmentForm: React.FC<{ clientId: string, onSubmit: (data: Equipment) =>
 
 const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, onChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { equipments, isLoading } = useEquipments(clientId);
 
   // Efeito para pré-selecionar o equipamento se houver apenas um, ou se o valor atual for inválido
@@ -167,6 +171,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             model: selectedEquipment.model,
             serial_number: selectedEquipment.serial_number,
         });
+        setIsPopoverOpen(false); // Fecha o popover após a seleção
       }
     }
   };
@@ -185,11 +190,15 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   // Se o cliente não estiver selecionado, não mostra o seletor
   if (!clientId) {
     return (
-        <Select disabled>
-            <SelectTrigger>
-                <SelectValue placeholder="Selecione um cliente primeiro" />
-            </SelectTrigger>
-        </Select>
+        <Button
+            variant="outline"
+            role="combobox"
+            disabled
+            className="w-full justify-between text-muted-foreground"
+        >
+            Selecione um cliente primeiro
+            <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
     );
   }
 
@@ -204,26 +213,56 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
 
   return (
     <>
-      <Select onValueChange={handleSelectChange} value={value}>
-        <SelectTrigger>
-          <SelectValue placeholder="Selecione ou adicione um equipamento">
+      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={isPopoverOpen}
+            className="w-full justify-between"
+          >
             {displayValue}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {equipments.map((equipment) => (
-            <SelectItem key={equipment.id} value={equipment.id}>
-              {equipment.name} ({equipment.brand || 'N/A'} - {equipment.model || 'N/A'})
-            </SelectItem>
-          ))}
-          <SelectItem value="NEW_EQUIPMENT" className="text-primary font-medium">
-            <div className="flex items-center gap-2">
-                <PlusCircle className="h-4 w-4" />
-                Adicionar Novo Equipamento
-            </div>
-          </SelectItem>
-        </SelectContent>
-      </Select>
+            <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+          <Command>
+            <CommandInput placeholder="Buscar equipamento..." />
+            <CommandList>
+              <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
+              <CommandGroup>
+                {equipments.map((equipment) => (
+                  <CommandItem
+                    key={equipment.id}
+                    // Usamos uma string combinada para que a busca funcione em nome, marca e modelo
+                    value={`${equipment.name} ${equipment.brand || ''} ${equipment.model || ''}`}
+                    onSelect={() => handleSelectChange(equipment.id)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === equipment.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {equipment.name} ({equipment.brand || 'N/A'} - {equipment.model || 'N/A'})
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandGroup>
+                <CommandItem
+                  key="NEW_EQUIPMENT"
+                  value="Adicionar Novo Equipamento"
+                  onSelect={() => handleSelectChange("NEW_EQUIPMENT")}
+                  className="text-primary font-medium cursor-pointer"
+                >
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Adicionar Novo Equipamento
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       {/* Modal de Criação de Equipamento */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
