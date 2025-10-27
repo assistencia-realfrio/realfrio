@@ -31,12 +31,11 @@ type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
 };
 
 // Função auxiliar para gerar o ID formatado
-const generateDisplayId = (store: ServiceOrder['store'], uuid: string): string => {
+const generateDisplayId = (store: ServiceOrder['store']): string => {
     const prefix = store === 'CALDAS DA RAINHA' ? 'CR' : 'PM';
-    const datePart = format(new Date(), 'yyMMdd');
-    // Usamos os primeiros 4 caracteres do UUID para o sufixo
-    const suffix = uuid.substring(0, 4).toUpperCase();
-    return `${prefix}-${datePart}-${suffix}`;
+    // Novo formato: DDMMYYHHMM
+    const dateTimePart = format(new Date(), 'ddMMyyHHmm');
+    return `${prefix}-${dateTimePart}`;
 };
 
 // Função de fetch
@@ -113,8 +112,11 @@ export const useServiceOrders = (id?: string) => {
     mutationFn: async (orderData: ServiceOrderFormValues) => {
       if (!user?.id) throw new Error("Usuário não autenticado.");
       
-      // 1. Inserir a ordem para obter o UUID gerado pelo banco
-      const { data: initialData, error: initialError } = await supabase
+      // 1. Gerar o display_id antes da inserção
+      const displayId = generateDisplayId(orderData.store);
+
+      // 2. Inserir a ordem com o display_id
+      const { data, error } = await supabase
         .from('service_orders')
         .insert({
           equipment: orderData.equipment,
@@ -125,27 +127,15 @@ export const useServiceOrders = (id?: string) => {
           store: orderData.store,
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
+          display_id: displayId, // Inserindo o ID formatado
           created_by: user.id,
         })
         .select('id')
         .single();
 
-      if (initialError) throw initialError;
-      
-      const orderId = initialData.id;
-      
-      // 2. Gerar o display_id usando o UUID e a loja
-      const displayId = generateDisplayId(orderData.store, orderId);
-
-      // 3. Atualizar a ordem com o display_id
-      const { data, error } = await supabase
-        .from('service_orders')
-        .update({ display_id: displayId })
-        .eq('id', orderId)
-        .select('id')
-        .single();
-
       if (error) throw error;
+      
+      // Retorna o ID do banco (UUID)
       return data;
     },
     onSuccess: () => {
