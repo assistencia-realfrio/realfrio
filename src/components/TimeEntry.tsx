@@ -19,14 +19,9 @@ interface TimeEntryProps {
   orderId: string;
 }
 
-// Mock Data
-const mockTimeEntries: TimeEntry[] = [
-  { id: 1, date: "2024-10-29", duration: 4.5, description: "Diagnóstico inicial e reparo parcial.", user: "João Técnico" },
-  { id: 2, date: "2024-10-30", duration: 3.0, description: "Instalação da nova peça e testes finais.", user: "Maria Auxiliar" },
-];
-
 const TimeEntryComponent: React.FC<TimeEntryProps> = ({ orderId }) => {
-  const [entries, setEntries] = useState<TimeEntry[]>(mockTimeEntries);
+  // Inicializando com array vazio
+  const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [duration, setDuration] = useState("");
   const [description, setDescription] = useState("");
 

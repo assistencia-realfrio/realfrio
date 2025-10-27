@@ -19,14 +19,9 @@ interface AttachmentsProps {
   orderId: string;
 }
 
-// Mock Data
-const mockAttachments: Attachment[] = [
-  { id: 1, name: "Foto_Compressor_Quebrado.jpg", type: 'image', size: "1.2 MB", uploadedBy: "João Técnico", date: "2024-10-29" },
-  { id: 2, name: "Relatorio_Diagnostico.pdf", type: 'document', size: "350 KB", uploadedBy: "João Técnico", date: "2024-10-29" },
-];
-
 const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
-  const [attachments, setAttachments] = useState<Attachment[]>(mockAttachments);
+  // Inicializando com array vazio
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

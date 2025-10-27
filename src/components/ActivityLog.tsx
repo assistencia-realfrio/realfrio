@@ -18,15 +18,9 @@ interface ActivityLogProps {
   orderId: string;
 }
 
-// Mock Data
-const mockActivities: Activity[] = [
-  { id: 1, timestamp: "2024-10-29 10:00", user: "Sistema", content: "Status alterado para Em Progresso.", type: 'status_update' },
-  { id: 2, timestamp: "2024-10-29 11:30", user: "João Técnico", content: "Identificado que o problema é no compressor. Peça solicitada.", type: 'note' },
-  { id: 3, timestamp: "2024-10-29 14:00", user: "Sistema", content: "Prioridade alterada para Alta.", type: 'status_update' },
-];
-
 const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
-  const [activities, setActivities] = useState<Activity[]>(mockActivities);
+  // Inicializando com array vazio
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [newNote, setNewNote] = useState("");
 
   const handleAddNote = () => {
