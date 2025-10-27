@@ -37,11 +37,11 @@ interface ClientTableProps {
 const getStoreBadgeColor = (store: Client['store'] | null) => {
   switch (store) {
     case "CALDAS DA RAINHA":
-      return "bg-blue-500 hover:bg-blue-600 text-white";
+      return "bg-blue-500";
     case "PORTO DE MÓS":
-      return "bg-red-500 hover:bg-red-600 text-white";
+      return "bg-red-500";
     default:
-      return "bg-gray-200 hover:bg-gray-300 text-gray-800";
+      return "bg-gray-400"; // Cor padrão para 'N/A' ou null
   }
 };
 
@@ -89,10 +89,11 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
                     onClick={() => onEdit(client)}
                 >
                     <div className="flex items-center gap-2">
+                        <Badge 
+                            variant="default" 
+                            className={cn("h-3 w-3 p-0 rounded-full", getStoreBadgeColor(client.store))} // Badge como círculo
+                        />
                         {client.name}
-                        <Badge className={cn("text-xs px-2 py-0.5", getStoreBadgeColor(client.store))}>
-                            {client.store || 'N/A'}
-                        </Badge>
                     </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
