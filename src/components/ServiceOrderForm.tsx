@@ -27,6 +27,7 @@ import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "lucide-react"; // Importando o ícone User
 import ClientDetailsModal from "./ClientDetailsModal"; // Importando o novo modal
+import { useClients } from "@/hooks/useClients"; // Importando useClients para obter a loja do cliente
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -74,6 +75,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   // Usa o hook useEquipments para buscar os detalhes do equipamento único se estiver editando
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
+  // Usa o hook useClients para obter a lista de clientes e encontrar a loja
+  const { clients } = useClients();
 
   // Estado para armazenar os detalhes do equipamento selecionado (nome, marca, modelo, serial)
   const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null }>({ name: '', brand: null, model: null, serial_number: null });
@@ -92,6 +95,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       });
     }
   }, [isEditing, singleEquipment, equipmentDetails.name]);
+
+  // NOVO EFEITO: Preencher a loja da OS com base na loja do cliente
+  useEffect(() => {
+    if (clientId && !isEditing) { // Apenas para novas OS, não sobrescrever em edição
+      const selectedClient = clients.find(c => c.id === clientId);
+      if (selectedClient && selectedClient.store) {
+        form.setValue("store", selectedClient.store, { shouldValidate: true });
+      }
+    }
+  }, [clientId, clients, isEditing, form]);
 
 
   const handleEquipmentChange = (equipmentId: string, details: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => {
