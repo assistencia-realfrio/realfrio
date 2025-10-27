@@ -83,10 +83,13 @@ export const useClients = (searchTerm: string = "") => {
         .single();
 
       if (error) throw error;
-      return data;
+      // Retorna o objeto completo do cliente criado
+      return data as Client;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
+      // NOVO: Invalida a query de nomes de clientes para atualizar o seletor
+      queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       // Invalida ordens também, caso a contagem seja necessária imediatamente
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
     },
@@ -111,6 +114,7 @@ export const useClients = (searchTerm: string = "") => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
     },
   });
 
@@ -125,6 +129,7 @@ export const useClients = (searchTerm: string = "") => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
     },
   });

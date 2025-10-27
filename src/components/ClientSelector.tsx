@@ -29,6 +29,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange }) => {
 
   const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
+        // A mutação agora retorna o objeto completo do cliente, incluindo o ID
         const newClient = await createClient.mutateAsync(data);
         
         // Seleciona o novo cliente criado (usando o ID)
