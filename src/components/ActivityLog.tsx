@@ -15,11 +15,8 @@ interface ActivityLogProps {
 
 const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
   const { user } = useSession();
-  const { activities, isLoading, createActivity } = useOrderActivities(orderId);
+  const { activities, isLoading, isFetching, createActivity } = useOrderActivities(orderId);
   const [newNote, setNewNote] = useState("");
-
-  // Log de depuração
-  // console.log("ActivityLog rendered for orderId:", orderId, "Activities:", activities);
 
   const handleAddNote = async () => {
     if (newNote.trim() === "") return;
@@ -76,6 +73,9 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
     );
   };
 
+  // Usamos isLoading || isFetching para cobrir tanto a primeira carga quanto as recargas após a mutação
+  const isDataLoading = isLoading || isFetching;
+
   return (
     <Card>
       <CardHeader>
@@ -101,7 +101,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
 
         {/* Histórico de Atividades */}
         <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-          {isLoading ? (
+          {isDataLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-20 w-full" />
               <Skeleton className="h-20 w-full" />

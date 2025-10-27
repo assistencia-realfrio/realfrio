@@ -49,7 +49,7 @@ export const useOrderActivities = (orderId: string) => {
   // A chave da query deve ser consistente
   const queryKey = ['orderActivities', orderId];
 
-  const { data: activities = [], isLoading } = useQuery<OrderActivity[], Error>({
+  const { data: activities = [], isLoading, isFetching } = useQuery<OrderActivity[], Error>({
     queryKey: queryKey,
     queryFn: () => fetchOrderActivities(orderId, user?.id),
     enabled: !!user?.id && !!orderId,
@@ -82,6 +82,7 @@ export const useOrderActivities = (orderId: string) => {
   return {
     activities,
     isLoading,
+    isFetching, // Expondo isFetching
     createActivity: createActivityMutation,
   };
 };
