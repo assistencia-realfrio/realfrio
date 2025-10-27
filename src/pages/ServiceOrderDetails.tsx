@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOrderForm";
-import ActivityLog from "@/components/ActivityLog";
 import TimeEntryComponent from "@/components/TimeEntry";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,7 +40,7 @@ const ServiceOrderDetails: React.FC = () => {
   
   // Estado para armazenar o ID da OS recém-criada, se aplicável
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "activity" | "time" | "attachments">("details");
+  const [selectedView, setSelectedView] = useState<"details" | "time" | "attachments">("details");
 
   // O ID real a ser usado para logs/anexos
   const currentOrderId = newOrderId || id;
@@ -160,13 +159,12 @@ const ServiceOrderDetails: React.FC = () => {
 
         {/* Select para navegação entre as seções */}
         <div className="w-full">
-          <Select value={selectedView} onValueChange={(value: "details" | "activity" | "time" | "attachments") => setSelectedView(value)}>
+          <Select value={selectedView} onValueChange={(value: "details" | "time" | "attachments") => setSelectedView(value)}>
             <SelectTrigger>
               <SelectValue placeholder="Selecione a seção" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="details">Detalhes</SelectItem>
-              <SelectItem value="activity" disabled={!canAccessTabs}>Atividades</SelectItem>
               <SelectItem value="time" disabled={!canAccessTabs}>Tempo</SelectItem>
               <SelectItem value="attachments" disabled={!canAccessTabs}>Anexos</SelectItem>
             </SelectContent>
@@ -187,14 +185,6 @@ const ServiceOrderDetails: React.FC = () => {
               />
             </CardContent>
           </Card>
-        )}
-
-        {selectedView === "activity" && (
-          !canAccessTabs ? (
-            <p className="text-center text-muted-foreground py-8">Salve a OS para registrar atividades.</p>
-          ) : (
-            <ActivityLog orderId={currentOrderId!} />
-          )
         )}
 
         {selectedView === "time" && (
