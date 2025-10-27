@@ -86,6 +86,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
     mutationFn: async (clientData: ClientFormValues) => {
       if (!user?.id) throw new Error("Usuário não autenticado.");
       
+      console.log("Dados do cliente para criação:", clientData); // Log para depuração
       const { data, error } = await supabase
         .from('clients')
         .insert({
@@ -99,7 +100,10 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro do Supabase na criação do cliente:", error); // Log do erro do Supabase
+        throw error;
+      }
       // Retorna o objeto completo do cliente criado
       return data as Client;
     },
@@ -112,6 +116,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
 
   const updateClientMutation = useMutation({
     mutationFn: async ({ id, ...clientData }: ClientFormValues & { id: string }) => {
+      console.log("Dados do cliente para atualização:", clientData); // Log para depuração
       const { data, error } = await supabase
         .from('clients')
         .update({
@@ -126,7 +131,10 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro do Supabase na atualização do cliente:", error); // Log do erro do Supabase
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {

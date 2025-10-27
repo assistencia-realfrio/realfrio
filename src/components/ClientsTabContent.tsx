@@ -55,7 +55,7 @@ const ClientsTabContent: React.FC = () => {
         }
         setIsModalOpen(false);
     } catch (error) {
-        console.error("Erro ao salvar cliente:", error);
+        console.error("Erro ao salvar cliente:", error); // Log do erro completo
         showError("Erro ao salvar cliente. Verifique os dados.");
     }
   };
@@ -65,6 +65,7 @@ const ClientsTabContent: React.FC = () => {
     contact: editingClient.contact || "", // Garante string vazia para o formulário
     email: editingClient.email || "",     // Garante string vazia para o formulário
     store: editingClient.store || "CALDAS DA RAINHA", // Garante um valor padrão
+    address: editingClient.address || "", // Garante string vazia para o formulário
   } : undefined;
 
   const isEditing = !!editingClient;
