@@ -44,15 +44,15 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">{order.status}</Badge>
             </CardHeader>
             <CardContent>
-                {/* Cliente em destaque */}
-                <p className="text-sm font-semibold text-foreground mb-1 truncate">Cliente: {order.client}</p>
+                {/* Cliente em destaque (Maior e mais escuro) */}
+                <p className="text-lg font-semibold text-foreground mb-1 truncate">Cliente: {order.client}</p>
                 
-                {/* Equipamento em destaque */}
-                <CardTitle className="text-base font-medium truncate mb-2">
+                {/* Equipamento em destaque (Maior e em negrito) */}
+                <CardTitle className="text-lg font-bold truncate mb-2">
                     {order.equipment} - {order.model}
                 </CardTitle>
                 
-                {/* Descrição (primeiras linhas) */}
+                {/* Descrição (um pouco menor) */}
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-3 h-10">
                     {order.description}
                 </p>
