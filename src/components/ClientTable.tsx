@@ -46,10 +46,6 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
     }
   };
 
-  const getStatusVariant = (status: Client['status']): "default" | "secondary" | "outline" => {
-    return status === "Ativo" ? "default" : "outline";
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -70,7 +66,6 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
             <TableHead className="hidden md:table-cell">OS Abertas</TableHead> {/* NOVA COLUNA */}
             <TableHead className="hidden md:table-cell">Loja</TableHead> {/* NOVA COLUNA */}
-            <TableHead>Status</TableHead>
             <TableHead className="text-right">Ações</TableHead> {/* Adicionando coluna de Ações */}
           </TableRow>
         </TableHeader>
@@ -88,9 +83,6 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell> {/* EXIBINDO OS ABERTAS */}
                 <TableCell className="hidden md:table-cell">{client.store || 'N/A'}</TableCell> {/* EXIBINDO A LOJA */}
-                <TableCell>
-                  <Badge variant={getStatusVariant(client.status)} className="text-foreground">{client.status}</Badge> {/* Adicionado text-foreground */}
-                </TableCell>
                 <TableCell className="text-right"> {/* Célula para as ações */}
                     <div className="flex justify-end space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
@@ -133,7 +125,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 7 */}
+              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 6 */}
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>

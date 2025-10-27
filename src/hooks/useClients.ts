@@ -9,7 +9,6 @@ export interface Client {
   name: string;
   contact: string;
   email: string;
-  status: "Ativo" | "Inativo";
   totalOrders: number; // Este campo será calculado no frontend
   openOrders: number; // NOVO: Campo para OS em aberto
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS" | null; // NOVO: Campo para a loja associada
@@ -21,7 +20,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   
   const { data, error } = await supabase
     .from('clients')
-    .select('id, name, contact, email, status, created_at, store') // Selecionando o novo campo 'store'
+    .select('id, name, contact, email, created_at, store') // Removendo 'status'
     .eq('created_by', userId)
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
@@ -32,7 +31,6 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     ...client,
     totalOrders: 0, // Inicializa com 0
     openOrders: 0, // Inicializa com 0
-    status: client.status as "Ativo" | "Inativo",
     store: client.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null, // Tipagem para o campo 'store'
   })) as Client[];
 };
@@ -92,7 +90,6 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           contact: clientData.contact || null,
           email: clientData.email || null,
           created_by: user.id,
-          status: 'Ativo', // Default status
           store: clientData.store, // Inserindo o campo 'store'
         })
         .select()
