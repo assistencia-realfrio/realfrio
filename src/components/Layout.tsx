@@ -1,38 +1,89 @@
 import React from "react";
-import { Wrench, Bell, User } from "lucide-react";
+import { Wrench, Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { DesktopSidebar, MobileSidebar } from "@/components/SidebarNav"; // Importando componentes da Sidebar
+import { DesktopSidebar, MobileSidebar } from "@/components/SidebarNav";
+import { useSession } from "@/contexts/SessionContext";
+import { supabase } from "@/integrations/supabase/client";
+import { showSuccess, showError } from "@/utils/toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Header = () => (
-  <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-    <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center space-x-4">
-        <MobileSidebar /> {/* Menu hamburguer visível em mobile */}
-        <div className="hidden lg:flex items-center space-x-4">
-          <Wrench className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold tracking-tight">Gestão de OS</h1>
+const Header = () => {
+  const { user } = useSession();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError("Erro ao fazer logout.");
+      console.error("Logout error:", error);
+    } else {
+      showSuccess("Logout realizado com sucesso!");
+    }
+  };
+
+  // Tenta obter o nome do usuário (email ou metadata)
+  const userName = user?.email || "Usuário";
+  const displayEmail = user?.email;
+
+  return (
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center space-x-4">
+          <MobileSidebar />
+          <div className="hidden lg:flex items-center space-x-4">
+            <Wrench className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-bold tracking-tight">Gestão de OS</h1>
+          </div>
+          <div className="lg:hidden flex items-center space-x-2">
+            <Wrench className="h-5 w-5 text-primary" />
+            <h1 className="text-lg font-bold tracking-tight">Gestão de OS</h1>
+          </div>
         </div>
-        <div className="lg:hidden flex items-center space-x-2">
-          <Wrench className="h-5 w-5 text-primary" />
-          <h1 className="text-lg font-bold tracking-tight">Gestão de OS</h1>
-        </div>
+        <nav className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" aria-label="Notificações">
+            <Bell className="h-5 w-5" />
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Perfil do Usuário">
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  {displayEmail && (
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {displayEmail}
+                    </p>
+                  )}
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
       </div>
-      <nav className="flex items-center space-x-4">
-        <Button variant="ghost" size="icon" aria-label="Notificações">
-          <Bell className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="icon" aria-label="Perfil do Usuário">
-          <User className="h-5 w-5" />
-        </Button>
-      </nav>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
