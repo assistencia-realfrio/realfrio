@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
 import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Edit, Phone, Mail, MapPin } from "lucide-react"; // Importando ícones
 
 interface ClientDetailsModalProps {
   clientId: string | null;
@@ -11,10 +13,17 @@ interface ClientDetailsModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Função auxiliar para verificar se a morada é um link do Google Maps ou coordenadas
+const isGoogleMapsLink = (address: string | null): boolean => {
+  if (!address) return false;
+  // Verifica se é uma URL do Google Maps ou um par de coordenadas (lat, long)
+  return address.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(address);
+};
+
 const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpen, onOpenChange }) => {
-  const { clients, isLoading, updateClient } = useClients(); // Usando useClients para buscar e atualizar
+  const { clients, isLoading, updateClient } = useClients();
+  const [isEditing, setIsEditing] = useState(false); // Estado para controlar o modo de edição
   
-  // Encontra o cliente selecionado na lista
   const client = clientId ? clients.find(c => c.id === clientId) : undefined;
 
   const handleFormSubmit = async (data: ClientFormValues) => {
@@ -22,11 +31,15 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
     try {
       await updateClient.mutateAsync({ id: client.id, ...data });
       showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
-      onOpenChange(false); // Fecha o modal após a atualização
+      setIsEditing(false); // Volta para o modo de visualização após salvar
     } catch (error) {
       console.error("Erro ao atualizar cliente:", error);
       showError("Erro ao atualizar cliente. Tente novamente.");
     }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false); // Volta para o modo de visualização
   };
 
   if (isLoading) {
@@ -72,14 +85,78 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Detalhes do Cliente: {client.name}</DialogTitle>
+        <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <DialogTitle className="text-xl font-bold">
+            {isEditing ? `Editar Cliente: ${client.name}` : `Detalhes do Cliente: ${client.name}`}
+          </DialogTitle>
+          {!isEditing && (
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Editar
+            </Button>
+          )}
         </DialogHeader>
-        <ClientForm 
-          initialData={initialFormData} 
-          onSubmit={handleFormSubmit} 
-          onCancel={() => onOpenChange(false)} 
-        />
+
+        {isEditing ? (
+          <ClientForm 
+            initialData={initialFormData} 
+            onSubmit={handleFormSubmit} 
+            onCancel={handleCancelEdit} 
+          />
+        ) : (
+          <div className="space-y-4 text-sm">
+            <div>
+              <p className="text-muted-foreground">Nome</p>
+              <p className="font-medium">{client.name}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Loja</p>
+              <p className="font-medium">{client.store || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Contato</p>
+              {client.contact ? (
+                <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                  <Phone className="h-4 w-4" />
+                  {client.contact}
+                </a>
+              ) : (
+                <p className="text-muted-foreground">N/A</p>
+              )}
+            </div>
+            <div>
+              <p className="text-muted-foreground">E-mail</p>
+              {client.email ? (
+                <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                  <Mail className="h-4 w-4" />
+                  {client.email}
+                </a>
+              ) : (
+                <p className="text-muted-foreground">N/A</p>
+              )}
+            </div>
+            <div>
+              <p className="text-muted-foreground">Morada</p>
+              {client.address ? (
+                isGoogleMapsLink(client.address) ? (
+                  <a 
+                    href={client.address.startsWith("http") ? client.address : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.address)}`}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Ver no Mapa
+                  </a>
+                ) : (
+                  <p className="font-medium">{client.address}</p>
+                )
+              ) : (
+                <p className="text-muted-foreground">N/A</p>
+              )}
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
