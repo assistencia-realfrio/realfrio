@@ -27,9 +27,10 @@ import { cn } from "@/lib/utils";
 interface ClientSelectorProps {
   value: string; // Deve ser o ID do cliente
   onChange: (clientId: string) => void;
+  disabled?: boolean; // Adicionado a propriedade disabled
 }
 
-const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange }) => {
+const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { data: clients = [], isLoading: isLoadingClients } = useClientNames();
@@ -75,6 +76,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange }) => {
             role="combobox"
             aria-expanded={isPopoverOpen}
             className="w-full justify-between"
+            disabled={disabled} // Aplica a propriedade disabled aqui
           >
             {selectedClientName || "Selecione ou adicione um cliente"}
             <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
