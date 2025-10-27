@@ -21,10 +21,15 @@ export interface ServiceOrder {
 }
 
 // O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_name_from_equipment_table' | 'equipment_brand_from_equipment_table'> & {
-    serial_number: string | undefined;
-    model: string | undefined;
-    equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
+export type ServiceOrderFormValues = {
+    client_id: string;
+    description: string;
+    status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
+    store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
+    equipment: string; // O nome/marca formatado do equipamento
+    model?: string | null; // Opcional, pode ser null
+    serial_number?: string | null; // Opcional, pode ser null
+    equipment_id?: string | null; // Opcional, pode ser null
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
