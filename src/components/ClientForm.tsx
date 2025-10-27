@@ -17,7 +17,9 @@ import { showSuccess } from "@/utils/toast";
 // Definição do Schema de Validação
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
-  contact: z.string().min(8, { message: "O contato é obrigatório." }),
+  // Tornando contact opcional
+  contact: z.string().optional().or(z.literal('')),
+  // Tornando email opcional e garantindo que, se preenchido, seja um email válido
   email: z.string().email({ message: "E-mail inválido." }).optional().or(z.literal('')),
 });
 
@@ -52,7 +54,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome do Cliente/Empresa</FormLabel>
+              <FormLabel>Nome do Cliente/Empresa *</FormLabel>
               <FormControl>
                 <Input placeholder="Ex: Empresa XYZ" {...field} />
               </FormControl>
@@ -66,7 +68,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           name="contact"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefone/Contato</FormLabel>
+              <FormLabel>Telefone/Contato (Opcional)</FormLabel>
               <FormControl>
                 <Input placeholder="(XX) XXXXX-XXXX" {...field} />
               </FormControl>
