@@ -17,8 +17,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // O toastId retornado por showLoading (sonner) é string | number
+    let toastId: string | number | undefined;
+
     const loadSession = async () => {
-      const toastId = showLoading("Verificando sessão...");
+      toastId = showLoading("Verificando sessão...");
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -30,7 +33,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         console.error("Erro ao carregar sessão:", error);
         showError("Erro ao carregar sessão.");
       } finally {
-        dismissToast(toastId);
+        if (toastId !== undefined) {
+          dismissToast(toastId);
+        }
         setIsLoading(false);
       }
     };
