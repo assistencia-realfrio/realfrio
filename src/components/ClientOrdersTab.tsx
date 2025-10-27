@@ -21,7 +21,6 @@ const getStatusVariant = (status: ServiceOrder['status']): "default" | "secondar
     case "Pendente":
       return "destructive";
     case "Cancelada":
-      return "outline";
     default:
       return "outline";
   }
@@ -44,8 +43,7 @@ const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
                     <span>{order.id.substring(0, 8)}...</span>
                     <span>|</span>
                     <span>{date}</span>
-                    <span>|</span>
-                    <Badge variant="outline" className="h-4 px-1.5">{order.priority}</Badge>
+                    {/* Prioridade removida */}
                 </div>
             </div>
             <div className="flex items-center space-x-2">

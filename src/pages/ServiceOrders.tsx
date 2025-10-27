@@ -117,17 +117,17 @@ const ServiceOrders: React.FC = () => {
             />
           </div>
           
-          {/* Filtro de Status */}
+          {/* Filtro de Estado */}
           <div className="w-full md:w-48">
             <Select 
               onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
               defaultValue={selectedStatus}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Filtrar por Status" />
+                <SelectValue placeholder="Filtrar por Estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todos os Status</SelectItem>
+                <SelectItem value="ALL">Todos os Estados</SelectItem>
                 <SelectItem value="Pendente">Pendente</SelectItem>
                 <SelectItem value="Em Progresso">Em Progresso</SelectItem>
                 <SelectItem value="Concluída">Concluída</SelectItem>

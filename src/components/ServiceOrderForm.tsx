@@ -29,7 +29,7 @@ const formSchema = z.object({
   title: z.string().min(5, { message: "O título deve ter pelo menos 5 caracteres." }),
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }), // Agora usamos o ID do cliente
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
-  priority: z.enum(["Alta", "Média", "Baixa"]),
+  // Prioridade removida
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
 });
@@ -55,7 +55,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       title: "",
       client_id: "", // Deve ser o ID do cliente
       description: "",
-      priority: "Média",
+      // priority: "Média", // Removido
       status: "Pendente",
       store: "CALDAS DA RAINHA",
     },
@@ -136,39 +136,18 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="priority"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Prioridade</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a prioridade" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Alta">Alta</SelectItem>
-                    <SelectItem value="Média">Média</SelectItem>
-                    <SelectItem value="Baixa">Baixa</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Campo de Prioridade removido */}
 
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status</FormLabel>
+                <FormLabel>Estado</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o status" />
+                      <SelectValue placeholder="Selecione o estado" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

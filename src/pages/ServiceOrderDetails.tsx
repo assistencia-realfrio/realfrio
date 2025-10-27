@@ -32,7 +32,7 @@ const ServiceOrderDetails: React.FC = () => {
     title: order.title,
     client_id: order.client_id, // Usamos client_id agora
     description: order.description,
-    priority: order.priority,
+    // priority: order.priority, // Removido
     status: order.status,
     store: order.store,
   } : undefined;

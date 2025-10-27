@@ -9,7 +9,7 @@ export interface ServiceOrder {
   client_id: string; // ID do cliente
   description: string;
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
-  priority: "Alta" | "Média" | "Baixa";
+  // priority: "Alta" | "Média" | "Baixa"; // Removido
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
 }
@@ -34,7 +34,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       title, 
       description, 
       status, 
-      priority, 
       store, 
       created_at,
       client_id,
@@ -57,7 +56,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         id: order.id,
         client: clientName, 
         status: order.status as ServiceOrder['status'],
-        priority: order.priority as ServiceOrder['priority'],
+        // priority: order.priority as ServiceOrder['priority'], // Removido
         store: order.store as ServiceOrder['store'],
         created_at: order.created_at,
     };
@@ -96,7 +95,7 @@ export const useServiceOrders = (id?: string) => {
         .insert({
           title: orderData.title,
           description: orderData.description,
-          priority: orderData.priority,
+          // priority: orderData.priority, // Removido
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
@@ -120,7 +119,7 @@ export const useServiceOrders = (id?: string) => {
         .update({
           title: orderData.title,
           description: orderData.description,
-          priority: orderData.priority,
+          // priority: orderData.priority, // Removido
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
