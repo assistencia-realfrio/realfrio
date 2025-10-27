@@ -24,8 +24,10 @@ import { showSuccess } from "@/utils/toast";
 // Definição do Schema de Validação
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
-  contact: z.string().optional().or(z.literal('')),
-  email: z.string().email({ message: "E-mail inválido." }).optional().or(z.literal('')),
+  // Alterado para permitir null ou string vazia
+  contact: z.string().nullable().optional(),
+  // Alterado para permitir null ou string vazia, e validação de e-mail
+  email: z.string().email({ message: "E-mail inválido." }).nullable().optional().or(z.literal('')),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], { message: "Selecione uma loja." }), // Campo 'store' obrigatório
 });
 
@@ -77,7 +79,11 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
             <FormItem>
               <FormLabel>Telefone/Contato (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="(XX) XXXXX-XXXX" {...field} />
+                <Input 
+                  placeholder="(XX) XXXXX-XXXX" 
+                  {...field} 
+                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,7 +97,11 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
             <FormItem>
               <FormLabel>E-mail (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="contato@exemplo.com" {...field} />
+                <Input 
+                  placeholder="contato@exemplo.com" 
+                  {...field} 
+                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
