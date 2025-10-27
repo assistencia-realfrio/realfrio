@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ClientTable, { Client } from "@/components/ClientTable";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"; // Importação de DialogTrigger adicionada
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
+import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Importar o novo componente
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 
@@ -81,9 +82,10 @@ const Clients: React.FC = () => {
               </DialogHeader>
               
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full" style={{ gridTemplateColumns: isEditing ? 'repeat(2, 1fr)' : '1fr' }}>
+                <TabsList className="grid w-full" style={{ gridTemplateColumns: isEditing ? 'repeat(3, 1fr)' : '1fr' }}>
                   <TabsTrigger value="details">Detalhes</TabsTrigger>
                   {isEditing && <TabsTrigger value="orders">Ordens de Serviço</TabsTrigger>}
+                  {isEditing && <TabsTrigger value="equipments">Equipamentos</TabsTrigger>} {/* Novo Tab Trigger */}
                 </TabsList>
 
                 <TabsContent value="details" className="mt-4">
@@ -97,6 +99,12 @@ const Clients: React.FC = () => {
                 {isEditing && (
                   <TabsContent value="orders" className="mt-4">
                     <ClientOrdersTab clientId={editingClient.id} />
+                  </TabsContent>
+                )}
+
+                {isEditing && (
+                  <TabsContent value="equipments" className="mt-4"> {/* Novo Tab Content */}
+                    <ClientEquipmentTab clientId={editingClient.id} />
                   </TabsContent>
                 )}
               </Tabs>

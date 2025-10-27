@@ -2,21 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { showSuccess, showError } from "@/utils/toast";
-import { useEquipments, EquipmentFormValues, Equipment } from "@/hooks/useEquipments";
+import { useEquipments, Equipment } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
@@ -28,118 +15,13 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-
-// Schema de validação para o formulário de novo equipamento
-const newEquipmentSchema = z.object({
-  name: z.string().min(3, { message: "O nome do equipamento é obrigatório." }),
-  brand: z.string().optional().or(z.literal('')), // Novo campo
-  model: z.string().optional().or(z.literal('')),
-  serial_number: z.string().optional().or(z.literal('')),
-});
-
-type NewEquipmentFormValues = z.infer<typeof newEquipmentSchema>;
+import EquipmentForm from "./EquipmentForm"; // Importando o formulário de equipamento reutilizável
 
 interface EquipmentSelectorProps {
   clientId: string;
   value: string; // Deve ser o ID do equipamento
   onChange: (equipmentId: string, equipmentDetails: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => void;
 }
-
-const EquipmentForm: React.FC<{ clientId: string, onSubmit: (data: Equipment) => void, onCancel: () => void }> = ({ clientId, onSubmit, onCancel }) => {
-    const form = useForm<NewEquipmentFormValues>({
-        resolver: zodResolver(newEquipmentSchema),
-        defaultValues: { name: "", brand: "", model: "", serial_number: "" },
-    });
-    const { createEquipment } = useEquipments(clientId);
-
-    const handleSubmit = async (data: NewEquipmentFormValues) => {
-        try {
-            const newEquipment = await createEquipment.mutateAsync({
-                client_id: clientId,
-                name: data.name,
-                brand: data.brand || undefined, // Passando a marca
-                model: data.model || undefined,
-                serial_number: data.serial_number || undefined,
-            });
-            showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
-            onSubmit(newEquipment);
-        } catch (error) {
-            console.error("Erro ao criar equipamento:", error);
-            showError("Erro ao criar novo equipamento. Tente novamente.");
-        }
-    };
-
-    return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nome do Equipamento *</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Ex: Notebook, Servidor" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                
-                {/* Novo Campo: Marca */}
-                <FormField
-                    control={form.control}
-                    name="brand"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Marca (Opcional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Ex: Dell, Apple, Samsung" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="model"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Modelo (Opcional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Ex: XPS 13, iPhone 15" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="serial_number"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nº de Série (Opcional)</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Ex: ABC123XYZ" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <div className="flex justify-end space-x-2 pt-2">
-                    <Button type="button" variant="outline" onClick={onCancel}>
-                        Cancelar
-                    </Button>
-                    <Button type="submit" disabled={createEquipment.isPending}>
-                        Criar Equipamento
-                    </Button>
-                </div>
-            </form>
-        </Form>
-    );
-};
-
 
 const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, onChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
