@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
-import { useServiceOrders, ServiceOrderFormValues as BaseServiceOrderFormValues } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues } from "@/hooks/useServiceOrders";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -34,7 +34,7 @@ const formSchema = z.object({
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
 });
 
-// Tipo de dados para o formulário (inclui o ID do cliente)
+// Tipo de dados para o formulário (corresponde exatamente ao MutationServiceOrderFormValues)
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 // Tipo de dados iniciais (pode incluir o ID da OS se for edição)
@@ -65,11 +65,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     try {
+        // Erro 2 corrigido: 'data' é garantido pelo Zod como ServiceOrderFormValues completo.
+        // Usamos o cast para garantir que o TypeScript saiba que é o tipo de mutação esperado.
+        const mutationData = data as MutationServiceOrderFormValues;
+
         if (isEditing && initialData.id) {
-            await updateOrder.mutateAsync({ id: initialData.id, ...data });
+            await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
             showSuccess("Ordem de Serviço atualizada com sucesso!");
         } else {
-            const newOrder = await createOrder.mutateAsync(data);
+            const newOrder = await createOrder.mutateAsync(mutationData);
             showSuccess("Ordem de Serviço criada com sucesso!");
             // Passa o ID da nova OS para o componente pai, se necessário
             onSubmit({ ...data, id: newOrder.id });
