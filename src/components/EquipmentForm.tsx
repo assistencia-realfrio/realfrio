@@ -30,32 +30,60 @@ interface EquipmentFormProps {
   clientId: string;
   onSubmit: (equipment: Equipment) => void;
   onCancel: () => void;
-  initialData?: EquipmentFormData;
+  initialData?: Equipment; // Agora aceita um objeto Equipment completo para edição
 }
 
 const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCancel, initialData }) => {
     const form = useForm<EquipmentFormData>({
         resolver: zodResolver(equipmentFormSchema),
-        defaultValues: initialData || { name: "", brand: "", model: "", serial_number: "" },
+        defaultValues: initialData ? {
+            name: initialData.name,
+            brand: initialData.brand || "",
+            model: initialData.model || "",
+            serial_number: initialData.serial_number || "",
+        } : { 
+            name: "", 
+            brand: "", 
+            model: "", 
+            serial_number: "" 
+        },
     });
-    const { createEquipment } = useEquipments(clientId);
+    const { createEquipment, updateEquipment } = useEquipments(clientId);
+    const isEditing = !!initialData?.id;
 
     const handleSubmit = async (data: EquipmentFormData) => {
         try {
-            const newEquipment = await createEquipment.mutateAsync({
-                client_id: clientId,
-                name: data.name,
-                brand: data.brand || undefined,
-                model: data.model || undefined,
-                serial_number: data.serial_number || undefined,
-            });
-            showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
-            onSubmit(newEquipment);
+            let resultEquipment: Equipment;
+            if (isEditing && initialData?.id) {
+                // Atualizar equipamento existente
+                resultEquipment = await updateEquipment.mutateAsync({
+                    id: initialData.id,
+                    client_id: clientId, // client_id é necessário para a mutação, mas não é alterado no form
+                    name: data.name,
+                    brand: data.brand || undefined,
+                    model: data.model || undefined,
+                    serial_number: data.serial_number || undefined,
+                });
+                showSuccess(`Equipamento '${data.name}' atualizado com sucesso!`);
+            } else {
+                // Criar novo equipamento
+                resultEquipment = await createEquipment.mutateAsync({
+                    client_id: clientId,
+                    name: data.name,
+                    brand: data.brand || undefined,
+                    model: data.model || undefined,
+                    serial_number: data.serial_number || undefined,
+                });
+                showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
+            }
+            onSubmit(resultEquipment);
         } catch (error) {
-            console.error("Erro ao criar equipamento:", error);
-            showError("Erro ao criar novo equipamento. Tente novamente.");
+            console.error("Erro ao salvar equipamento:", error);
+            showError("Erro ao salvar equipamento. Tente novamente.");
         }
     };
+
+    const isPending = createEquipment.isPending || updateEquipment.isPending;
 
     return (
         <Form {...form}>
@@ -115,11 +143,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     )}
                 />
                 <div className="flex justify-end space-x-2 pt-2">
-                    <Button type="button" variant="outline" onClick={onCancel}>
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
                         Cancelar
                     </Button>
-                    <Button type="submit" disabled={createEquipment.isPending}>
-                        Criar Equipamento
+                    <Button type="submit" disabled={isPending}>
+                        {isEditing ? "Salvar Alterações" : "Criar Equipamento"}
                     </Button>
                 </div>
             </form>

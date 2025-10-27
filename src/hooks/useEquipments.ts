@@ -103,10 +103,52 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
     },
   });
 
+  const updateEquipmentMutation = useMutation({
+    mutationFn: async ({ id, ...equipmentData }: EquipmentFormValues & { id: string }) => {
+      const { data, error } = await supabase
+        .from('equipments')
+        .update({
+          name: equipmentData.name,
+          brand: equipmentData.brand || null,
+          model: equipmentData.model || null,
+          serial_number: equipmentData.serial_number || null,
+          updated_at: new Date().toISOString(), // Adiciona updated_at
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Equipment;
+    },
+    onSuccess: (updatedEquipment) => {
+      queryClient.invalidateQueries({ queryKey: ['equipments', updatedEquipment.client_id] });
+      queryClient.invalidateQueries({ queryKey: ['equipment', updatedEquipment.id] });
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens caso o nome do equipamento mude
+    },
+  });
+
+  const deleteEquipmentMutation = useMutation({
+    mutationFn: async (equipmentId: string) => {
+      const { error } = await supabase
+        .from('equipments')
+        .delete()
+        .eq('id', equipmentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['equipments', clientId] }); // Invalida a lista do cliente
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens que possam ter usado este equipamento
+    },
+  });
+
   return {
     equipments,
     singleEquipment, // Expondo o equipamento único
     isLoading: isLoadingEquipmentsList || isLoadingSingleEquipment, // Estado de carregamento combinado
     createEquipment: createEquipmentMutation,
+    updateEquipment: updateEquipmentMutation, // Expondo a mutação de atualização
+    deleteEquipment: deleteEquipmentMutation, // Expondo a mutação de exclusão
   };
 };

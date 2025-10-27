@@ -15,6 +15,17 @@ import { useEquipments, Equipment } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showSuccess, showError } from "@/utils/toast";
 import EquipmentForm from "./EquipmentForm"; // Importação corrigida para o componente EquipmentForm
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ClientEquipmentTabProps {
   clientId: string;
@@ -22,16 +33,35 @@ interface ClientEquipmentTabProps {
 
 const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { equipments, isLoading } = useEquipments(clientId);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | undefined>(undefined);
+
+  const { equipments, isLoading, deleteEquipment } = useEquipments(clientId);
 
   const handleNewEquipmentSuccess = (newEquipment: Equipment) => {
     setIsAddModalOpen(false);
     // A query será invalidada automaticamente pelo hook useEquipments
   };
 
-  const handleDelete = (equipmentId: string, equipmentName: string) => {
-    // Implementar lógica de exclusão aqui
-    showError(`Funcionalidade de exclusão para ${equipmentName} ainda não implementada.`);
+  const handleEditEquipment = (equipment: Equipment) => {
+    setEditingEquipment(equipment);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditEquipmentSuccess = (updatedEquipment: Equipment) => {
+    setIsEditModalOpen(false);
+    setEditingEquipment(undefined);
+    // A query será invalidada automaticamente pelo hook useEquipments
+  };
+
+  const handleDelete = async (equipmentId: string, equipmentName: string) => {
+    try {
+        await deleteEquipment.mutateAsync(equipmentId);
+        showSuccess(`Equipamento '${equipmentName}' excluído com sucesso.`);
+    } catch (error) {
+        console.error("Erro ao deletar equipamento:", error);
+        showError("Erro ao excluir equipamento. Tente novamente.");
+    }
   };
 
   if (isLoading) {
@@ -59,7 +89,6 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
             <DialogHeader>
               <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
             </DialogHeader>
-            {/* Reutilizando o formulário de criação de equipamento */}
             <EquipmentForm 
               clientId={clientId} 
               onSubmit={handleNewEquipmentSuccess} 
@@ -90,17 +119,40 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
                     <TableCell className="hidden sm:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="icon" aria-label="Editar">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditEquipment(equipment)} aria-label="Editar">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleDelete(equipment.id, equipment.name)} 
-                          aria-label="Excluir"
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    aria-label="Excluir"
+                                    disabled={deleteEquipment.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o equipamento 
+                                        <span className="font-semibold"> {equipment.name}</span> e todos os dados associados.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        onClick={() => handleDelete(equipment.id, equipment.name)} 
+                                        className="bg-destructive hover:bg-destructive/90"
+                                        disabled={deleteEquipment.isPending}
+                                    >
+                                        Excluir
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -114,6 +166,23 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
           </p>
         )}
       </CardContent>
+
+      {/* Modal de Edição de Equipamento */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Equipamento</DialogTitle>
+          </DialogHeader>
+          {editingEquipment && (
+            <EquipmentForm 
+              clientId={clientId} 
+              initialData={editingEquipment}
+              onSubmit={handleEditEquipmentSuccess} 
+              onCancel={() => setIsEditModalOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
