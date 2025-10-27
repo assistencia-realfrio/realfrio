@@ -2,7 +2,7 @@ import React from "react";
 import { Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { DesktopSidebar } from "@/components/SidebarNav"; // Removido MobileSidebar
+import { DesktopSidebar } from "@/components/SidebarNav";
 import { useSession } from "@/contexts/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { showSuccess, showError } from "@/utils/toast";
@@ -40,8 +40,7 @@ const Header = () => {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-4">
-          {/* MobileSidebar removido daqui */}
-          <Link to="/orders" className="flex items-center space-x-2"> {/* Logo agora sempre visível */}
+          <Link to="/" className="flex items-center space-x-2"> {/* Link do logo agora aponta para a homepage */}
             <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-8" />
           </Link>
         </div>
