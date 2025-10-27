@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils"; // Importar cn para combinar classes
 
 export type { Client }; // Exportando o tipo Client do hook
 
@@ -32,6 +33,17 @@ interface ClientTableProps {
     searchTerm: string;
     storeFilter: "ALL" | Client['store'] | null; // Adicionando a prop storeFilter
 }
+
+const getStoreBadgeColor = (store: Client['store'] | null) => {
+  switch (store) {
+    case "CALDAS DA RAINHA":
+      return "bg-blue-500 hover:bg-blue-600 text-white";
+    case "PORTO DE MÓS":
+      return "bg-red-500 hover:bg-red-600 text-white";
+    default:
+      return "bg-gray-200 hover:bg-gray-300 text-gray-800";
+  }
+};
 
 const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilter }) => {
   const { clients, isLoading, deleteClient } = useClients(searchTerm, storeFilter); // Passando o storeFilter para o hook
@@ -65,7 +77,6 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             <TableHead className="hidden sm:table-cell">Contato</TableHead>
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
             <TableHead className="hidden md:table-cell">OS Abertas</TableHead> {/* NOVA COLUNA */}
-            <TableHead className="hidden md:table-cell">Loja</TableHead> {/* NOVA COLUNA */}
             <TableHead className="text-right">Ações</TableHead> {/* Adicionando coluna de Ações */}
           </TableRow>
         </TableHeader>
@@ -77,12 +88,16 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
                     className="font-medium text-foreground hover:underline cursor-pointer" // Alterado para text-foreground
                     onClick={() => onEdit(client)}
                 >
-                    {client.name}
+                    <div className="flex items-center gap-2">
+                        {client.name}
+                        <Badge className={cn("text-xs px-2 py-0.5", getStoreBadgeColor(client.store))}>
+                            {client.store || 'N/A'}
+                        </Badge>
+                    </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell> {/* EXIBINDO OS ABERTAS */}
-                <TableCell className="hidden md:table-cell">{client.store || 'N/A'}</TableCell> {/* EXIBINDO A LOJA */}
                 <TableCell className="text-right"> {/* Célula para as ações */}
                     <div className="flex justify-end space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
@@ -125,7 +140,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ onEdit, searchTerm, storeFilt
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 6 */}
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 5 */}
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>
