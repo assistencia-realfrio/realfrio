@@ -39,20 +39,20 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     return (
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={handleClick}>
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                {/* ID da OS em destaque */}
-                <div className="text-xl font-bold text-primary truncate">{order.display_id}</div>
+                {/* ID da OS com menos destaque (text-base) */}
+                <div className="text-base font-medium text-muted-foreground truncate">{order.display_id}</div>
                 <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">{order.status}</Badge>
             </CardHeader>
             <CardContent>
-                {/* Cliente em destaque (Maior e mais escuro) */}
+                {/* Cliente em destaque */}
                 <p className="text-lg font-semibold text-foreground mb-1 truncate">Cliente: {order.client}</p>
                 
-                {/* Equipamento em destaque (Maior e em negrito) */}
+                {/* Equipamento em destaque (Removendo o modelo) */}
                 <CardTitle className="text-lg font-bold truncate mb-2">
-                    {order.equipment} - {order.model}
+                    {order.equipment}
                 </CardTitle>
                 
-                {/* Descrição (um pouco menor) */}
+                {/* Descrição */}
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-3 h-10">
                     {order.description}
                 </p>
