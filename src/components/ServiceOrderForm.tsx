@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
-import EquipmentSelector from "./EquipmentSelector"; // Novo import
+import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues } from "@/hooks/useServiceOrders";
+import { useEquipments } from "@/hooks/useEquipments";
+import { Skeleton } from "@/components/ui/skeleton"; // Importação adicionada
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -40,8 +42,6 @@ export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 // Tipo de dados iniciais (pode incluir o ID da OS se for edição)
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
-    // Adicionamos campos de equipamento para inicializar o seletor
-    initialEquipmentId?: string;
 }
 
 interface ServiceOrderFormProps {
@@ -67,19 +67,26 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   
   // Observa o client_id para habilitar o EquipmentSelector
   const clientId = form.watch("client_id");
-  
+  // Observa o equipment_id do formulário para buscar os detalhes
+  const currentEquipmentId = form.watch("equipment_id");
+
+  // Usa o hook useEquipments para buscar os detalhes do equipamento único se estiver editando
+  const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
+
   // Estado para armazenar os detalhes do equipamento selecionado (nome, marca, modelo, serial)
   const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null } | null>(null);
 
-  // Se estiver editando, precisamos carregar os detalhes iniciais do equipamento
+  // Efeito para inicializar equipmentDetails quando estiver editando e o singleEquipment for carregado
   useEffect(() => {
-    if (initialData?.initialEquipmentId) {
-        // Em um cenário real, buscaríamos os detalhes do equipamento aqui.
-        // Por enquanto, vamos assumir que o hook de OS já forneceu os detalhes necessários
-        // e que o ServiceOrderDetails.tsx será atualizado para passar esses dados.
-        // Por enquanto, vamos focar na criação.
+    if (isEditing && singleEquipment && !equipmentDetails) {
+      setEquipmentDetails({
+        name: singleEquipment.name,
+        brand: singleEquipment.brand,
+        model: singleEquipment.model,
+        serial_number: singleEquipment.serial_number,
+      });
     }
-  }, [initialData]);
+  }, [isEditing, singleEquipment, equipmentDetails]);
 
 
   const handleEquipmentChange = (equipmentId: string, details: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => {
@@ -132,6 +139,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         showError("Erro ao salvar Ordem de Serviço. Verifique os dados.");
     }
   };
+
+  // Se estiver editando e ainda carregando os detalhes do equipamento, mostra um esqueleto de carregamento
+  if (isEditing && isLoadingSingleEquipment) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <div className="grid grid-cols-2 gap-6">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="flex justify-end space-x-2 pt-4">
+          <Skeleton className="h-10 w-24" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
