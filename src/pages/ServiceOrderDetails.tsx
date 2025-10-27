@@ -53,7 +53,9 @@ const ServiceOrderDetails: React.FC = () => {
     }
   };
 
-  const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${currentOrderId}`;
+  // Usamos o display_id se estiver disponível, senão usamos o UUID (id)
+  const displayTitleId = order?.display_id || currentOrderId;
+  const title = isNew ? "Criar Nova Ordem de Serviço" : `Detalhes da OS: ${displayTitleId}`;
 
   if (!isNew && isLoading) {
     return (

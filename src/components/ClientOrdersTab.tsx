@@ -40,7 +40,7 @@ const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
             <div className="flex flex-col">
                 <span className="font-medium text-sm">{order.equipment} - {order.model}</span>
                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    <span>{order.id.substring(0, 8)}...</span>
+                    <span>{order.display_id}</span>
                     <span>|</span>
                     <span>{date}</span>
                 </div>

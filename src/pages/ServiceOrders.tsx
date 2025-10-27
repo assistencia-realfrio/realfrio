@@ -48,10 +48,10 @@ const ServiceOrders: React.FC = () => {
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(order => 
-        order.id.toLowerCase().includes(lowerCaseSearch) ||
+        order.display_id.toLowerCase().includes(lowerCaseSearch) || // Busca pelo novo ID
         order.client.toLowerCase().includes(lowerCaseSearch) ||
-        order.equipment.toLowerCase().includes(lowerCaseSearch) || // Novo campo de busca
-        order.model.toLowerCase().includes(lowerCaseSearch) // Novo campo de busca
+        order.equipment.toLowerCase().includes(lowerCaseSearch) ||
+        (order.model && order.model.toLowerCase().includes(lowerCaseSearch))
       );
     }
     

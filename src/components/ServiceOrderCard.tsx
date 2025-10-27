@@ -43,7 +43,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">{order.status}</Badge>
             </CardHeader>
             <CardContent>
-                <div className="text-xl font-bold mb-2 text-primary truncate">{order.id.substring(0, 8)}...</div>
+                {/* Exibindo o display_id formatado */}
+                <div className="text-xl font-bold mb-2 text-primary truncate">{order.display_id}</div>
                 <p className="text-sm text-muted-foreground mb-1 truncate">Cliente: {order.client}</p>
                 <p className="text-xs text-muted-foreground mb-3 truncate">Loja: {order.store}</p>
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
