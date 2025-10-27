@@ -75,7 +75,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead className="hidden sm:table-cell">Contato</TableHead>
-            <TableHead className="hidden sm:table-cell">Morada</TableHead> {/* Adicionando a coluna Morada */}
+            <TableHead className="hidden sm:table-cell">Localidade</TableHead> {/* Alterado para Localidade */}
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
             <TableHead className="hidden md:table-cell">OS Abertas</TableHead>
             <TableHead className="text-right">Ações</TableHead>
@@ -97,7 +97,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
                     </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
-                <TableCell className="hidden sm:table-cell">{client.address || 'N/A'}</TableCell> {/* Célula da Morada */}
+                <TableCell className="hidden sm:table-cell">{client.locality || 'N/A'}</TableCell> {/* Célula da Localidade */}
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
                 <TableCell className="text-right">

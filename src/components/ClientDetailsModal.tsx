@@ -13,11 +13,11 @@ interface ClientDetailsModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Função auxiliar para verificar se a morada é um link do Google Maps ou coordenadas
-const isGoogleMapsLink = (address: string | null): boolean => {
-  if (!address) return false;
+// Função auxiliar para verificar se o link é do Google Maps ou coordenadas
+const isGoogleMapsLink = (mapsLink: string | null): boolean => {
+  if (!mapsLink) return false;
   // Verifica se é uma URL do Google Maps ou um par de coordenadas (lat, long)
-  return address.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(address);
+  return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
 const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpen, onOpenChange }) => {
@@ -79,7 +79,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
     contact: client.contact || "",
     email: client.email || "",
     store: client.store || "CALDAS DA RAINHA",
-    address: client.address || "",
+    maps_link: client.maps_link || "", // Usando maps_link
+    locality: client.locality || "", // Usando locality
   };
 
   return (
@@ -114,6 +115,30 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
               <p className="font-medium">{client.store || 'N/A'}</p>
             </div>
             <div>
+              <p className="text-muted-foreground">Localidade</p> {/* Novo campo Localidade */}
+              <p className="font-medium">{client.locality || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Maps</p> {/* Campo Maps */}
+              {client.maps_link ? (
+                isGoogleMapsLink(client.maps_link) ? (
+                  <a 
+                    href={client.maps_link.startsWith("http") ? client.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Ver no Mapa
+                  </a>
+                ) : (
+                  <p className="font-medium">{client.maps_link}</p>
+                )
+              ) : (
+                <p className="text-muted-foreground">N/A</p>
+              )}
+            </div>
+            <div>
               <p className="text-muted-foreground">Contato</p>
               {client.contact ? (
                 <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
@@ -131,26 +156,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
                   <Mail className="h-4 w-4" />
                   {client.email}
                 </a>
-              ) : (
-                <p className="text-muted-foreground">N/A</p>
-              )}
-            </div>
-            <div>
-              <p className="text-muted-foreground">Morada</p>
-              {client.address ? (
-                isGoogleMapsLink(client.address) ? (
-                  <a 
-                    href={client.address.startsWith("http") ? client.address : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.address)}`}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    Ver no Mapa
-                  </a>
-                ) : (
-                  <p className="font-medium">{client.address}</p>
-                )
               ) : (
                 <p className="text-muted-foreground">N/A</p>
               )}

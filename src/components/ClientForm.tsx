@@ -29,7 +29,8 @@ const formSchema = z.object({
   // Alterado para permitir null ou string vazia, e validação de e-mail
   email: z.string().email({ message: "E-mail inválido." }).nullable().optional().or(z.literal('')),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], { message: "Selecione uma loja." }), // Campo 'store' obrigatório
-  address: z.string().nullable().optional(), // NOVO: Campo para a morada
+  maps_link: z.string().nullable().optional(), // NOVO: Campo para o link do mapa
+  locality: z.string().nullable().optional(), // NOVO: Campo para a localidade
 });
 
 export type ClientFormValues = z.infer<typeof formSchema>;
@@ -48,7 +49,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
       contact: "",
       email: "",
       store: "CALDAS DA RAINHA", // Valor padrão para novas criações
-      address: "", // Valor padrão para a morada
+      maps_link: "", // Valor padrão para o link do mapa
+      locality: "", // Valor padrão para a localidade
     },
   });
 
@@ -74,16 +76,35 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           )}
         />
 
-        {/* Campo para a morada movido para cá */}
+        {/* Campo para a localidade */}
         <FormField
           control={form.control}
-          name="address"
+          name="locality"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Morada (Opcional)</FormLabel>
+              <FormLabel>Localidade (Opcional)</FormLabel>
               <FormControl>
                 <Input 
-                  placeholder="Ex: Rua Exemplo, 123, Cidade ou link do Google Maps" 
+                  placeholder="Ex: Caldas da Rainha, Porto de Mós" 
+                  {...field} 
+                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Campo para o link do Google Maps */}
+        <FormField
+          control={form.control}
+          name="maps_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Maps (Opcional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Link do Google Maps ou coordenadas" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
                 />

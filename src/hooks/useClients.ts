@@ -13,7 +13,8 @@ export interface Client {
   totalOrders: number; // Este campo será calculado no frontend
   openOrders: number; // NOVO: Campo para OS em aberto
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS" | null; // NOVO: Campo para a loja associada
-  address: string | null; // NOVO: Campo para a morada
+  maps_link: string | null; // NOVO: Campo para o link do mapa
+  locality: string | null; // NOVO: Campo para a localidade
 }
 
 // Função de fetch para buscar TODOS os clientes (para a lista)
@@ -22,7 +23,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   
   const { data, error } = await supabase
     .from('clients')
-    .select('id, name, contact, email, status, created_at, store, address') // Adicionando 'address'
+    .select('id, name, contact, email, status, created_at, store, maps_link, locality') // Adicionando 'maps_link' e 'locality'
     .eq('created_by', userId)
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
@@ -35,7 +36,8 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     openOrders: 0, // Inicializa com 0
     status: client.status as "Ativo" | "Inativo",
     store: client.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null, // Tipagem para o campo 'store'
-    address: client.address || null, // Garante que address seja string ou null
+    maps_link: client.maps_link || null, // Garante que maps_link seja string ou null
+    locality: client.locality || null, // Garante que locality seja string ou null
   })) as Client[];
 };
 
@@ -71,7 +73,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       client.name.toLowerCase().includes(lowerCaseSearch) ||
       client.contact?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para contact
       client.email?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para email
-      client.address?.toLowerCase().includes(lowerCaseSearch) // NOVO: Busca por morada
+      client.locality?.toLowerCase().includes(lowerCaseSearch) // NOVO: Busca por localidade
     );
   });
 
@@ -88,7 +90,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           created_by: user.id,
           status: 'Ativo', // Default status
           store: clientData.store,
-          address: clientData.address, // Usando o valor transformado pelo Zod
+          maps_link: clientData.maps_link, // Usando o valor transformado pelo Zod
+          locality: clientData.locality, // Usando o valor transformado pelo Zod
         })
         .select()
         .single();
@@ -116,7 +119,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           contact: clientData.contact,
           email: clientData.email,
           store: clientData.store,
-          address: clientData.address,
+          maps_link: clientData.maps_link, // Usando maps_link
+          locality: clientData.locality, // Usando locality
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
