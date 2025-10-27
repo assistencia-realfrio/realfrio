@@ -267,7 +267,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        <div className="flex justify-end space-x-2 pt-4">
+        <div className="flex justify-center space-x-2 pt-4"> {/* Alterado de justify-end para justify-center */}
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending}>
               Cancelar

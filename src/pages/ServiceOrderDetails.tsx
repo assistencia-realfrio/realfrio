@@ -175,7 +175,7 @@ const ServiceOrderDetails: React.FC = () => {
 
         {/* Botão de Excluir (visível apenas se não for uma nova OS), movido para o final da página */}
         {!isNew && (
-            <div className="mt-8 flex justify-end">
+            <div className="mt-8 flex justify-center"> {/* Alterado de justify-end para justify-center */}
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button variant="destructive" disabled={deleteOrder.isPending}>
