@@ -77,8 +77,7 @@ const MobileSidebar: React.FC = () => {
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col w-[250px] sm:w-[300px]">
         <div className="flex items-center space-x-2 p-4">
-          <Wrench className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold tracking-tight">Gestão de OS</h1>
+          <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-7" /> {/* Logo para mobile sidebar */}
         </div>
         <Separator />
         <nav className="flex flex-col gap-1 p-4">

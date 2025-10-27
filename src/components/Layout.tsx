@@ -1,5 +1,5 @@
 import React from "react";
-import { Wrench, Bell, User, LogOut } from "lucide-react";
+import { Bell, User, LogOut } from "lucide-react"; // Removido Wrench
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DesktopSidebar, MobileSidebar } from "@/components/SidebarNav";
@@ -41,13 +41,11 @@ const Header = () => {
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-4">
           <MobileSidebar />
-          <div className="hidden lg:flex items-center space-x-4">
-            <Wrench className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold tracking-tight">Gestão de OS</h1>
+          <div className="hidden lg:flex items-center space-x-2"> {/* Ajustado para usar o logo */}
+            <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-8" /> {/* Logo para desktop */}
           </div>
-          <div className="lg:hidden flex items-center space-x-2">
-            <Wrench className="h-5 w-5 text-primary" />
-            <h1 className="text-lg font-bold tracking-tight">Gestão de OS</h1>
+          <div className="lg:hidden flex items-center space-x-2"> {/* Ajustado para usar o logo */}
+            <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-7" /> {/* Logo para mobile */}
           </div>
         </div>
         <nav className="flex items-center space-x-4">
