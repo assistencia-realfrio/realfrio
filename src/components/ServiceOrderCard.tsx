@@ -31,9 +31,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         navigate(`/orders/${order.id}`);
     };
     
-    // Formata a data para exibição
-    // const date = new Date(order.created_at).toLocaleDateString('pt-BR'); // Removido conforme solicitação
-
     // Define a cor da barra lateral com base na loja
     const storeColorClass = order.store === 'CALDAS DA RAINHA' 
         ? 'bg-blue-500' 
@@ -43,7 +40,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         <Card 
             className={cn(
                 "hover:shadow-lg transition-shadow cursor-pointer flex",
-                // Remove o padding padrão do Card para que a barra lateral funcione
                 "p-0" 
             )} 
             onClick={handleClick}
@@ -52,31 +48,23 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             <div className={cn("w-2 rounded-l-lg", storeColorClass)} />
 
             {/* Conteúdo do Card */}
-            <div className="flex flex-col flex-grow p-4">
-                <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-2">
-                    {/* ID da OS com menos destaque (text-base) */}
-                    <div className="text-base font-medium text-muted-foreground truncate">{order.display_id}</div>
-                    <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap">{order.status}</Badge>
+            <div className="flex flex-col flex-grow p-3"> {/* Reduzido p-4 para p-3 */}
+                <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1"> {/* Reduzido pb-2 para pb-1 */}
+                    <div className="text-sm font-medium text-muted-foreground truncate">{order.display_id}</div> {/* Reduzido text-base para text-sm */}
+                    <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap text-xs px-2 py-0.5"> {/* Ajustado tamanho da badge */}
+                        {order.status}
+                    </Badge>
                 </CardHeader>
-                <CardContent className="p-0 pt-2 flex flex-col flex-grow">
-                    {/* Cliente em destaque */}
-                    <p className="text-lg font-semibold text-foreground mb-1 truncate">Cliente: {order.client}</p>
+                <CardContent className="p-0 pt-1 flex flex-col flex-grow"> {/* Reduzido pt-2 para pt-1 */}
+                    <p className="text-base font-semibold text-foreground mb-0.5 truncate">Cliente: {order.client}</p> {/* Reduzido text-lg para text-base, mb-1 para mb-0.5 */}
                     
-                    {/* Equipamento em destaque */}
-                    <CardTitle className="text-lg font-bold truncate mb-2">
+                    <CardTitle className="text-base font-bold truncate mb-1"> {/* Reduzido text-lg para text-base, mb-2 para mb-1 */}
                         {order.equipment}
                     </CardTitle>
                     
-                    {/* Descrição */}
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3 h-10 flex-grow">
+                    <p className="text-xs text-muted-foreground line-clamp-2 flex-grow"> {/* Reduzido text-sm para text-xs, removido mb-3 h-10 */}
                         {order.description}
                     </p>
-                    
-                    {/* Removido: Informações de Loja e Data */}
-                    {/* <div className="flex justify-between items-center text-xs text-muted-foreground pt-2 border-t">
-                        <span>Loja: {order.store}</span>
-                        <span>Criada em: {date}</span>
-                    </div> */}
                 </CardContent>
             </div>
         </Card>
