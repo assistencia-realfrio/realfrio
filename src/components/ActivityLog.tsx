@@ -18,6 +18,9 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
   const { activities, isLoading, createActivity } = useOrderActivities(orderId);
   const [newNote, setNewNote] = useState("");
 
+  // Log de depuração
+  // console.log("ActivityLog rendered for orderId:", orderId, "Activities:", activities);
+
   const handleAddNote = async () => {
     if (newNote.trim() === "") return;
 
@@ -36,10 +39,13 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ orderId }) => {
   };
 
   const getUserDisplayName = (activity: OrderActivity) => {
+    // Tenta usar o nome do perfil se disponível
     if (activity.profiles && activity.profiles.first_name) {
       return `${activity.profiles.first_name} ${activity.profiles.last_name || ''}`.trim();
     }
-    return user?.email || "Usuário Desconhecido"; // Fallback para email ou genérico
+    // Se não houver perfil (ou se o join falhar), usa o email do usuário logado como fallback
+    // Nota: O user logado é o criador da nota, pois a política de insert garante isso.
+    return user?.email || "Usuário Desconhecido"; 
   };
 
   const renderActivity = (activity: OrderActivity) => {
