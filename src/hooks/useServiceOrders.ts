@@ -20,10 +20,11 @@ export interface ServiceOrder {
   status: ServiceOrderStatus;
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
+  updated_at: string | null; // Adicionado campo de atualização
 }
 
 // O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
@@ -58,18 +59,17 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       status, 
       store, 
       created_at,
+      updated_at,
       client_id,
       equipment_id,
       clients (name)
     `)
-    .eq('created_by', userId)
-    .order('created_at', { ascending: false });
+    .eq('created_by', userId);
 
   if (error) throw error;
 
-  // Usamos 'unknown' como intermediário para forçar a conversão e depois mapeamos
-  return (data as unknown as ServiceOrderRaw[]).map(order => {
-    // Lógica para extrair o nome do cliente, tratando se for objeto ou array (embora objeto seja o esperado para 1:1)
+  // Mapeia os dados brutos para o formato ServiceOrder
+  const mappedData = (data as unknown as ServiceOrderRaw[]).map(order => {
     const clientName = Array.isArray(order.clients) 
         ? order.clients[0]?.name || 'Cliente Desconhecido'
         : order.clients?.name || 'Cliente Desconhecido';
@@ -82,11 +82,32 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         status: order.status as ServiceOrder['status'],
         store: order.store as ServiceOrder['store'],
         created_at: order.created_at,
+        updated_at: order.updated_at,
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
     };
   }) as ServiceOrder[];
+
+  // Ordena os dados: primeiro por estado, depois por data de atualização/criação
+  const statusOrder = new Map(serviceOrderStatuses.map((status, index) => [status, index]));
+
+  mappedData.sort((a, b) => {
+    const orderA = statusOrder.get(a.status) ?? 99;
+    const orderB = statusOrder.get(b.status) ?? 99;
+
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+
+    // Se os estados forem iguais, ordena pela data mais recente
+    const dateA = new Date(a.updated_at || a.created_at).getTime();
+    const dateB = new Date(b.updated_at || b.created_at).getTime();
+    
+    return dateB - dateA; // Descendente (mais recente primeiro)
+  });
+
+  return mappedData;
 };
 
 // Hook principal
