@@ -5,13 +5,6 @@ import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOr
 import TimeEntryComponent from "@/components/TimeEntry";
 import Attachments from "@/components/Attachments"; // Importando o componente Attachments
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
@@ -28,6 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -116,7 +110,7 @@ const ServiceOrderDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
@@ -155,20 +149,6 @@ const ServiceOrderDetails: React.FC = () => {
                 </AlertDialog>
             )}
         </div>
-
-        {/* Select para navegação entre as seções */}
-        <div className="w-full">
-          <Select value={selectedView} onValueChange={(value: "details" | "time" | "attachments") => setSelectedView(value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione a seção" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="details">Detalhes</SelectItem>
-              <SelectItem value="time" disabled={!canAccessTabs}>Tempo</SelectItem>
-              <SelectItem value="attachments" disabled={!canAccessTabs}>Anexos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
           
         {/* Conteúdo baseado na seleção */}
         {selectedView === "details" && (
@@ -202,6 +182,11 @@ const ServiceOrderDetails: React.FC = () => {
           )
         )}
       </div>
+      <ServiceOrderBottomNav
+        selectedView={selectedView}
+        onSelectView={setSelectedView}
+        canAccessTabs={canAccessTabs}
+      />
     </Layout>
   );
 };
