@@ -125,7 +125,7 @@ const ServiceOrders: React.FC = () => {
                   <SelectValue placeholder="Loja" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
+                  <SelectItem value="ALL">Loja ({allOrdersCount})</SelectItem>
                   <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
                   <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
                 </SelectContent>
