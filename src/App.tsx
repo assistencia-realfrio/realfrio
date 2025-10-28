@@ -10,6 +10,7 @@ import ServiceOrderDetails from "./pages/ServiceOrderDetails";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import ClientDetails from "./pages/ClientDetails";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Clients /> {/* Nova rota para a página de Clientes */}
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/clients/:id" 
+            element={
+              <ProtectedRoute>
+                <ClientDetails /> {/* Rota para detalhes do cliente */}
               </ProtectedRoute>
             } 
           />

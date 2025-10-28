@@ -15,18 +15,15 @@ import {
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
-import ClientDetailsModal from "@/components/ClientDetailsModal"; // Importando o modal de detalhes
 
 type StoreFilter = Client['store'] | 'ALL';
 
 const Clients: React.FC = () => {
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // Novo estado para o modal de detalhes
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
-  const { createClient } = useClients(searchTerm, selectedStore); // updateClient não é mais usado aqui
+  const { createClient } = useClients(searchTerm, selectedStore);
 
   const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
@@ -38,14 +35,6 @@ const Clients: React.FC = () => {
         showError("Erro ao criar cliente. Verifique os dados.");
     }
   };
-
-  const handleViewClient = (client: Client) => {
-    setSelectedClient(client);
-    setIsDetailsModalOpen(true);
-  };
-
-  // O modal de edição/exclusão agora é gerenciado dentro do ClientDetailsModal,
-  // então não precisamos de handleEditClientSubmit ou isEditModalOpen aqui.
 
   return (
     <Layout>
@@ -102,15 +91,7 @@ const Clients: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabela de Clientes - Passando o callback de visualização */}
-        <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} onView={handleViewClient} />
-
-        {/* Modal de Detalhes do Cliente (inclui edição e exclusão) */}
-        <ClientDetailsModal 
-            clientId={selectedClient?.id || null} 
-            isOpen={isDetailsModalOpen} 
-            onOpenChange={setIsDetailsModalOpen} 
-        />
+        <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} />
       </div>
     </Layout>
   );

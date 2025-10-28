@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import ClientForm, { ClientFormValues } from "./ClientForm";
+import { useParams, useNavigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Edit, Phone, Mail, MapPin, FileText, Trash2 } from "lucide-react"; // Adicionado Trash2
+import { ArrowLeft, Edit, Phone, Mail, MapPin, FileText, Trash2, Wrench, HardDrive } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ClientOrdersTab from "./ClientOrdersTab";
+import ClientOrdersTab from "@/components/ClientOrdersTab";
+import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,12 +21,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-interface ClientDetailsModalProps {
-  clientId: string | null;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-}
 
 // Componente de Ações (Editar e Excluir)
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
@@ -68,11 +64,9 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
     </div>
 );
 
-
 // Função auxiliar para verificar se o link é do Google Maps ou coordenadas
 const isGoogleMapsLink = (mapsLink: string | null): boolean => {
   if (!mapsLink) return false;
-  // Verifica se é uma URL do Google Maps ou um par de coordenadas (lat, long)
   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
@@ -138,45 +132,33 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     );
 };
 
-const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpen, onOpenChange }) => {
-  // Usamos useClients sem filtros para garantir que o cliente esteja no cache
+const ClientDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
-  
-  const client = clientId ? clients.find(c => c.id === clientId) : undefined;
 
-  // Resetar estados ao fechar o modal
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-        setIsEditing(false);
-        setActiveTab("details");
-    }
-    onOpenChange(open);
-  };
+  const client = id ? clients.find(c => c.id === id) : undefined;
 
   const handleFormSubmit = async (data: ClientFormValues) => {
     if (!client?.id) return;
     try {
       await updateClient.mutateAsync({ id: client.id, ...data });
       showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
-      setIsEditing(false); // Volta para o modo de visualização após salvar
+      setIsEditing(false);
     } catch (error) {
       console.error("Erro ao atualizar cliente:", error);
       showError("Erro ao atualizar cliente. Tente novamente.");
     }
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false); // Volta para o modo de visualização
-  };
-  
   const handleDeleteClient = async () => {
     if (!client?.id || !client.name) return;
     try {
         await deleteClient.mutateAsync(client.id);
         showSuccess(`Cliente ${client.name} removido com sucesso.`);
-        handleOpenChange(false); // Fecha o modal após a exclusão
+        navigate('/clients', { replace: true });
     } catch (error) {
         console.error("Erro ao deletar cliente:", error);
         showError("Erro ao deletar cliente. Tente novamente.");
@@ -185,31 +167,24 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
 
   if (isLoading) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Carregando Cliente...</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <Layout>
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      </Layout>
     );
   }
 
   if (!client) {
     return (
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Cliente Não Encontrado</DialogTitle>
-          </DialogHeader>
-          <p className="text-muted-foreground py-4">Não foi possível carregar os detalhes do cliente.</p>
-        </DialogContent>
-      </Dialog>
+      <Layout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Cliente não encontrado</h2>
+          <p className="text-muted-foreground">O cliente com ID {id} não existe ou você não tem permissão para vê-lo.</p>
+          <Button onClick={() => navigate('/clients')} className="mt-4">Voltar para Clientes</Button>
+        </div>
+      </Layout>
     );
   }
 
@@ -223,23 +198,28 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            {client.name}
-          </DialogTitle>
-        </DialogHeader>
+    <Layout>
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => navigate('/clients')}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h2 className="text-3xl font-bold tracking-tight">{client.name}</h2>
+        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="details">
                     <FileText className="h-4 w-4 mr-2" />
                     Detalhes
                 </TabsTrigger>
                 <TabsTrigger value="orders">
-                    <Edit className="h-4 w-4 mr-2" />
+                    <Wrench className="h-4 w-4 mr-2" />
                     Ordens de Serviço ({client.totalOrders})
+                </TabsTrigger>
+                <TabsTrigger value="equipments">
+                    <HardDrive className="h-4 w-4 mr-2" />
+                    Equipamentos
                 </TabsTrigger>
             </TabsList>
 
@@ -257,7 +237,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
                     <ClientForm 
                         initialData={initialFormData} 
                         onSubmit={handleFormSubmit} 
-                        onCancel={handleCancelEdit} 
+                        onCancel={() => setIsEditing(false)} 
                     />
                 ) : (
                     <ClientDetailsView client={client} />
@@ -267,10 +247,14 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
             <TabsContent value="orders" className="mt-4">
                 <ClientOrdersTab clientId={client.id} />
             </TabsContent>
+
+            <TabsContent value="equipments" className="mt-4">
+                <ClientEquipmentTab clientId={client.id} />
+            </TabsContent>
         </Tabs>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </Layout>
   );
 };
 
-export default ClientDetailsModal;
+export default ClientDetails;

@@ -26,11 +26,9 @@ import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormVal
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "lucide-react";
-import ClientDetailsModal from "./ClientDetailsModal";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
-  // O equipamento agora é selecionado via ID
   equipment_id: z.string().uuid({ message: "Selecione um equipamento válido." }),
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
@@ -38,10 +36,8 @@ const formSchema = z.object({
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
 });
 
-// Tipo de dados para o formulário
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
-// Tipo de dados iniciais (pode incluir o ID da OS se for edição)
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
 }
@@ -49,7 +45,7 @@ interface InitialData extends ServiceOrderFormValues {
 interface ServiceOrderFormProps {
   initialData?: InitialData;
   onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
-  onCancel?: () => void; // Tornando onCancel opcional
+  onCancel?: () => void;
 }
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
@@ -69,25 +65,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const { createOrder, updateOrder } = useServiceOrders();
   const isEditing = !!initialData?.id;
   
-  // Observa o client_id para habilitar o EquipmentSelector
   const clientId = form.watch("client_id");
-  // Observa o equipment_id do formulário para buscar os detalhes
   const currentEquipmentId = form.watch("equipment_id");
-  // Observa o status
-  const currentStatus = form.watch("status");
 
-  // Usa o hook useEquipments para buscar os detalhes do equipamento único se estiver editando
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
 
-  // Estado para armazenar os detalhes do equipamento selecionado (nome, marca, modelo, serial)
   const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null }>({ name: '', brand: null, model: null, serial_number: null });
 
-  // Estado para controlar o modal de detalhes do cliente
-  const [isClientDetailsModalOpen, setIsClientDetailsModalOpen] = useState(false);
-
-  // Efeito para inicializar equipmentDetails quando estiver editando e o singleEquipment for carregado
   useEffect(() => {
-    if (isEditing && singleEquipment && !equipmentDetails.name) { // Verifica se equipmentDetails.name ainda não foi preenchido
+    if (isEditing && singleEquipment && !equipmentDetails.name) {
       setEquipmentDetails({
         name: singleEquipment.name,
         brand: singleEquipment.brand,
@@ -97,40 +83,40 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
   }, [isEditing, singleEquipment, equipmentDetails.name]);
 
-
   const handleEquipmentChange = (equipmentId: string, details: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => {
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
     setEquipmentDetails(details);
   };
+
+  const handleViewClientDetails = () => {
+    if (clientId) {
+      window.open(`/clients/${clientId}`, '_blank');
+    }
+  };
   
   const handleSubmit = async (data: ServiceOrderFormValues) => {
-    if (!equipmentDetails.name) { // Verifica se o nome do equipamento está preenchido
+    if (!equipmentDetails.name) {
         showError("Selecione um equipamento válido.");
         return;
     }
     
     try {
-        // --- Lógica de Formatação Atualizada ---
-        // Invertendo a ordem: NOME / MARCA
         const equipmentName = equipmentDetails.name;
         const equipmentBrand = equipmentDetails.brand;
         
         const formattedEquipment = equipmentBrand 
             ? `${equipmentName} / ${equipmentBrand}` 
             : equipmentName;
-        // --------------------------------------
 
-        // Mapeia os dados do formulário + detalhes do equipamento para a mutação
         const mutationData: MutationServiceOrderFormValues = {
             client_id: data.client_id,
             description: data.description,
             status: data.status,
             store: data.store,
-            // Detalhes do equipamento vêm do estado
-            equipment: formattedEquipment, // Usando o novo formato: NOME / MARCA
+            equipment: formattedEquipment,
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
-            equipment_id: data.equipment_id, // Passando o ID do equipamento
+            equipment_id: data.equipment_id,
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -142,14 +128,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             onSubmit({ ...data, id: newOrder.id });
             return;
         }
-        onSubmit(data); // Para edição, apenas sinaliza que terminou
+        onSubmit(data);
     } catch (error) {
         console.error("Erro ao salvar OS:", error);
         showError("Erro ao salvar Ordem de Serviço. Verifique os dados.");
     }
   };
 
-  // Se estiver editando e ainda carregando os detalhes do equipamento, mostra um esqueleto de carregamento
   if (isEditing && isLoadingSingleEquipment) {
     return (
       <div className="space-y-6">
@@ -172,14 +157,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
-        {/* Cliente (Obrigatório) */}
         <FormField
           control={form.control}
           name="client_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Cliente *</FormLabel>
-              <div className="flex items-center gap-2"> {/* Flex container para o seletor e o botão */}
+              <div className="flex items-center gap-2">
                 <div className="flex-grow">
                   <ClientSelector 
                     value={field.value} 
@@ -191,8 +175,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   type="button" 
                   variant="outline" 
                   size="icon" 
-                  onClick={() => setIsClientDetailsModalOpen(true)} 
-                  disabled={!field.value} // Desabilita se nenhum cliente estiver selecionado
+                  onClick={handleViewClientDetails}
+                  disabled={!field.value}
                   aria-label="Ver detalhes do cliente"
                 >
                   <User className="h-4 w-4" />
@@ -203,7 +187,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
-        {/* Equipamento (Obrigatório) */}
         <FormField
             control={form.control}
             name="equipment_id"
@@ -223,7 +206,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
         />
 
-        {/* Descrição (Obrigatório) */}
         <FormField
           control={form.control}
           name="description"
@@ -239,7 +221,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Estado (Obrigatório) */}
           <FormField
             control={form.control}
             name="status"
@@ -264,7 +245,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
         
-          {/* Loja (Obrigatório) */}
           <FormField
             control={form.control}
             name="store"
@@ -299,13 +279,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </Button>
         </div>
       </form>
-
-      {/* Modal de Detalhes do Cliente */}
-      <ClientDetailsModal 
-        clientId={clientId} 
-        isOpen={isClientDetailsModalOpen} 
-        onOpenChange={setIsClientDetailsModalOpen} 
-      />
     </Form>
   );
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -7,31 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { showSuccess, showError } from "@/utils/toast";
-import { useClients, Client } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
+import { useClients, Client } from "@/hooks/useClients";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { cn } from "@/lib/utils"; // Importar cn para combinar classes
+import { cn } from "@/lib/utils";
 
-export type { Client }; // Exportando o tipo Client do hook
+export type { Client };
 
 interface ClientTableProps {
     searchTerm: string;
     storeFilter: "ALL" | Client['store'] | null;
-    onView: (client: Client) => void; // Renomeado de onEdit para onView
 }
 
 const getStoreBadgeColor = (store: Client['store'] | null) => {
@@ -41,12 +27,17 @@ const getStoreBadgeColor = (store: Client['store'] | null) => {
     case "PORTO DE MÓS":
       return "bg-red-500";
     default:
-      return "bg-gray-400"; // Cor padrão para 'N/A' ou null
+      return "bg-gray-400";
   }
 };
 
-const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onView }) => {
-  const { clients, isLoading } = useClients(searchTerm, storeFilter); // deleteClient não é mais usado aqui
+const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) => {
+  const { clients, isLoading } = useClients(searchTerm, storeFilter);
+  const navigate = useNavigate();
+
+  const handleRowClick = (clientId: string) => {
+    navigate(`/clients/${clientId}`);
+  };
 
   if (isLoading) {
     return (
@@ -75,7 +66,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onVi
             clients.map((client) => (
               <TableRow 
                 key={client.id} 
-                onClick={() => onView(client)} // Adiciona o clique na linha
+                onClick={() => handleRowClick(client.id)}
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <TableCell 
