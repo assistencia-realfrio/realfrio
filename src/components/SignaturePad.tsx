@@ -13,27 +13,24 @@ interface SignaturePadProps {
 const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, disabled = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  // O estado hasSigned deve ser derivado do initialSignature para edição
-  const [hasSigned, setHasSigned] = useState(!!initialSignature); 
+  const [hasSigned, setHasSigned] = useState(!!initialSignature);
 
   // Função para desenhar a imagem no canvas
-  const drawSignatureOnCanvas = useCallback((signature: string | undefined) => {
+  const drawInitialSignature = useCallback((signature: string | undefined) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Limpa o canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    if (signature) {
-      const img = new Image();
-      img.onload = () => {
-        // Desenha a imagem ajustando ao tamanho atual do canvas
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      };
-      img.src = signature;
+    if (canvas && signature) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // Limpa antes de desenhar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const img = new Image();
+        img.onload = () => {
+          // Desenha a imagem ajustando ao tamanho atual do canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = signature;
+      }
     }
   }, []);
 
@@ -46,8 +43,10 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, d
     canvas.height = rect.height;
     
     // Recarrega a assinatura após redimensionar
-    drawSignatureOnCanvas(initialSignature);
-  }, [initialSignature, drawSignatureOnCanvas]);
+    if (initialSignature) {
+        drawInitialSignature(initialSignature);
+    }
+  }, [initialSignature, drawInitialSignature]);
 
 
   const startDrawing = useCallback((e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -116,7 +115,6 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, d
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Configura o tamanho inicial e listeners de redimensionamento
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
@@ -145,12 +143,24 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, d
     };
   }, [startDrawing, draw, stopDrawing, setCanvasSize]);
 
-  // Efeito 2: Carregamento da assinatura inicial e atualização do estado
+  // Efeito 2: Carregamento da assinatura inicial quando o prop muda
   useEffect(() => {
     setHasSigned(!!initialSignature);
-    // Desenha a assinatura sempre que o initialSignature mudar
-    drawSignatureOnCanvas(initialSignature);
-  }, [initialSignature, drawSignatureOnCanvas]);
+    if (initialSignature) {
+        // Garante que o canvas está dimensionado antes de desenhar
+        setCanvasSize(); 
+        drawInitialSignature(initialSignature);
+    } else {
+        // Se a assinatura inicial for removida (ex: ao limpar), limpa o canvas
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    }
+  }, [initialSignature, drawInitialSignature, setCanvasSize]);
 
 
   return (
@@ -177,6 +187,8 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, d
         )}
       </div>
       <div className="flex justify-end space-x-2">
+        {/* O botão de confirmação não é necessário, pois o desenho já salva. 
+            Vamos manter apenas o botão de limpar, que é a ação reversa. */}
         <Button 
           type="button" 
           variant="outline" 
