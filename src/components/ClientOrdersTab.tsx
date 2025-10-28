@@ -2,8 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, CheckCircle, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,7 +35,10 @@ const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
     const date = new Date(order.created_at).toLocaleDateString('pt-BR');
 
     return (
-        <div className="flex justify-between items-center py-2 hover:bg-muted/50 px-2 rounded-md transition-colors">
+        <div 
+            className="flex justify-between items-center py-2 hover:bg-muted/50 px-2 rounded-md transition-colors cursor-pointer"
+            onClick={handleViewDetails}
+        >
             <div className="flex flex-col">
                 <span className="font-medium text-sm">{order.equipment} - {order.model}</span>
                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
@@ -47,9 +49,6 @@ const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
             </div>
             <div className="flex items-center space-x-2">
                 <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                <Button variant="ghost" size="icon" onClick={handleViewDetails} aria-label={`Ver detalhes da OS ${order.id}`}>
-                    <ArrowRight className="h-4 w-4" />
-                </Button>
             </div>
         </div>
     );
