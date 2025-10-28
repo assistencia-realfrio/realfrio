@@ -94,10 +94,10 @@ const ServiceOrders: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-row justify-between items-center gap-4">
           <h2 className="text-3xl font-bold tracking-tight">Ordens de Serviço</h2>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button className="w-full sm:w-auto" onClick={handleNewOrder}>
+          <div className="flex gap-2">
+            <Button onClick={handleNewOrder}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Nova OS
             </Button>
