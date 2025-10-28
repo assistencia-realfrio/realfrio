@@ -15,17 +15,18 @@ import {
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
+import ClientDetailsModal from "@/components/ClientDetailsModal"; // Importando o modal de detalhes
 
 type StoreFilter = Client['store'] | 'ALL';
 
 const Clients: React.FC = () => {
   const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<Client | undefined>(undefined);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // Novo estado para o modal de detalhes
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
-  const { createClient, updateClient } = useClients(searchTerm, selectedStore);
+  const { createClient } = useClients(searchTerm, selectedStore); // updateClient não é mais usado aqui
 
   const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
@@ -38,23 +39,13 @@ const Clients: React.FC = () => {
     }
   };
 
-  const handleEditClient = (client: Client) => {
-    setEditingClient(client);
-    setIsEditModalOpen(true);
+  const handleViewClient = (client: Client) => {
+    setSelectedClient(client);
+    setIsDetailsModalOpen(true);
   };
 
-  const handleEditClientSubmit = async (data: ClientFormValues) => {
-    if (!editingClient?.id) return;
-    try {
-      await updateClient.mutateAsync({ id: editingClient.id, ...data });
-      showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
-      setIsEditModalOpen(false);
-      setEditingClient(undefined);
-    } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
-      showError("Erro ao atualizar cliente. Tente novamente.");
-    }
-  };
+  // O modal de edição/exclusão agora é gerenciado dentro do ClientDetailsModal,
+  // então não precisamos de handleEditClientSubmit ou isEditModalOpen aqui.
 
   return (
     <Layout>
@@ -111,24 +102,15 @@ const Clients: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabela de Clientes - Passando o callback de edição e o termo de busca */}
-        <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} onEdit={handleEditClient} />
+        {/* Tabela de Clientes - Passando o callback de visualização */}
+        <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} onView={handleViewClient} />
 
-        {/* Modal de Edição de Cliente */}
-        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Editar Cliente</DialogTitle>
-            </DialogHeader>
-            {editingClient && (
-              <ClientForm 
-                initialData={editingClient} 
-                onSubmit={handleEditClientSubmit} 
-                onCancel={() => setIsEditModalOpen(false)}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
+        {/* Modal de Detalhes do Cliente (inclui edição e exclusão) */}
+        <ClientDetailsModal 
+            clientId={selectedClient?.id || null} 
+            isOpen={isDetailsModalOpen} 
+            onOpenChange={setIsDetailsModalOpen} 
+        />
       </div>
     </Layout>
   );

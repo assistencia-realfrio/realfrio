@@ -31,7 +31,7 @@ export type { Client }; // Exportando o tipo Client do hook
 interface ClientTableProps {
     searchTerm: string;
     storeFilter: "ALL" | Client['store'] | null;
-    onEdit: (client: Client) => void; // Adicionando prop onEdit para abrir modal
+    onView: (client: Client) => void; // Renomeado de onEdit para onView
 }
 
 const getStoreBadgeColor = (store: Client['store'] | null) => {
@@ -45,18 +45,8 @@ const getStoreBadgeColor = (store: Client['store'] | null) => {
   }
 };
 
-const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEdit }) => {
-  const { clients, isLoading, deleteClient } = useClients(searchTerm, storeFilter); // Usando useClients
-
-  const handleDelete = async (id: string, name: string) => {
-    try {
-        await deleteClient.mutateAsync(id);
-        showSuccess(`Cliente ${name} removido com sucesso.`);
-    } catch (error) {
-        console.error("Erro ao deletar cliente:", error);
-        showError("Erro ao deletar cliente. Tente novamente.");
-    }
-  };
+const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onView }) => {
+  const { clients, isLoading } = useClients(searchTerm, storeFilter); // deleteClient não é mais usado aqui
 
   if (isLoading) {
     return (
@@ -75,16 +65,19 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
           <TableRow>
             <TableHead>Nome</TableHead>
             <TableHead className="hidden sm:table-cell">Contato</TableHead>
-            <TableHead className="hidden sm:table-cell">Localidade</TableHead> {/* Alterado para Localidade */}
+            <TableHead className="hidden sm:table-cell">Localidade</TableHead>
             <TableHead className="hidden md:table-cell">OS Totais</TableHead>
             <TableHead className="hidden md:table-cell">OS Abertas</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {clients.length > 0 ? (
             clients.map((client) => (
-              <TableRow key={client.id}>
+              <TableRow 
+                key={client.id} 
+                onClick={() => onView(client)} // Adiciona o clique na linha
+                className="cursor-pointer hover:bg-muted/50 transition-colors"
+              >
                 <TableCell 
                     className="font-medium text-foreground"
                 >
@@ -97,52 +90,14 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter, onEd
                     </div>
                 </TableCell>
                 <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
-                <TableCell className="hidden sm:table-cell">{client.locality || 'N/A'}</TableCell> {/* Célula da Localidade */}
+                <TableCell className="hidden sm:table-cell">{client.locality || 'N/A'}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
-                <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(client)} aria-label="Editar">
-                            <Edit className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    aria-label="Excluir"
-                                    disabled={deleteClient.isPending}
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
-                                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                        onClick={() => handleDelete(client.id, client.name)} 
-                                        className="bg-destructive hover:bg-destructive/90"
-                                        disabled={deleteClient.isPending}
-                                    >
-                                        Excluir
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-muted-foreground"> {/* colSpan ajustado para 6 */}
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>

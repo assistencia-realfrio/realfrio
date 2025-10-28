@@ -5,15 +5,69 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Edit, Phone, Mail, MapPin, FileText } from "lucide-react"; // Adicionado FileText
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Importando Tabs
-import ClientOrdersTab from "./ClientOrdersTab"; // Importando o novo componente
+import { Edit, Phone, Mail, MapPin, FileText, Trash2 } from "lucide-react"; // Adicionado Trash2
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ClientOrdersTab from "./ClientOrdersTab";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ClientDetailsModalProps {
   clientId: string | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+// Componente de Ações (Editar e Excluir)
+const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
+    <div className="flex justify-end space-x-2 mb-4">
+        <Button variant="outline" size="sm" onClick={onEdit}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+        </Button>
+        
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    disabled={isDeleting}
+                >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir
+                </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
+                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                        onClick={onDelete} 
+                        className="bg-destructive hover:bg-destructive/90"
+                        disabled={isDeleting}
+                    >
+                        Excluir
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </div>
+);
+
 
 // Função auxiliar para verificar se o link é do Google Maps ou coordenadas
 const isGoogleMapsLink = (mapsLink: string | null): boolean => {
@@ -23,15 +77,9 @@ const isGoogleMapsLink = (mapsLink: string | null): boolean => {
 };
 
 // Componente de Visualização dos Detalhes do Cliente
-const ClientDetailsView: React.FC<{ client: Client, onEdit: () => void }> = ({ client, onEdit }) => {
+const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     return (
         <div className="space-y-4 text-sm">
-            <div className="flex justify-end">
-                <Button variant="outline" size="sm" onClick={onEdit}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                </Button>
-            </div>
             <div>
               <p className="text-muted-foreground">Nome</p>
               <p className="font-medium">{client.name}</p>
@@ -91,9 +139,10 @@ const ClientDetailsView: React.FC<{ client: Client, onEdit: () => void }> = ({ c
 };
 
 const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpen, onOpenChange }) => {
-  const { clients, isLoading, updateClient } = useClients();
+  // Usamos useClients sem filtros para garantir que o cliente esteja no cache
+  const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("details"); // Estado para controlar a aba ativa
+  const [activeTab, setActiveTab] = useState("details");
   
   const client = clientId ? clients.find(c => c.id === clientId) : undefined;
 
@@ -120,6 +169,18 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
 
   const handleCancelEdit = () => {
     setIsEditing(false); // Volta para o modo de visualização
+  };
+  
+  const handleDeleteClient = async () => {
+    if (!client?.id || !client.name) return;
+    try {
+        await deleteClient.mutateAsync(client.id);
+        showSuccess(`Cliente ${client.name} removido com sucesso.`);
+        handleOpenChange(false); // Fecha o modal após a exclusão
+    } catch (error) {
+        console.error("Erro ao deletar cliente:", error);
+        showError("Erro ao deletar cliente. Tente novamente.");
+    }
   };
 
   if (isLoading) {
@@ -163,7 +224,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"> {/* Aumentado o tamanho máximo do modal */}
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {client.name}
@@ -183,6 +244,15 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
             </TabsList>
 
             <TabsContent value="details" className="mt-4">
+                {!isEditing && (
+                    <ClientActions 
+                        client={client} 
+                        onEdit={() => setIsEditing(true)} 
+                        onDelete={handleDeleteClient}
+                        isDeleting={deleteClient.isPending}
+                    />
+                )}
+                
                 {isEditing ? (
                     <ClientForm 
                         initialData={initialFormData} 
@@ -190,7 +260,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({ clientId, isOpe
                         onCancel={handleCancelEdit} 
                     />
                 ) : (
-                    <ClientDetailsView client={client} onEdit={() => setIsEditing(true)} />
+                    <ClientDetailsView client={client} />
                 )}
             </TabsContent>
 
