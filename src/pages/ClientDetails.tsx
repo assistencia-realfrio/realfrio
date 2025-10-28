@@ -6,8 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, FileText, Trash2, Wrench, HardDrive } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2 } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -21,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 
 // Componente de Ações (Editar e Excluir)
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
@@ -137,7 +137,7 @@ const ClientDetails: React.FC = () => {
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState("details");
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details");
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -199,7 +199,7 @@ const ClientDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={() => navigate('/clients')}>
             <ArrowLeft className="h-4 w-4" />
@@ -207,52 +207,41 @@ const ClientDetails: React.FC = () => {
           <h2 className="text-3xl font-bold tracking-tight">{client.name}</h2>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Detalhes
-                </TabsTrigger>
-                <TabsTrigger value="orders">
-                    <Wrench className="h-4 w-4 mr-2" />
-                    Ordens de Serviço ({client.totalOrders})
-                </TabsTrigger>
-                <TabsTrigger value="equipments">
-                    <HardDrive className="h-4 w-4 mr-2" />
-                    Equipamentos
-                </TabsTrigger>
-            </TabsList>
+        {selectedView === 'details' && (
+          <>
+            {!isEditing && (
+              <ClientActions 
+                client={client} 
+                onEdit={() => setIsEditing(true)} 
+                onDelete={handleDeleteClient}
+                isDeleting={deleteClient.isPending}
+              />
+            )}
+            
+            {isEditing ? (
+              <ClientForm 
+                initialData={initialFormData} 
+                onSubmit={handleFormSubmit} 
+                onCancel={() => setIsEditing(false)} 
+              />
+            ) : (
+              <ClientDetailsView client={client} />
+            )}
+          </>
+        )}
 
-            <TabsContent value="details" className="mt-4">
-                {!isEditing && (
-                    <ClientActions 
-                        client={client} 
-                        onEdit={() => setIsEditing(true)} 
-                        onDelete={handleDeleteClient}
-                        isDeleting={deleteClient.isPending}
-                    />
-                )}
-                
-                {isEditing ? (
-                    <ClientForm 
-                        initialData={initialFormData} 
-                        onSubmit={handleFormSubmit} 
-                        onCancel={() => setIsEditing(false)} 
-                    />
-                ) : (
-                    <ClientDetailsView client={client} />
-                )}
-            </TabsContent>
+        {selectedView === 'orders' && (
+          <ClientOrdersTab clientId={client.id} />
+        )}
 
-            <TabsContent value="orders" className="mt-4">
-                <ClientOrdersTab clientId={client.id} />
-            </TabsContent>
-
-            <TabsContent value="equipments" className="mt-4">
-                <ClientEquipmentTab clientId={client.id} />
-            </TabsContent>
-        </Tabs>
+        {selectedView === 'equipments' && (
+          <ClientEquipmentTab clientId={client.id} />
+        )}
       </div>
+      <ClientDetailsBottomNav
+        selectedView={selectedView}
+        onSelectView={setSelectedView}
+      />
     </Layout>
   );
 };
