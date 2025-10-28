@@ -16,12 +16,12 @@ import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
-type StatusFilter = ServiceOrder['status'] | 'ALL';
+type StatusFilter = ServiceOrder['status'] | 'ALL' | 'ACTIVE'; // Adicionado 'ACTIVE'
 
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ACTIVE'); // Padrão para 'ACTIVE'
   const [searchTerm, setSearchTerm] = useState("");
   
   const { orders, isLoading } = useServiceOrders();
@@ -35,7 +35,11 @@ const ServiceOrders: React.FC = () => {
 
     // 1. Filtrar por Status
     if (selectedStatus !== 'ALL') {
-      filtered = filtered.filter(order => order.status === selectedStatus);
+      if (selectedStatus === 'ACTIVE') {
+        filtered = filtered.filter(order => order.status === 'Pendente' || order.status === 'Em Progresso');
+      } else {
+        filtered = filtered.filter(order => order.status === selectedStatus);
+      }
     }
 
     // 2. Filtrar por Termo de Busca
@@ -80,7 +84,15 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  // Recalculando os totais para as abas com base nos filtros de busca e status
+  // Recalculando os totais para os filtros de status e loja
+  const allTotalOrdersCount = orders.length;
+  const pendingTotalCount = orders.filter(o => o.status === 'Pendente').length;
+  const inProgressTotalCount = orders.filter(o => o.status === 'Em Progresso').length;
+  const completedTotalCount = orders.filter(o => o.status === 'Concluída').length;
+  const cancelledTotalCount = orders.filter(o => o.status === 'Cancelada').length;
+  const activeTotalCount = pendingTotalCount + inProgressTotalCount;
+
+  // Contagens para o filtro de loja, baseadas nas ordens JÁ filtradas por status e busca
   const allOrdersCount = filteredOrders.length;
   const caldasOrdersCount = filteredOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
   const portoOrdersCount = filteredOrders.filter(o => o.store === 'PORTO DE MÓS').length;
@@ -122,11 +134,12 @@ const ServiceOrders: React.FC = () => {
                 <SelectValue placeholder="Filtrar por Estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todos os Estados</SelectItem>
-                <SelectItem value="Pendente">Pendente</SelectItem>
-                <SelectItem value="Em Progresso">Em Progresso</SelectItem>
-                <SelectItem value="Concluída">Concluída</SelectItem>
-                <SelectItem value="Cancelada">Cancelada</SelectItem>
+                <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
+                <SelectItem value="ALL">Todos os Estados ({allTotalOrdersCount})</SelectItem>
+                <SelectItem value="Pendente">Pendente ({pendingTotalCount})</SelectItem>
+                <SelectItem value="Em Progresso">Em Progresso ({inProgressTotalCount})</SelectItem>
+                <SelectItem value="Concluída">Concluída ({completedTotalCount})</SelectItem>
+                <SelectItem value="Cancelada">Cancelada ({cancelledTotalCount})</SelectItem>
               </SelectContent>
             </Select>
           </div>
