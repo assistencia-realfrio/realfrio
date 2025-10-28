@@ -125,11 +125,27 @@ const ServiceOrders: React.FC = () => {
           
           <div className="w-full md:w-48">
             <Select 
+              onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
+              defaultValue={selectedStore}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Loja" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
+                <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-full md:w-48">
+            <Select 
               onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
               defaultValue={selectedStatus}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Filtrar por Estado" />
+                <SelectValue placeholder="Estados" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
@@ -142,22 +158,6 @@ const ServiceOrders: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-        </div>
-
-        <div className="w-full md:w-48">
-          <Select 
-            onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
-            defaultValue={selectedStore}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Filtrar por Loja" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
-              <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
-              <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="mt-6">
