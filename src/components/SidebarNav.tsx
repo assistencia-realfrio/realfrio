@@ -15,10 +15,14 @@ const navItems = [
   },
   {
     title: "Ordens de Serviço",
-    href: "/", // Aponta para a nova página inicial com abas
+    href: "/",
     icon: Wrench,
   },
-  // O link para Clientes foi removido, pois agora está na aba da página inicial
+  {
+    title: "Clientes", // Novo item para a página de Clientes
+    href: "/clients",
+    icon: Users,
+  },
 ];
 
 interface NavLinkProps {
@@ -29,17 +33,14 @@ interface NavLinkProps {
 
 const NavLink: React.FC<NavLinkProps> = ({ item, isMobile = false, onClick }) => {
   const location = useLocation();
-  // Verifica se a rota atual é a rota base do item
   const isActive = location.pathname === item.href;
   const Icon = item.icon;
 
   const baseClasses = "flex items-center gap-3 rounded-lg px-3 py-2 transition-all";
   
-  // Classes para mobile (dentro do Sheet)
   const mobileActiveClasses = "bg-primary text-primary-foreground hover:bg-primary/90";
   const mobileInactiveClasses = "text-muted-foreground hover:text-foreground";
 
-  // Classes para desktop (sidebar fixa)
   const desktopActiveClasses = "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80";
   const desktopInactiveClasses = "text-sidebar-foreground hover:text-sidebar-primary";
 
@@ -78,7 +79,7 @@ const MobileSidebar: React.FC = () => {
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col w-[250px] sm:w-[300px]">
         <div className="flex items-center space-x-2 p-4">
-          <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-7" /> {/* Logo para mobile sidebar */}
+          <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-7" />
         </div>
         <Separator />
         <nav className="flex flex-col gap-1 p-4">

@@ -3,12 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index"; // A nova página inicial com abas
+import ServiceOrders from "./pages/ServiceOrders"; // A nova página de Ordens de Serviço
+import Clients from "./pages/Clients"; // A nova página de Clientes
 import NotFound from "./pages/NotFound";
-import ServiceOrderDetails from "./pages/ServiceOrderDetails"; // Detalhes de OS ainda é uma página
+import ServiceOrderDetails from "./pages/ServiceOrderDetails";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/Dashboard"; // Mantendo o Dashboard como uma página separada
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -26,7 +27,7 @@ const App = () => (
             path="/" 
             element={
               <ProtectedRoute>
-                <Index /> {/* Nova página inicial com abas para OS e Clientes */}
+                <ServiceOrders /> {/* Página inicial agora é Ordens de Serviço */}
               </ProtectedRoute>
             } 
           />
@@ -34,7 +35,15 @@ const App = () => (
             path="/dashboard" 
             element={
               <ProtectedRoute>
-                <Dashboard /> {/* Dashboard continua sendo uma página separada */}
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/clients" 
+            element={
+              <ProtectedRoute>
+                <Clients /> {/* Nova rota para a página de Clientes */}
               </ProtectedRoute>
             } 
           />
