@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOrderForm";
 import TimeEntryComponent from "@/components/TimeEntry";
@@ -26,6 +26,7 @@ import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const isNew = id === 'new';
   
@@ -50,7 +51,13 @@ const ServiceOrderDetails: React.FC = () => {
   } : undefined;
 
   const handleGoBack = () => {
-    navigate(-1);
+    // Se a página foi empurrada para o histórico de navegação, volte.
+    if (location.key !== 'default') {
+      navigate(-1);
+    } else {
+      // Caso contrário, navegue para a lista principal como um fallback.
+      navigate('/', { replace: true });
+    }
   };
 
   const handleSubmit = (data: ServiceOrderFormValues & { id?: string }) => {
