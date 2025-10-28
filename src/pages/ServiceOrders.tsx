@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from "react";
-import Layout from "@/components/Layout";
-import { PlusCircle, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useServiceOrders, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import ServiceOrderCard from "@/components/ServiceOrderCard";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { PlusCircle, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Select,
@@ -12,161 +12,97 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isActiveStatus } from "@/lib/serviceOrderStatus";
-
-type StoreFilter = ServiceOrder['store'] | 'ALL';
-type StatusFilter = ServiceOrderStatus | 'ALL' | 'ACTIVE';
 
 const ServiceOrders: React.FC = () => {
+  const { orders: data, isLoading } = useServiceOrders();
   const navigate = useNavigate();
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ACTIVE');
-  const [searchTerm, setSearchTerm] = useState("");
-  
-  const { orders, isLoading } = useServiceOrders();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('Todas');
 
-  const handleNewOrder = () => {
-    navigate("/orders/new");
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
   };
 
   const filteredOrders = useMemo(() => {
-    let filtered = orders;
+    let orders = data || [];
 
-    // 1. Filtrar por Status
-    if (selectedStatus !== 'ALL') {
-      if (selectedStatus === 'ACTIVE') {
-        filtered = filtered.filter(order => isActiveStatus(order.status));
-      } else {
-        filtered = filtered.filter(order => order.status === selectedStatus);
-      }
+    // Filter by status
+    if (statusFilter && statusFilter !== 'Todas') {
+      orders = orders.filter(order => order.status === statusFilter);
     }
 
-    // 2. Filtrar por Termo de Busca
-    if (searchTerm.trim()) {
-      const lowerCaseSearch = searchTerm.toLowerCase();
-      filtered = filtered.filter(order => 
-        order.display_id.toLowerCase().includes(lowerCaseSearch) ||
-        order.client.toLowerCase().includes(lowerCaseSearch) ||
-        order.equipment.toLowerCase().includes(lowerCaseSearch) ||
-        (order.model && order.model.toLowerCase().includes(lowerCaseSearch))
+    // Filter by search query
+    if (searchQuery) {
+      const lowercasedQuery = searchQuery.toLowerCase();
+      orders = orders.filter(order =>
+        order.client?.toLowerCase().includes(lowercasedQuery) ||
+        order.equipment?.toLowerCase().includes(lowercasedQuery) ||
+        order.description?.toLowerCase().includes(lowercasedQuery) ||
+        order.display_id?.toLowerCase().includes(lowercasedQuery)
       );
     }
-    
-    return filtered;
-  }, [orders, selectedStatus, searchTerm]);
 
-  const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
-    const finalOrders = selectedStore === 'ALL' 
-      ? ordersToRender 
-      : ordersToRender.filter(order => order.store === selectedStore);
-
-    if (isLoading) {
-        return (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
-            </div>
-        );
-    }
-
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {finalOrders.map((order) => (
-          <ServiceOrderCard key={order.id} order={order} />
-        ))}
-        {finalOrders.length === 0 && (
-          <div className="col-span-full text-center py-12 text-muted-foreground">
-            Nenhuma ordem de serviço encontrada para os filtros aplicados.
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const statusCounts = useMemo(() => {
-    return orders.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1;
-      return acc;
-    }, {} as Record<ServiceOrderStatus, number>);
-  }, [orders]);
-
-  const activeTotalCount = useMemo(() => {
-    return orders.filter(o => isActiveStatus(o.status)).length;
-  }, [orders]);
-
-  const allOrdersCount = filteredOrders.length;
-  const caldasOrdersCount = filteredOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = filteredOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+    return orders;
+  }, [data, searchQuery, statusFilter]);
 
   return (
-    <Layout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-3xl font-bold tracking-tight">Ordens de Serviço</h2>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button className="w-full sm:w-auto" onClick={handleNewOrder}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Nova OS
-            </Button>
-          </div>
+    <div className="container mx-auto p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Ordens de Serviço</h1>
+        <Button onClick={() => navigate('/orders/new')}>
+          <PlusCircle className="mr-2 h-4 w-4" /> Nova OS
+        </Button>
+      </div>
+
+      <div className="flex gap-4 mb-6">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Pesquisar por cliente, equipamento, descrição..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="pl-10"
+          />
         </div>
-
-        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-          <div className="relative flex-grow w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar por ID, cliente, equipamento ou modelo..." 
-              className="pl-10" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <div className="flex w-full md:w-auto items-center gap-2">
-            <div className="flex-1">
-              <Select 
-                onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
-                defaultValue={selectedStore}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Loja" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
-                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
-                  <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex-1">
-              <Select 
-                onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
-                defaultValue={selectedStatus}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Estados" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
-                  <SelectItem value="ALL">Todos os Estados ({orders.length})</SelectItem>
-                  {serviceOrderStatuses.map(status => (
-                    <SelectItem key={status} value={status}>
-                      {status} ({statusCounts[status] || 0})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          {renderOrderGrid(filteredOrders)}
+        <div className="w-48">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Estados" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todas">Todas</SelectItem>
+              {serviceOrderStatuses.map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
-    </Layout>
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="flex flex-col space-y-3">
+              <Skeleton className="h-[125px] w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredOrders.map((order) => (
+            <ServiceOrderCard key={order.id} order={order} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
