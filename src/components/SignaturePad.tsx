@@ -75,42 +75,38 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, d
     }
   }, [onSign]);
 
-  // Efeito para carregar a assinatura inicial
-  useEffect(() => {
+  // Função para desenhar a imagem no canvas
+  const drawInitialSignature = useCallback((signature: string | undefined) => {
     const canvas = canvasRef.current;
-    if (canvas && initialSignature) {
+    if (canvas && signature) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
+        // Limpa antes de desenhar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
         const img = new Image();
         img.onload = () => {
-          ctx.drawImage(img, 0, 0);
+          // Desenha a imagem ajustando ao tamanho atual do canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         };
-        img.src = initialSignature;
+        img.src = signature;
       }
     }
-  }, [initialSignature]);
+  }, []);
 
-  // Configuração de eventos de mouse e toque
+  // Efeito para carregar a assinatura inicial e ajustar o tamanho do canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Ajusta o tamanho do canvas para evitar distorção em alta DPI
     const setCanvasSize = () => {
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width;
         canvas.height = rect.height;
         
-        // Recarrega a assinatura se houver uma
+        // Recarrega a assinatura após redimensionar
         if (initialSignature) {
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-                const img = new Image();
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                };
-                img.src = initialSignature;
-            }
+            drawInitialSignature(initialSignature);
         }
     };
 
@@ -140,7 +136,16 @@ const SignaturePad: React.FC<SignaturePadProps> = ({ onSign, initialSignature, d
       canvas.removeEventListener('touchend', stopDrawing);
       canvas.removeEventListener('touchcancel', stopDrawing);
     };
-  }, [startDrawing, draw, stopDrawing, initialSignature]);
+  }, [startDrawing, draw, stopDrawing, initialSignature, drawInitialSignature]); // Adicionado drawInitialSignature como dependência
+
+  // Efeito para atualizar o estado hasSigned quando initialSignature muda
+  useEffect(() => {
+    setHasSigned(!!initialSignature);
+    if (initialSignature) {
+        drawInitialSignature(initialSignature);
+    }
+  }, [initialSignature, drawInitialSignature]);
+
 
   return (
     <div className="space-y-2">

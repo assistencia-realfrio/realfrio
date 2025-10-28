@@ -48,6 +48,7 @@ export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
     client_signature?: string | null; // Adicionando assinatura aos dados iniciais
+    signed_at?: string | null; // Adicionando timestamp da assinatura
 }
 
 interface ServiceOrderFormProps {
@@ -185,6 +186,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       </div>
     );
   }
+  
+  // Verifica se a OS já tem uma assinatura salva
+  const hasExistingSignature = isEditing && !!initialData?.client_signature;
+  const signedAtDate = initialData?.signed_at ? new Date(initialData.signed_at).toLocaleString('pt-BR') : null;
 
   return (
     <Form {...form}>
@@ -313,10 +318,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="client_signature"
                 render={({ field }) => (
                     <FormItem>
+                        {hasExistingSignature && signedAtDate && (
+                            <p className="text-sm text-muted-foreground mb-2">
+                                Assinado em: {signedAtDate}
+                            </p>
+                        )}
                         <SignaturePad 
                             onSign={handleSignatureChange} 
                             initialSignature={field.value || undefined}
-                            disabled={isEditing && !!initialData?.client_signature} // Desabilita se já houver assinatura na edição
+                            disabled={hasExistingSignature} // Desabilita se já houver assinatura
                         />
                         <FormMessage />
                     </FormItem>
