@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Check, User, HardDrive, FileText } from "lucide-react";
+import { MoreVertical, Check, User, CookingPot, FileText } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 
 interface ServiceOrderCardProps {
@@ -104,7 +104,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <HardDrive className="h-4 w-4 text-current/70 flex-shrink-0" />
+                        <CookingPot className="h-4 w-4 text-current/70 flex-shrink-0" />
                         <p className="text-base text-current truncate">
                             {order.equipment}
                         </p>
