@@ -58,30 +58,25 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     return (
         <Card 
             className={cn(
-                "hover:shadow-lg transition-shadow flex",
+                "hover:shadow-lg transition-shadow cursor-pointer flex",
                 "p-0 border-0 rounded-lg",
                 statusCardClasses[order.status] || "status-cancelada"
             )} 
-            // Removemos o onClick do Card para que o DropdownMenuTrigger funcione
+            onClick={handleCardClick} // Clique principal para navegar
         >
             <div className={cn("w-2 rounded-l-md", storeColorClass)} />
 
             <div className="flex flex-col flex-grow p-3">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1">
-                    <div 
-                        className="text-xs font-medium text-current/80 truncate cursor-pointer hover:underline"
-                        onClick={handleCardClick} // Move o clique para o ID da OS
-                    >
-                        {order.display_id}
-                    </div>
+                    <div className="text-xs font-medium text-current/80 truncate">{order.display_id}</div>
                     <div className="flex items-center gap-1">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                {/* O Badge é o trigger. Usamos onClick para evitar que o clique se propague para o Card */}
+                                {/* O Badge é o trigger. Usamos e.stopPropagation() para evitar que o clique no Badge acione o handleCardClick do Card pai. */}
                                 <Badge 
                                     variant="outline" 
                                     className="cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold"
-                                    onClick={(e) => e.stopPropagation()}
+                                    onClick={(e) => e.stopPropagation()} // IMPEDE A NAVEGAÇÃO
                                 >
                                     {order.status}
                                 </Badge>
@@ -103,7 +98,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </DropdownMenu>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0 pt-2 flex flex-col flex-grow space-y-1.5 text-current" onClick={handleCardClick}>
+                <CardContent className="p-0 pt-2 flex flex-col flex-grow space-y-1.5 text-current">
                     <div className="flex items-center gap-2">
                         <div className="h-1 w-1 rounded-full bg-current flex-shrink-0" />
                         <CardTitle className="text-lg font-bold truncate">
