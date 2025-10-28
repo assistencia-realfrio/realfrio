@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOrderForm";
 import TimeEntryComponent from "@/components/TimeEntry";
-import Attachments from "@/components/Attachments";
+import Attachments from "@/components/Attachments"; // Importando o componente Attachments
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
