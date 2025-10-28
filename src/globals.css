@@ -96,42 +96,42 @@
 
 @layer components {
   .status-por-iniciar {
-    background: linear-gradient(to right, rgba(129, 212, 250, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(129, 212, 250, 0.5), transparent 70%);
     color: #01579B;
     border-bottom: 2px solid #039BE5;
   }
   .status-iniciada {
-    background: linear-gradient(to right, rgba(77, 208, 225, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(77, 208, 225, 0.5), transparent 70%);
     color: #006064;
     border-bottom: 2px solid #00ACC1;
   }
   .status-para-orcamento {
-    background: linear-gradient(to right, rgba(186, 104, 200, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(186, 104, 200, 0.5), transparent 70%);
     color: #4A148C;
     border-bottom: 2px solid #9C27B0;
   }
   .status-orcamento-enviado {
-    background: linear-gradient(to right, rgba(255, 183, 77, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(255, 183, 77, 0.5), transparent 70%);
     color: #E65100;
     border-bottom: 2px solid #F57C00;
   }
   .status-aguarda-pecas {
-    background: linear-gradient(to right, rgba(255, 138, 101, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(255, 138, 101, 0.5), transparent 70%);
     color: #BF360C;
     border-bottom: 2px solid #FF5722;
   }
   .status-pecas-recebidas {
-    background: linear-gradient(to right, rgba(240, 98, 146, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(240, 98, 146, 0.5), transparent 70%);
     color: #880E4F;
     border-bottom: 2px solid #E91E63;
   }
   .status-concluida {
-    background: linear-gradient(to right, rgba(102, 187, 106, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(102, 187, 106, 0.5), transparent 70%);
     color: #1B5E20;
     border-bottom: 2px solid #4CAF50;
   }
   .status-cancelada {
-    background: linear-gradient(to right, rgba(148, 163, 184, 0.5), transparent 70%);
+    background: linear-gradient(to left, rgba(148, 163, 184, 0.5), transparent 70%);
     color: #1E293B;
     border-bottom: 2px solid #475569;
   }
