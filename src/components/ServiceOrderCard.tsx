@@ -69,11 +69,14 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1">
                     <div className="text-xs font-medium text-current/80 truncate">{order.display_id}</div>
                     <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold">
+                            {order.status}
+                        </Badge>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Badge variant="outline" className="cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold">
-                                    {order.status}
-                                </Badge>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-current hover:bg-white/30">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                                 <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
