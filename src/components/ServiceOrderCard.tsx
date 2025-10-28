@@ -95,24 +95,24 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </DropdownMenu>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0 pt-2 flex flex-col flex-grow space-y-1.5">
+                <CardContent className="p-0 pt-2 flex flex-col flex-grow space-y-1.5 text-current">
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-current/70 flex-shrink-0" />
-                        <CardTitle className="text-lg font-bold text-current truncate">
+                        <div className="h-2 w-2 rounded-full bg-current flex-shrink-0" />
+                        <CardTitle className="text-lg font-bold truncate">
                             {order.client}
                         </CardTitle>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-current/70 flex-shrink-0" />
-                        <p className="text-base text-current truncate">
+                        <div className="h-2 w-2 rounded-full bg-current flex-shrink-0" />
+                        <p className="text-base truncate">
                             {order.equipment}
                         </p>
                     </div>
                     
                     <div className="flex items-start gap-2">
-                        <div className="h-2 w-2 rounded-full bg-current/70 flex-shrink-0 mt-1.5" />
-                        <p className="text-sm text-current/80 line-clamp-3 flex-grow">
+                        <div className="h-2 w-2 rounded-full bg-current flex-shrink-0 mt-1.5" />
+                        <p className="text-sm opacity-80 line-clamp-3 flex-grow">
                             {order.description}
                         </p>
                     </div>
