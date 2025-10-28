@@ -123,40 +123,42 @@ const ServiceOrders: React.FC = () => {
             />
           </div>
           
-          <div className="w-full md:w-48">
-            <Select 
-              onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
-              defaultValue={selectedStore}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Loja" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
-                <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="flex w-full md:w-auto items-center gap-2">
+            <div className="flex-1">
+              <Select 
+                onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
+                defaultValue={selectedStore}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Loja" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="w-full md:w-48">
-            <Select 
-              onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
-              defaultValue={selectedStatus}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Estados" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
-                <SelectItem value="ALL">Todos os Estados ({orders.length})</SelectItem>
-                {serviceOrderStatuses.map(status => (
-                  <SelectItem key={status} value={status}>
-                    {status} ({statusCounts[status] || 0})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex-1">
+              <Select 
+                onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
+                defaultValue={selectedStatus}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Estados" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
+                  <SelectItem value="ALL">Todos os Estados ({orders.length})</SelectItem>
+                  {serviceOrderStatuses.map(status => (
+                    <SelectItem key={status} value={status}>
+                      {status} ({statusCounts[status] || 0})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
