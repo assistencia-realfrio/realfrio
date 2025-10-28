@@ -1,10 +1,10 @@
-import { useQuery } from "react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { ServiceOrder } from "@/hooks/useServiceOrders";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
+import { CheckCircle, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getStatusBadgeVariant, isActiveStatus } from "@/lib/serviceOrderStatus";
 
@@ -12,75 +12,89 @@ interface ClientOrdersTabProps {
   clientId: string;
 }
 
-const fetchClientOrders = async (clientId: string): Promise<ServiceOrder[]> => {
-  const { data, error } = await supabase
-    .from("service_orders")
-    .select("*")
-    .eq("client_id", clientId)
-    .order("created_at", { ascending: false });
+const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
+    const navigate = useNavigate();
+    
+    const handleViewDetails = () => {
+        navigate(`/orders/${order.id}`);
+    };
+    
+    const date = new Date(order.created_at).toLocaleDateString('pt-BR');
 
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as ServiceOrder[];
+    return (
+        <div 
+            className="flex justify-between items-center py-2 hover:bg-muted/50 px-2 rounded-md transition-colors cursor-pointer"
+            onClick={handleViewDetails}
+        >
+            <div className="flex flex-col">
+                <span className="font-medium text-sm">{order.equipment} - {order.model}</span>
+                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                    <span>{order.display_id}</span>
+                    <span>|</span>
+                    <span>{date}</span>
+                </div>
+            </div>
+            <div className="flex items-center space-x-2">
+                <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
+            </div>
+        </div>
+    );
 };
 
+
 const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
-  const { data: orders, isLoading, error } = useQuery(
-    ["clientOrders", clientId],
-    () => fetchClientOrders(clientId)
+  const { orders: allOrders, isLoading } = useServiceOrders();
+  
+  // Filtra as ordens pelo ID do cliente
+  const clientOrders = allOrders.filter(order => order.client_id === clientId);
+
+  const activeOrders = clientOrders.filter(o => isActiveStatus(o.status));
+  const completedOrders = clientOrders.filter(o => !isActiveStatus(o.status));
+
+  const renderOrderList = (orders: ServiceOrder[], emptyMessage: string) => (
+    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+      {isLoading ? (
+        <div className="space-y-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+        </div>
+      ) : orders.length > 0 ? (
+        orders.map(order => <OrderListItem key={order.id} order={order} />)
+      ) : (
+        <p className="text-center text-muted-foreground py-8 text-sm">{emptyMessage}</p>
+      )}
+    </div>
   );
 
-  if (isLoading) {
-    return (
-      <div className="space-y-2">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-destructive">Erro ao carregar as ordens de serviço.</div>;
-  }
-
-  if (!orders || orders.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">Nenhuma ordem de serviço encontrada para este cliente.</div>;
-  }
-
   return (
-    <div className="border rounded-lg">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[120px]">ID</TableHead>
-            <TableHead>Equipamento</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Data de Criação</TableHead>
-            <TableHead className="text-right">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id}>
-              <TableCell className="font-mono text-xs">OS-{order.id.split('-')[0].toUpperCase()}</TableCell>
-              <TableCell className="font-medium">{order.equipment}</TableCell>
-              <TableCell>
-                <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
-              </TableCell>
-              <TableCell>{new Date(order.created_at).toLocaleDateString()}</TableCell>
-              <TableCell className="text-right">
-                <Link to={`/orders/${order.id}`} className="text-primary hover:underline inline-flex items-center gap-1.5">
-                  Ver
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Card className="shadow-none border-none">
+      <CardHeader className="p-0 pb-4">
+        <CardTitle className="text-lg">Ordens de Serviço do Cliente</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Tabs defaultValue="active">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="active">
+                <Clock className="h-4 w-4 mr-2" />
+                Ativas ({activeOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Concluídas ({completedOrders.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="active" className="mt-4">
+            {renderOrderList(activeOrders, "Nenhuma OS ativa para este cliente.")}
+          </TabsContent>
+          
+          <TabsContent value="completed" className="mt-4">
+            {renderOrderList(completedOrders, "Nenhuma OS concluída para este cliente.")}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 
