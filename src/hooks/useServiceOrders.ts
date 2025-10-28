@@ -38,8 +38,8 @@ type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
 // Função auxiliar para gerar o ID formatado
 const generateDisplayId = (store: ServiceOrder['store']): string => {
     const prefix = store === 'CALDAS DA RAINHA' ? 'CR' : 'PM';
-    // Novo formato: DDMMYYHHMM
-    const dateTimePart = format(new Date(), 'ddMMyyHHmm');
+    // Novo formato: DD-MM-YYYY-HHMM
+    const dateTimePart = format(new Date(), 'dd-MM-yyyy-HHmm');
     return `${prefix}-${dateTimePart}`;
 };
 
