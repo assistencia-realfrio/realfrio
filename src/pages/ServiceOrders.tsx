@@ -12,16 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isActiveStatus } from "@/lib/serviceOrderStatus";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
-type StatusFilter = ServiceOrder['status'] | 'ALL' | 'ACTIVE'; // Adicionado 'ACTIVE'
+type StatusFilter = ServiceOrderStatus | 'ALL' | 'ACTIVE';
 
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ACTIVE'); // Padrão para 'ACTIVE'
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ACTIVE');
   const [searchTerm, setSearchTerm] = useState("");
   
   const { orders, isLoading } = useServiceOrders();
@@ -36,7 +37,7 @@ const ServiceOrders: React.FC = () => {
     // 1. Filtrar por Status
     if (selectedStatus !== 'ALL') {
       if (selectedStatus === 'ACTIVE') {
-        filtered = filtered.filter(order => order.status === 'Pendente' || order.status === 'Em Progresso');
+        filtered = filtered.filter(order => isActiveStatus(order.status));
       } else {
         filtered = filtered.filter(order => order.status === selectedStatus);
       }
@@ -46,7 +47,7 @@ const ServiceOrders: React.FC = () => {
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(order => 
-        order.display_id.toLowerCase().includes(lowerCaseSearch) || // Busca pelo novo ID
+        order.display_id.toLowerCase().includes(lowerCaseSearch) ||
         order.client.toLowerCase().includes(lowerCaseSearch) ||
         order.equipment.toLowerCase().includes(lowerCaseSearch) ||
         (order.model && order.model.toLowerCase().includes(lowerCaseSearch))
@@ -57,7 +58,6 @@ const ServiceOrders: React.FC = () => {
   }, [orders, selectedStatus, searchTerm]);
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
-    // Filtragem final por loja, se necessário
     const finalOrders = selectedStore === 'ALL' 
       ? ordersToRender 
       : ordersToRender.filter(order => order.store === selectedStore);
@@ -84,19 +84,20 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  // Recalculando os totais para os filtros de status e loja
-  const allTotalOrdersCount = orders.length;
-  const pendingTotalCount = orders.filter(o => o.status === 'Pendente').length;
-  const inProgressTotalCount = orders.filter(o => o.status === 'Em Progresso').length;
-  const completedTotalCount = orders.filter(o => o.status === 'Concluída').length;
-  const cancelledTotalCount = orders.filter(o => o.status === 'Cancelada').length;
-  const activeTotalCount = pendingTotalCount + inProgressTotalCount;
+  const statusCounts = useMemo(() => {
+    return orders.reduce((acc, order) => {
+      acc[order.status] = (acc[order.status] || 0) + 1;
+      return acc;
+    }, {} as Record<ServiceOrderStatus, number>);
+  }, [orders]);
 
-  // Contagens para o filtro de loja, baseadas nas ordens JÁ filtradas por status e busca
+  const activeTotalCount = useMemo(() => {
+    return orders.filter(o => isActiveStatus(o.status)).length;
+  }, [orders]);
+
   const allOrdersCount = filteredOrders.length;
   const caldasOrdersCount = filteredOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
   const portoOrdersCount = filteredOrders.filter(o => o.store === 'PORTO DE MÓS').length;
-
 
   return (
     <Layout>
@@ -111,9 +112,7 @@ const ServiceOrders: React.FC = () => {
           </div>
         </div>
 
-        {/* Filtros de Busca e Status */}
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-          {/* Campo de Busca */}
           <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
@@ -124,7 +123,6 @@ const ServiceOrders: React.FC = () => {
             />
           </div>
           
-          {/* Filtro de Estado */}
           <div className="w-full md:w-48">
             <Select 
               onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
@@ -135,17 +133,17 @@ const ServiceOrders: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
-                <SelectItem value="ALL">Todos os Estados ({allTotalOrdersCount})</SelectItem>
-                <SelectItem value="Pendente">Pendente ({pendingTotalCount})</SelectItem>
-                <SelectItem value="Em Progresso">Em Progresso ({inProgressTotalCount})</SelectItem>
-                <SelectItem value="Concluída">Concluída ({completedTotalCount})</SelectItem>
-                <SelectItem value="Cancelada">Cancelada ({cancelledTotalCount})</SelectItem>
+                <SelectItem value="ALL">Todos os Estados ({orders.length})</SelectItem>
+                {serviceOrderStatuses.map(status => (
+                  <SelectItem key={status} value={status}>
+                    {status} ({statusCounts[status] || 0})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        {/* Filtro de Loja (agora um Select) */}
         <div className="w-full md:w-48">
           <Select 
             onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
@@ -162,7 +160,6 @@ const ServiceOrders: React.FC = () => {
           </Select>
         </div>
 
-        {/* Conteúdo das Ordens de Serviço */}
         <div className="mt-6">
           {renderOrderGrid(filteredOrders)}
         </div>

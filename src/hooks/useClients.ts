@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { ClientFormValues } from "@/components/ClientForm";
 import { useServiceOrders } from "./useServiceOrders"; // Importando o hook de OS
+import { isActiveStatus } from "@/lib/serviceOrderStatus";
 
 export interface Client {
   id: string;
@@ -57,7 +58,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
   const clientsWithCounts = rawClients.map(client => {
     const clientOrders = orders.filter(order => order.client_id === client.id);
     const totalOrders = clientOrders.length;
-    const openOrders = clientOrders.filter(order => order.status === "Pendente" || order.status === "Em Progresso").length;
+    const openOrders = clientOrders.filter(order => isActiveStatus(order.status)).length;
     return { ...client, totalOrders, openOrders };
   });
 

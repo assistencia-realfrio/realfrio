@@ -1,24 +1,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom"; // Removendo Link
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ServiceOrder } from "@/hooks/useServiceOrders"; // Importando o tipo ServiceOrder do hook
-
-const getStatusVariant = (status: ServiceOrder['status']): "default" | "secondary" | "destructive" | "outline" => {
-  switch (status) {
-    case "Concluída":
-      return "default";
-    case "Em Progresso":
-      return "secondary";
-    case "Pendente":
-      return "destructive";
-    case "Cancelada":
-      return "outline";
-    default:
-      return "outline";
-  }
-};
+import { ServiceOrder } from "@/hooks/useServiceOrders";
+import { getStatusBadgeVariant, statusBgColors } from "@/lib/serviceOrderStatus";
 
 interface ServiceOrderCardProps {
     order: ServiceOrder;
@@ -40,7 +26,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         <Card 
             className={cn(
                 "hover:shadow-lg transition-shadow cursor-pointer flex",
-                "p-0" 
+                "p-0",
+                statusBgColors[order.status] || "bg-gray-500/20"
             )} 
             onClick={handleClick}
         >
@@ -51,7 +38,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             <div className="flex flex-col flex-grow p-3"> {/* Reduzido p-4 para p-3 */}
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1"> {/* Reduzido pb-2 para pb-1 */}
                     <div className="text-sm font-medium text-muted-foreground truncate">{order.display_id}</div> {/* Reduzido text-base para text-sm */}
-                    <Badge variant={getStatusVariant(order.status)} className="whitespace-nowrap text-xs px-2 py-0.5"> {/* Ajustado tamanho da badge */}
+                    <Badge variant={getStatusBadgeVariant(order.status)} className="whitespace-nowrap text-xs px-2 py-0.5"> {/* Ajustado tamanho da badge */}
                         {order.status}
                     </Badge>
                 </CardHeader>

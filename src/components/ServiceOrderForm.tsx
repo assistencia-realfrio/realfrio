@@ -22,7 +22,7 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
-import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "lucide-react";
@@ -32,7 +32,7 @@ const formSchema = z.object({
   equipment_id: z.string().uuid({ message: "Selecione um equipamento válido." }),
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
-  status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
+  status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
 });
 
@@ -57,7 +57,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       equipment_id: "",
       client_id: "",
       description: "",
-      status: "Pendente",
+      status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
     },
   });
@@ -234,10 +234,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Pendente">Pendente</SelectItem>
-                    <SelectItem value="Em Progresso">Em Progresso</SelectItem>
-                    <SelectItem value="Concluída">Concluída</SelectItem>
-                    <SelectItem value="Cancelada">Cancelada</SelectItem>
+                    {serviceOrderStatuses.map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

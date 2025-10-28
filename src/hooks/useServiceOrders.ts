@@ -2,6 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { format } from "date-fns";
+import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
+
+export type { ServiceOrderStatus };
+export { serviceOrderStatuses };
 
 export interface ServiceOrder {
   id: string;
@@ -13,11 +17,9 @@ export interface ServiceOrder {
   client_id: string;
   equipment_id: string | null; // Novo campo para referenciar o equipamento
   description: string;
-  status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
+  status: ServiceOrderStatus;
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
-  // client_signature: string | null; // REMOVIDO
-  // signed_at: string | null; // REMOVIDO
 }
 
 // O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
@@ -25,7 +27,6 @@ export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'c
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
-    // client_signature?: string | null; // REMOVIDO
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
@@ -84,8 +85,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
-        // client_signature: order.client_signature, // REMOVIDO
-        // signed_at: order.signed_at, // REMOVIDO
     };
   }) as ServiceOrder[];
 };
@@ -120,10 +119,7 @@ export const useServiceOrders = (id?: string) => {
       // 1. Gerar o display_id antes da inserção
       const displayId = generateDisplayId(orderData.store);
       
-      // 2. Definir o timestamp da assinatura se ela existir (REMOVIDO)
-      // const signedAt = orderData.client_signature ? new Date().toISOString() : null;
-
-      // 3. Inserir a ordem com o display_id
+      // 2. Inserir a ordem com o display_id
       const { data, error } = await supabase
         .from('service_orders')
         .insert({
@@ -136,8 +132,6 @@ export const useServiceOrders = (id?: string) => {
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
           display_id: displayId, // Inserindo o ID formatado
-          // client_signature: orderData.client_signature || null, // REMOVIDO
-          // signed_at: signedAt, // REMOVIDO
           created_by: user.id,
         })
         .select('id')
@@ -156,9 +150,6 @@ export const useServiceOrders = (id?: string) => {
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       
-      // Se a assinatura foi fornecida/atualizada, registra o timestamp (REMOVIDO)
-      // const signedAt = orderData.client_signature ? new Date().toISOString() : null;
-      
       const { data, error } = await supabase
         .from('service_orders')
         .update({
@@ -170,8 +161,6 @@ export const useServiceOrders = (id?: string) => {
           store: orderData.store,
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
-          // client_signature: orderData.client_signature || null, // REMOVIDO
-          // signed_at: signedAt, // REMOVIDO
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)

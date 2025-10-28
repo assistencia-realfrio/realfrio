@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useServiceOrders, ServiceOrder } from "./useServiceOrders";
+import { statusChartColors, ServiceOrderStatus } from "@/lib/serviceOrderStatus";
 
 interface StatusData {
   name: string;
@@ -15,13 +16,6 @@ interface DashboardMetrics {
   isLoading: boolean;
 }
 
-const STATUS_COLORS: Record<ServiceOrder['status'], string> = {
-  'Pendente': 'hsl(var(--destructive))',
-  'Em Progresso': 'hsl(var(--secondary))',
-  'Concluída': 'hsl(var(--primary))',
-  'Cancelada': 'hsl(var(--muted-foreground))',
-};
-
 export const useDashboardMetrics = (): DashboardMetrics => {
   const { orders, isLoading } = useServiceOrders();
 
@@ -31,35 +25,19 @@ export const useDashboardMetrics = (): DashboardMetrics => {
         totalOrders: 0,
         pendingOrders: 0,
         completedOrders: 0,
-        statusCounts: {} as Record<ServiceOrder['status'], number>,
+        statusCounts: {} as Record<ServiceOrderStatus, number>,
       };
     }
 
-    const totalOrders = orders.length;
-    let pendingOrders = 0;
-    let completedOrders = 0;
-    const statusCounts: Record<ServiceOrder['status'], number> = {
-      'Pendente': 0,
-      'Em Progresso': 0,
-      'Concluída': 0,
-      'Cancelada': 0,
-    };
-
-    orders.forEach(order => {
-      statusCounts[order.status] = (statusCounts[order.status] || 0) + 1;
-      
-      if (order.status === 'Pendente') {
-        pendingOrders++;
-      }
-      if (order.status === 'Concluída') {
-        completedOrders++;
-      }
-    });
+    const statusCounts = orders.reduce((acc, order) => {
+        acc[order.status] = (acc[order.status] || 0) + 1;
+        return acc;
+    }, {} as Record<ServiceOrderStatus, number>);
 
     return {
-      totalOrders,
-      pendingOrders,
-      completedOrders,
+      totalOrders: orders.length,
+      pendingOrders: statusCounts['POR INICIAR'] || 0,
+      completedOrders: statusCounts['CONCLUIDA'] || 0,
       statusCounts,
     };
   }, [orders, isLoading]);
@@ -70,7 +48,7 @@ export const useDashboardMetrics = (): DashboardMetrics => {
       .map(([status, value]) => ({
         name: status,
         value: value,
-        color: STATUS_COLORS[status as ServiceOrder['status']],
+        color: statusChartColors[status as ServiceOrderStatus],
       }));
   }, [metrics.statusCounts]);
 

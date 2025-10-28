@@ -6,24 +6,11 @@ import { CheckCircle, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getStatusBadgeVariant, isActiveStatus } from "@/lib/serviceOrderStatus";
 
 interface ClientOrdersTabProps {
   clientId: string;
 }
-
-const getStatusVariant = (status: ServiceOrder['status']): "default" | "secondary" | "destructive" | "outline" => {
-  switch (status) {
-    case "Concluída":
-      return "default";
-    case "Em Progresso":
-      return "secondary";
-    case "Pendente":
-      return "destructive";
-    case "Cancelada":
-    default:
-      return "outline";
-  }
-};
 
 const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
     const navigate = useNavigate();
@@ -48,7 +35,7 @@ const OrderListItem: React.FC<{ order: ServiceOrder }> = ({ order }) => {
                 </div>
             </div>
             <div className="flex items-center space-x-2">
-                <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
             </div>
         </div>
     );
@@ -61,8 +48,8 @@ const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
   // Filtra as ordens pelo ID do cliente
   const clientOrders = allOrders.filter(order => order.client_id === clientId);
 
-  const activeOrders = clientOrders.filter(o => o.status === "Pendente" || o.status === "Em Progresso");
-  const completedOrders = clientOrders.filter(o => o.status === "Concluída" || o.status === "Cancelada");
+  const activeOrders = clientOrders.filter(o => isActiveStatus(o.status));
+  const completedOrders = clientOrders.filter(o => !isActiveStatus(o.status));
 
   const renderOrderList = (orders: ServiceOrder[], emptyMessage: string) => (
     <div className="space-y-2 max-h-[400px] overflow-y-auto">
