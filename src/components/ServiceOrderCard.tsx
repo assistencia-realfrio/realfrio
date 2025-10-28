@@ -13,8 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreVertical, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 
 interface ServiceOrderCardProps {
@@ -25,19 +24,16 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const navigate = useNavigate();
     const { updateOrder } = useServiceOrders();
 
-    // Função que navega para os detalhes da OS
-    const handleCardClick = () => {
+    const handleNavigate = () => {
         navigate(`/orders/${order.id}`);
     };
 
     const handleStatusChange = async (newStatus: ServiceOrderStatus) => {
         const toastId = showLoading(`Alterando estado para ${newStatus}...`);
         try {
-            // A mutação espera o formato completo, então passamos o objeto da ordem, apenas alterando o estado
             await updateOrder.mutateAsync({
                 ...order,
                 status: newStatus,
-                // Garantir que os campos opcionais sejam passados como undefined se forem null
                 model: order.model || undefined,
                 serial_number: order.serial_number || undefined,
                 equipment_id: order.equipment_id || undefined,
@@ -56,54 +52,53 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         : 'bg-red-500';
 
     return (
-        <Card 
+        <div 
             className={cn(
-                "hover:shadow-lg transition-shadow cursor-pointer flex",
-                "p-0 border-0 rounded-lg",
+                "hover:shadow-lg transition-shadow flex relative rounded-lg",
                 statusCardClasses[order.status] || "status-cancelada"
             )} 
-            onClick={handleCardClick} // Clique principal para navegar
         >
             <div className={cn("w-2 rounded-l-md", storeColorClass)} />
 
             <div className="flex flex-col flex-grow p-3">
-                <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1">
-                    <div className="text-xs font-medium text-current/80 truncate">{order.display_id}</div>
-                    <div className="flex items-center gap-1">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                {/* O Badge é o trigger. Usamos e.stopPropagation() para evitar que o clique no Badge acione o handleCardClick do Card pai. */}
-                                <Badge 
-                                    variant="outline" 
-                                    className="cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold"
-                                    onClick={(e) => e.stopPropagation()} // IMPEDE A NAVEGAÇÃO
-                                >
-                                    {order.status}
-                                </Badge>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {serviceOrderStatuses.map((status) => (
-                                    <DropdownMenuItem 
-                                        key={status} 
-                                        onClick={() => handleStatusChange(status)}
-                                        disabled={updateOrder.isPending}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
-                                        {status}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                <div className="flex flex-row items-start justify-between space-y-0 pb-1">
+                    <div 
+                        className="text-xs font-medium text-current/80 truncate cursor-pointer"
+                        onClick={handleNavigate}
+                    >
+                        {order.display_id}
                     </div>
-                </CardHeader>
-                <CardContent className="p-0 pt-2 flex flex-col flex-grow space-y-1.5 text-current">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Badge 
+                                variant="outline" 
+                                className="cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold"
+                            >
+                                {order.status}
+                            </Badge>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {serviceOrderStatuses.map((status) => (
+                                <DropdownMenuItem 
+                                    key={status} 
+                                    onClick={() => handleStatusChange(status)}
+                                    disabled={updateOrder.isPending}
+                                >
+                                    <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
+                                    {status}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <div onClick={handleNavigate} className="cursor-pointer pt-2 flex flex-col flex-grow space-y-1.5 text-current">
                     <div className="flex items-center gap-2">
                         <div className="h-1 w-1 rounded-full bg-current flex-shrink-0" />
-                        <CardTitle className="text-lg font-bold truncate">
+                        <div className="text-lg font-bold truncate">
                             {order.client}
-                        </CardTitle>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -119,9 +114,9 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             {order.description}
                         </p>
                     </div>
-                </CardContent>
+                </div>
             </div>
-        </Card>
+        </div>
     );
 };
 
