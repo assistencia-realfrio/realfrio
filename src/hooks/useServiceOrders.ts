@@ -16,16 +16,16 @@ export interface ServiceOrder {
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
-  client_signature: string | null; // Assinatura do cliente (Data URL)
-  signed_at: string | null; // NOVO: Timestamp da assinatura
+  // client_signature: string | null; // REMOVIDO
+  // signed_at: string | null; // REMOVIDO
 }
 
 // O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'client_signature' | 'signed_at'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
-    client_signature?: string | null; // Assinatura
+    // client_signature?: string | null; // REMOVIDO
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
@@ -59,8 +59,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       created_at,
       client_id,
       equipment_id,
-      client_signature,
-      signed_at,
       clients (name)
     `)
     .eq('created_by', userId)
@@ -86,8 +84,8 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
-        client_signature: order.client_signature,
-        signed_at: order.signed_at, // NOVO: Mapeando o timestamp
+        // client_signature: order.client_signature, // REMOVIDO
+        // signed_at: order.signed_at, // REMOVIDO
     };
   }) as ServiceOrder[];
 };
@@ -122,8 +120,8 @@ export const useServiceOrders = (id?: string) => {
       // 1. Gerar o display_id antes da inserção
       const displayId = generateDisplayId(orderData.store);
       
-      // 2. Definir o timestamp da assinatura se ela existir
-      const signedAt = orderData.client_signature ? new Date().toISOString() : null;
+      // 2. Definir o timestamp da assinatura se ela existir (REMOVIDO)
+      // const signedAt = orderData.client_signature ? new Date().toISOString() : null;
 
       // 3. Inserir a ordem com o display_id
       const { data, error } = await supabase
@@ -138,8 +136,8 @@ export const useServiceOrders = (id?: string) => {
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
           display_id: displayId, // Inserindo o ID formatado
-          client_signature: orderData.client_signature || null,
-          signed_at: signedAt, // Inserindo o timestamp
+          // client_signature: orderData.client_signature || null, // REMOVIDO
+          // signed_at: signedAt, // REMOVIDO
           created_by: user.id,
         })
         .select('id')
@@ -158,8 +156,8 @@ export const useServiceOrders = (id?: string) => {
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       
-      // Se a assinatura foi fornecida/atualizada, registra o timestamp
-      const signedAt = orderData.client_signature ? new Date().toISOString() : null;
+      // Se a assinatura foi fornecida/atualizada, registra o timestamp (REMOVIDO)
+      // const signedAt = orderData.client_signature ? new Date().toISOString() : null;
       
       const { data, error } = await supabase
         .from('service_orders')
@@ -172,8 +170,8 @@ export const useServiceOrders = (id?: string) => {
           store: orderData.store,
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
-          client_signature: orderData.client_signature || null,
-          signed_at: signedAt, // Atualizando o timestamp
+          // client_signature: orderData.client_signature || null, // REMOVIDO
+          // signed_at: signedAt, // REMOVIDO
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)

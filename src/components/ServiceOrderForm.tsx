@@ -25,9 +25,8 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User } from "lucide-react"; // Importando o ícone User
-import ClientDetailsModal from "./ClientDetailsModal"; // Importando o novo modal
-import SignaturePad from "./SignaturePad"; // Importando o novo componente de assinatura
+import { User } from "lucide-react";
+import ClientDetailsModal from "./ClientDetailsModal";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -37,18 +36,14 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
-  // NOVO: Campo para armazenar a assinatura como Data URL (string)
-  client_signature: z.string().nullable().optional(),
 });
 
-// Tipo de dados para o formulário (agora inclui equipment_id e client_signature)
+// Tipo de dados para o formulário
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 // Tipo de dados iniciais (pode incluir o ID da OS se for edição)
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
-    client_signature?: string | null; // Adicionando assinatura aos dados iniciais
-    signed_at?: string | null; // Adicionando timestamp da assinatura
 }
 
 interface ServiceOrderFormProps {
@@ -62,14 +57,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
         ...initialData,
-        client_signature: initialData.client_signature || "",
     } : {
       equipment_id: "",
       client_id: "",
       description: "",
       status: "Pendente",
       store: "CALDAS DA RAINHA",
-      client_signature: "",
     },
   });
 
@@ -80,9 +73,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const clientId = form.watch("client_id");
   // Observa o equipment_id do formulário para buscar os detalhes
   const currentEquipmentId = form.watch("equipment_id");
-  // Observa o status e a assinatura
+  // Observa o status
   const currentStatus = form.watch("status");
-  const currentSignature = form.watch("client_signature");
 
   // Usa o hook useEquipments para buscar os detalhes do equipamento único se estiver editando
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
@@ -111,22 +103,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     setEquipmentDetails(details);
   };
   
-  const handleSignatureChange = (dataUrl: string) => {
-    form.setValue("client_signature", dataUrl, { shouldValidate: true });
-  };
-
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     if (!equipmentDetails.name) { // Verifica se o nome do equipamento está preenchido
         showError("Selecione um equipamento válido.");
         return;
     }
     
-    // Validação de assinatura se o status for Concluída e não houver assinatura
-    if (data.status === 'Concluída' && !data.client_signature) {
-        showError("A assinatura do cliente é obrigatória para concluir a Ordem de Serviço.");
-        return;
-    }
-
     try {
         // --- Lógica de Formatação Atualizada ---
         // Invertendo a ordem: NOME / MARCA
@@ -139,7 +121,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         // --------------------------------------
 
         // Mapeia os dados do formulário + detalhes do equipamento para a mutação
-        const mutationData: MutationServiceOrderFormValues & { client_signature?: string | null } = {
+        const mutationData: MutationServiceOrderFormValues = {
             client_id: data.client_id,
             description: data.description,
             status: data.status,
@@ -149,8 +131,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id, // Passando o ID do equipamento
-            client_signature: data.client_signature || null, // NOVO: Passando a assinatura
-        } as MutationServiceOrderFormValues & { client_signature?: string | null }; 
+        } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
             await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
@@ -187,10 +168,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     );
   }
   
-  // Verifica se a OS já tem uma assinatura salva
-  const hasExistingSignature = isEditing && !!initialData?.client_signature;
-  const signedAtDate = initialData?.signed_at ? new Date(initialData.signed_at).toLocaleString('pt-BR') : null;
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -271,7 +248,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormLabel>Estado *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger> {/* Destaque removido */}
+                    <SelectTrigger>
                       <SelectValue placeholder="Selecione o estado" />
                     </SelectTrigger>
                   </FormControl>
@@ -296,7 +273,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormLabel>Loja *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger> {/* Destaque removido */}
+                    <SelectTrigger>
                       <SelectValue placeholder="Selecione a loja" />
                     </SelectTrigger>
                   </FormControl>
@@ -311,29 +288,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
         
-        {/* Campo de Assinatura (Visível apenas se o status for Concluída) */}
-        {currentStatus === 'Concluída' && (
-            <FormField
-                control={form.control}
-                name="client_signature"
-                render={({ field }) => (
-                    <FormItem>
-                        {hasExistingSignature && signedAtDate && (
-                            <p className="text-sm text-muted-foreground mb-2">
-                                Assinado em: {signedAtDate}
-                            </p>
-                        )}
-                        <SignaturePad 
-                            onSign={handleSignatureChange} 
-                            initialSignature={field.value || undefined}
-                            disabled={hasExistingSignature} // Desabilita se já houver assinatura
-                        />
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-        )}
-
         <div className="flex justify-center space-x-2 pt-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending}>
