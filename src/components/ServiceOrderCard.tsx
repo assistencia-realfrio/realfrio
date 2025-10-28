@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -51,6 +50,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         ? 'bg-blue-500' 
         : 'bg-red-500';
 
+    // Classes de texto para garantir a cor correta, independentemente do estado
+    const textClass = "text-slate-800";
+    const mutedTextClass = "text-slate-600";
+
     return (
         <div 
             className={cn(
@@ -63,21 +66,21 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             <div className="flex flex-col flex-grow p-3">
                 <div className="flex flex-row items-start justify-between space-y-0 pb-1">
                     <div 
-                        className="text-xs font-medium text-current/80 truncate cursor-pointer"
+                        className={cn("text-xs font-medium truncate cursor-pointer", mutedTextClass)}
                         onClick={handleNavigate}
                     >
                         {order.display_id}
                     </div>
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                             <Badge 
                                 variant="outline" 
-                                className="cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold"
+                                className={cn("cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-slate-400/50 bg-white/30 font-bold", textClass)}
                             >
                                 {order.status}
                             </Badge>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                             <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             {serviceOrderStatuses.map((status) => (
@@ -93,24 +96,24 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <div onClick={handleNavigate} className="cursor-pointer pt-2 flex flex-col flex-grow space-y-1.5 text-current">
+                <div onClick={handleNavigate} className="cursor-pointer pt-2 flex flex-col flex-grow space-y-1.5">
                     <div className="flex items-center gap-2">
-                        <div className="h-1 w-1 rounded-full bg-current flex-shrink-0" />
-                        <div className="text-lg font-bold truncate">
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-slate-800")} />
+                        <div className={cn("text-lg font-bold truncate", textClass)}>
                             {order.client}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <div className="h-1 w-1 rounded-full bg-current flex-shrink-0" />
-                        <p className="text-base truncate">
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-slate-800")} />
+                        <p className={cn("text-base truncate", textClass)}>
                             {order.equipment}
                         </p>
                     </div>
                     
                     <div className="flex items-start gap-2">
-                        <div className="h-1 w-1 rounded-full bg-current flex-shrink-0 mt-2" />
-                        <p className="text-sm opacity-80 line-clamp-3 flex-grow">
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 mt-2 bg-slate-800")} />
+                        <p className={cn("text-sm line-clamp-3 flex-grow", mutedTextClass)}>
                             {order.description}
                         </p>
                     </div>
