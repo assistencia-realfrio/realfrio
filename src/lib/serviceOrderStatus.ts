@@ -5,52 +5,60 @@ export const serviceOrderStatuses = [
   "ORÇAMENTO ENVIADO",
   "AGUARDA PEÇAS",
   "PEÇAS RECEBIDAS",
-  "CONCLUIDA",
+  "CONCLUÍDA",
   "CANCELADA",
 ] as const;
 
-export type ServiceOrderStatus = (typeof serviceOrderStatuses)[number];
-
-export const statusCardClasses: Record<ServiceOrderStatus, string> = {
-  "POR INICIAR": "status-por-iniciar",
-  "INICIADA": "status-iniciada",
-  "PARA ORÇAMENTO": "status-para-orcamento",
-  "ORÇAMENTO ENVIADO": "status-orcamento-enviado",
-  "AGUARDA PEÇAS": "status-aguarda-pecas",
-  "PEÇAS RECEBIDAS": "status-pecas-recebidas",
-  "CONCLUIDA": "status-concluida",
-  "CANCELADA": "status-cancelada",
-};
+export type ServiceOrderStatus = typeof serviceOrderStatuses[number];
 
 export const statusChartColors: Record<ServiceOrderStatus, string> = {
-    'POR INICIAR': '#039BE5',
-    'INICIADA': '#00ACC1',
-    'PARA ORÇAMENTO': '#9C27B0',
-    'ORÇAMENTO ENVIADO': '#F57C00',
-    'AGUARDA PEÇAS': '#FF5722',
-    'PEÇAS RECEBIDAS': '#E91E63',
-    'CONCLUIDA': '#4CAF50',
-    'CANCELADA': '#475569',
+  "POR INICIAR": "#039BE5",
+  "INICIADA": "#00ACC1",
+  "PARA ORÇAMENTO": "#9C27B0",
+  "ORÇAMENTO ENVIADO": "#F57C00",
+  "AGUARDA PEÇAS": "#FF5722",
+  "PEÇAS RECEBIDAS": "#E91E63",
+  "CONCLUÍDA": "#4CAF50",
+  "CANCELADA": "#475569",
 };
 
 export const getStatusBadgeVariant = (status: ServiceOrderStatus): "default" | "secondary" | "destructive" | "outline" => {
+    switch (status) {
+        case 'CONCLUÍDA':
+            return 'default';
+        case 'CANCELADA':
+            return 'destructive';
+        case 'POR INICIAR':
+        case 'INICIADA':
+            return 'secondary';
+        default:
+            return 'outline';
+    }
+};
+
+export const getStatusClass = (status: ServiceOrderStatus): string => {
   switch (status) {
-    case "CONCLUIDA":
-      return "default";
-    case "INICIADA":
-    case "PARA ORÇAMENTO":
-    case "ORÇAMENTO ENVIADO":
-    case "AGUARDA PEÇAS":
-    case "PEÇAS RECEBIDAS":
-      return "secondary";
     case "POR INICIAR":
-      return "destructive";
+      return "status-por-iniciar";
+    case "INICIADA":
+      return "status-iniciada";
+    case "PARA ORÇAMENTO":
+      return "status-para-orcamento";
+    case "ORÇAMENTO ENVIADO":
+      return "status-orcamento-enviado";
+    case "AGUARDA PEÇAS":
+      return "status-aguarda-pecas";
+    case "PEÇAS RECEBIDAS":
+      return "status-pecas-recebidas";
+    case "CONCLUÍDA":
+      return "status-concluida";
     case "CANCELADA":
+      return "status-cancelada";
     default:
-      return "outline";
+      return "";
   }
 };
 
 export const isActiveStatus = (status: ServiceOrderStatus): boolean => {
-    return status !== 'CONCLUIDA' && status !== 'CANCELADA';
-}
+  return status !== "CONCLUÍDA" && status !== "CANCELADA";
+};

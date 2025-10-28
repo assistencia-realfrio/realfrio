@@ -1,125 +1,85 @@
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ServiceOrder } from "@/hooks/useServiceOrders";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { ServiceOrder, useServiceOrders, serviceOrderStatuses, ServiceOrderStatus } from "@/hooks/useServiceOrders";
-import { statusCardClasses } from "@/lib/serviceOrderStatus";
+import { MoreVertical, HardHat, Tag, MapPin, Calendar } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreVertical, Check } from "lucide-react";
-import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
+import { useNavigate } from "react-router-dom";
+import { getStatusClass } from "@/lib/serviceOrderStatus";
 
 interface ServiceOrderCardProps {
-    order: ServiceOrder;
+  order: ServiceOrder;
 }
 
 const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
-    const navigate = useNavigate();
-    const { updateOrder } = useServiceOrders();
+  const navigate = useNavigate();
 
-    const handleClick = () => {
-        navigate(`/orders/${order.id}`);
-    };
+  const handleEdit = () => {
+    navigate(`/orders/${order.id}`);
+  };
 
-    const handleStatusChange = async (newStatus: ServiceOrderStatus) => {
-        const toastId = showLoading(`Alterando estado para ${newStatus}...`);
-        try {
-            // A mutação espera o formato completo, então passamos o objeto da ordem, apenas alterando o estado
-            await updateOrder.mutateAsync({
-                ...order,
-                status: newStatus,
-                // Garantir que os campos opcionais sejam passados como undefined se forem null
-                model: order.model || undefined,
-                serial_number: order.serial_number || undefined,
-                equipment_id: order.equipment_id || undefined,
-            });
-            dismissToast(toastId);
-            showSuccess("Estado da OS alterado com sucesso!");
-        } catch (error) {
-            dismissToast(toastId);
-            showError("Erro ao alterar o estado da OS.");
-            console.error("Status update error:", error);
-        }
-    };
-    
-    const storeColorClass = order.store === 'CALDAS DA RAINHA' 
-        ? 'bg-blue-500' 
-        : 'bg-red-500';
+  const statusClass = getStatusClass(order.status);
 
-    return (
-        <Card 
-            className={cn(
-                "hover:shadow-lg transition-shadow cursor-pointer flex",
-                "p-0 border-0 rounded-lg",
-                statusCardClasses[order.status] || "status-cancelada"
-            )} 
-            onClick={handleClick}
-        >
-            <div className={cn("w-2 rounded-l-md", storeColorClass)} />
-
-            <div className="flex flex-col flex-grow p-3">
-                <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1">
-                    <div className="text-xs font-medium text-current/80 truncate">{order.display_id}</div>
-                    <div className="flex items-center gap-1">
-                        <Badge variant="outline" className="whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current">
-                            {order.status}
-                        </Badge>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-current hover:bg-white/30">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {serviceOrderStatuses.map((status) => (
-                                    <DropdownMenuItem 
-                                        key={status} 
-                                        onClick={() => handleStatusChange(status)}
-                                        disabled={updateOrder.isPending}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
-                                        {status}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-0 pt-2 flex flex-col flex-grow space-y-1.5 text-current">
-                    <div className="flex items-center gap-2">
-                        <div className="h-1 w-1 rounded-full bg-current flex-shrink-0" />
-                        <CardTitle className="text-lg font-bold truncate">
-                            {order.client}
-                        </CardTitle>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <div className="h-1 w-1 rounded-full bg-current flex-shrink-0" />
-                        <p className="text-base truncate">
-                            {order.equipment}
-                        </p>
-                    </div>
-                    
-                    <div className="flex items-start gap-2">
-                        <div className="h-1 w-1 rounded-full bg-current flex-shrink-0 mt-2" />
-                        <p className="text-sm opacity-80 line-clamp-3 flex-grow">
-                            {order.description}
-                        </p>
-                    </div>
-                </CardContent>
-            </div>
-        </Card>
-    );
+  return (
+    <Card 
+      className={`relative overflow-hidden transition-transform hover:scale-[1.02] hover:shadow-lg ${statusClass}`}
+      onClick={handleEdit}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <CardTitle className="text-lg font-bold leading-tight">
+              {order.client}
+            </CardTitle>
+            <p className="text-xs text-muted-foreground font-mono pt-1">{order.display_id}</p>
+          </div>
+          <div className="flex items-center gap-1">
+            <Badge variant="outline" className="whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current font-bold">
+              {order.status}
+            </Badge>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-1.5 text-muted-foreground hover:bg-accent rounded-md -mr-2" onClick={(e) => e.stopPropagation()}>
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onClick={handleEdit}>Ver Detalhes</DropdownMenuItem>
+                <DropdownMenuItem>Marcar como Concluída</DropdownMenuItem>
+                <DropdownMenuItem>Imprimir Etiqueta</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="text-sm space-y-2.5 pt-2 pb-4">
+        <div className="flex items-center gap-2 text-foreground/80">
+          <HardHat className="h-4 w-4 flex-shrink-0" />
+          <span className="font-medium truncate">{order.equipment}</span>
+        </div>
+        {order.model && (
+          <div className="flex items-center gap-2 text-foreground/80">
+            <Tag className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{order.model}</span>
+          </div>
+        )}
+        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-3 w-3" />
+            <span>{order.store}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Calendar className="h-3 w-3" />
+            <span>{new Date(order.created_at).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default ServiceOrderCard;

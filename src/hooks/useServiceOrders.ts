@@ -1,223 +1,81 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/contexts/SessionContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
 
-export type { ServiceOrderStatus };
-export { serviceOrderStatuses };
-
-export interface ServiceOrder {
+export type ServiceOrder = {
   id: string;
-  display_id: string; // Novo campo para o ID formatado
+  display_id: string;
+  created_by: string;
+  client_id: string;
+  client: string; // This will be fetched from the clients table
   equipment: string;
   model: string | null;
-  serial_number: string | null; 
-  client: string;
-  client_id: string;
-  equipment_id: string | null; // Novo campo para referenciar o equipamento
-  description: string;
+  serial_number: string | null;
+  description: string | null;
   status: ServiceOrderStatus;
-  store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
+  store: 'CALDAS DA RAINHA' | 'PORTO DE MÓS';
   created_at: string;
-  updated_at: string | null; // Adicionado campo de atualização
-}
-
-// O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at'> & {
-    serial_number: string | undefined;
-    model: string | undefined;
-    equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
+  updated_at: string;
 };
 
-// Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
-type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
-    clients: { name: string } | { name: string }[] | null;
-};
+export const useServiceOrders = () => {
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<ServiceOrder[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-// Função auxiliar para gerar o ID formatado
-const generateDisplayId = (store: ServiceOrder['store']): string => {
-    const prefix = store === 'CALDAS DA RAINHA' ? 'CR' : 'PM';
-    // Novo formato: DD-MM-YYYY-HHMM
-    const dateTimePart = format(new Date(), 'dd-MM-yyyy-HHmm');
-    return `${prefix}-${dateTimePart}`;
-};
-
-// Função de fetch
-const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOrder[]> => {
-  if (!userId) return [];
-  
-  const { data, error } = await supabase
-    .from('service_orders')
-    .select(`
-      id, 
-      display_id,
-      equipment, 
-      model, 
-      serial_number, 
-      description, 
-      status, 
-      store, 
-      created_at,
-      updated_at,
-      client_id,
-      equipment_id,
-      clients (name)
-    `)
-    .eq('created_by', userId);
-
-  if (error) throw error;
-
-  // Mapeia os dados brutos para o formato ServiceOrder
-  const mappedData = (data as unknown as ServiceOrderRaw[]).map(order => {
-    const clientName = Array.isArray(order.clients) 
-        ? order.clients[0]?.name || 'Cliente Desconhecido'
-        : order.clients?.name || 'Cliente Desconhecido';
-
-    return {
-        ...order,
-        id: order.id,
-        display_id: order.display_id,
-        client: clientName, 
-        status: order.status as ServiceOrder['status'],
-        store: order.store as ServiceOrder['store'],
-        created_at: order.created_at,
-        updated_at: order.updated_at,
-        serial_number: order.serial_number,
-        model: order.model,
-        equipment_id: order.equipment_id,
-    };
-  }) as ServiceOrder[];
-
-  // Ordena os dados: primeiro por estado, depois por data de atualização/criação
-  const statusOrder = new Map(serviceOrderStatuses.map((status, index) => [status, index]));
-
-  mappedData.sort((a, b) => {
-    const orderA = statusOrder.get(a.status) ?? 99;
-    const orderB = statusOrder.get(b.status) ?? 99;
-
-    if (orderA !== orderB) {
-      return orderA - orderB;
-    }
-
-    // Se os estados forem iguais, ordena pela data mais recente
-    const dateA = new Date(a.updated_at || a.created_at).getTime();
-    const dateB = new Date(b.updated_at || b.created_at).getTime();
-    
-    return dateB - dateA; // Descendente (mais recente primeiro)
-  });
-
-  return mappedData;
-};
-
-// Hook principal
-export const useServiceOrders = (id?: string) => {
-  const { user } = useSession();
-  const queryClient = useQueryClient();
-
-  const queryKey = id ? ['serviceOrders', id] : ['serviceOrders'];
-
-  const { data: orders, isLoading } = useQuery<ServiceOrder[], Error>({
-    queryKey: queryKey,
-    queryFn: () => fetchServiceOrders(user?.id),
-    enabled: !!user?.id,
-    select: (data) => {
-      if (id) {
-        // Se um ID for fornecido, retorna apenas o item correspondente
-        const singleOrder = data.find(order => order.id === id);
-        return singleOrder ? [singleOrder] : [];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
       }
-      return data;
-    }
-  });
 
-  const order = id ? orders?.[0] : undefined;
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("service_orders")
+          .select(`
+            *,
+            client:clients(name)
+          `)
+          .eq("created_by", user.id);
 
-  const createOrderMutation = useMutation({
-    mutationFn: async (orderData: ServiceOrderFormValues) => {
-      if (!user?.id) throw new Error("Usuário não autenticado.");
-      
-      // 1. Gerar o display_id antes da inserção
-      const displayId = generateDisplayId(orderData.store);
-      
-      // 2. Inserir a ordem com o display_id
-      const { data, error } = await supabase
-        .from('service_orders')
-        .insert({
-          equipment: orderData.equipment,
-          model: orderData.model || null,
-          serial_number: orderData.serial_number || null,
-          description: orderData.description,
-          status: orderData.status,
-          store: orderData.store,
-          client_id: orderData.client_id,
-          equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
-          display_id: displayId, // Inserindo o ID formatado
-          created_by: user.id,
-        })
-        .select('id')
-        .single();
+        if (error) throw error;
 
-      if (error) throw error;
-      
-      // Retorna o ID do banco (UUID)
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
-    },
-  });
+        const formattedData = data.map((order: any) => ({
+          ...order,
+          client: order.client?.name || "Cliente Desconhecido",
+          display_id: `OS-${String(order.id.split('-')[0]).toUpperCase()}`
+        }));
+        
+        setOrders(formattedData);
+      } catch (err) {
+        setError(err as Error);
+        console.error("Error fetching service orders:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
-      
-      const { data, error } = await supabase
-        .from('service_orders')
-        .update({
-          equipment: orderData.equipment,
-          model: orderData.model || null,
-          serial_number: orderData.serial_number || null,
-          description: orderData.description,
-          status: orderData.status,
-          store: orderData.store,
-          client_id: orderData.client_id,
-          equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .select()
-        .single();
+    fetchOrders();
+  }, [user]);
 
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders', id] });
-    },
-  });
-  
-  const deleteOrderMutation = useMutation({
-    mutationFn: async (orderId: string) => {
-      const { error } = await supabase
-        .from('service_orders')
-        .delete()
-        .eq('id', orderId);
+  const sortedOrders = useMemo(() => {
+    if (!orders) return [];
+    return [...orders].sort((a, b) => {
+      // Sort by status first, using the predefined order
+      const orderA = serviceOrderStatuses.indexOf(a.status);
+      const orderB = serviceOrderStatuses.indexOf(b.status);
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+      // Then sort by creation date, newest first
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [orders]);
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      // Invalida todas as queries de OS para atualizar a lista
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
-    },
-  });
-
-  return {
-    orders: orders || [],
-    order,
-    isLoading,
-    createOrder: createOrderMutation,
-    updateOrder: updateOrderMutation,
-    deleteOrder: deleteOrderMutation,
-  };
+  return { orders: sortedOrders, isLoading, error };
 };
