@@ -17,12 +17,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
-type StatusFilter = ServiceOrderStatus | 'ALL' | 'ACTIVE';
+type StatusFilter = ServiceOrderStatus | 'ALL';
 
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ACTIVE');
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL');
   const [searchTerm, setSearchTerm] = useState("");
   
   const { orders, isLoading } = useServiceOrders();
@@ -36,11 +36,7 @@ const ServiceOrders: React.FC = () => {
 
     // 1. Filtrar por Status
     if (selectedStatus !== 'ALL') {
-      if (selectedStatus === 'ACTIVE') {
-        filtered = filtered.filter(order => isActiveStatus(order.status));
-      } else {
-        filtered = filtered.filter(order => order.status === selectedStatus);
-      }
+      filtered = filtered.filter(order => order.status === selectedStatus);
     }
 
     // 2. Filtrar por Termo de Busca
@@ -89,10 +85,6 @@ const ServiceOrders: React.FC = () => {
       acc[order.status] = (acc[order.status] || 0) + 1;
       return acc;
     }, {} as Record<ServiceOrderStatus, number>);
-  }, [orders]);
-
-  const activeTotalCount = useMemo(() => {
-    return orders.filter(o => isActiveStatus(o.status)).length;
   }, [orders]);
 
   const allOrdersCount = filteredOrders.length;
@@ -149,8 +141,7 @@ const ServiceOrders: React.FC = () => {
                   <SelectValue placeholder="Estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Ativas ({activeTotalCount})</SelectItem>
-                  <SelectItem value="ALL">Todos os Estados ({orders.length})</SelectItem>
+                  <SelectItem value="ALL">Todas ({orders.length})</SelectItem>
                   {serviceOrderStatuses.map(status => (
                     <SelectItem key={status} value={status}>
                       {status} ({statusCounts[status] || 0})
