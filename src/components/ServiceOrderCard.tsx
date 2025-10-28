@@ -67,7 +67,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
 
             <div className="flex flex-col flex-grow p-3">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 p-0 pb-1">
-                    <div className="text-sm font-medium text-current/80 truncate">{order.display_id}</div>
+                    <div className="text-xs font-medium text-current/80 truncate">{order.display_id}</div>
                     <div className="flex items-center gap-1">
                         <Badge variant="outline" className="whitespace-nowrap text-xs px-2 py-0.5 border-current/50 bg-white/20 text-current">
                             {order.status}
@@ -96,15 +96,15 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                 </CardHeader>
                 <CardContent className="p-0 pt-1 flex flex-col flex-grow">
-                    <p className="text-base font-semibold text-current mb-0.5 truncate">
-                        Cliente: {order.client}
+                    <CardTitle className="text-lg font-bold text-current truncate mb-1">
+                        {order.client}
+                    </CardTitle>
+
+                    <p className="text-base text-current mb-0.5 truncate">
+                        {order.equipment}
                     </p>
                     
-                    <CardTitle className="text-base font-bold text-current truncate mb-1">
-                        {order.equipment}
-                    </CardTitle>
-                    
-                    <p className="text-xs text-current/80 line-clamp-2 flex-grow">
+                    <p className="text-sm text-current/80 line-clamp-3 flex-grow">
                         {order.description}
                     </p>
                 </CardContent>
