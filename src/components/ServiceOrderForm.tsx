@@ -27,6 +27,7 @@ import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "lucide-react"; // Importando o ícone User
 import ClientDetailsModal from "./ClientDetailsModal"; // Importando o novo modal
+import SignaturePad from "./SignaturePad"; // Importando o novo componente de assinatura
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -36,14 +37,17 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(["Pendente", "Em Progresso", "Concluída", "Cancelada"]),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
+  // NOVO: Campo para armazenar a assinatura como Data URL (string)
+  client_signature: z.string().nullable().optional(),
 });
 
-// Tipo de dados para o formulário (agora inclui equipment_id)
+// Tipo de dados para o formulário (agora inclui equipment_id e client_signature)
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 // Tipo de dados iniciais (pode incluir o ID da OS se for edição)
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
+    client_signature?: string | null; // Adicionando assinatura aos dados iniciais
 }
 
 interface ServiceOrderFormProps {
@@ -55,12 +59,16 @@ interface ServiceOrderFormProps {
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+        ...initialData,
+        client_signature: initialData.client_signature || "",
+    } : {
       equipment_id: "",
       client_id: "",
       description: "",
       status: "Pendente",
       store: "CALDAS DA RAINHA",
+      client_signature: "",
     },
   });
 
@@ -71,6 +79,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const clientId = form.watch("client_id");
   // Observa o equipment_id do formulário para buscar os detalhes
   const currentEquipmentId = form.watch("equipment_id");
+  // Observa o status e a assinatura
+  const currentStatus = form.watch("status");
+  const currentSignature = form.watch("client_signature");
 
   // Usa o hook useEquipments para buscar os detalhes do equipamento único se estiver editando
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
@@ -98,10 +109,20 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
     setEquipmentDetails(details);
   };
+  
+  const handleSignatureChange = (dataUrl: string) => {
+    form.setValue("client_signature", dataUrl, { shouldValidate: true });
+  };
 
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     if (!equipmentDetails.name) { // Verifica se o nome do equipamento está preenchido
         showError("Selecione um equipamento válido.");
+        return;
+    }
+    
+    // Validação de assinatura se o status for Concluída e não houver assinatura
+    if (data.status === 'Concluída' && !data.client_signature) {
+        showError("A assinatura do cliente é obrigatória para concluir a Ordem de Serviço.");
         return;
     }
 
@@ -117,7 +138,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         // --------------------------------------
 
         // Mapeia os dados do formulário + detalhes do equipamento para a mutação
-        const mutationData: MutationServiceOrderFormValues = {
+        const mutationData: MutationServiceOrderFormValues & { client_signature?: string | null } = {
             client_id: data.client_id,
             description: data.description,
             status: data.status,
@@ -127,7 +148,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id, // Passando o ID do equipamento
-        } as MutationServiceOrderFormValues; 
+            client_signature: data.client_signature || null, // NOVO: Passando a assinatura
+        } as MutationServiceOrderFormValues & { client_signature?: string | null }; 
 
         if (isEditing && initialData.id) {
             await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
@@ -283,6 +305,24 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
         </div>
+        
+        {/* Campo de Assinatura (Visível apenas se o status for Concluída) */}
+        {currentStatus === 'Concluída' && (
+            <FormField
+                control={form.control}
+                name="client_signature"
+                render={({ field }) => (
+                    <FormItem>
+                        <SignaturePad 
+                            onSign={handleSignatureChange} 
+                            initialSignature={field.value || undefined}
+                            disabled={isEditing && !!initialData?.client_signature} // Desabilita se já houver assinatura na edição
+                        />
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        )}
 
         <div className="flex justify-center space-x-2 pt-4">
           {onCancel && (

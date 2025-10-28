@@ -16,13 +16,15 @@ export interface ServiceOrder {
   status: "Pendente" | "Em Progresso" | "Concluída" | "Cancelada";
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
+  client_signature: string | null; // NOVO: Assinatura do cliente (Data URL)
 }
 
 // O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'client_signature'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
+    client_signature?: string | null; // NOVO: Assinatura
 };
 
 // Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
@@ -56,6 +58,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       created_at,
       client_id,
       equipment_id,
+      client_signature,
       clients (name)
     `)
     .eq('created_by', userId)
@@ -81,6 +84,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
+        client_signature: order.client_signature, // NOVO: Mapeando a assinatura
     };
   }) as ServiceOrder[];
 };
@@ -128,6 +132,7 @@ export const useServiceOrders = (id?: string) => {
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
           display_id: displayId, // Inserindo o ID formatado
+          client_signature: orderData.client_signature || null, // NOVO: Inserindo a assinatura
           created_by: user.id,
         })
         .select('id')
@@ -157,6 +162,7 @@ export const useServiceOrders = (id?: string) => {
           store: orderData.store,
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
+          client_signature: orderData.client_signature || null, // NOVO: Atualizando a assinatura
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
