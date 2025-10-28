@@ -93,3 +93,46 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .status-por-iniciar {
+    background: linear-gradient(135deg, #E8F5FB, #81D4FA);
+    color: #01579B;
+    border-bottom: 2px solid #039BE5;
+  }
+  .status-iniciada {
+    background: linear-gradient(135deg, #E0F7FA, #4DD0E1);
+    color: #006064;
+    border-bottom: 2px solid #00ACC1;
+  }
+  .status-para-orcamento {
+    background: linear-gradient(135deg, #F3E5F5, #BA68C8);
+    color: #4A148C;
+    border-bottom: 2px solid #9C27B0;
+  }
+  .status-orcamento-enviado {
+    background: linear-gradient(135deg, #FFF3E0, #FFB74D);
+    color: #E65100;
+    border-bottom: 2px solid #F57C00;
+  }
+  .status-aguarda-pecas {
+    background: linear-gradient(135deg, #FFEBEE, #FF8A65);
+    color: #BF360C;
+    border-bottom: 2px solid #FF5722;
+  }
+  .status-pecas-recebidas {
+    background: linear-gradient(135deg, #FCE4EC, #F06292);
+    color: #880E4F;
+    border-bottom: 2px solid #E91E63;
+  }
+  .status-concluida {
+    background: linear-gradient(135deg, #E8F5E8, #66BB6A);
+    color: #1B5E20;
+    border-bottom: 2px solid #4CAF50;
+  }
+  .status-cancelada {
+    background: linear-gradient(135deg, #F1F5F9, #94A3B8);
+    color: #1E293B;
+    border-bottom: 2px solid #475569;
+  }
+}
