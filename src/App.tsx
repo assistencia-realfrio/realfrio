@@ -14,7 +14,6 @@ import ClientDetails from "./pages/ClientDetails";
 import Equipments from "./pages/Equipments";
 import EquipmentDetails from "./pages/EquipmentDetails";
 import Profile from "./pages/Profile"; // Importando a nova página de perfil
-import QRCodeScannerPage from "./pages/QRCodeScannerPage"; // Importar a nova página do scanner
 
 const queryClient = new QueryClient();
 
@@ -89,14 +88,6 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Profile /> {/* Nova rota para a página de perfil */}
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/scan" 
-            element={
-              <ProtectedRoute>
-                <QRCodeScannerPage /> {/* Nova rota para o leitor de QR Code */}
               </ProtectedRoute>
             } 
           />

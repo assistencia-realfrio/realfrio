@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Bell, User, LogOut, Search, QrCode } from "lucide-react";
+import { Bell, User, LogOut, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { DesktopSidebar, MobileSidebar } from "@/components/SidebarNav";
@@ -83,16 +83,6 @@ const Header = () => {
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
-            </Button>
-
-            {/* Botão para o Leitor de QR Code */}
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Ler QR Code"
-              onClick={() => navigate('/scan')}
-            >
-              <QrCode className="h-5 w-5" />
             </Button>
 
             <DropdownMenu>

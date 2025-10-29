@@ -5,7 +5,7 @@ import { useEquipments } from "@/hooks/useEquipments";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Trash2, QrCode } from "lucide-react";
+import { ArrowLeft, Edit, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
@@ -21,7 +21,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ActivityLog from "@/components/ActivityLog";
-import QRCodeGenerator from "@/components/QRCodeGenerator"; // Importar o novo componente
 
 const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,7 +29,6 @@ const EquipmentDetails: React.FC = () => {
   const { singleEquipment: equipment, isLoading, deleteEquipment } = useEquipments(undefined, id);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false); // Estado para o modal do QR Code
 
   const handleGoBack = () => navigate(-1);
 
@@ -85,9 +83,6 @@ const EquipmentDetails: React.FC = () => {
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
-            <Button variant="outline" onClick={() => setIsQrCodeModalOpen(true)} size="icon" aria-label="Gerar QR Code">
-                <QrCode className="h-4 w-4" />
-            </Button>
             <Button variant="outline" onClick={() => setIsEditModalOpen(true)} size="icon" className="sm:hidden" aria-label="Editar">
               <Edit className="h-4 w-4" />
             </Button>
@@ -163,20 +158,6 @@ const EquipmentDetails: React.FC = () => {
             initialData={equipment}
             onSubmit={handleEditSuccess}
             onCancel={() => setIsEditModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal para Gerar QR Code do Equipamento */}
-      <Dialog open={isQrCodeModalOpen} onOpenChange={setIsQrCodeModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>QR Code do Equipamento</DialogTitle>
-          </DialogHeader>
-          <QRCodeGenerator 
-            entityType="equipments" 
-            entityId={equipment.id} 
-            entityName={equipment.name} 
           />
         </DialogContent>
       </Dialog>

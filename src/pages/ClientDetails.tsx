@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, QrCode } from "lucide-react";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2 } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -20,17 +20,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
-import QRCodeGenerator from "@/components/QRCodeGenerator"; // Importar o novo componente
 
-const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean, onGenerateQrCode: () => void }> = ({ client, onEdit, onDelete, isDeleting, onGenerateQrCode }) => (
+const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
     <div className="flex justify-end space-x-2 mb-4">
-        <Button variant="outline" size="sm" onClick={onGenerateQrCode}>
-            <QrCode className="h-4 w-4 mr-2" />
-            QR Code
-        </Button>
         <Button variant="outline" size="sm" onClick={onEdit}>
             <Edit className="h-4 w-4 mr-2" />
             Editar
@@ -141,7 +135,6 @@ const ClientDetails: React.FC = () => {
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false); // Estado para o modal do QR Code
   const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'history'>("details");
 
   const client = id ? clients.find(c => c.id === id) : undefined;
@@ -220,7 +213,6 @@ const ClientDetails: React.FC = () => {
                 onEdit={() => setIsEditing(true)} 
                 onDelete={handleDeleteClient}
                 isDeleting={deleteClient.isPending}
-                onGenerateQrCode={() => setIsQrCodeModalOpen(true)} // Abre o modal do QR Code
               />
             )}
             
@@ -252,20 +244,6 @@ const ClientDetails: React.FC = () => {
         selectedView={selectedView}
         onSelectView={setSelectedView}
       />
-
-      {/* Modal para Gerar QR Code do Cliente */}
-      <Dialog open={isQrCodeModalOpen} onOpenChange={setIsQrCodeModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>QR Code do Cliente</DialogTitle>
-          </DialogHeader>
-          <QRCodeGenerator 
-            entityType="clients" 
-            entityId={client.id} 
-            entityName={client.name} 
-          />
-        </DialogContent>
-      </Dialog>
     </Layout>
   );
 };
