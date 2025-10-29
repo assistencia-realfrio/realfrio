@@ -26,6 +26,7 @@ import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormVal
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -49,6 +50,7 @@ interface ServiceOrderFormProps {
 }
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
+  const navigate = useNavigate();
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
@@ -90,7 +92,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   const handleViewClientDetails = () => {
     if (clientId) {
-      window.open(`/clients/${clientId}`, '_blank');
+      navigate(`/clients/${clientId}`);
     }
   };
   
