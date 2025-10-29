@@ -119,6 +119,9 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
 
   const updateClientMutation = useMutation({
     mutationFn: async ({ id, ...clientData }: ClientFormValues & { id: string }) => {
+      // Busca o nome antigo para o log
+      const oldClient = queryClient.getQueryData<Client[]>(['clients', user?.id])?.find(c => c.id === id);
+
       const { data, error } = await supabase
         .from('clients')
         .update({
@@ -138,14 +141,19 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         console.error("Erro do Supabase na atualização do cliente:", error);
         throw error;
       }
-      return data as Client;
+      return { updatedClient: data as Client, oldClientName: oldClient?.name };
     },
-    onSuccess: (updatedClient) => {
+    onSuccess: ({ updatedClient, oldClientName }) => {
+      const clientName = updatedClient.name;
+      const content = oldClientName && oldClientName !== clientName 
+        ? `Cliente "${oldClientName}" foi renomeado para "${clientName}" e atualizado.`
+        : `Cliente "${clientName}" foi atualizado.`;
+
       logActivity(user, {
         entity_type: 'client',
         entity_id: updatedClient.id,
         action_type: 'updated',
-        content: `Cliente "${updatedClient.name}" foi atualizado.`
+        content: content
       });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 

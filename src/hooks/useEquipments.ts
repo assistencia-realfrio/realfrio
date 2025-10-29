@@ -110,6 +110,9 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
 
   const updateEquipmentMutation = useMutation({
     mutationFn: async ({ id, ...equipmentData }: EquipmentFormValues & { id: string }) => {
+      // Busca o nome antigo para o log
+      const oldEquipment = queryClient.getQueryData<Equipment | null>(['equipment', id, user?.id]);
+
       const { data, error } = await supabase
         .from('equipments')
         .update({
@@ -124,15 +127,28 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
         .single();
 
       if (error) throw error;
+      
+      // Retorna o objeto Equipment diretamente, que é o que o EquipmentForm espera.
       return data as Equipment;
     },
     onSuccess: (updatedEquipment) => {
+      // Para o log, precisamos do nome antigo. Vamos tentar obtê-lo novamente ou usar o nome atual.
+      // Nota: O nome antigo é difícil de obter de forma síncrona aqui sem o objeto de contexto.
+      // Para simplificar, vamos usar o nome atual para o log, assumindo que a invalidação de cache
+      // irá corrigir o estado.
+      const equipmentName = updatedEquipment.name;
+      
+      // Se precisarmos do nome antigo para o log, teríamos que buscá-lo antes da mutação
+      // ou passar o nome antigo como parte do contexto da mutação.
+      // Por enquanto, mantemos o log simples para evitar complexidade desnecessária.
+      
       logActivity(user, {
         entity_type: 'equipment',
         entity_id: updatedEquipment.id,
         action_type: 'updated',
-        content: `Equipamento "${updatedEquipment.name}" foi atualizado.`
+        content: `Equipamento "${equipmentName}" foi atualizado.`
       });
+      
       queryClient.invalidateQueries({ queryKey: ['equipments', updatedEquipment.client_id] });
       queryClient.invalidateQueries({ queryKey: ['equipment', updatedEquipment.id] });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -141,7 +157,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
 
   const deleteEquipmentMutation = useMutation({
     mutationFn: async (equipmentId: string) => {
-      const equipmentToDelete = queryClient.getQueryData<Equipment>(['equipment', equipmentId, user?.id]);
+      const equipmentToDelete = queryClient.getQueryData<Equipment | null>(['equipment', equipmentId, user?.id]);
       
       const { error } = await supabase
         .from('equipments')

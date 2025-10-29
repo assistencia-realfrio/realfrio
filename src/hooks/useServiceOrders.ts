@@ -163,10 +163,16 @@ export const useServiceOrders = (id?: string) => {
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
-      // Tenta obter o estado antigo de qualquer cache relevante
-      const oldOrderFromList = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders'])?.find(o => o.id === id);
-      const oldOrderFromDetails = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders', id])?.[0];
-      const oldOrder = oldOrderFromDetails || oldOrderFromList;
+      // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
+      const { data: oldOrder, error: fetchError } = await supabase
+        .from('service_orders')
+        .select('status, description')
+        .eq('id', id)
+        .single();
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error("Erro ao buscar estado antigo da OS:", fetchError);
+      }
       
       const { data, error } = await supabase
         .from('service_orders')
@@ -186,7 +192,7 @@ export const useServiceOrders = (id?: string) => {
         .single();
 
       if (error) throw error;
-      return { updatedOrder: data as ServiceOrder, oldOrder };
+      return { updatedOrder: data as ServiceOrder, oldOrder: oldOrder as { status: ServiceOrderStatus, description: string } | null };
     },
     onSuccess: ({ updatedOrder, oldOrder }) => {
       let logContent = `OS "${updatedOrder.display_id}" foi atualizada.`;
@@ -206,6 +212,10 @@ export const useServiceOrders = (id?: string) => {
           const firstChange = changes[0].charAt(0).toUpperCase() + changes[0].slice(1);
           const restOfChanges = changes.slice(1);
           logContent = `Na OS "${updatedOrder.display_id}", ${firstChange}${restOfChanges.length > 0 ? ' e ' + restOfChanges.join(', ') : ''}.`;
+        } else {
+            // Se não houver mudanças detectadas (apenas campos internos como updated_at), registramos uma atualização genérica.
+            logContent = `OS "${updatedOrder.display_id}" foi atualizada (sem alterações visíveis).`;
+            actionType = 'updated';
         }
       }
 
