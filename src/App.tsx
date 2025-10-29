@@ -12,7 +12,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import ClientDetails from "./pages/ClientDetails";
 import Equipments from "./pages/Equipments";
-import EquipmentDetails from "./pages/EquipmentDetails"; // Importando a nova página
+import EquipmentDetails from "./pages/EquipmentDetails";
+import Profile from "./pages/Profile"; // Importando a nova página de perfil
 
 const queryClient = new QueryClient();
 
@@ -79,6 +80,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ServiceOrderDetails />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <Profile /> {/* Nova rota para a página de perfil */}
               </ProtectedRoute>
             } 
           />

@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
 interface ActivityLog {
-  entity_type: 'service_order' | 'client' | 'equipment';
+  entity_type: 'service_order' | 'client' | 'equipment' | 'profile'; // 'profile' adicionado aqui
   entity_id: string;
   action_type: 'created' | 'updated' | 'deleted' | 'status_changed';
   content: string;
