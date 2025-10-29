@@ -21,14 +21,14 @@ const RenderActivityDetails: React.FC<{ details: Record<string, { oldValue?: any
         
         if (oldValue === undefined && newValue !== undefined) {
           return (
-            <p key={key}>
+            <p key={key} className="truncate"> {/* Adicionado truncate */}
               <span className="font-semibold">{formattedKey}:</span>{" "}
               <span className="text-green-500">{newValue || 'Vazio'}</span>
             </p>
           );
         } else if (oldValue !== undefined && newValue !== undefined && oldValue !== newValue) {
           return (
-            <p key={key}>
+            <p key={key} className="truncate"> {/* Adicionado truncate */}
               <span className="font-semibold">{formattedKey}:</span>{" "}
               <span className="line-through text-red-500">{oldValue || 'Vazio'}</span>{" "}
               <span className="text-green-500">→ {newValue || 'Vazio'}</span>
@@ -77,7 +77,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
                     {activity.user_full_name.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0"> {/* Adicionado min-w-0 */}
                   <p className="text-sm text-foreground">{activity.content}</p>
                   <RenderActivityDetails details={activity.details} /> {/* Renderiza os detalhes aqui */}
                   <p className="text-xs text-muted-foreground">

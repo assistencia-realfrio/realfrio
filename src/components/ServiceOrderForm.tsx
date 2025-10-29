@@ -236,46 +236,48 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           render={({ field }) => (
             <FormItem>
               <FormLabel>Cliente *</FormLabel>
-              <div className="flex items-center gap-2">
-                <div className="flex-grow">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2"> {/* Alterado para empilhar em mobile */}
+                <div className="flex-grow w-full"> {/* Garante que o seletor ocupe a largura total em mobile */}
                   <ClientSelector 
                     value={field.value} 
                     onChange={field.onChange} 
                     disabled={isEditing}
                   />
                 </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={handleViewClientDetails}
-                  disabled={!field.value}
-                  aria-label="Ver detalhes do cliente"
-                >
-                  <User className="h-4 w-4" />
-                </Button>
-                
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label="Ver no mapa"
-                  disabled={!hasMapLink}
-                  onClick={handleMapClick}
-                >
-                  <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
-                </Button>
+                <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start"> {/* Container para os botões */}
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={handleViewClientDetails}
+                    disabled={!field.value}
+                    aria-label="Ver detalhes do cliente"
+                  >
+                    <User className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label="Ver no mapa"
+                    disabled={!hasMapLink}
+                    onClick={handleMapClick}
+                  >
+                    <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
+                  </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  aria-label="Ligar para o cliente"
-                  disabled={!hasContact}
-                  onClick={handlePhoneClick}
-                >
-                  <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
-                </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label="Ligar para o cliente"
+                    disabled={!hasContact}
+                    onClick={handlePhoneClick}
+                  >
+                    <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
+                  </Button>
+                </div>
               </div>
               <FormMessage />
             </FormItem>

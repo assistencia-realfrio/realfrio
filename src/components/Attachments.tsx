@@ -171,16 +171,16 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
             <div className="divide-y">
               {attachments.map((att) => (
                 <div key={att.id} className="py-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 min-w-0"> {/* Adicionado min-w-0 */}
                     {getFileIcon(att.type)}
-                    <div>
-                      <p className="font-medium text-sm">{att.name}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <div className="min-w-0"> {/* Adicionado min-w-0 */}
+                      <p className="font-medium text-sm truncate">{att.name}</p> {/* Adicionado truncate */}
+                      <p className="text-xs text-muted-foreground truncate"> {/* Adicionado truncate */}
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 flex-shrink-0"> {/* Adicionado flex-shrink-0 */}
                     <Button variant="ghost" size="icon" onClick={() => handlePreview(att)} aria-label="Visualizar">
                         <Eye className="h-4 w-4" />
                     </Button>
