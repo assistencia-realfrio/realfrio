@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOrderForm";
-import TimeEntryComponent from "@/components/TimeEntry";
 import Attachments from "@/components/Attachments"; // Importando o componente Attachments
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Trash2 } from "lucide-react";
@@ -35,7 +34,7 @@ const ServiceOrderDetails: React.FC = () => {
   
   // Estado para armazenar o ID da OS recém-criada, se aplicável
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "time" | "attachments">("details");
+  const [selectedView, setSelectedView] = useState<"details" | "attachments">("details");
 
   // O ID real a ser usado para logs/anexos
   const currentOrderId = newOrderId || id;
@@ -171,14 +170,6 @@ const ServiceOrderDetails: React.FC = () => {
               />
             </CardContent>
           </Card>
-        )}
-
-        {selectedView === "time" && (
-          !canAccessTabs ? (
-            <p className="text-center text-muted-foreground py-8">Salve a OS para registrar tempo.</p>
-          ) : (
-            <TimeEntryComponent orderId={currentOrderId!} />
-          )
         )}
 
         {selectedView === "attachments" && (
