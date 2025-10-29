@@ -23,11 +23,6 @@ const navItems = [
     href: "/clients",
     icon: Users,
   },
-  {
-    title: "Equipamentos",
-    href: "/equipments",
-    icon: HardDrive,
-  },
 ];
 
 interface NavLinkProps {
