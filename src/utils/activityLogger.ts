@@ -15,6 +15,8 @@ export const logActivity = async (user: User | null, log: ActivityLog) => {
     return;
   }
 
+  console.log(`[ActivityLogger] Attempting to log activity for entity ${log.entity_type}/${log.entity_id}: ${log.content}`);
+
   const { error } = await supabase.from('activities').insert({
     user_id: user.id,
     entity_type: log.entity_type,
@@ -25,6 +27,8 @@ export const logActivity = async (user: User | null, log: ActivityLog) => {
   });
 
   if (error) {
-    console.error('Error logging activity:', error);
+    console.error('[ActivityLogger] Error logging activity:', error);
+  } else {
+    console.log(`[ActivityLogger] Successfully logged activity for ${log.entity_type}/${log.entity_id}.`);
   }
 };
