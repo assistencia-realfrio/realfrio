@@ -22,7 +22,7 @@ type StatusFilter = ServiceOrderStatus | 'ALL';
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('POR INICIAR');
   const [searchTerm, setSearchTerm] = useState("");
   
   const { orders, isLoading } = useServiceOrders();
