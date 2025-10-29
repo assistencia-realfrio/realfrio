@@ -163,8 +163,10 @@ export const useServiceOrders = (id?: string) => {
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
-      const orders = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders']);
-      const oldOrder = orders?.find(o => o.id === id);
+      // Tenta obter o estado antigo de qualquer cache relevante
+      const oldOrderFromList = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders'])?.find(o => o.id === id);
+      const oldOrderFromDetails = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders', id])?.[0];
+      const oldOrder = oldOrderFromDetails || oldOrderFromList;
       
       const { data, error } = await supabase
         .from('service_orders')
@@ -187,21 +189,33 @@ export const useServiceOrders = (id?: string) => {
       return { updatedOrder: data as ServiceOrder, oldOrder };
     },
     onSuccess: ({ updatedOrder, oldOrder }) => {
-      if (oldOrder && updatedOrder.status !== oldOrder.status) {
-        logActivity(user, {
-          entity_type: 'service_order',
-          entity_id: updatedOrder.id,
-          action_type: 'status_changed',
-          content: `Status da OS "${updatedOrder.display_id}" alterado de "${oldOrder.status}" para "${updatedOrder.status}".`
-        });
-      } else {
-        logActivity(user, {
-          entity_type: 'service_order',
-          entity_id: updatedOrder.id,
-          action_type: 'updated',
-          content: `OS "${updatedOrder.display_id}" foi atualizada.`
-        });
+      let logContent = `OS "${updatedOrder.display_id}" foi atualizada.`;
+      let actionType: 'updated' | 'status_changed' = 'updated';
+
+      if (oldOrder) {
+        const changes = [];
+        if (updatedOrder.status !== oldOrder.status) {
+          actionType = 'status_changed';
+          changes.push(`o estado foi alterado de "${oldOrder.status}" para "${updatedOrder.status}"`);
+        }
+        if (updatedOrder.description !== oldOrder.description) {
+          changes.push('a descrição foi modificada');
+        }
+        
+        if (changes.length > 0) {
+          const firstChange = changes[0].charAt(0).toUpperCase() + changes[0].slice(1);
+          const restOfChanges = changes.slice(1);
+          logContent = `Na OS "${updatedOrder.display_id}", ${firstChange}${restOfChanges.length > 0 ? ' e ' + restOfChanges.join(', ') : ''}.`;
+        }
       }
+
+      logActivity(user, {
+        entity_type: 'service_order',
+        entity_id: updatedOrder.id,
+        action_type: actionType,
+        content: logContent,
+      });
+      
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders', id] });
     },
