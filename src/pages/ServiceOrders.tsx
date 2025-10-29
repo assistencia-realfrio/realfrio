@@ -22,7 +22,6 @@ const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Inicializa o estado a partir dos parâmetros da URL, com valores padrão
   const [selectedStore, setSelectedStore] = useState<StoreFilter>(
     (searchParams.get('store') as StoreFilter) || 'ALL'
   );
@@ -33,14 +32,12 @@ const ServiceOrders: React.FC = () => {
   
   const { orders, isLoading } = useServiceOrders();
 
-  // Efeito para atualizar os parâmetros da URL sempre que um filtro for alterado
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchTerm) params.set('q', searchTerm);
     if (selectedStatus) params.set('status', selectedStatus);
     if (selectedStore) params.set('store', selectedStore);
     
-    // Usa `replace: true` para não adicionar cada mudança de filtro ao histórico do navegador
     setSearchParams(params, { replace: true });
   }, [searchTerm, selectedStatus, selectedStore, setSearchParams]);
 
@@ -48,20 +45,27 @@ const ServiceOrders: React.FC = () => {
     navigate("/orders/new");
   };
 
-  const filteredOrders = useMemo(() => {
-    let filtered = orders;
-
-    // 1. Filtrar por Loja
-    if (selectedStore !== 'ALL') {
-      filtered = filtered.filter(order => order.store === selectedStore);
+  const ordersFilteredByStore = useMemo(() => {
+    if (selectedStore === 'ALL') {
+      return orders;
     }
+    return orders.filter(order => order.store === selectedStore);
+  }, [orders, selectedStore]);
 
-    // 2. Filtrar por Status
+  const statusCounts = useMemo(() => {
+    return ordersFilteredByStore.reduce((acc, order) => {
+      acc[order.status] = (acc[order.status] || 0) + 1;
+      return acc;
+    }, {} as Record<ServiceOrderStatus, number>);
+  }, [ordersFilteredByStore]);
+
+  const filteredOrders = useMemo(() => {
+    let filtered = ordersFilteredByStore;
+
     if (selectedStatus !== 'ALL') {
       filtered = filtered.filter(order => order.status === selectedStatus);
     }
 
-    // 3. Filtrar por Termo de Busca
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(order => 
@@ -73,7 +77,7 @@ const ServiceOrders: React.FC = () => {
     }
     
     return filtered;
-  }, [orders, selectedStore, selectedStatus, searchTerm]);
+  }, [ordersFilteredByStore, selectedStatus, searchTerm]);
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     if (isLoading) {
@@ -98,14 +102,6 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  const statusCounts = useMemo(() => {
-    return orders.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1;
-      return acc;
-    }, {} as Record<ServiceOrderStatus, number>);
-  }, [orders]);
-
-  // As contagens agora refletem a lista completa antes do filtro de loja
   const allOrdersCount = orders.length;
   const caldasOrdersCount = orders.filter(o => o.store === 'CALDAS DA RAINHA').length;
   const portoOrdersCount = orders.filter(o => o.store === 'PORTO DE MÓS').length;
@@ -160,7 +156,7 @@ const ServiceOrders: React.FC = () => {
                   <SelectValue placeholder="Estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Todos ({orders.length})</SelectItem>
+                  <SelectItem value="ALL">Todos ({ordersFilteredByStore.length})</SelectItem>
                   {serviceOrderStatuses.map(status => (
                     <SelectItem key={status} value={status}>
                       {status} ({statusCounts[status] || 0})
