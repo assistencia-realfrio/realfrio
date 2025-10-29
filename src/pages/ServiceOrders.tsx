@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isActiveStatus } from "@/lib/serviceOrderStatus";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrderStatus | 'ALL';
@@ -32,6 +33,16 @@ const ServiceOrders: React.FC = () => {
   
   const { orders, isLoading } = useServiceOrders();
 
+  // Filtra para mostrar apenas OS ativas na página principal
+  const activeOrders = useMemo(() => {
+    return orders.filter(order => isActiveStatus(order.status));
+  }, [orders]);
+
+  // Filtra os status disponíveis para o dropdown, removendo os inativos
+  const availableStatuses = useMemo(() => {
+    return serviceOrderStatuses.filter(status => isActiveStatus(status));
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchTerm) params.set('q', searchTerm);
@@ -47,10 +58,10 @@ const ServiceOrders: React.FC = () => {
 
   const ordersFilteredByStore = useMemo(() => {
     if (selectedStore === 'ALL') {
-      return orders;
+      return activeOrders;
     }
-    return orders.filter(order => order.store === selectedStore);
-  }, [orders, selectedStore]);
+    return activeOrders.filter(order => order.store === selectedStore);
+  }, [activeOrders, selectedStore]);
 
   const statusCounts = useMemo(() => {
     return ordersFilteredByStore.reduce((acc, order) => {
@@ -102,9 +113,9 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  const allOrdersCount = orders.length;
-  const caldasOrdersCount = orders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = orders.filter(o => o.store === 'PORTO DE MÓS').length;
+  const allOrdersCount = activeOrders.length;
+  const caldasOrdersCount = activeOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = activeOrders.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>
@@ -157,7 +168,7 @@ const ServiceOrders: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">Todos ({ordersFilteredByStore.length})</SelectItem>
-                  {serviceOrderStatuses.map(status => (
+                  {availableStatuses.map(status => (
                     <SelectItem key={status} value={status}>
                       {status} ({statusCounts[status] || 0})
                     </SelectItem>
