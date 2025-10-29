@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { QrReader } from 'react-qr-reader'; // Mantendo a importação nomeada
+import { QrReader } from 'react-qr-reader';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CameraOff, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,12 +61,13 @@ const QRCodeScanner: React.FC<QRCodeScannerProps> = ({ onScan, onClose }) => {
             />
           )}
         </div>
-        <div className="flex justify-center space-x-2">
-          <Button onClick={toggleFacingMode} variant="outline" disabled={!!error}>
+        {/* Layout dos botões otimizado para mobile */}
+        <div className="flex flex-col sm:flex-row justify-center gap-2">
+          <Button onClick={toggleFacingMode} variant="outline" disabled={!!error} className="w-full sm:w-auto">
             <RefreshCw className="mr-2 h-4 w-4" />
             Trocar Câmera
           </Button>
-          <Button onClick={onClose} variant="secondary">
+          <Button onClick={onClose} variant="secondary" className="w-full sm:w-auto">
             <CameraOff className="mr-2 h-4 w-4" />
             Fechar Leitor
           </Button>
