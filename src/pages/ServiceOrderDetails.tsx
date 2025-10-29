@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,8 +20,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
+import QRCodeGenerator from "@/components/QRCodeGenerator"; // Importar o novo componente
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +36,7 @@ const ServiceOrderDetails: React.FC = () => {
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
   const [selectedView, setSelectedView] = useState<"details" | "attachments" | "history">("details");
+  const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false); // Estado para o modal do QR Code
 
   const currentOrderId = newOrderId || id;
 
@@ -115,34 +118,41 @@ const ServiceOrderDetails: React.FC = () => {
                 </Button>
                 <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
             </div>
-            {!isNew && (
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
-                            <Trash2 className="h-5 w-5 text-destructive" />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
-                                <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction 
-                                onClick={handleDelete} 
-                                className="bg-destructive hover:bg-destructive/90"
-                                disabled={deleteOrder.isPending}
-                            >
-                                Excluir
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            )}
+            <div className="flex space-x-2">
+                {!isNew && (
+                    <Button variant="outline" size="icon" onClick={() => setIsQrCodeModalOpen(true)} aria-label="Gerar QR Code">
+                        <QrCode className="h-5 w-5" />
+                    </Button>
+                )}
+                {!isNew && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
+                                <Trash2 className="h-5 w-5 text-destructive" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
+                                    <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                    onClick={handleDelete} 
+                                    className="bg-destructive hover:bg-destructive/90"
+                                    disabled={deleteOrder.isPending}
+                                >
+                                    Excluir
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+            </div>
         </div>
           
         {selectedView === "details" && (
@@ -181,6 +191,22 @@ const ServiceOrderDetails: React.FC = () => {
         onSelectView={setSelectedView}
         canAccessTabs={canAccessTabs}
       />
+
+      {/* Modal para Gerar QR Code da OS */}
+      {order && (
+        <Dialog open={isQrCodeModalOpen} onOpenChange={setIsQrCodeModalOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>QR Code da Ordem de Serviço</DialogTitle>
+            </DialogHeader>
+            <QRCodeGenerator 
+              entityType="orders" 
+              entityId={order.id} 
+              entityName={order.display_id} 
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </Layout>
   );
 };
