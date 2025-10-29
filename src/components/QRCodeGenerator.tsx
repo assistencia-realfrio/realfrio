@@ -1,13 +1,9 @@
 import React, { useRef } from 'react';
-import * as QRCodeModule from 'qrcode.react'; // Importa como um namespace
+import QRCode from 'qrcode.react'; // Corrigido para importação padrão
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 import { showSuccess, showError } from '@/utils/toast';
-
-// Tenta acessar o componente QRCode do módulo.
-// Ele pode estar em .default (exportação padrão), .QRCode (exportação nomeada) ou ser o próprio módulo.
-const QRCode = (QRCodeModule as any).default || (QRCodeModule as any).QRCode || QRCodeModule;
 
 interface QRCodeGeneratorProps {
   entityType: 'clients' | 'orders' | 'equipments';
@@ -16,8 +12,6 @@ interface QRCodeGeneratorProps {
 }
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ entityType, entityId, entityName }) => {
-  // A URL que o QR code irá codificar. Usamos a rota interna da aplicação.
-  // O domínio base será adicionado automaticamente pelo navegador.
   const qrCodeValue = `${window.location.origin}/${entityType}/${entityId}`;
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
@@ -25,7 +19,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ entityType, entityId,
     if (qrCodeRef.current) {
       try {
         const dataUrl = await htmlToImage.toPng(qrCodeRef.current, {
-          backgroundColor: '#ffffff', // Fundo branco para o QR code
+          backgroundColor: '#ffffff',
         });
         const link = document.createElement('a');
         link.download = `qrcode-${entityType}-${entityName.replace(/\s/g, '-')}.png`;
