@@ -201,7 +201,7 @@ const ClientDetails: React.FC = () => {
     <Layout>
       <div className="space-y-6 pb-20">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate('/clients')}>
+          <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h2 className="text-3xl font-bold tracking-tight">{client.name}</h2>
