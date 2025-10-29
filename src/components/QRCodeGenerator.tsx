@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import QRCode from 'qrcode.react'; // Corrigido para importação padrão
+import { QRCode } from 'qrcode.react'; // Corrigido para importação nomeada
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
-import *s htmlToImage from 'html-to-image';
+import * as htmlToImage from 'html-to-image';
 import { showSuccess, showError } from '@/utils/toast';
 
 interface QRCodeGeneratorProps {
