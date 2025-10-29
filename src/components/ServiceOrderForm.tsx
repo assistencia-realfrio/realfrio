@@ -25,7 +25,7 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin } from "lucide-react"; // Importando o ícone MapPin
+import { User, MapPin, Phone } from "lucide-react"; // Importando o ícone Phone
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients"; // Importando o hook de clientes
 
@@ -246,12 +246,23 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     rel="noopener noreferrer"
                   >
                     <Button
-                      type="button"
                       variant="outline"
                       size="icon"
                       aria-label="Ver no mapa"
                     >
                       <MapPin className="h-4 w-4 text-blue-600" />
+                    </Button>
+                  </a>
+                )}
+                {/* Ícone de Telefone condicional */}
+                {selectedClient && selectedClient.contact && (
+                  <a href={`tel:${selectedClient.contact}`}>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Ligar para o cliente"
+                    >
+                      <Phone className="h-4 w-4 text-green-600" />
                     </Button>
                   </a>
                 )}
