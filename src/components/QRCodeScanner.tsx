@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { QrReader } from 'react-qr-reader';
+import { QrReader } from 'react-qr-reader'; // Mantendo a importação nomeada
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CameraOff, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
