@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Layout from "@/components/Layout";
 import { PlusCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ServiceOrderCard from "@/components/ServiceOrderCard";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -14,18 +14,35 @@ import {
 } from "@/components/ui/select";
 import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isActiveStatus } from "@/lib/serviceOrderStatus";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrderStatus | 'ALL';
 
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('POR INICIAR');
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Inicializa o estado a partir dos parâmetros da URL, com valores padrão
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>(
+    (searchParams.get('store') as StoreFilter) || 'ALL'
+  );
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
+    (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
+  );
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || "");
   
   const { orders, isLoading } = useServiceOrders();
+
+  // Efeito para atualizar os parâmetros da URL sempre que um filtro for alterado
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('q', searchTerm);
+    if (selectedStatus) params.set('status', selectedStatus);
+    if (selectedStore) params.set('store', selectedStore);
+    
+    // Usa `replace: true` para não adicionar cada mudança de filtro ao histórico do navegador
+    setSearchParams(params, { replace: true });
+  }, [searchTerm, selectedStatus, selectedStore, setSearchParams]);
 
   const handleNewOrder = () => {
     navigate("/orders/new");
@@ -34,12 +51,17 @@ const ServiceOrders: React.FC = () => {
   const filteredOrders = useMemo(() => {
     let filtered = orders;
 
-    // 1. Filtrar por Status
+    // 1. Filtrar por Loja
+    if (selectedStore !== 'ALL') {
+      filtered = filtered.filter(order => order.store === selectedStore);
+    }
+
+    // 2. Filtrar por Status
     if (selectedStatus !== 'ALL') {
       filtered = filtered.filter(order => order.status === selectedStatus);
     }
 
-    // 2. Filtrar por Termo de Busca
+    // 3. Filtrar por Termo de Busca
     if (searchTerm.trim()) {
       const lowerCaseSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(order => 
@@ -51,13 +73,9 @@ const ServiceOrders: React.FC = () => {
     }
     
     return filtered;
-  }, [orders, selectedStatus, searchTerm]);
+  }, [orders, selectedStore, selectedStatus, searchTerm]);
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
-    const finalOrders = selectedStore === 'ALL' 
-      ? ordersToRender 
-      : ordersToRender.filter(order => order.store === selectedStore);
-
     if (isLoading) {
         return (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -68,10 +86,10 @@ const ServiceOrders: React.FC = () => {
 
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {finalOrders.map((order) => (
+        {ordersToRender.map((order) => (
           <ServiceOrderCard key={order.id} order={order} />
         ))}
-        {finalOrders.length === 0 && (
+        {ordersToRender.length === 0 && (
           <div className="col-span-full text-center py-12 text-muted-foreground">
             Nenhuma ordem de serviço encontrada para os filtros aplicados.
           </div>
@@ -87,9 +105,10 @@ const ServiceOrders: React.FC = () => {
     }, {} as Record<ServiceOrderStatus, number>);
   }, [orders]);
 
-  const allOrdersCount = filteredOrders.length;
-  const caldasOrdersCount = filteredOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = filteredOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+  // As contagens agora refletem a lista completa antes do filtro de loja
+  const allOrdersCount = orders.length;
+  const caldasOrdersCount = orders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = orders.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>
@@ -119,13 +138,13 @@ const ServiceOrders: React.FC = () => {
             <div className="flex-1 md:flex-none md:w-56">
               <Select 
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
-                defaultValue={selectedStore}
+                value={selectedStore}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Loja" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Loja ({allOrdersCount})</SelectItem>
+                  <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
                   <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
                   <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
                 </SelectContent>
@@ -135,13 +154,13 @@ const ServiceOrders: React.FC = () => {
             <div className="flex-1 md:flex-none md:w-56">
               <Select 
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
-                defaultValue={selectedStatus}
+                value={selectedStatus}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Estados" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Todas ({orders.length})</SelectItem>
+                  <SelectItem value="ALL">Todos ({orders.length})</SelectItem>
                   {serviceOrderStatuses.map(status => (
                     <SelectItem key={status} value={status}>
                       {status} ({statusCounts[status] || 0})
