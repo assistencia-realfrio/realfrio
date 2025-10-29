@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import ClientDetails from "./pages/ClientDetails";
 import Equipments from "./pages/Equipments";
+import EquipmentDetails from "./pages/EquipmentDetails"; // Importando a nova página
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Equipments />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/equipments/:id" 
+            element={
+              <ProtectedRoute>
+                <EquipmentDetails /> {/* Nova rota para detalhes do equipamento */}
               </ProtectedRoute>
             } 
           />
