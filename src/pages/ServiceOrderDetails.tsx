@@ -108,40 +108,42 @@ const ServiceOrderDetails: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6 pb-20">
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-2"> {/* Adicionado gap-2 */}
+            <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0"> {/* Adicionado flex-1, min-w-0, sm:gap-4 */}
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{title}</h2> {/* Adicionado sm:text-3xl, truncate */}
             </div>
             {!isNew && (
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
-                            <Trash2 className="h-5 w-5 text-destructive" />
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
-                                <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction 
-                                onClick={handleDelete} 
-                                className="bg-destructive hover:bg-destructive/90"
-                                disabled={deleteOrder.isPending}
-                            >
-                                Excluir
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                <div className="flex flex-shrink-0"> {/* Envolvido o botão de exclusão em um div flex-shrink-0 */}
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
+                                <Trash2 className="h-5 w-5 text-destructive" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
+                                    <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                    onClick={handleDelete} 
+                                    className="bg-destructive hover:bg-destructive/90"
+                                    disabled={deleteOrder.isPending}
+                                >
+                                    Excluir
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
             )}
         </div>
           

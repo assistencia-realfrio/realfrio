@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2 } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
-import ClientEquipmentTab from "@/components/ClientEquipmentTab";
+import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Caminho corrigido
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,21 +25,35 @@ import ActivityLog from "@/components/ActivityLog";
 
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
     <div className="flex justify-end space-x-2 mb-4">
-        <Button variant="outline" size="sm" onClick={onEdit}>
+        <Button variant="outline" size="icon" className="sm:hidden" onClick={onEdit} aria-label="Editar">
+            <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" className="hidden sm:flex" onClick={onEdit}>
             <Edit className="h-4 w-4 mr-2" />
             Editar
         </Button>
         
         <AlertDialog>
             <AlertDialogTrigger asChild>
-                <Button 
-                    variant="destructive" 
-                    size="sm" 
-                    disabled={isDeleting}
-                >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Excluir
-                </Button>
+                <>
+                    <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="sm:hidden"
+                        disabled={isDeleting}
+                        aria-label="Excluir"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                        variant="destructive" 
+                        className="hidden sm:flex"
+                        disabled={isDeleting}
+                    >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Excluir
+                    </Button>
+                </>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
@@ -198,11 +212,13 @@ const ClientDetails: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6 pb-20">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h2 className="text-3xl font-bold tracking-tight">{client.name}</h2>
+        <div className="flex items-center justify-between gap-2"> {/* Adicionado gap-2 */}
+          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0"> {/* Adicionado flex-1, min-w-0, sm:gap-4 */}
+            <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Adicionado sm:text-3xl, truncate */}
+          </div>
         </div>
 
         {selectedView === 'details' && (
