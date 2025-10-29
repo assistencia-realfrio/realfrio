@@ -21,6 +21,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ActivityLog from "@/components/ActivityLog";
+import EquipmentOrdersTab from "@/components/EquipmentOrdersTab"; // Importando o novo componente
+import EquipmentDetailsBottomNav from "@/components/EquipmentDetailsBottomNav"; // Importando a nova navegação
 
 const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +31,7 @@ const EquipmentDetails: React.FC = () => {
   const { singleEquipment: equipment, isLoading, deleteEquipment } = useEquipments(undefined, id);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedView, setSelectedView] = useState<"details" | "orders" | "history">("details"); // Novo estado para a visualização
 
   const handleGoBack = () => navigate(-1);
 
@@ -73,7 +76,7 @@ const EquipmentDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20"> {/* Adicionado padding-bottom para a navegação inferior */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={handleGoBack}>
@@ -121,31 +124,39 @@ const EquipmentDetails: React.FC = () => {
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Detalhes do Equipamento</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div>
-              <p className="text-muted-foreground">Nome</p>
-              <p className="font-medium">{equipment.name}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Marca</p>
-              <p className="font-medium">{equipment.brand || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Modelo</p>
-              <p className="font-medium">{equipment.model || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Número de Série</p>
-              <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
-            </div>
-          </CardContent>
-        </Card>
+        {selectedView === "details" && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Detalhes do Equipamento</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm">
+              <div>
+                <p className="text-muted-foreground">Nome</p>
+                <p className="font-medium">{equipment.name}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Marca</p>
+                <p className="font-medium">{equipment.brand || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Modelo</p>
+                <p className="font-medium">{equipment.model || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Número de Série</p>
+                <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-        <ActivityLog entityType="equipment" entityId={equipment.id} />
+        {selectedView === "orders" && (
+          <EquipmentOrdersTab equipmentId={equipment.id} />
+        )}
+
+        {selectedView === "history" && (
+          <ActivityLog entityType="equipment" entityId={equipment.id} />
+        )}
       </div>
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
@@ -161,6 +172,11 @@ const EquipmentDetails: React.FC = () => {
           />
         </DialogContent>
       </Dialog>
+
+      <EquipmentDetailsBottomNav
+        selectedView={selectedView}
+        onSelectView={setSelectedView}
+      />
     </Layout>
   );
 };

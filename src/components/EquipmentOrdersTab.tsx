@@ -5,20 +5,20 @@ import { CheckCircle, Clock } from "lucide-react";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
-import OrderListItem from "./OrderListItem"; // Importando o componente reutilizável
+import OrderListItem from "./OrderListItem"; // Reutilizando o componente
 
-interface ClientOrdersTabProps {
-  clientId: string;
+interface EquipmentOrdersTabProps {
+  equipmentId: string;
 }
 
-const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
+const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) => {
   const { orders: allOrders, isLoading } = useServiceOrders();
   
-  // Filtra as ordens pelo ID do cliente
-  const clientOrders = allOrders.filter(order => order.client_id === clientId);
+  // Filtra as ordens pelo ID do equipamento
+  const equipmentOrders = allOrders.filter(order => order.equipment_id === equipmentId);
 
-  const activeOrders = clientOrders.filter(o => isActiveStatus(o.status));
-  const completedOrders = clientOrders.filter(o => !isActiveStatus(o.status));
+  const activeOrders = equipmentOrders.filter(o => isActiveStatus(o.status));
+  const completedOrders = equipmentOrders.filter(o => !isActiveStatus(o.status));
 
   const renderOrderList = (orders: ServiceOrder[], emptyMessage: string) => (
     <div className="space-y-2 max-h-[400px] overflow-y-auto">
@@ -39,7 +39,7 @@ const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
   return (
     <Card className="shadow-none border-none">
       <CardHeader className="p-0 pb-4">
-        <CardTitle className="text-lg">Ordens de Serviço do Cliente</CardTitle>
+        <CardTitle className="text-lg">Ordens de Serviço do Equipamento</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="active">
@@ -55,11 +55,11 @@ const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
           </TabsList>
           
           <TabsContent value="active" className="mt-4">
-            {renderOrderList(activeOrders, "Nenhuma OS ativa para este cliente.")}
+            {renderOrderList(activeOrders, "Nenhuma OS ativa para este equipamento.")}
           </TabsContent>
           
           <TabsContent value="completed" className="mt-4">
-            {renderOrderList(completedOrders, "Nenhuma OS concluída para este cliente.")}
+            {renderOrderList(completedOrders, "Nenhuma OS concluída para este equipamento.")}
           </TabsContent>
         </Tabs>
       </CardContent>
@@ -67,4 +67,4 @@ const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
   );
 };
 
-export default ClientOrdersTab;
+export default EquipmentOrdersTab;
