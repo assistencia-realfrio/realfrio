@@ -38,10 +38,9 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Equipamento</TableHead>
+            <TableHead>Equipamento / Modelo</TableHead>
             <TableHead>Cliente</TableHead>
             <TableHead className="hidden sm:table-cell">Marca</TableHead>
-            <TableHead className="hidden sm:table-cell">Modelo</TableHead>
             <TableHead className="hidden md:table-cell">Nº Série</TableHead>
           </TableRow>
         </TableHeader>
@@ -53,16 +52,18 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
                 onClick={() => handleRowClick(equipment.client_id)}
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
               >
-                <TableCell className="font-medium">{equipment.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div>{equipment.name}</div>
+                  <div className="text-sm text-muted-foreground">{equipment.model || 'N/A'}</div>
+                </TableCell>
                 <TableCell>{equipment.client_name}</TableCell>
                 <TableCell className="hidden sm:table-cell">{equipment.brand || 'N/A'}</TableCell>
-                <TableCell className="hidden sm:table-cell">{equipment.model || 'N/A'}</TableCell>
                 <TableCell className="hidden md:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+              <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                 Nenhum equipamento encontrado.
               </TableCell>
             </TableRow>
