@@ -26,7 +26,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   const { data, error } = await supabase
     .from('clients')
     .select('id, name, contact, email, status, created_at, store, maps_link, locality') // Adicionando 'maps_link' e 'locality'
-    .eq('created_by', userId)
+    // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
   if (error) throw error;
@@ -205,7 +205,7 @@ export const useClientNames = () => {
       const { data, error } = await supabase
         .from('clients')
         .select('id, name')
-        .eq('created_by', user.id)
+        // .eq('created_by', user.id) // REMOVIDO: Filtro por created_by
         .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
       if (error) throw error;

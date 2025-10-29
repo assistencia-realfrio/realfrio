@@ -23,12 +23,12 @@ export interface EquipmentFormValues {
 
 // Função de fetch para buscar equipamentos por cliente
 const fetchEquipmentsByClient = async (userId: string | undefined, clientId: string): Promise<Equipment[]> => {
-  if (!userId || !clientId) return [];
+  if (!userId) return [];
   
   const { data, error } = await supabase
     .from('equipments')
     .select('*')
-    .eq('created_by', userId)
+    // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .eq('client_id', clientId)
     .order('created_at', { ascending: false });
 
@@ -39,12 +39,12 @@ const fetchEquipmentsByClient = async (userId: string | undefined, clientId: str
 
 // Função para buscar um único equipamento por ID
 const fetchEquipmentById = async (userId: string | undefined, equipmentId: string): Promise<Equipment | null> => {
-  if (!userId || !equipmentId) return null;
+  if (!userId) return null;
 
   const { data, error } = await supabase
     .from('equipments')
     .select('*')
-    .eq('created_by', userId)
+    // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .eq('id', equipmentId)
     .single(); // Usa .single() para obter um único registro
 

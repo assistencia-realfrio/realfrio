@@ -59,8 +59,8 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       client_id,
       equipment_id,
       clients (name)
-    `)
-    .eq('created_by', userId);
+    `);
+    // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
 
   if (error) throw error;
 
