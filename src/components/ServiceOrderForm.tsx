@@ -25,8 +25,9 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User } from "lucide-react";
+import { User, MapPin } from "lucide-react"; // Importando o ícone MapPin
 import { useNavigate } from "react-router-dom";
+import { useClients } from "@/hooks/useClients"; // Importando o hook de clientes
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -49,6 +50,12 @@ interface ServiceOrderFormProps {
   onCancel?: () => void;
 }
 
+// Função auxiliar para verificar se o link é do Google Maps ou coordenadas
+const isGoogleMapsLink = (mapsLink: string | null): boolean => {
+  if (!mapsLink) return false;
+  return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
+};
+
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const navigate = useNavigate();
   const form = useForm<ServiceOrderFormValues>({
@@ -69,6 +76,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   
   const clientId = form.watch("client_id");
   const currentEquipmentId = form.watch("equipment_id");
+
+  const { clients } = useClients(); // Buscando todos os clientes
+  const selectedClient = clients.find(c => c.id === clientId); // Encontrando o cliente selecionado
 
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
 
@@ -228,6 +238,23 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 >
                   <User className="h-4 w-4" />
                 </Button>
+                {/* Ícone do Google Maps condicional */}
+                {selectedClient && selectedClient.maps_link && isGoogleMapsLink(selectedClient.maps_link) && (
+                  <a
+                    href={selectedClient.maps_link.startsWith("http") ? selectedClient.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedClient.maps_link)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      aria-label="Ver no mapa"
+                    >
+                      <MapPin className="h-4 w-4 text-blue-600" />
+                    </Button>
+                  </a>
+                )}
               </div>
               <FormMessage />
             </FormItem>
