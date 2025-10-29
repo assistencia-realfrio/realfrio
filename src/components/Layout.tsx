@@ -17,6 +17,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useActivities } from "@/hooks/useActivities";
 import { GlobalSearch } from "@/components/GlobalSearch";
+import { useProfile } from "@/hooks/useProfile"; // Importar o hook useProfile
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ interface LayoutProps {
 
 const Header = () => {
   const { user } = useSession();
+  const { profile, isLoading: isLoadingProfile } = useProfile(); // Usar o hook useProfile
   const navigate = useNavigate();
   const { data: activities, isLoading: isLoadingActivities } = useActivities();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -57,7 +59,10 @@ const Header = () => {
     navigate(path);
   };
 
-  const userName = user?.email || "Usuário";
+  // Usar o nome do perfil se disponível, caso contrário, o e-mail
+  const userName = (profile?.first_name || profile?.last_name) 
+    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+    : user?.email || "Usuário";
   const displayEmail = user?.email;
 
   return (
