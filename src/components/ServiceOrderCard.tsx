@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 
@@ -72,13 +73,19 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         {order.display_id}
                     </div>
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Badge 
-                                variant="outline" 
-                                className={cn("cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-slate-400/50 bg-white/30 font-bold", textClass)}
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                                onClick={(e) => e.stopPropagation()}
                             >
-                                {order.status}
-                            </Badge>
+                                <Badge 
+                                    variant="outline" 
+                                    className={cn("cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-slate-400/50 bg-white/30 font-bold", textClass)}
+                                >
+                                    {order.status}
+                                </Badge>
+                            </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                             <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
