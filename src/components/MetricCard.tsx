@@ -19,7 +19,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, description, icon
         <Icon className={cn("h-4 w-4", iconColorClass)} />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-xl sm:text-2xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground">{description}</p>
       </CardContent>
     </Card>

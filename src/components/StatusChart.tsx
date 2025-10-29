@@ -26,7 +26,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
             Distribuição de Status das OS
           </CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] flex items-center justify-center">
+        <CardContent className="h-[250px] sm:h-[300px] flex items-center justify-center">
           <p className="text-muted-foreground">Carregando dados...</p>
         </CardContent>
       </Card>
@@ -41,7 +41,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
           Distribuição de Status das OS
         </CardTitle>
       </CardHeader>
-      <CardContent className="h-[300px] p-0">
+      <CardContent className="h-[250px] sm:h-[300px] p-0">
         {hasData ? (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
