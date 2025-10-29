@@ -25,7 +25,6 @@ const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // Usamos o hook para buscar um único equipamento
   const { singleEquipment: equipment, isLoading, updateEquipment, deleteEquipment } = useEquipments(undefined, id);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -34,7 +33,6 @@ const EquipmentDetails: React.FC = () => {
 
   const handleEditSuccess = () => {
     setIsEditModalOpen(false);
-    // A query será invalidada pelo hook, atualizando os dados
   };
 
   const handleDelete = async () => {
@@ -42,7 +40,6 @@ const EquipmentDetails: React.FC = () => {
     try {
       await deleteEquipment.mutateAsync(equipment.id);
       showSuccess(`Equipamento '${equipment.name}' excluído com sucesso.`);
-      // Volta para a página anterior (provavelmente a do cliente)
       navigate(-1);
     } catch (error) {
       console.error("Erro ao excluir equipamento:", error);
@@ -76,24 +73,34 @@ const EquipmentDetails: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={handleGoBack}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-3xl font-bold tracking-tight">{equipment.name}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{equipment.name}</h2>
           </div>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={() => setIsEditModalOpen(true)}>
+          
+          <div className="flex flex-shrink-0 space-x-2">
+            <Button variant="outline" onClick={() => setIsEditModalOpen(true)} size="icon" className="sm:hidden" aria-label="Editar">
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={() => setIsEditModalOpen(true)} className="hidden sm:flex">
               <Edit className="h-4 w-4 mr-2" />
               Editar
             </Button>
+            
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={deleteEquipment.isPending}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Excluir
-                </Button>
+                <>
+                  <Button variant="destructive" disabled={deleteEquipment.isPending} size="icon" className="sm:hidden" aria-label="Excluir">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="destructive" disabled={deleteEquipment.isPending} className="hidden sm:flex">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir
+                  </Button>
+                </>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -138,7 +145,6 @@ const EquipmentDetails: React.FC = () => {
         </Card>
       </div>
 
-      {/* Modal de Edição */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
