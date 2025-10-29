@@ -165,11 +165,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Estado *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o estado" />
+                      <SelectValue placeholder="Estado *" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -188,11 +187,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="store"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Loja *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a loja" />
+                      <SelectValue placeholder="Loja *" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
