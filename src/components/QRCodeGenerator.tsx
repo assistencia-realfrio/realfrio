@@ -1,9 +1,13 @@
 import React, { useRef } from 'react';
-import QRCode from 'qrcode.react';
+import * as QRCodeModule from 'qrcode.react'; // Importa como um namespace
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 import { showSuccess, showError } from '@/utils/toast';
+
+// Tenta acessar o componente QRCode do módulo.
+// Ele pode estar em .QRCode (exportação nomeada), .default (exportação padrão) ou ser o próprio módulo.
+const QRCode = (QRCodeModule as any).QRCode || (QRCodeModule as any).default || QRCodeModule;
 
 interface QRCodeGeneratorProps {
   entityType: 'clients' | 'orders' | 'equipments';
