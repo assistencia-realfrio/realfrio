@@ -3,11 +3,43 @@ import { useActivities } from '@/hooks/useActivities';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { List } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ActivityLogProps {
   entityType: 'service_order' | 'client' | 'equipment';
   entityId: string;
 }
+
+// Componente auxiliar para renderizar os detalhes das alterações
+const RenderActivityDetails: React.FC<{ details: Record<string, { oldValue?: any; newValue?: any }> | null }> = ({ details }) => {
+  if (!details || Object.keys(details).length === 0) return null;
+
+  return (
+    <div className="mt-1 text-xs text-muted-foreground/80 space-y-0.5">
+      {Object.entries(details).map(([key, { oldValue, newValue }]) => {
+        const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); // Formata 'status_changed' para 'Status Changed'
+        
+        if (oldValue === undefined && newValue !== undefined) {
+          return (
+            <p key={key}>
+              <span className="font-semibold">{formattedKey}:</span>{" "}
+              <span className="text-green-500">{newValue || 'Vazio'}</span>
+            </p>
+          );
+        } else if (oldValue !== undefined && newValue !== undefined && oldValue !== newValue) {
+          return (
+            <p key={key}>
+              <span className="font-semibold">{formattedKey}:</span>{" "}
+              <span className="line-through text-red-500">{oldValue || 'Vazio'}</span>{" "}
+              <span className="text-green-500">→ {newValue || 'Vazio'}</span>
+            </p>
+          );
+        }
+        return null; // Não renderiza se não houver alteração ou se for apenas oldValue
+      })}
+    </div>
+  );
+};
 
 const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
   const { data: activities, isLoading } = useActivities({ type: entityType, id: entityId });
@@ -47,6 +79,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-foreground">{activity.content}</p>
+                  <RenderActivityDetails details={activity.details} /> {/* Renderiza os detalhes aqui */}
                   <p className="text-xs text-muted-foreground">
                     {activity.user_full_name} • {activity.time_ago}
                   </p>

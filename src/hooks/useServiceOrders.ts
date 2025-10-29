@@ -155,7 +155,13 @@ export const useServiceOrders = (id?: string) => {
         entity_type: 'service_order',
         entity_id: newOrder.id,
         action_type: 'created',
-        content: `Ordem de Serviço "${newOrder.display_id}" foi criada.`
+        content: `Ordem de Serviço "${newOrder.display_id}" foi criada.`,
+        details: {
+          status: { newValue: newOrder.status },
+          description: { newValue: newOrder.description },
+          store: { newValue: newOrder.store },
+          equipment: { newValue: newOrder.equipment },
+        }
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
     },
@@ -166,7 +172,7 @@ export const useServiceOrders = (id?: string) => {
       // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description')
+        .select('status, description, equipment, model, serial_number, store') // Incluir mais campos para comparação
         .eq('id', id)
         .single();
 
@@ -192,28 +198,46 @@ export const useServiceOrders = (id?: string) => {
         .single();
 
       if (error) throw error;
-      return { updatedOrder: data as ServiceOrder, oldOrder: oldOrder as { status: ServiceOrderStatus, description: string } | null };
+      return { updatedOrder: data as ServiceOrder, oldOrder: oldOrder as typeof oldOrder | null };
     },
     onSuccess: ({ updatedOrder, oldOrder }) => {
       let logContent = `OS "${updatedOrder.display_id}" foi atualizada.`;
       let actionType: 'updated' | 'status_changed' = 'updated';
+      const activityDetails: Record<string, { oldValue: any; newValue: any }> = {};
 
       if (oldOrder) {
-        const changes = [];
+        const changesSummary: string[] = [];
         if (updatedOrder.status !== oldOrder.status) {
           actionType = 'status_changed';
-          changes.push(`o estado foi alterado de "${oldOrder.status}" para "${updatedOrder.status}"`);
+          changesSummary.push(`o estado de "${oldOrder.status}" para "${updatedOrder.status}"`);
+          activityDetails.status = { oldValue: oldOrder.status, newValue: updatedOrder.status };
         }
         if (updatedOrder.description !== oldOrder.description) {
-          changes.push('a descrição foi modificada');
+          changesSummary.push('a descrição');
+          activityDetails.description = { oldValue: oldOrder.description, newValue: updatedOrder.description };
+        }
+        if (updatedOrder.equipment !== oldOrder.equipment) {
+          changesSummary.push('o equipamento');
+          activityDetails.equipment = { oldValue: oldOrder.equipment, newValue: updatedOrder.equipment };
+        }
+        if (updatedOrder.model !== oldOrder.model) {
+          changesSummary.push('o modelo');
+          activityDetails.model = { oldValue: oldOrder.model, newValue: updatedOrder.model };
+        }
+        if (updatedOrder.serial_number !== oldOrder.serial_number) {
+          changesSummary.push('o número de série');
+          activityDetails.serial_number = { oldValue: oldOrder.serial_number, newValue: updatedOrder.serial_number };
+        }
+        if (updatedOrder.store !== oldOrder.store) {
+          changesSummary.push('a loja');
+          activityDetails.store = { oldValue: oldOrder.store, newValue: updatedOrder.store };
         }
         
-        if (changes.length > 0) {
-          const firstChange = changes[0].charAt(0).toUpperCase() + changes[0].slice(1);
-          const restOfChanges = changes.slice(1);
+        if (changesSummary.length > 0) {
+          const firstChange = changesSummary[0].charAt(0).toUpperCase() + changesSummary[0].slice(1);
+          const restOfChanges = changesSummary.slice(1);
           logContent = `Na OS "${updatedOrder.display_id}", ${firstChange}${restOfChanges.length > 0 ? ' e ' + restOfChanges.join(', ') : ''}.`;
         } else {
-            // Se não houver mudanças detectadas (apenas campos internos como updated_at), registramos uma atualização genérica.
             logContent = `OS "${updatedOrder.display_id}" foi atualizada (sem alterações visíveis).`;
             actionType = 'updated';
         }
@@ -224,6 +248,7 @@ export const useServiceOrders = (id?: string) => {
         entity_id: updatedOrder.id,
         action_type: actionType,
         content: logContent,
+        details: Object.keys(activityDetails).length > 0 ? activityDetails : undefined, // Only add details if there are actual changes
       });
       
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -250,7 +275,10 @@ export const useServiceOrders = (id?: string) => {
           entity_type: 'service_order',
           entity_id: orderToDelete.id,
           action_type: 'deleted',
-          content: `OS "${orderToDelete.display_id}" foi excluída.`
+          content: `OS "${orderToDelete.display_id}" foi excluída.`,
+          details: {
+            name: { oldValue: orderToDelete.display_id, newValue: 'Excluído' }
+          }
         });
       }
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });

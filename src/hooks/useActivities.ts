@@ -12,6 +12,7 @@ export interface Activity {
   action_type: string;
   content: string;
   created_at: string;
+  details: Record<string, any> | null; // Adicionado campo para detalhes
   // Joined data
   user_full_name: string;
   time_ago: string;
@@ -52,6 +53,7 @@ const fetchActivities = async (userId: string | undefined, entity?: { type: stri
       action_type: activity.action_type,
       content: activity.content,
       created_at: activity.created_at,
+      details: activity.details, // Mapear o campo details
       user_full_name: userFullName,
       time_ago: formatDistanceToNow(new Date(activity.created_at), { addSuffix: true, locale: ptBR }),
     };
