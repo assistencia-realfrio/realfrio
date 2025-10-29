@@ -157,6 +157,53 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estado *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o estado" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {serviceOrderStatuses.map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        
+          <FormField
+            control={form.control}
+            name="store"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Loja *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a loja" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="client_id"
@@ -219,53 +266,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             </FormItem>
           )}
         />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Estado *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o estado" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {serviceOrderStatuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        
-          <FormField
-            control={form.control}
-            name="store"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Loja *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a loja" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
         
         <div className="flex justify-center space-x-2 pt-4">
           {onCancel && (
