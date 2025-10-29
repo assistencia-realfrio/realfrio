@@ -116,7 +116,7 @@ const ServiceOrders: React.FC = () => {
           </div>
           
           <div className="flex w-full md:w-auto items-center gap-2">
-            <div className="flex-1">
+            <div className="flex-1 md:flex-none md:w-56">
               <Select 
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
                 defaultValue={selectedStore}
@@ -132,7 +132,7 @@ const ServiceOrders: React.FC = () => {
               </Select>
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 md:flex-none md:w-56">
               <Select 
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
                 defaultValue={selectedStatus}
