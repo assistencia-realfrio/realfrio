@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import ClientDetails from "./pages/ClientDetails";
+import Equipments from "./pages/Equipments";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ClientDetails /> {/* Rota para detalhes do cliente */}
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/equipments" 
+            element={
+              <ProtectedRoute>
+                <Equipments />
               </ProtectedRoute>
             } 
           />
