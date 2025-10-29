@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileText, Wrench, HardDrive } from 'lucide-react';
+import { FileText, Wrench, HardDrive, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'orders' | 'equipments';
+type View = 'details' | 'orders' | 'equipments' | 'history';
 
 interface ClientDetailsBottomNavProps {
   selectedView: View;
@@ -14,6 +14,7 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'orders', icon: Wrench, label: 'Ordens' },
   { id: 'equipments', icon: HardDrive, label: 'Equipamentos' },
+  { id: 'history', icon: History, label: 'Histórico' },
 ];
 
 const ClientDetailsBottomNav: React.FC<ClientDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {

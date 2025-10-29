@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { format } from "date-fns";
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
+import { logActivity } from "@/utils/activityLogger";
 
 export type { ServiceOrderStatus };
 export { serviceOrderStatuses };
@@ -23,27 +24,22 @@ export interface ServiceOrder {
   updated_at: string | null; // Adicionado campo de atualização
 }
 
-// O tipo ServiceOrderFormValues agora é o que o ServiceOrderForm envia, que inclui os detalhes do equipamento
 export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at'> & {
     serial_number: string | undefined;
     model: string | undefined;
-    equipment_id?: string; // Opcional na mutação, mas deve ser fornecido pelo formulário
+    equipment_id?: string;
 };
 
-// Tipo de retorno da query com o join (usamos 'any' para o clients para evitar conflitos de tipagem complexos do Supabase)
 type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
     clients: { name: string } | { name: string }[] | null;
 };
 
-// Função auxiliar para gerar o ID formatado
 const generateDisplayId = (store: ServiceOrder['store']): string => {
     const prefix = store === 'CALDAS DA RAINHA' ? 'CR' : 'PM';
-    // Novo formato: DD-MM-YYYY-HHMM
     const dateTimePart = format(new Date(), 'dd-MM-yyyy-HHmm');
     return `${prefix}-${dateTimePart}`;
 };
 
-// Função de fetch
 const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOrder[]> => {
   if (!userId) return [];
   
@@ -68,7 +64,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
 
   if (error) throw error;
 
-  // Mapeia os dados brutos para o formato ServiceOrder
   const mappedData = (data as unknown as ServiceOrderRaw[]).map(order => {
     const clientName = Array.isArray(order.clients) 
         ? order.clients[0]?.name || 'Cliente Desconhecido'
@@ -89,7 +84,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
     };
   }) as ServiceOrder[];
 
-  // Ordena os dados: primeiro por estado, depois por data de atualização/criação
   const statusOrder = new Map(serviceOrderStatuses.map((status, index) => [status, index]));
 
   mappedData.sort((a, b) => {
@@ -100,17 +94,15 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       return orderA - orderB;
     }
 
-    // Se os estados forem iguais, ordena pela data mais recente
     const dateA = new Date(a.updated_at || a.created_at).getTime();
     const dateB = new Date(b.updated_at || b.created_at).getTime();
     
-    return dateB - dateA; // Descendente (mais recente primeiro)
+    return dateB - dateA;
   });
 
   return mappedData;
 };
 
-// Hook principal
 export const useServiceOrders = (id?: string) => {
   const { user } = useSession();
   const queryClient = useQueryClient();
@@ -123,7 +115,6 @@ export const useServiceOrders = (id?: string) => {
     enabled: !!user?.id,
     select: (data) => {
       if (id) {
-        // Se um ID for fornecido, retorna apenas o item correspondente
         const singleOrder = data.find(order => order.id === id);
         return singleOrder ? [singleOrder] : [];
       }
@@ -137,10 +128,8 @@ export const useServiceOrders = (id?: string) => {
     mutationFn: async (orderData: ServiceOrderFormValues) => {
       if (!user?.id) throw new Error("Usuário não autenticado.");
       
-      // 1. Gerar o display_id antes da inserção
       const displayId = generateDisplayId(orderData.store);
       
-      // 2. Inserir a ordem com o display_id
       const { data, error } = await supabase
         .from('service_orders')
         .insert({
@@ -151,25 +140,31 @@ export const useServiceOrders = (id?: string) => {
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
-          equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
-          display_id: displayId, // Inserindo o ID formatado
+          equipment_id: orderData.equipment_id || null,
+          display_id: displayId,
           created_by: user.id,
         })
-        .select('id')
+        .select()
         .single();
 
       if (error) throw error;
-      
-      // Retorna o ID do banco (UUID)
-      return data;
+      return data as ServiceOrder;
     },
-    onSuccess: () => {
+    onSuccess: (newOrder) => {
+      logActivity(user, {
+        entity_type: 'service_order',
+        entity_id: newOrder.id,
+        action_type: 'created',
+        content: `Ordem de Serviço "${newOrder.display_id}" foi criada.`
+      });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
     },
   });
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
+      const orders = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders']);
+      const oldOrder = orders?.find(o => o.id === id);
       
       const { data, error } = await supabase
         .from('service_orders')
@@ -181,7 +176,7 @@ export const useServiceOrders = (id?: string) => {
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
-          equipment_id: orderData.equipment_id || null, // Persiste o ID do equipamento
+          equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -189,9 +184,24 @@ export const useServiceOrders = (id?: string) => {
         .single();
 
       if (error) throw error;
-      return data;
+      return { updatedOrder: data as ServiceOrder, oldOrder };
     },
-    onSuccess: () => {
+    onSuccess: ({ updatedOrder, oldOrder }) => {
+      if (oldOrder && updatedOrder.status !== oldOrder.status) {
+        logActivity(user, {
+          entity_type: 'service_order',
+          entity_id: updatedOrder.id,
+          action_type: 'status_changed',
+          content: `Status da OS "${updatedOrder.display_id}" alterado de "${oldOrder.status}" para "${updatedOrder.status}".`
+        });
+      } else {
+        logActivity(user, {
+          entity_type: 'service_order',
+          entity_id: updatedOrder.id,
+          action_type: 'updated',
+          content: `OS "${updatedOrder.display_id}" foi atualizada.`
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders', id] });
     },
@@ -199,15 +209,26 @@ export const useServiceOrders = (id?: string) => {
   
   const deleteOrderMutation = useMutation({
     mutationFn: async (orderId: string) => {
+      const orders = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders']);
+      const orderToDelete = orders?.find(o => o.id === orderId);
+
       const { error } = await supabase
         .from('service_orders')
         .delete()
         .eq('id', orderId);
 
       if (error) throw error;
+      return { orderToDelete };
     },
-    onSuccess: () => {
-      // Invalida todas as queries de OS para atualizar a lista
+    onSuccess: ({ orderToDelete }) => {
+      if (orderToDelete) {
+        logActivity(user, {
+          entity_type: 'service_order',
+          entity_id: orderToDelete.id,
+          action_type: 'deleted',
+          content: `OS "${orderToDelete.display_id}" foi excluída.`
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
     },
   });

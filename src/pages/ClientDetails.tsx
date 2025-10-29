@@ -21,8 +21,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
+import ActivityLog from "@/components/ActivityLog";
 
-// Componente de Ações (Editar e Excluir)
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
     <div className="flex justify-end space-x-2 mb-4">
         <Button variant="outline" size="sm" onClick={onEdit}>
@@ -64,13 +64,11 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
     </div>
 );
 
-// Função auxiliar para verificar se o link é do Google Maps ou coordenadas
 const isGoogleMapsLink = (mapsLink: string | null): boolean => {
   if (!mapsLink) return false;
   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
-// Componente de Visualização dos Detalhes do Cliente
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     return (
         <div className="space-y-4 text-sm">
@@ -137,7 +135,7 @@ const ClientDetails: React.FC = () => {
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details");
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'history'>("details");
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -236,6 +234,10 @@ const ClientDetails: React.FC = () => {
 
         {selectedView === 'equipments' && (
           <ClientEquipmentTab clientId={client.id} />
+        )}
+
+        {selectedView === 'history' && (
+          <ActivityLog entityType="client" entityId={client.id} />
         )}
       </div>
       <ClientDetailsBottomNav

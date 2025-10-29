@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
-import ServiceOrderForm, { ServiceOrderFormValues } from "@/components/ServiceOrderForm";
-import Attachments from "@/components/Attachments"; // Importando o componente Attachments
+import ServiceOrderForm from "@/components/ServiceOrderForm";
+import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
+import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showSuccess, showError } from "@/utils/toast";
 import {
@@ -21,6 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
+import ActivityLog from "@/components/ActivityLog";
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,19 +30,15 @@ const ServiceOrderDetails: React.FC = () => {
   
   const isNew = id === 'new';
   
-  // Se for edição, buscamos a ordem específica
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
-  // Estado para armazenar o ID da OS recém-criada, se aplicável
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments">("details");
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "history">("details");
 
-  // O ID real a ser usado para logs/anexos
   const currentOrderId = newOrderId || id;
 
   const initialData = order ? {
     id: order.id,
-    // equipment, model, serial_number são preenchidos pelo hook, mas o form agora precisa do equipment_id
     equipment_id: order.equipment_id || undefined, 
     client_id: order.client_id,
     description: order.description,
@@ -50,22 +47,18 @@ const ServiceOrderDetails: React.FC = () => {
   } : undefined;
 
   const handleGoBack = () => {
-    // Se a página foi empurrada para o histórico de navegação, volte.
     if (location.key !== 'default') {
       navigate(-1);
     } else {
-      // Caso contrário, navegue para a lista principal como um fallback.
       navigate('/', { replace: true });
     }
   };
 
-  const handleSubmit = (data: ServiceOrderFormValues & { id?: string }) => {
+  const handleSubmit = (data: { id?: string }) => {
     if (isNew && data.id) {
-        // Se for uma nova OS e a mutação retornou um ID, navegamos para a página de detalhes
         setNewOrderId(data.id);
         navigate(`/orders/${data.id}`, { replace: true });
     } else {
-        // Para edição, voltamos
         handleGoBack(); 
     }
   };
@@ -76,14 +69,13 @@ const ServiceOrderDetails: React.FC = () => {
     try {
         await deleteOrder.mutateAsync(currentOrderId);
         showSuccess(`Ordem de Serviço ${order?.display_id || currentOrderId} excluída com sucesso.`);
-        navigate('/orders', { replace: true }); // Redireciona para a lista de OS
+        navigate('/', { replace: true });
     } catch (error) {
         console.error("Erro ao deletar OS:", error);
         showError("Erro ao excluir Ordem de Serviço. Tente novamente.");
     }
   };
 
-  // Usamos o display_id se estiver disponível, senão usamos o UUID (id)
   const displayTitleId = order?.display_id || currentOrderId;
   const title = isNew ? "Criar Nova Ordem de Serviço" : `OS: ${displayTitleId}`;
 
@@ -111,7 +103,6 @@ const ServiceOrderDetails: React.FC = () => {
     );
   }
 
-  // Se estivermos em uma OS existente ou recém-criada
   const canAccessTabs = !isNew || !!newOrderId;
 
   return (
@@ -122,10 +113,8 @@ const ServiceOrderDetails: React.FC = () => {
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
-                {/* Título da OS com tamanho reduzido */}
                 <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
             </div>
-            {/* Botão de Excluir (visível apenas se não for uma nova OS), movido para o cabeçalho */}
             {!isNew && (
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -156,7 +145,6 @@ const ServiceOrderDetails: React.FC = () => {
             )}
         </div>
           
-        {/* Conteúdo baseado na seleção */}
         {selectedView === "details" && (
           <Card>
             <CardHeader>
@@ -166,7 +154,7 @@ const ServiceOrderDetails: React.FC = () => {
               <ServiceOrderForm 
                 initialData={initialData} 
                 onSubmit={handleSubmit} 
-                onCancel={isNew ? handleGoBack : undefined} // Adiciona o botão de cancelar apenas na criação
+                onCancel={isNew ? handleGoBack : undefined}
               />
             </CardContent>
           </Card>
@@ -177,6 +165,14 @@ const ServiceOrderDetails: React.FC = () => {
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar anexos.</p>
           ) : (
             <Attachments orderId={currentOrderId!} />
+          )
+        )}
+
+        {selectedView === "history" && (
+          !canAccessTabs ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS para ver o histórico.</p>
+          ) : (
+            <ActivityLog entityType="service_order" entityId={currentOrderId!} />
           )
         )}
       </div>

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
+import { logActivity } from "@/utils/activityLogger";
 
 export interface Equipment {
   id: string;
@@ -96,9 +97,13 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       return data as Equipment;
     },
     onSuccess: (newEquipment) => {
-      // Invalida a query de equipamentos para o cliente atual
+      logActivity(user, {
+        entity_type: 'equipment',
+        entity_id: newEquipment.id,
+        action_type: 'created',
+        content: `Equipamento "${newEquipment.name}" foi criado.`
+      });
       queryClient.invalidateQueries({ queryKey: ['equipments', newEquipment.client_id] });
-      // Invalida a query do equipamento único se for o caso
       queryClient.invalidateQueries({ queryKey: ['equipment', newEquipment.id] });
     },
   });
@@ -122,33 +127,50 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       return data as Equipment;
     },
     onSuccess: (updatedEquipment) => {
+      logActivity(user, {
+        entity_type: 'equipment',
+        entity_id: updatedEquipment.id,
+        action_type: 'updated',
+        content: `Equipamento "${updatedEquipment.name}" foi atualizado.`
+      });
       queryClient.invalidateQueries({ queryKey: ['equipments', updatedEquipment.client_id] });
       queryClient.invalidateQueries({ queryKey: ['equipment', updatedEquipment.id] });
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens caso o nome do equipamento mude
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
     },
   });
 
   const deleteEquipmentMutation = useMutation({
     mutationFn: async (equipmentId: string) => {
+      const equipmentToDelete = queryClient.getQueryData<Equipment>(['equipment', equipmentId, user?.id]);
+      
       const { error } = await supabase
         .from('equipments')
         .delete()
         .eq('id', equipmentId);
 
       if (error) throw error;
+      return { equipmentToDelete };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['equipments', clientId] }); // Invalida a lista do cliente
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens que possam ter usado este equipamento
+    onSuccess: ({ equipmentToDelete }) => {
+      if (equipmentToDelete) {
+        logActivity(user, {
+          entity_type: 'equipment',
+          entity_id: equipmentToDelete.id,
+          action_type: 'deleted',
+          content: `Equipamento "${equipmentToDelete.name}" foi excluído.`
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['equipments', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
     },
   });
 
   return {
     equipments,
-    singleEquipment, // Expondo o equipamento único
-    isLoading: isLoadingEquipmentsList || isLoadingSingleEquipment, // Estado de carregamento combinado
+    singleEquipment,
+    isLoading: isLoadingEquipmentsList || isLoadingSingleEquipment,
     createEquipment: createEquipmentMutation,
-    updateEquipment: updateEquipmentMutation, // Expondo a mutação de atualização
-    deleteEquipment: deleteEquipmentMutation, // Expondo a mutação de exclusão
+    updateEquipment: updateEquipmentMutation,
+    deleteEquipment: deleteEquipmentMutation,
   };
 };

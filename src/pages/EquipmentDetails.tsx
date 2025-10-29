@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { useEquipments, Equipment } from "@/hooks/useEquipments";
+import { useEquipments } from "@/hooks/useEquipments";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ActivityLog from "@/components/ActivityLog";
 
 const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const { singleEquipment: equipment, isLoading, updateEquipment, deleteEquipment } = useEquipments(undefined, id);
+  const { singleEquipment: equipment, isLoading, deleteEquipment } = useEquipments(undefined, id);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -143,6 +144,8 @@ const EquipmentDetails: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+
+        <ActivityLog entityType="equipment" entityId={equipment.id} />
       </div>
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>

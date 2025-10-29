@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, useNavigate } from "react-router-dom";
-import { useOrderActivities } from "@/hooks/useOrderActivities";
+import { useActivities } from "@/hooks/useActivities";
 import { GlobalSearch } from "@/components/GlobalSearch";
 
 interface LayoutProps {
@@ -25,7 +25,7 @@ interface LayoutProps {
 const Header = () => {
   const { user } = useSession();
   const navigate = useNavigate();
-  const { data: activities, isLoading: isLoadingActivities } = useOrderActivities();
+  const { data: activities, isLoading: isLoadingActivities } = useActivities();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -49,8 +49,12 @@ const Header = () => {
     }
   };
 
-  const handleNotificationClick = (orderId: string) => {
-    navigate(`/orders/${orderId}`);
+  const handleNotificationClick = (entityType: string, entityId: string) => {
+    let path = '/';
+    if (entityType === 'service_order') path = `/orders/${entityId}`;
+    if (entityType === 'client') path = `/clients/${entityId}`;
+    if (entityType === 'equipment') path = `/equipments/${entityId}`;
+    navigate(path);
   };
 
   const userName = user?.email || "Usuário";
@@ -86,7 +90,7 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Notificações Recentes</DropdownMenuLabel>
+                <DropdownMenuLabel>Atividade Recente</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {isLoadingActivities ? (
                   <DropdownMenuItem disabled>Carregando...</DropdownMenuItem>
@@ -94,22 +98,19 @@ const Header = () => {
                   activities.map((activity) => (
                     <DropdownMenuItem 
                       key={activity.id} 
-                      onClick={() => handleNotificationClick(activity.order_id)}
+                      onClick={() => handleNotificationClick(activity.entity_type, activity.entity_id)}
                       className="flex flex-col items-start space-y-1 cursor-pointer"
                     >
-                      <p className="text-sm font-medium">
-                        OS <span className="font-bold">{activity.order_display_id}</span> - {activity.client_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                      <p className="text-sm text-foreground line-clamp-2">
                         {activity.content}
                       </p>
                       <p className="text-xs text-muted-foreground self-end">
-                        {activity.time_ago}
+                        {activity.user_full_name} • {activity.time_ago}
                       </p>
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  <DropdownMenuItem disabled>Nenhuma notificação recente.</DropdownMenuItem>
+                  <DropdownMenuItem disabled>Nenhuma atividade recente.</DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

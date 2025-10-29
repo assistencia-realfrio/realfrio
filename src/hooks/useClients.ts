@@ -4,6 +4,7 @@ import { useSession } from "@/contexts/SessionContext";
 import { ClientFormValues } from "@/components/ClientForm";
 import { useServiceOrders } from "./useServiceOrders"; // Importando o hook de OS
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
+import { logActivity } from "@/utils/activityLogger";
 
 export interface Client {
   id: string;
@@ -101,10 +102,15 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         console.error("Erro do Supabase na criação do cliente:", error); // Log do erro do Supabase
         throw error;
       }
-      // Retorna o objeto completo do cliente criado
       return data as Client;
     },
-    onSuccess: () => {
+    onSuccess: (newClient) => {
+      logActivity(user, {
+        entity_type: 'client',
+        entity_id: newClient.id,
+        action_type: 'created',
+        content: `Cliente "${newClient.name}" foi criado.`
+      });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
@@ -132,9 +138,15 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         console.error("Erro do Supabase na atualização do cliente:", error);
         throw error;
       }
-      return data;
+      return data as Client;
     },
     onSuccess: (updatedClient) => {
+      logActivity(user, {
+        entity_type: 'client',
+        entity_id: updatedClient.id,
+        action_type: 'updated',
+        content: `Cliente "${updatedClient.name}" foi atualizado.`
+      });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
@@ -143,17 +155,26 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
 
   const deleteClientMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id);
+      const clients = queryClient.getQueryData<Client[]>(['clients', user?.id]);
+      const clientToDelete = clients?.find(c => c.id === id);
 
+      const { error } = await supabase.from('clients').delete().eq('id', id);
       if (error) throw error;
+      
+      return { clientToDelete };
     },
-    onSuccess: () => {
+    onSuccess: ({ clientToDelete }) => {
+      if (clientToDelete) {
+        logActivity(user, {
+          entity_type: 'client',
+          entity_id: clientToDelete.id,
+          action_type: 'deleted',
+          content: `Cliente "${clientToDelete.name}" foi excluído.`
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida ordens para garantir que as contagens sejam atualizadas
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
     },
   });
 
