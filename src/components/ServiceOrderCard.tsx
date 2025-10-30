@@ -71,9 +71,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         {order.display_id}
                     </div>
                     <div className="flex items-center gap-1">
-                        <Badge 
+                        <Badge  
                             variant="outline" 
-                            className={cn("whitespace-nowrap text-xs px-2 py-0.5 border-border bg-background/50 font-bold text-foreground")} // Ajustado estilo do badge
+                            className={cn("whitespace-nowrap text-xs px-2 py-0.5 bg-background/50 font-bold text-foreground")} // Removido border-border
+                            style={{ borderColor: statusBgColor }} // Aplicando a cor do status ao contorno
                         >
                             {order.status}
                         </Badge>
