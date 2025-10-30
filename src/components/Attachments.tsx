@@ -10,6 +10,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { v4 as uuidv4 } from 'uuid'; // Importar uuid
+import { Skeleton } from "@/components/ui/skeleton"; // Adicionada importação do Skeleton
 
 interface Attachment {
   id: string; // Caminho completo do arquivo no storage (e.g., 'orderId/uniqueFileName.jpg')
