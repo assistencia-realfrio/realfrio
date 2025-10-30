@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, MoreHorizontal } from "lucide-react"; // Importando MoreHorizontal
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 
 interface ServiceOrderCardProps {
@@ -72,36 +72,39 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     >
                         {order.display_id}
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <Badge 
-                                    variant="outline" 
-                                    className={cn("cursor-pointer whitespace-nowrap text-xs px-2 py-0.5 border-slate-400/50 bg-white/30 font-bold", textClass)}
+                    <div className="flex items-center gap-1"> {/* Container para o Badge e o Dropdown */}
+                        <Badge 
+                            variant="outline" 
+                            className={cn("whitespace-nowrap text-xs px-2 py-0.5 border-slate-400/50 bg-white/30 font-bold", textClass)}
+                        >
+                            {order.status}
+                        </Badge>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    onClick={(e) => e.stopPropagation()}
                                 >
-                                    {order.status}
-                                </Badge>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                            <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            {serviceOrderStatuses.map((status) => (
-                                <DropdownMenuItem 
-                                    key={status} 
-                                    onClick={() => handleStatusChange(status)}
-                                    disabled={updateOrder.isPending}
-                                >
-                                    <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
-                                    {status}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                    <MoreHorizontal className="h-4 w-4 text-slate-600" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {serviceOrderStatuses.map((status) => (
+                                    <DropdownMenuItem 
+                                        key={status} 
+                                        onClick={() => handleStatusChange(status)}
+                                        disabled={updateOrder.isPending}
+                                    >
+                                        <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
+                                        {status}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
                 <div onClick={handleNavigate} className="cursor-pointer pt-2 flex flex-col flex-grow space-y-1.5">
                     <div className="flex items-center gap-2">
