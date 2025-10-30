@@ -128,9 +128,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
                         value === equipment.id ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    <span className="truncate">
-                      {equipment.name} ({equipment.brand || 'N/A'} - {equipment.model || 'N/A'})
-                    </span>
+                    {equipment.name} ({equipment.brand || 'N/A'} - {equipment.model || 'N/A'})
                   </CommandItem>
                 ))}
               </CommandGroup>

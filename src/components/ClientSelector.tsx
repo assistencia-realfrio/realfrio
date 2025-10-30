@@ -99,7 +99,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
                         value === client.id ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    <span className="truncate">{client.name}</span>
+                    {client.name}
                   </CommandItem>
                 ))}
               </CommandGroup>
