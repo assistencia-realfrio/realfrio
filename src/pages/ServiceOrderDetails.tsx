@@ -113,10 +113,10 @@ const ServiceOrderDetails: React.FC = () => {
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight truncate">
                   {isNew ? titlePrefix : (
                     <>
-                      {titlePrefix} <span className="text-sm sm:text-lg">{displayTitleId}</span>
+                      {titlePrefix} {displayTitleId}
                     </>
                   )}
                 </h2>
