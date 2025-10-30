@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileText, Wrench, History, Paperclip } from 'lucide-react'; // Adicionado Paperclip
+import { FileText, Wrench, Paperclip } from 'lucide-react'; // Removido History
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'orders' | 'attachments' | 'history'; // 'history' agora é para o log de atividades do equipamento
+type View = 'details' | 'orders' | 'attachments'; // 'history' removido do tipo
 
 interface EquipmentDetailsBottomNavProps {
   selectedView: View;
@@ -13,8 +13,8 @@ interface EquipmentDetailsBottomNavProps {
 const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'orders', icon: Wrench, label: 'Ordens' },
-  { id: 'attachments', icon: Paperclip, label: 'Anexos' }, // Novo item para anexos
-  { id: 'history', icon: History, label: 'Histórico' }, // Mantido para o log de atividades
+  { id: 'attachments', icon: Paperclip, label: 'Anexos' }, // Mantido para anexos
+  // { id: 'history', icon: History, label: 'Histórico' }, // Removido
 ];
 
 const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {

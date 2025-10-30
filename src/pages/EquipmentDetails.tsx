@@ -32,7 +32,7 @@ const EquipmentDetails: React.FC = () => {
   const { singleEquipment: equipment, isLoading, deleteEquipment } = useEquipments(undefined, id);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedView, setSelectedView] = useState<"details" | "orders" | "attachments" | "history">("details"); // Novo estado para a visualização
+  const [selectedView, setSelectedView] = useState<"details" | "orders" | "attachments">("details"); // 'history' removido do tipo e valor inicial
 
   const handleGoBack = () => navigate(-1);
 
@@ -155,13 +155,13 @@ const EquipmentDetails: React.FC = () => {
           <EquipmentOrdersTab equipmentId={equipment.id} />
         )}
 
-        {selectedView === "attachments" && ( // Nova aba para anexos do equipamento
+        {selectedView === "attachments" && ( // Aba para anexos do equipamento
           <EquipmentAttachments equipmentId={equipment.id} />
         )}
 
-        {selectedView === "history" && ( // Aba de histórico de atividades do equipamento
+        {/* Removido: {selectedView === "history" && ( // Aba de histórico de atividades do equipamento
           <ActivityLog entityType="equipment" entityId={equipment.id} />
-        )}
+        )} */}
       </div>
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
