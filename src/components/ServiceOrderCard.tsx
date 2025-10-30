@@ -47,10 +47,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         }
     };
     
-    const storeColorClass = order.store === 'CALDAS DA RAINHA' 
-        ? 'bg-blue-500' 
-        : 'bg-red-500';
-
     const storeTextColorClass = order.store === 'CALDAS DA RAINHA' 
         ? 'text-blue-700 dark:text-blue-300' 
         : 'text-red-700 dark:text-red-300';
@@ -63,8 +59,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 "hover:shadow-lg transition-shadow flex relative rounded-lg bg-card" // Removido statusCardClasses, adicionado bg-card
             )} 
         >
-            {/* Barra esquerda para a loja */}
-            <div className={cn("w-2 rounded-l-md", storeColorClass)} />
+            {/* A barra esquerda para a loja foi removida */}
 
             <div className="flex flex-col flex-grow p-3">
                 <div className="flex flex-row items-start justify-between space-y-0 pb-1">
