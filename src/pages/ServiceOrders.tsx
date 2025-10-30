@@ -93,14 +93,14 @@ const ServiceOrders: React.FC = () => {
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     if (isLoading) {
         return (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
             </div>
         );
     }
 
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
         {ordersToRender.map((order) => (
           <ServiceOrderCard key={order.id} order={order} />
         ))}

@@ -17,7 +17,7 @@ const Dashboard: React.FC = () => {
       <Layout>
         <div className="space-y-8">
           <Skeleton className="h-10 w-1/3" />
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
             {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
           </div>
           <Skeleton className="h-[350px] w-full" />
@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Gestão</h2>
 
         {/* Seção de Métricas */}
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
           <MetricCard
             title="Total de OS"
             value={totalOrders}

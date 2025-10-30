@@ -82,11 +82,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
             </FormItem>
           )}
         />
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={updateProfile.isPending}>
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
+          <Button type="button" variant="outline" onClick={onCancel} disabled={updateProfile.isPending} className="w-full sm:w-auto">
             Cancelar
           </Button>
-          <Button type="submit" disabled={updateProfile.isPending}>
+          <Button type="submit" disabled={updateProfile.isPending} className="w-full sm:w-auto">
             Salvar Alterações
           </Button>
         </div>

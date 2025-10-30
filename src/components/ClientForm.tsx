@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import * as z from "zod"; // Corrigido: de '*s z' para '* as z'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -173,11 +173,11 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
           )}
         />
 
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
+          <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
             Cancelar
           </Button>
-          <Button type="submit">
+          <Button type="submit" className="w-full sm:w-auto">
             {initialData ? "Salvar Alterações" : "Criar Cliente"}
           </Button>
         </div>

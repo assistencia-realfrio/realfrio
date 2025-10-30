@@ -142,11 +142,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         </FormItem>
                     )}
                 />
-                <div className="flex justify-end space-x-2 pt-2">
-                    <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-2"> {/* Ajustado para empilhar em mobile */}
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} className="w-full sm:w-auto">
                         Cancelar
                     </Button>
-                    <Button type="submit" disabled={isPending}>
+                    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
                         {isEditing ? "Salvar Alterações" : "Criar Equipamento"}
                     </Button>
                 </div>

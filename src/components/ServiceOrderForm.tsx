@@ -252,6 +252,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     onClick={handleViewClientDetails}
                     disabled={!field.value}
                     aria-label="Ver detalhes do cliente"
+                    className="flex-grow sm:flex-grow-0"
                   >
                     <User className="h-4 w-4" />
                   </Button>
@@ -263,6 +264,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     aria-label="Ver no mapa"
                     disabled={!hasMapLink}
                     onClick={handleMapClick}
+                    className="flex-grow sm:flex-grow-0"
                   >
                     <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
                   </Button>
@@ -274,6 +276,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     aria-label="Ligar para o cliente"
                     disabled={!hasContact}
                     onClick={handlePhoneClick}
+                    className="flex-grow sm:flex-grow-0"
                   >
                     <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
                   </Button>
@@ -317,13 +320,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
         
-        <div className="flex justify-center space-x-2 pt-4">
+        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
               Cancelar
             </Button>
           )}
-          <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending}>
+          <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
             {isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}
           </Button>
         </div>
