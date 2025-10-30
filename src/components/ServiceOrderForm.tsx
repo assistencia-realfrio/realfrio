@@ -237,14 +237,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             <FormItem>
               <FormLabel>Cliente *</FormLabel>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2"> {/* Alterado para empilhar em mobile */}
-                <div className="flex-grow w-full"> {/* Garante que o seletor ocupe a largura total em mobile */}
+                <div className="flex-grow w-full min-w-0"> {/* Adicionado min-w-0 para evitar overflow */}
                   <ClientSelector 
                     value={field.value} 
                     onChange={field.onChange} 
                     disabled={isEditing}
                   />
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start"> {/* Container para os botões */}
+                <div className="flex gap-2 w-full sm:w-auto justify-end sm:justify-start flex-shrink-0"> {/* Adicionado flex-shrink-0 */}
                   <Button 
                     type="button" 
                     variant="outline" 
