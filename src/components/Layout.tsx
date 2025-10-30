@@ -67,7 +67,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm"> {/* Alterado aqui */}
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-4">
             <MobileSidebar />
@@ -91,7 +91,7 @@ const Header = () => {
                   <Bell className="h-5 w-5" />
                   {activities && activities.length > 0 && (
                     <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-destructive" /> 
-                  )} {/* Ajustado top e right */}
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">

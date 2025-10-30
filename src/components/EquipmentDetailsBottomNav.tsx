@@ -19,7 +19,7 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
 
 const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t z-50 lg:left-64">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64"> {/* Alterado aqui */}
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
           <Button
