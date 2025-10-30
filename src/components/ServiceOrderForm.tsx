@@ -244,7 +244,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     disabled={isEditing}
                   />
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto justify-end flex-shrink-0"> {/* Removido sm:justify-start, mantendo justify-end */}
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end"> {/* Adicionado flex-wrap e ajustado justify */}
                   <Button 
                     type="button" 
                     variant="outline" 
