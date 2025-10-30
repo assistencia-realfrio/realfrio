@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileText, Paperclip, History } from 'lucide-react';
+import { FileText, Paperclip, History, List, HardDrive } from 'lucide-react'; // Adicionado List e HardDrive
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'attachments' | 'history';
+type View = 'details' | 'attachments' | 'equipment' | 'activity'; // 'history' renomeado para 'equipment', 'activity' adicionado
 
 interface ServiceOrderBottomNavProps {
   selectedView: View;
@@ -14,7 +14,8 @@ interface ServiceOrderBottomNavProps {
 const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'attachments', icon: Paperclip, label: 'Anexos' },
-  { id: 'history', icon: History, label: 'Histórico' },
+  { id: 'equipment', icon: HardDrive, label: 'Equipamento' }, // Renomeado e ícone HardDrive
+  { id: 'activity', icon: List, label: 'Atividade' }, // Novo item para o log de atividades da OS
 ];
 
 const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedView, onSelectView, canAccessTabs }) => {
