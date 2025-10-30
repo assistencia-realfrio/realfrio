@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
-import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails"; // Importar o novo componente
+import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
+import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -155,18 +156,21 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <Card className="shadow-none border-none">
-            <CardHeader>
-              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ServiceOrderForm 
-                initialData={initialData} 
-                onSubmit={handleSubmit} 
-                onCancel={isNew ? handleGoBack : undefined}
-              />
-            </CardContent>
-          </Card>
+          <>
+            <Card className="shadow-none border-none">
+              <CardHeader>
+                <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ServiceOrderForm 
+                  initialData={initialData} 
+                  onSubmit={handleSubmit} 
+                  onCancel={isNew ? handleGoBack : undefined}
+                />
+              </CardContent>
+            </Card>
+            {canAccessTabs && currentOrderId && <ServiceOrderNotes orderId={currentOrderId} />}
+          </>
         )}
 
         {selectedView === "attachments" && (
@@ -177,7 +181,7 @@ const ServiceOrderDetails: React.FC = () => {
           )
         )}
 
-        {selectedView === "equipment" && ( // Nova aba para detalhes do equipamento
+        {selectedView === "equipment" && (
           !canAccessTabs || !order?.equipment_id ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS e selecione um equipamento para ver seus detalhes.</p>
           ) : (
@@ -185,7 +189,7 @@ const ServiceOrderDetails: React.FC = () => {
           )
         )}
 
-        {selectedView === "activity" && ( // Nova aba para o log de atividades da OS
+        {selectedView === "activity" && (
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para ver o histórico de atividades.</p>
           ) : (
