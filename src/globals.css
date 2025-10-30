@@ -95,36 +95,5 @@
 }
 
 @layer components {
-  .status-por-iniciar {
-    background: linear-gradient(to left, rgba(129, 212, 250, 0.5), transparent 70%);
-    color: #01579B;
-  }
-  .status-iniciada {
-    background: linear-gradient(to left, rgba(77, 208, 225, 0.5), transparent 70%);
-    color: #006064;
-  }
-  .status-para-orcamento {
-    background: linear-gradient(to left, rgba(186, 104, 200, 0.5), transparent 70%);
-    color: #4A148C;
-  }
-  .status-orcamento-enviado {
-    background: linear-gradient(to left, rgba(255, 183, 77, 0.5), transparent 70%);
-    color: #E65100;
-  }
-  .status-aguarda-pecas {
-    background: linear-gradient(to left, rgba(255, 138, 101, 0.5), transparent 70%);
-    color: #BF360C;
-  }
-  .status-pecas-recebidas {
-    background: linear-gradient(to left, rgba(240, 98, 146, 0.5), transparent 70%);
-    color: #880E4F;
-  }
-  .status-concluida {
-    background: linear-gradient(to left, rgba(102, 187, 106, 0.5), transparent 70%);
-    color: #1B5E20;
-  }
-  .status-cancelada {
-    background: linear-gradient(to left, rgba(148, 163, 184, 0.5), transparent 70%);
-    color: #1E293B;
-  }
+  /* Classes de status de gradiente removidas */
 }
