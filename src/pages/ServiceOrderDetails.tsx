@@ -77,7 +77,7 @@ const ServiceOrderDetails: React.FC = () => {
   };
 
   const displayTitleId = order?.display_id || currentOrderId;
-  const title = isNew ? "Criar Nova Ordem de Serviço" : `OS: ${displayTitleId}`;
+  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "OS:";
 
   if (!isNew && isLoading) {
     return (
@@ -108,15 +108,21 @@ const ServiceOrderDetails: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6 pb-20">
-        <div className="flex items-center justify-between gap-2"> {/* Adicionado gap-2 */}
-            <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0"> {/* Adicionado flex-1, min-w-0, sm:gap-4 */}
+        <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{title}</h2> {/* Adicionado sm:text-3xl, truncate */}
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
+                  {isNew ? titlePrefix : (
+                    <>
+                      {titlePrefix} <span className="text-sm sm:text-lg">{displayTitleId}</span>
+                    </>
+                  )}
+                </h2>
             </div>
             {!isNew && (
-                <div className="flex flex-shrink-0"> {/* Envolvido o botão de exclusão em um div flex-shrink-0 */}
+                <div className="flex flex-shrink-0">
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
@@ -148,7 +154,7 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <Card className="shadow-none border-none"> {/* Removido o contorno aqui */}
+          <Card className="shadow-none border-none">
             <CardHeader>
               <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
             </CardHeader>
