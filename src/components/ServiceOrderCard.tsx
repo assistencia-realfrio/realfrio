@@ -20,6 +20,17 @@ interface ServiceOrderCardProps {
     order: ServiceOrder;
 }
 
+const getStoreBackgroundColorClass = (store: ServiceOrder['store'] | null) => {
+  switch (store) {
+    case "CALDAS DA RAINHA":
+      return "bg-blue-50"; // Azul muito claro
+    case "PORTO DE MÓS":
+      return "bg-red-50"; // Vermelho muito claro
+    default:
+      return "bg-gray-50"; // Cinza muito claro como padrão
+  }
+};
+
 const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const navigate = useNavigate();
     const { updateOrder } = useServiceOrders();
@@ -56,7 +67,9 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     return (
         <div 
             className={cn(
-                "hover:shadow-lg transition-shadow flex relative rounded-lg bg-card border" // Adicionado 'border' para o contorno
+                "hover:shadow-lg transition-shadow flex relative rounded-lg border", // Mantido 'border'
+                getStoreBackgroundColorClass(order.store), // Aplica a cor base da loja
+                "bg-opacity-5" // Aplica 5% de opacidade
             )} 
         >
             {/* Barra esquerda para o status */}
