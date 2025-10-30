@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
-import EquipmentDetails from "./EquipmentDetails"; // Importar a página de detalhes do equipamento
+import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails"; // Importar o novo componente
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,7 +34,7 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity">("details"); // 'history' renomeado para 'equipment', 'activity' adicionado
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity">("details");
 
   const currentOrderId = newOrderId || id;
 
@@ -181,7 +181,7 @@ const ServiceOrderDetails: React.FC = () => {
           !canAccessTabs || !order?.equipment_id ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS e selecione um equipamento para ver seus detalhes.</p>
           ) : (
-            <EquipmentDetails /> // Renderiza o componente EquipmentDetails
+            <ServiceOrderEquipmentDetails equipmentId={order.equipment_id!} />
           )
         )}
 
