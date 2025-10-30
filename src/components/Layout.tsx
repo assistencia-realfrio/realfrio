@@ -87,11 +87,11 @@ const Header = () => {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Notificações">
+                <Button variant="ghost" size="icon" aria-label="Notificações" className="relative">
                   <Bell className="h-5 w-5" />
                   {activities && activities.length > 0 && (
-                    <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive" />
-                  )}
+                    <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-destructive" /> 
+                  )} {/* Ajustado top e right */}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
