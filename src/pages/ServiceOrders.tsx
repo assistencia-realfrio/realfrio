@@ -15,7 +15,6 @@ import {
 import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
-import SupabaseConnectionTest from "@/components/SupabaseConnectionTest"; // Importando o novo componente
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrderStatus | 'ALL';
@@ -121,9 +120,6 @@ const ServiceOrders: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Adicionado o componente de teste de conexão aqui */}
-        <SupabaseConnectionTest /> 
-
         <div className="flex flex-row justify-between items-center gap-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Ordens de Serviço</h2>
           <div className="flex gap-2">
