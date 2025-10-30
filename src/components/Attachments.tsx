@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,15 +7,18 @@ import { Upload, FileText, Image, Trash2, Download, Eye } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/contexts/SessionContext";
+import { v4 as uuidv4 } from 'uuid'; // Importar uuid
 
 interface Attachment {
-  id: number;
-  name: string;
-  type: 'image' | 'document';
-  size: string;
-  uploadedBy: string;
-  date: string;
-  fileUrl: string; // Novo campo para a URL do arquivo
+  id: string; // Caminho completo do arquivo no storage (e.g., 'orderId/uniqueFileName.jpg')
+  name: string; // Nome original do arquivo
+  type: 'image' | 'document' | 'other';
+  size: string; // Tamanho formatado
+  uploadedBy: string; // Nome completo do utilizador ou email
+  date: string; // Data de upload
+  fileUrl: string; // URL pública do Supabase Storage
 }
 
 interface AttachmentsProps {
@@ -27,7 +30,7 @@ const AttachmentPreviewDialog: React.FC<{
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   fileUrl: string;
-  fileType: 'image' | 'document';
+  fileType: 'image' | 'document' | 'other';
   fileName: string;
 }> = ({ isOpen, onOpenChange, fileUrl, fileType, fileName }) => {
   return (
@@ -41,10 +44,14 @@ const AttachmentPreviewDialog: React.FC<{
             <AspectRatio ratio={16 / 9} className="bg-muted">
               <img src={fileUrl} alt={fileName} className="rounded-md object-contain w-full h-full" />
             </AspectRatio>
-          ) : ( // Assumimos que 'document' é PDF para visualização
+          ) : fileType === 'document' ? ( // Assumimos que 'document' é PDF para visualização
             <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>
               Seu navegador não suporta iframes. Você pode <a href={fileUrl} target="_blank" rel="noopener noreferrer">baixar o arquivo</a>.
             </iframe>
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              <p>Este tipo de arquivo não pode ser visualizado diretamente.</p>
+            </div>
           )}
         </div>
       </DialogContent>
@@ -52,14 +59,80 @@ const AttachmentPreviewDialog: React.FC<{
   );
 };
 
-
 const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
+  const { user } = useSession();
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewFileUrl, setPreviewFileUrl] = useState("");
-  const [previewFileType, setPreviewFileType] = useState<'image' | 'document'>('document');
+  const [previewFileType, setPreviewFileType] = useState<'image' | 'document' | 'other'>('other');
   const [previewFileName, setPreviewFileName] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingAttachments, setIsLoadingAttachments] = useState(true);
+
+  const bucketName = 'order_attachments';
+  const folderPath = `${orderId}`;
+
+  const getFileType = (mimeType: string): 'image' | 'document' | 'other' => {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType === 'application/pdf') return 'document';
+    return 'other';
+  };
+
+  const fetchAttachments = async () => {
+    if (!user?.id) {
+      setIsLoadingAttachments(false);
+      return;
+    }
+
+    setIsLoadingAttachments(true);
+    try {
+      const { data, error } = await supabase.storage.from(bucketName).list(folderPath, {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+      if (error) throw error;
+
+      const fetched: Attachment[] = await Promise.all(data.map(async (file) => {
+        const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(`${folderPath}/${file.name}`);
+        
+        // Tentar obter metadados para o tipo de arquivo
+        const { data: fileData, error: fileError } = await supabase.storage.from(bucketName).download(`${folderPath}/${file.name}`);
+        let fileType: 'image' | 'document' | 'other' = 'other';
+        if (fileData && fileData.type) {
+          fileType = getFileType(fileData.type);
+        } else if (file.name.match(/\.(jpeg|jpg|png)$/i)) {
+          fileType = 'image';
+        } else if (file.name.match(/\.pdf$/i)) {
+          fileType = 'document';
+        }
+
+        return {
+          id: `${folderPath}/${file.name}`, // Usar o caminho completo como ID único
+          name: file.name,
+          type: fileType,
+          size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB", // Supabase retorna size em bytes
+          uploadedBy: user.email || "Desconhecido", // Usar email do user logado
+          date: new Date(file.created_at).toLocaleDateString('pt-BR'),
+          fileUrl: publicUrlData.publicUrl,
+        };
+      }));
+      setAttachments(fetched);
+    } catch (error) {
+      console.error("Erro ao buscar anexos:", error);
+      showError("Erro ao carregar anexos.");
+    } finally {
+      setIsLoadingAttachments(false);
+    }
+  };
+
+  useEffect(() => {
+    if (orderId && user?.id) {
+      fetchAttachments();
+    }
+  }, [orderId, user?.id]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -67,71 +140,83 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
     }
   };
 
-  const handleUpload = () => {
-    if (!selectedFile) {
-      showError("Selecione um arquivo para anexar.");
+  const handleUpload = async () => {
+    if (!selectedFile || !user?.id) {
+      showError("Selecione um arquivo e certifique-se de estar logado.");
       return;
     }
 
-    const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
-    let attachmentType: 'image' | 'document';
-    let simulatedFileUrl: string;
+    setIsUploading(true);
+    try {
+      const uniqueFileName = `${uuidv4()}-${selectedFile.name}`;
+      const filePath = `${folderPath}/${uniqueFileName}`;
 
-    if (['jpg', 'jpeg', 'png'].includes(fileExtension || '')) {
-      attachmentType = 'image';
-      // Para simulação, podemos usar um placeholder ou uma URL de imagem real
-      simulatedFileUrl = URL.createObjectURL(selectedFile); // Cria uma URL temporária para o arquivo selecionado
-    } else if (fileExtension === 'pdf') {
-      attachmentType = 'document';
-      simulatedFileUrl = URL.createObjectURL(selectedFile); // Cria uma URL temporária para o arquivo selecionado
-    } else {
-      attachmentType = 'document'; // Default para outros tipos de documento
-      simulatedFileUrl = '#'; // Sem visualização para outros tipos, apenas download simulado
-      showError("Tipo de arquivo não suportado para visualização. Apenas JPG, JPEG, PNG e PDF.");
+      const { error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+
+      const newAttachment: Attachment = {
+        id: filePath,
+        name: selectedFile.name,
+        type: getFileType(selectedFile.type),
+        size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
+        uploadedBy: user.email || "Desconhecido",
+        date: new Date().toLocaleDateString('pt-BR'),
+        fileUrl: publicUrlData.publicUrl,
+      };
+
+      setAttachments((prev) => [newAttachment, ...prev]);
+      setSelectedFile(null);
+      showSuccess(`Arquivo '${newAttachment.name}' anexado com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error);
+      showError("Erro ao anexar arquivo. Tente novamente.");
+    } finally {
+      setIsUploading(false);
     }
-
-    const newAttachment: Attachment = {
-      id: attachments.length + 1,
-      name: selectedFile.name,
-      type: attachmentType,
-      size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-      uploadedBy: "Usuário Atual",
-      date: new Date().toISOString().split('T')[0],
-      fileUrl: simulatedFileUrl,
-    };
-
-    setAttachments([...attachments, newAttachment]);
-    setSelectedFile(null);
-    showSuccess(`Arquivo '${newAttachment.name}' anexado com sucesso!`);
   };
 
-  const handleDelete = (id: number) => {
-    setAttachments(attachments.filter(att => att.id !== id));
-    showSuccess("Anexo removido.");
+  const handleDelete = async (attachmentId: string, attachmentName: string) => {
+    if (!user?.id) {
+      showError("Você precisa estar logado para excluir arquivos.");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.storage.from(bucketName).remove([attachmentId]);
+
+      if (error) throw error;
+
+      setAttachments(attachments.filter(att => att.id !== attachmentId));
+      showSuccess(`Anexo '${attachmentName}' removido.`);
+    } catch (error) {
+      console.error("Erro ao excluir anexo:", error);
+      showError("Erro ao remover anexo. Tente novamente.");
+    }
   };
 
   const handlePreview = (attachment: Attachment) => {
-    const fileExtension = attachment.name.split('.').pop()?.toLowerCase();
-    if (['jpg', 'jpeg', 'png'].includes(fileExtension || '')) {
-      setPreviewFileType('image');
-      setPreviewFileUrl(attachment.fileUrl);
-      setPreviewFileName(attachment.name);
-      setIsPreviewModalOpen(true);
-    } else if (fileExtension === 'pdf') {
-      setPreviewFileType('document');
-      setPreviewFileUrl(attachment.fileUrl);
-      setPreviewFileName(attachment.name);
-      setIsPreviewModalOpen(true);
-    } else {
-      showError("Este tipo de arquivo não pode ser visualizado diretamente. Tente fazer o download.");
-    }
+    setPreviewFileType(attachment.type);
+    setPreviewFileUrl(attachment.fileUrl);
+    setPreviewFileName(attachment.name);
+    setIsPreviewModalOpen(true);
   };
 
   const getFileIcon = (type: Attachment['type']) => {
     if (type === 'image') {
       return <Image className="h-5 w-5 text-blue-500" />;
     }
-    return <FileText className="h-5 w-5 text-gray-500" />;
+    if (type === 'document') {
+      return <FileText className="h-5 w-5 text-gray-500" />;
+    }
+    return <FileText className="h-5 w-5 text-gray-500" />; // Ícone padrão para 'other'
   };
 
   return (
@@ -149,14 +234,14 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
               type="file" 
               onChange={handleFileChange} 
               className="flex-grow"
+              disabled={isUploading}
             />
             <Button 
               onClick={handleUpload} 
-              disabled={!selectedFile}
+              disabled={!selectedFile || isUploading}
               className="sm:w-auto w-full"
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload
+              {isUploading ? "A carregar..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
             </Button>
           </div>
           {selectedFile && (
@@ -167,20 +252,25 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
         {/* Lista de Anexos */}
         <div className="space-y-3">
           <h4 className="text-md font-semibold">Arquivos Anexados:</h4>
-          {attachments.length > 0 ? (
+          {isLoadingAttachments ? (
+            <div className="space-y-2">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : attachments.length > 0 ? (
             <div className="divide-y">
               {attachments.map((att) => (
                 <div key={att.id} className="py-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-3 min-w-0"> {/* Adicionado min-w-0 */}
+                  <div className="flex items-center space-x-3 min-w-0">
                     {getFileIcon(att.type)}
-                    <div className="min-w-0"> {/* Adicionado min-w-0 */}
-                      <p className="font-medium text-sm truncate">{att.name}</p> {/* Adicionado truncate */}
-                      <p className="text-xs text-muted-foreground truncate"> {/* Adicionado truncate */}
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{att.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2 flex-shrink-0"> {/* Adicionado flex-shrink-0 */}
+                  <div className="flex space-x-2 flex-shrink-0">
                     <Button variant="ghost" size="icon" onClick={() => handlePreview(att)} aria-label="Visualizar">
                         <Eye className="h-4 w-4" />
                     </Button>
@@ -189,7 +279,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                             <Download className="h-4 w-4" />
                         </Button>
                     </a>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(att.id)} aria-label="Remover">
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(att.id, att.name)} aria-label="Remover">
                         <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
