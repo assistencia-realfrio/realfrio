@@ -56,12 +56,13 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     return (
         <div 
             className={cn(
-                "hover:shadow-lg transition-shadow flex relative rounded-lg bg-card" // Removido statusCardClasses, adicionado bg-card
+                "hover:shadow-lg transition-shadow flex relative rounded-lg bg-card border" // Adicionado 'border' para o contorno
             )} 
         >
-            {/* A barra esquerda para a loja foi removida */}
+            {/* Barra esquerda para o status */}
+            <div className="w-2 rounded-l-md" style={{ backgroundColor: statusBgColor }} />
 
-            <div className="flex flex-col flex-grow p-3">
+            <div className="flex flex-col flex-grow p-3 rounded-r-md"> {/* Adicionado rounded-r-md aqui */}
                 <div className="flex flex-row items-start justify-between space-y-0 pb-1">
                     <div 
                         className={cn("text-xs font-medium truncate cursor-pointer", storeTextColorClass)} // Aplicando a cor da loja ao texto do ID da OS
@@ -126,8 +127,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                 </div>
             </div>
-            {/* Barra direita para o status (mais discreta) */}
-            <div className="w-2 rounded-r-md" style={{ backgroundColor: statusBgColor }} />
         </div>
     );
 };
