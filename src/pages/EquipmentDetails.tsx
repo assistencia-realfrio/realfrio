@@ -21,8 +21,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import ActivityLog from "@/components/ActivityLog";
-import EquipmentOrdersTab from "@/components/EquipmentOrdersTab"; // Importando o novo componente
-import EquipmentDetailsBottomNav from "@/components/EquipmentDetailsBottomNav"; // Importando a nova navegação
+import EquipmentOrdersTab from "@/components/EquipmentOrdersTab";
+import EquipmentDetailsBottomNav from "@/components/EquipmentDetailsBottomNav";
+import EquipmentAttachments from "@/components/EquipmentAttachments"; // Importando o novo componente de anexos
 
 const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,7 +32,7 @@ const EquipmentDetails: React.FC = () => {
   const { singleEquipment: equipment, isLoading, deleteEquipment } = useEquipments(undefined, id);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedView, setSelectedView] = useState<"details" | "orders" | "history">("details"); // Novo estado para a visualização
+  const [selectedView, setSelectedView] = useState<"details" | "orders" | "attachments" | "history">("details"); // Novo estado para a visualização
 
   const handleGoBack = () => navigate(-1);
 
@@ -154,7 +155,11 @@ const EquipmentDetails: React.FC = () => {
           <EquipmentOrdersTab equipmentId={equipment.id} />
         )}
 
-        {selectedView === "history" && (
+        {selectedView === "attachments" && ( // Nova aba para anexos do equipamento
+          <EquipmentAttachments equipmentId={equipment.id} />
+        )}
+
+        {selectedView === "history" && ( // Aba de histórico de atividades do equipamento
           <ActivityLog entityType="equipment" entityId={equipment.id} />
         )}
       </div>
