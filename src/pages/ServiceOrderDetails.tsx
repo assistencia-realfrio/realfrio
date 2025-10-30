@@ -24,19 +24,6 @@ import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
 import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
-import { cn } from "@/lib/utils"; // Importar cn para combinar classes
-
-// Função auxiliar para obter a classe de cor de fundo da loja
-const getStoreBackgroundColorClass = (store: 'CALDAS DA RAINHA' | 'PORTO DE MÓS' | null | undefined) => {
-  switch (store) {
-    case "CALDAS DA RAINHA":
-      return "bg-blue-50"; // Azul muito claro
-    case "PORTO DE MÓS":
-      return "bg-red-50"; // Vermelho muito claro
-    default:
-      return "bg-gray-50"; // Cinza muito claro como padrão
-  }
-};
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -122,13 +109,7 @@ const ServiceOrderDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div 
-        className={cn(
-          "space-y-6 pb-20",
-          !isNew && order ? getStoreBackgroundColorClass(order.store) : "bg-background", // Aplica a cor da loja ou background padrão
-          !isNew && order ? "bg-opacity-40" : "" // Aplica opacidade se houver cor de loja
-        )}
-      >
+      <div className="space-y-6 pb-20">
         <div className="flex items-center justify-between gap-2">
             <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
