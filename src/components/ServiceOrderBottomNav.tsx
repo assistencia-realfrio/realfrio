@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileText, Paperclip, History, List, HardDrive } from 'lucide-react'; // Adicionado List e HardDrive
+import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from 'lucide-react'; // Adicionado MessageSquareText
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'attachments' | 'equipment' | 'activity'; // 'history' renomeado para 'equipment', 'activity' adicionado
+type View = 'details' | 'attachments' | 'equipment' | 'activity' | 'notes'; // 'notes' adicionado
 
 interface ServiceOrderBottomNavProps {
   selectedView: View;
@@ -14,13 +14,14 @@ interface ServiceOrderBottomNavProps {
 const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'attachments', icon: Paperclip, label: 'Anexos' },
-  { id: 'equipment', icon: HardDrive, label: 'Equipamento' }, // Renomeado e ícone HardDrive
-  { id: 'activity', icon: List, label: 'Atividade' }, // Novo item para o log de atividades da OS
+  { id: 'equipment', icon: HardDrive, label: 'Equipamento' },
+  { id: 'activity', icon: List, label: 'Atividade' },
+  { id: 'notes', icon: MessageSquareText, label: 'Notas' }, // Novo item para Notas
 ];
 
 const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedView, onSelectView, canAccessTabs }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64"> {/* Alterado aqui */}
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64">
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
           <Button
