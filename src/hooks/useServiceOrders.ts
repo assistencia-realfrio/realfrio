@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/contexts/SessionContext";
+import { useSession } from "@/contexts/SessionContext"; // Importar useSession
 import { format } from "date-fns";
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
 import { logActivity } from "@/utils/activityLogger";
@@ -108,7 +108,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
 };
 
 export const useServiceOrders = (id?: string) => {
-  const { user } = useSession();
+  const { user, session } = useSession(); // Obter o objeto session
   const queryClient = useQueryClient();
 
   const queryKey = id ? ['serviceOrders', id] : ['serviceOrders'];
@@ -209,18 +209,24 @@ export const useServiceOrders = (id?: string) => {
       if (updatedOrder.status === 'CONCLUIDA' && oldOrder?.status !== 'CONCLUIDA') {
         try {
           console.log(`Triggering report generation for order ${updatedOrder.id}`);
+          
+          if (!session?.access_token) {
+            throw new Error("Token de acesso não disponível para gerar relatório.");
+          }
+
           const response = await fetch(`https://idjzzxirjcqkhmodweiu.supabase.co/functions/v1/generate-report`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user?.id}`, // Pass user ID for RLS in Edge Function
+              'Authorization': `Bearer ${session.access_token}`, // CORRIGIDO: Usar o access_token do session
             },
             body: JSON.stringify({ orderId: updatedOrder.id }),
           });
 
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to generate report');
+            console.error("Erro detalhado da Edge Function:", errorData); // Log mais detalhado
+            throw new Error(errorData.error || 'Falha ao gerar relatório na Edge Function.');
           }
 
           const { reportUrl } = await response.json();
@@ -234,8 +240,8 @@ export const useServiceOrders = (id?: string) => {
 
           if (updateReportUrlError) throw updateReportUrlError;
           updatedOrder.report_url = reportUrl; // Update local object for immediate UI refresh
-        } catch (reportError) {
-          console.error("Erro ao gerar relatório:", reportError);
+        } catch (reportError: any) {
+          console.error("Erro ao gerar relatório:", reportError.message || reportError);
           showError("Erro ao gerar relatório da OS. Por favor, gere manualmente.");
         }
       }
