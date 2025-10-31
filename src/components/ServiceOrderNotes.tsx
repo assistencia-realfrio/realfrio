@@ -134,17 +134,19 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
               <Skeleton className="h-16 w-full" />
             </div>
           ) : notes && notes.length > 0 ? (
-            <ul className="space-y-4">
-              {notes.map((note) => (
-                <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0">
-                  <p className="text-sm text-foreground mb-1">{note.content}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Por <span className="font-medium">{note.user_full_name}</span> •{" "}
-                    {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
-                  </p>
-                </li>
-              ))}
-            </ul>
+            <div className="max-h-[200px] overflow-y-auto pr-2"> {/* Adicionado max-h e overflow-y-auto */}
+              <ul className="space-y-4">
+                {notes.map((note) => (
+                  <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0">
+                    <p className="text-sm text-foreground mb-1">{note.content}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Por <span className="font-medium">{note.user_full_name}</span> •{" "}
+                      {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : (
             <p className="text-center text-muted-foreground text-sm">Nenhuma nota adicionada ainda.</p>
           )}
