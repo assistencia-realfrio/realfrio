@@ -33,14 +33,13 @@ const ServiceOrders: React.FC = () => {
   
   const { orders, isLoading } = useServiceOrders();
 
-  // Filtra para mostrar apenas OS ativas na página principal
-  const activeOrders = useMemo(() => {
-    return orders.filter(order => isActiveStatus(order.status));
-  }, [orders]);
+  // Removido o filtro para mostrar apenas OS ativas na página principal
+  // Agora, 'orders' já contém todas as ordens, e o filtro será aplicado abaixo.
+  const allOrders = orders;
 
-  // Filtra os status disponíveis para o dropdown, removendo os inativos
+  // Filtra os status disponíveis para o dropdown, agora incluindo todos
   const availableStatuses = useMemo(() => {
-    return serviceOrderStatuses.filter(status => isActiveStatus(status));
+    return serviceOrderStatuses; // Retorna todos os status
   }, []);
 
   useEffect(() => {
@@ -58,10 +57,10 @@ const ServiceOrders: React.FC = () => {
 
   const ordersFilteredByStore = useMemo(() => {
     if (selectedStore === 'ALL') {
-      return activeOrders;
+      return allOrders;
     }
-    return activeOrders.filter(order => order.store === selectedStore);
-  }, [activeOrders, selectedStore]);
+    return allOrders.filter(order => order.store === selectedStore);
+  }, [allOrders, selectedStore]);
 
   const statusCounts = useMemo(() => {
     return ordersFilteredByStore.reduce((acc, order) => {
@@ -113,9 +112,9 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  const allOrdersCount = activeOrders.length;
-  const caldasOrdersCount = activeOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = activeOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+  const allOrdersCount = allOrders.length;
+  const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>
