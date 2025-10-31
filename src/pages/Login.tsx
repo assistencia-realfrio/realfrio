@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/contexts/SessionContext';
 import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wrench } from 'lucide-react';
+// import { Wrench } from 'lucide-react'; // Removido o ícone Wrench
 
 const Login: React.FC = () => {
   const { session, isLoading } = useSession();
@@ -27,8 +27,9 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
-          <Wrench className="h-8 w-8 text-primary mx-auto" />
-          <CardTitle className="text-2xl font-bold">Gestão de OS</CardTitle>
+          {/* Substituído o ícone Wrench pelo logo da empresa */}
+          <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-16 mx-auto mb-2" />
+          <CardTitle className="text-2xl font-bold">Gestão de Ordens de Serviço</CardTitle> {/* Título atualizado */}
           <p className="text-sm text-muted-foreground">Faça login para acessar o sistema.</p>
         </CardHeader>
         <CardContent>
