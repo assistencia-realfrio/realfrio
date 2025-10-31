@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageSquareText, Send } from "lucide-react";
+import { MessageSquareText, Send, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useSession } from "@/contexts/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,33 @@ import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { logActivity } from "@/utils/activityLogger";
 
 interface Note {
   id: string;
@@ -56,6 +83,9 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [editedContent, setEditedContent] = useState("");
 
   const { data: notes, isLoading: isLoadingNotes } = useQuery<Note[], Error>({
     queryKey: ['serviceOrderNotes', orderId],
@@ -80,9 +110,16 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (newNote) => {
       setNewNoteContent("");
       queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
+      logActivity(user, {
+        entity_type: 'service_order',
+        entity_id: orderId,
+        action_type: 'created',
+        content: `Adicionou uma nota à OS.`,
+        details: { noteContent: { newValue: newNote.content } }
+      });
       showSuccess("Nota adicionada com sucesso!");
     },
     onError: (error) => {
@@ -91,10 +128,93 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
     },
   });
 
+  const updateNoteMutation = useMutation({
+    mutationFn: async ({ id, content }: { id: string; content: string }) => {
+      if (!user?.id) throw new Error("Usuário não autenticado.");
+
+      const { data, error } = await supabase
+        .from('service_order_notes')
+        .update({ content: content })
+        .eq('id', id)
+        .eq('user_id', user.id) // Garante que apenas o próprio utilizador pode editar
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (updatedNote) => {
+      queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
+      logActivity(user, {
+        entity_type: 'service_order',
+        entity_id: orderId,
+        action_type: 'updated',
+        content: `Editou uma nota na OS.`,
+        details: { noteContent: { newValue: updatedNote.content } }
+      });
+      showSuccess("Nota atualizada com sucesso!");
+      setIsEditModalOpen(false);
+      setEditingNote(null);
+      setEditedContent("");
+    },
+    onError: (error) => {
+      console.error("Erro ao atualizar nota:", error);
+      showError("Erro ao atualizar nota. Tente novamente.");
+    },
+  });
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user?.id) throw new Error("Usuário não autenticado.");
+
+      const { error } = await supabase
+        .from('service_order_notes')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id); // Garante que apenas o próprio utilizador pode excluir
+
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: (deletedNoteId) => {
+      queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
+      logActivity(user, {
+        entity_type: 'service_order',
+        entity_id: orderId,
+        action_type: 'deleted',
+        content: `Removeu uma nota da OS.`,
+        details: { noteId: { oldValue: deletedNoteId, newValue: 'Removido' } }
+      });
+      showSuccess("Nota removida com sucesso!");
+    },
+    onError: (error) => {
+      console.error("Erro ao remover nota:", error);
+      showError("Erro ao remover nota. Tente novamente.");
+    },
+  });
+
   const handleAddNote = () => {
     if (newNoteContent.trim() && !addNoteMutation.isPending) {
       addNoteMutation.mutate(newNoteContent);
     }
+  };
+
+  const handleEditClick = (note: Note) => {
+    setEditingNote(note);
+    setEditedContent(note.content);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingNote && editedContent.trim() && !updateNoteMutation.isPending) {
+      updateNoteMutation.mutate({ id: editingNote.id, content: editedContent });
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditModalOpen(false);
+    setEditingNote(null);
+    setEditedContent("");
   };
 
   return (
@@ -134,15 +254,58 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
               <Skeleton className="h-16 w-full" />
             </div>
           ) : notes && notes.length > 0 ? (
-            <div className="max-h-[200px] overflow-y-auto pr-2"> {/* Adicionado max-h e overflow-y-auto */}
+            <div className="max-h-[200px] overflow-y-auto pr-2">
               <ul className="space-y-4">
                 {notes.map((note) => (
-                  <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0">
-                    <p className="text-sm text-foreground mb-1">{note.content}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Por <span className="font-medium">{note.user_full_name}</span> •{" "}
-                      {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
-                    </p>
+                  <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0 flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground mb-1">{note.content}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Por <span className="font-medium">{note.user_full_name}</span> •{" "}
+                        {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
+                      </p>
+                    </div>
+                    {user?.id === note.user_id && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Ações da Nota</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleEditClick(note)}>
+                            <Edit className="mr-2 h-4 w-4" /> Editar
+                          </DropdownMenuItem>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação não pode ser desfeita. Isso excluirá permanentemente esta nota.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => deleteNoteMutation.mutate(note.id)} 
+                                  className="bg-destructive hover:bg-destructive/90"
+                                  disabled={deleteNoteMutation.isPending}
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -152,6 +315,31 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
           )}
         </div>
       </CardContent>
+
+      {/* Modal de Edição de Nota */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Editar Nota</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              rows={5}
+              disabled={updateNoteMutation.isPending}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelEdit} disabled={updateNoteMutation.isPending}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={!editedContent.trim() || updateNoteMutation.isPending}>
+              Salvar Alterações
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
