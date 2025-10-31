@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, FileText } from "lucide-react"; // Importar FileText
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -123,8 +123,19 @@ const ServiceOrderDetails: React.FC = () => {
                   )}
                 </h2>
             </div>
-            {!isNew && (
-                <div className="flex flex-shrink-0">
+            <div className="flex flex-shrink-0 space-x-2"> {/* Adicionado flex-shrink-0 e space-x-2 */}
+                {order?.report_url && (
+                    <a href={order.report_url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="icon" aria-label="Ver Relatório" className="sm:hidden">
+                            <FileText className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" className="hidden sm:flex">
+                            <FileText className="h-4 w-4 mr-2" />
+                            Ver Relatório
+                        </Button>
+                    </a>
+                )}
+                {!isNew && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
@@ -151,8 +162,8 @@ const ServiceOrderDetails: React.FC = () => {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-                </div>
-            )}
+                )}
+            </div>
         </div>
           
         {selectedView === "details" && (
@@ -165,7 +176,6 @@ const ServiceOrderDetails: React.FC = () => {
                 initialData={initialData} 
                 onSubmit={handleSubmit} 
                 onCancel={isNew ? handleGoBack : undefined}
-                // orderIdForNotes={canAccessTabs ? currentOrderId : undefined} // Removido
               />
             </CardContent>
           </Card>

@@ -4,6 +4,7 @@ import { useSession } from "@/contexts/SessionContext";
 import { format } from "date-fns";
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
 import { logActivity } from "@/utils/activityLogger";
+import { showError } from "@/utils/toast"; // Importar showError
 
 export type { ServiceOrderStatus };
 export { serviceOrderStatuses };
@@ -22,9 +23,10 @@ export interface ServiceOrder {
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
   updated_at: string | null; // Adicionado campo de atualização
+  report_url: string | null; // NOVO: URL para o relatório gerado
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'report_url' | 'equipment_id' | 'updated_at'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
@@ -58,6 +60,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       updated_at,
       client_id,
       equipment_id,
+      report_url,
       clients (name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
@@ -81,6 +84,7 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
+        report_url: order.report_url, // Mapear o novo campo
     };
   }) as ServiceOrder[];
 
@@ -172,7 +176,7 @@ export const useServiceOrders = (id?: string) => {
       // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store') // Incluir mais campos para comparação
+        .select('status, description, equipment, model, serial_number, store, report_url') // Incluir report_url
         .eq('id', id)
         .single();
 
@@ -198,7 +202,46 @@ export const useServiceOrders = (id?: string) => {
         .single();
 
       if (error) throw error;
-      return { updatedOrder: data as ServiceOrder, oldOrder: oldOrder as typeof oldOrder | null };
+      
+      const updatedOrder = data as ServiceOrder;
+
+      // --- Lógica para gerar relatório se o status mudou para CONCLUIDA ---
+      if (updatedOrder.status === 'CONCLUIDA' && oldOrder?.status !== 'CONCLUIDA') {
+        try {
+          console.log(`Triggering report generation for order ${updatedOrder.id}`);
+          const response = await fetch(`https://idjzzxirjcqkhmodweiu.supabase.co/functions/v1/generate-report`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${user?.id}`, // Pass user ID for RLS in Edge Function
+            },
+            body: JSON.stringify({ orderId: updatedOrder.id }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate report');
+          }
+
+          const { reportUrl } = await response.json();
+          console.log('Report generated:', reportUrl);
+
+          // Update the order with the generated report URL
+          const { error: updateReportUrlError } = await supabase
+            .from('service_orders')
+            .update({ report_url: reportUrl })
+            .eq('id', updatedOrder.id);
+
+          if (updateReportUrlError) throw updateReportUrlError;
+          updatedOrder.report_url = reportUrl; // Update local object for immediate UI refresh
+        } catch (reportError) {
+          console.error("Erro ao gerar relatório:", reportError);
+          showError("Erro ao gerar relatório da OS. Por favor, gere manualmente.");
+        }
+      }
+      // --- Fim da lógica de relatório ---
+
+      return { updatedOrder: updatedOrder, oldOrder: oldOrder as typeof oldOrder | null };
     },
     onSuccess: ({ updatedOrder, oldOrder }) => {
       let logContent = `OS "${updatedOrder.display_id}" foi atualizada.`;
