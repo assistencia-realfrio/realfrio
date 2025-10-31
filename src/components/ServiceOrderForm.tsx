@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
+import ServiceOrderNotes from "./ServiceOrderNotes"; // Importar o componente de notas
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -48,6 +49,7 @@ interface ServiceOrderFormProps {
   initialData?: InitialData;
   onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
   onCancel?: () => void;
+  orderIdForNotes?: string; // Novo prop para passar o ID da OS para as notas
 }
 
 // Função auxiliar para verificar se o link é do Google Maps ou coordenadas
@@ -56,7 +58,7 @@ const isGoogleMapsLink = (mapsLink: string | null): boolean => {
   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
-const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
+const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel, orderIdForNotes }) => {
   const navigate = useNavigate();
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
@@ -320,6 +322,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
         
+        {/* Renderiza o componente ServiceOrderNotes aqui, entre a descrição e os botões */}
+        {orderIdForNotes && <ServiceOrderNotes orderId={orderIdForNotes} />}
+
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">

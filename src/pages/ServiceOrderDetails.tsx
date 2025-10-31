@@ -156,21 +156,19 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <>
-            {canAccessTabs && currentOrderId && <ServiceOrderNotes orderId={currentOrderId} />} {/* Movido para cima */}
-            <Card className="shadow-none border-none">
-              <CardHeader>
-                <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ServiceOrderForm 
-                  initialData={initialData} 
-                  onSubmit={handleSubmit} 
-                  onCancel={isNew ? handleGoBack : undefined}
-                />
-              </CardContent>
-            </Card>
-          </>
+          <Card className="shadow-none border-none">
+            <CardHeader>
+              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ServiceOrderForm 
+                initialData={initialData} 
+                onSubmit={handleSubmit} 
+                onCancel={isNew ? handleGoBack : undefined}
+                orderIdForNotes={canAccessTabs ? currentOrderId : undefined} // Passa o ID da OS para o formulário
+              />
+            </CardContent>
+          </Card>
         )}
 
         {selectedView === "attachments" && (
