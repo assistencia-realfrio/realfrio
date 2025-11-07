@@ -177,15 +177,18 @@ serve(async (req) => {
 
     console.log('Report HTML generated.');
 
-    // Upload the HTML content to Supabase Storage
+    // Convert the HTML string to a Blob with the correct content type and charset
+    const reportBlob = new Blob([reportHtml], { type: 'text/html; charset=utf-8' });
+
+    // Upload the Blob content to Supabase Storage
     const reportFileName = `report-${orderData.display_id}.html`; // Store as HTML
     const reportPath = `${orderData.created_by}/${orderId}/${reportFileName}`; // Path: user_id/order_id/report-id.html
 
     console.log(`Uploading report to path: ${reportPath}`);
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('reports')
-      .upload(reportPath, reportHtml, {
-        contentType: 'text/html', // Specify content type as HTML
+      .upload(reportPath, reportBlob, { // Use reportBlob here
+        contentType: 'text/html; charset=utf-8', // Explicitly set again, just in case
         upsert: true, // Overwrite if exists
       });
 
