@@ -10,12 +10,15 @@ const corsHeaders = {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
+    console.log('OPTIONS request received');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { orderId } = await req.json();
+    console.log(`Received request to generate report for orderId: ${orderId}`);
     if (!orderId) {
+      console.error('Error: Missing orderId in request body');
       return new Response(JSON.stringify({ error: 'Missing orderId' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
@@ -30,7 +33,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Fetch Service Order details
+    console.log(`Fetching order details for orderId: ${orderId}`);
     const { data: orderData, error: orderError } = await supabaseAdmin
       .from('service_orders')
       .select(`
@@ -42,15 +45,21 @@ serve(async (req) => {
       .eq('id', orderId)
       .single();
 
-    if (orderError) throw orderError;
+    if (orderError) {
+      console.error('Supabase order fetch error:', orderError);
+      throw orderError;
+    }
     if (!orderData) {
+      console.error('Service Order not found for orderId:', orderId);
       return new Response(JSON.stringify({ error: 'Service Order not found' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 404,
       });
     }
+    console.log('Order data fetched successfully.');
 
     // Fetch Notes for the Service Order
+    console.log('Fetching notes for the Service Order');
     const { data: notesData, error: notesError } = await supabaseAdmin
       .from('service_order_notes')
       .select(`
@@ -61,7 +70,11 @@ serve(async (req) => {
       .eq('service_order_id', orderId)
       .order('created_at', { ascending: true });
 
-    if (notesError) throw notesError;
+    if (notesError) {
+      console.error('Supabase notes fetch error:', notesError);
+      throw notesError;
+    }
+    console.log('Notes data fetched successfully.');
 
     const clientName = orderData.clients ? (Array.isArray(orderData.clients) ? orderData.clients[0]?.name : orderData.clients.name) : 'N/A';
     const clientContact = orderData.clients ? (Array.isArray(orderData.clients) ? orderData.clients[0]?.contact : orderData.clients.contact) : 'N/A';
@@ -162,10 +175,13 @@ serve(async (req) => {
       </html>
     `;
 
+    console.log('Report HTML generated.');
+
     // Upload the HTML content to Supabase Storage
     const reportFileName = `report-${orderData.display_id}.html`; // Store as HTML
     const reportPath = `${orderData.created_by}/${orderId}/${reportFileName}`; // Path: user_id/order_id/report-id.html
 
+    console.log(`Uploading report to path: ${reportPath}`);
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
       .from('reports')
       .upload(reportPath, reportHtml, {
@@ -173,18 +189,28 @@ serve(async (req) => {
         upsert: true, // Overwrite if exists
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Supabase storage upload error:', uploadError);
+      throw uploadError;
+    }
+    console.log('Report uploaded successfully.');
 
     const { data: publicUrlData } = supabaseAdmin.storage.from('reports').getPublicUrl(reportPath);
     const reportUrl = publicUrlData.publicUrl;
+    console.log('Public report URL:', reportUrl);
 
     // Update the service_orders table with the report URL
+    console.log(`Updating service_orders table with report_url: ${reportUrl}`);
     const { error: updateError } = await supabaseAdmin
       .from('service_orders')
       .update({ report_url: reportUrl })
       .eq('id', orderId);
 
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error('Supabase update report_url error:', updateError);
+      throw updateError;
+    }
+    console.log('Service order updated with report URL.');
 
     return new Response(JSON.stringify({ reportUrl }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -192,8 +218,8 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error generating report:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('Error generating report in Edge Function:', error.message || error);
+    return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });

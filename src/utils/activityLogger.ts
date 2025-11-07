@@ -1,10 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
-interface ActivityLog {
-  entity_type: 'service_order' | 'client' | 'equipment' | 'profile'; // 'profile' adicionado aqui
+export interface ActivityLog {
+  entity_type: 'service_order' | 'client' | 'equipment' | 'profile';
   entity_id: string;
-  action_type: 'created' | 'updated' | 'deleted' | 'status_changed';
+  action_type: 'created' | 'updated' | 'deleted' | 'status_changed' | 'report_generated' | 'report_generation_failed'; // Adicionados novos tipos de ação
   content: string;
   details?: Record<string, any>;
 }
