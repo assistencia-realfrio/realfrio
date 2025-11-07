@@ -14,9 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const { orderId } = await req.json();
+    // Extract orderId from URL query parameters
+    const url = new URL(req.url);
+    const orderId = url.searchParams.get('orderId');
+
     if (!orderId) {
-      return new Response(JSON.stringify({ error: 'Missing orderId' }), {
+      return new Response(JSON.stringify({ error: 'Missing orderId query parameter' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
       });
@@ -162,32 +165,12 @@ serve(async (req) => {
       </html>
     `;
 
-    // Upload the HTML content to Supabase Storage
-    const reportFileName = `report-${orderData.display_id}.html`; // Store as HTML
-    const reportPath = `${orderData.created_by}/${orderId}/${reportFileName}`; // Path: user_id/order_id/report-id.html
+    // Create a Blob with the correct MIME type
+    const reportBlob = new Blob([reportHtml], { type: 'text/html; charset=utf-8' });
 
-    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-      .from('reports')
-      .upload(reportPath, reportHtml, {
-        contentType: 'text/html', // Specify content type as HTML
-        upsert: true, // Overwrite if exists
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { data: publicUrlData } = supabaseAdmin.storage.from('reports').getPublicUrl(reportPath);
-    const reportUrl = publicUrlData.publicUrl;
-
-    // Update the service_orders table with the report URL
-    const { error: updateError } = await supabaseAdmin
-      .from('service_orders')
-      .update({ report_url: reportUrl })
-      .eq('id', orderId);
-
-    if (updateError) throw updateError;
-
-    return new Response(JSON.stringify({ reportUrl }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Return the Blob in the Response. This should force the Content-Type header.
+    return new Response(reportBlob, {
+      headers: corsHeaders,
       status: 200,
     });
 
