@@ -14,12 +14,27 @@ serve(async (req) => {
   }
 
   try {
-    // Extract orderId from URL query parameters
-    const url = new URL(req.url);
-    const orderId = url.searchParams.get('orderId');
+    let orderId: string | null = null;
 
+    // Try to get orderId from POST body first
+    if (req.method === 'POST') {
+      try {
+        const body = await req.json();
+        orderId = body.orderId;
+      } catch (e) {
+        // Ignore JSON parsing errors if body is empty or not JSON
+      }
+    }
+
+    // If not found in body, try to get it from URL query parameters
     if (!orderId) {
-      return new Response(JSON.stringify({ error: 'Missing orderId query parameter' }), {
+      const url = new URL(req.url);
+      orderId = url.searchParams.get('orderId');
+    }
+
+    // If still no orderId, return an error
+    if (!orderId) {
+      return new Response(JSON.stringify({ error: 'Missing orderId in request body or query parameter' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
       });
@@ -170,7 +185,7 @@ serve(async (req) => {
 
     // Return the Blob in the Response. This should force the Content-Type header.
     return new Response(reportBlob, {
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
       status: 200,
     });
 

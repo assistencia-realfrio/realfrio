@@ -208,41 +208,22 @@ export const useServiceOrders = (id?: string) => {
       // --- Lógica para gerar relatório se o status mudou para CONCLUIDA ---
       if (updatedOrder.status === 'CONCLUIDA' && oldOrder?.status !== 'CONCLUIDA') {
         try {
-          console.log(`Triggering report generation for order ${updatedOrder.id}`);
+          console.log(`Setting report URL for order ${updatedOrder.id}`);
           
-          if (!session?.access_token) {
-            throw new Error("Token de acesso não disponível para gerar relatório.");
-          }
+          // Construct the URL to the Edge Function itself
+          const edgeFunctionUrl = `https://idjzzxirjcqkhmodweiu.supabase.co/functions/v1/generate-report?orderId=${updatedOrder.id}`;
 
-          const response = await fetch(`https://idjzzxirjcqkhmodweiu.supabase.co/functions/v1/generate-report`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`, // CORRIGIDO: Usar o access_token do session
-            },
-            body: JSON.stringify({ orderId: updatedOrder.id }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Erro detalhado da Edge Function:", errorData); // Log mais detalhado
-            throw new Error(errorData.error || 'Falha ao gerar relatório na Edge Function.');
-          }
-
-          const { reportUrl } = await response.json();
-          console.log('Report generated:', reportUrl);
-
-          // Update the order with the generated report URL
+          // Update the order with the generated report URL (which is now the Edge Function URL)
           const { error: updateReportUrlError } = await supabase
             .from('service_orders')
-            .update({ report_url: reportUrl })
+            .update({ report_url: edgeFunctionUrl }) // Store the Edge Function URL
             .eq('id', updatedOrder.id);
 
           if (updateReportUrlError) throw updateReportUrlError;
-          updatedOrder.report_url = reportUrl; // Update local object for immediate UI refresh
+          updatedOrder.report_url = edgeFunctionUrl; // Update local object for immediate UI refresh
         } catch (reportError: any) {
-          console.error("Erro ao gerar relatório:", reportError.message || reportError);
-          showError("Erro ao gerar relatório da OS. Por favor, gere manualmente.");
+          console.error("Erro ao gerar URL do relatório:", reportError.message || reportError);
+          showError("Erro ao gerar URL do relatório da OS.");
         }
       }
       // --- Fim da lógica de relatório ---
