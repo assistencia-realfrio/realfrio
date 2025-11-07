@@ -176,7 +176,7 @@ export const useServiceOrders = (id?: string) => {
       // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, report_url, display_id') // Incluir report_url e display_id
+        .select('status, description, equipment, model, serial_number, store, report_url') // Incluir report_url
         .eq('id', id)
         .single();
 
@@ -226,13 +226,6 @@ export const useServiceOrders = (id?: string) => {
           if (!response.ok) {
             const errorData = await response.json();
             console.error("Erro detalhado da Edge Function:", errorData); // Log mais detalhado
-            logActivity(user, {
-              entity_type: 'service_order',
-              entity_id: updatedOrder.id,
-              action_type: 'report_generation_failed',
-              content: `Falha ao gerar relatório para OS "${updatedOrder.display_id}".`,
-              details: { error: errorData.error || 'Unknown error from Edge Function' }
-            });
             throw new Error(errorData.error || 'Falha ao gerar relatório na Edge Function.');
           }
 
@@ -247,25 +240,9 @@ export const useServiceOrders = (id?: string) => {
 
           if (updateReportUrlError) throw updateReportUrlError;
           updatedOrder.report_url = reportUrl; // Update local object for immediate UI refresh
-
-          logActivity(user, {
-            entity_type: 'service_order',
-            entity_id: updatedOrder.id,
-            action_type: 'report_generated',
-            content: `Relatório gerado para OS "${updatedOrder.display_id}".`,
-            details: { reportUrl: { newValue: reportUrl } }
-          });
-
         } catch (reportError: any) {
           console.error("Erro ao gerar relatório:", reportError.message || reportError);
           showError("Erro ao gerar relatório da OS. Por favor, gere manualmente.");
-          logActivity(user, {
-            entity_type: 'service_order',
-            entity_id: updatedOrder.id,
-            action_type: 'report_generation_failed',
-            content: `Falha ao gerar relatório para OS "${updatedOrder.display_id}".`,
-            details: { error: reportError.message || 'Unknown error' }
-          });
         }
       }
       // --- Fim da lógica de relatório ---
