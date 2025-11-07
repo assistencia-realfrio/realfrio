@@ -180,12 +180,19 @@ serve(async (req) => {
       </html>
     `;
 
-    // Create a Blob with the correct MIME type
-    const reportBlob = new Blob([reportHtml], { type: 'text/html; charset=utf-8' });
+    // Create a Blob with the correct MIME type (PDF)
+    const reportBlob = new Blob([reportHtml], { type: 'application/pdf; charset=utf-8' });
+    
+    // Set the filename for download
+    const filename = `Relatorio_OS_${orderData.display_id}.pdf`;
 
-    // Return the Blob in the Response. This should force the Content-Type header.
+    // Return the Blob in the Response, forcing download
     return new Response(reportBlob, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'application/pdf; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+      },
       status: 200,
     });
 
