@@ -120,9 +120,22 @@ serve(async (req) => {
               .note-date { font-size: 0.8em; color: #666; }
               .header-logo { text-align: center; margin-bottom: 20px; }
               .header-logo img { max-height: 80px; }
+              
+              /* Estilos para impressão */
+              @media print {
+                .container {
+                  box-shadow: none;
+                  border: none;
+                  padding: 0;
+                  max-width: 100%;
+                }
+                body {
+                  margin: 0;
+                }
+              }
           </style>
       </head>
-      <body>
+      <body onload="window.print()">
           <div class="container">
               <div class="header-logo">
                   <img src="https://idjzzxirjcqkhmodweiu.supabase.co/storage/v1/object/public/reports/logo-REAL-FRIO.png" alt="Real Frio Logo">
@@ -180,18 +193,14 @@ serve(async (req) => {
       </html>
     `;
 
-    // Create a Blob with the correct MIME type (PDF)
-    const reportBlob = new Blob([reportHtml], { type: 'application/pdf; charset=utf-8' });
+    // Create a Blob with the correct MIME type
+    const reportBlob = new Blob([reportHtml], { type: 'text/html; charset=utf-8' });
     
-    // Set the filename for download
-    const filename = `Relatorio_OS_${orderData.display_id}.pdf`;
-
-    // Return the Blob in the Response, forcing download
+    // Return the Blob in the Response, forcing the browser to render HTML and execute the print script
     return new Response(reportBlob, {
       headers: { 
         ...corsHeaders, 
-        'Content-Type': 'application/pdf; charset=utf-8',
-        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Type': 'text/html; charset=utf-8',
       },
       status: 200,
     });
