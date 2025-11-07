@@ -23,10 +23,9 @@ export interface ServiceOrder {
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
   updated_at: string | null; // Adicionado campo de atualização
-  report_url: string | null; // NOVO: URL para o relatório gerado
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'report_url' | 'equipment_id' | 'updated_at'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
@@ -60,7 +59,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       updated_at,
       client_id,
       equipment_id,
-      report_url,
       clients (name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
@@ -84,7 +82,6 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
-        report_url: order.report_url, // Mapear o novo campo
     };
   }) as ServiceOrder[];
 
@@ -176,7 +173,7 @@ export const useServiceOrders = (id?: string) => {
       // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, report_url') // Incluir report_url
+        .select('status, description, equipment, model, serial_number, store')
         .eq('id', id)
         .single();
 
@@ -204,29 +201,6 @@ export const useServiceOrders = (id?: string) => {
       if (error) throw error;
       
       const updatedOrder = data as ServiceOrder;
-
-      // --- Lógica para gerar relatório se o status mudou para CONCLUIDA ---
-      if (updatedOrder.status === 'CONCLUIDA' && oldOrder?.status !== 'CONCLUIDA') {
-        try {
-          console.log(`Setting report URL for order ${updatedOrder.id}`);
-          
-          // Construct the URL to the Edge Function itself
-          const edgeFunctionUrl = `https://idjzzxirjcqkhmodweiu.supabase.co/functions/v1/generate-report?orderId=${updatedOrder.id}`;
-
-          // Update the order with the generated report URL (which is now the Edge Function URL)
-          const { error: updateReportUrlError } = await supabase
-            .from('service_orders')
-            .update({ report_url: edgeFunctionUrl }) // Store the Edge Function URL
-            .eq('id', updatedOrder.id);
-
-          if (updateReportUrlError) throw updateReportUrlError;
-          updatedOrder.report_url = edgeFunctionUrl; // Update local object for immediate UI refresh
-        } catch (reportError: any) {
-          console.error("Erro ao gerar URL do relatório:", reportError.message || reportError);
-          showError("Erro ao gerar URL do relatório da OS.");
-        }
-      }
-      // --- Fim da lógica de relatório ---
 
       return { updatedOrder: updatedOrder, oldOrder: oldOrder as typeof oldOrder | null };
     },
