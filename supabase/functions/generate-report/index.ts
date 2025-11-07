@@ -167,7 +167,11 @@ serve(async (req) => {
 
     // Instead of uploading to storage, return the HTML directly
     return new Response(reportHtml, {
-      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' }, // Explicitly set charset
+      headers: { 
+        ...corsHeaders, 
+        'Content-Type': 'text/html; charset=utf-8',
+        'X-Content-Type-Options': 'nosniff' // Adicionado para evitar que o navegador adivinhe o tipo de conteúdo
+      }, 
       status: 200,
     });
 
