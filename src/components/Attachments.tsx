@@ -275,7 +275,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex justify-start space-x-2 mt-2">
+                  <div className="flex justify-start space-x-2 mt-1">
                     <Button variant="ghost" size="icon" onClick={() => handlePreview(att)} aria-label="Visualizar">
                         <Eye className="h-4 w-4" />
                     </Button>
