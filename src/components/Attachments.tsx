@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +71,8 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingAttachments, setIsLoadingAttachments] = useState(true);
 
+  const fileInputRef = useRef<HTMLInputElement>(null); // Ref para o input de arquivo
+
   const bucketName = 'order_attachments';
   const folderPath = `${orderId}`;
 
@@ -139,6 +141,10 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedFile(event.target.files[0]);
     }
+  };
+
+  const handleTriggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const handleUpload = async () => {
@@ -220,13 +226,23 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
         <div className="space-y-3 border p-4 rounded-md">
           <Label htmlFor="file-upload">Adicionar Novo Anexo</Label>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Input 
+            <input 
               id="file-upload" 
               type="file" 
               onChange={handleFileChange} 
-              className="flex-grow"
+              className="hidden" // Oculta o input nativo
+              ref={fileInputRef} // Atribui a ref
               disabled={isUploading}
             />
+            <Button 
+              type="button" // Importante para não submeter o formulário
+              variant="outline" 
+              onClick={handleTriggerFileInput} // Aciona o clique no input oculto
+              disabled={isUploading}
+              className="w-full sm:w-auto justify-start" // Alinha o texto à esquerda
+            >
+              <FileText className="h-4 w-4 mr-2" /> {selectedFile ? selectedFile.name : "Selecionar Ficheiro"}
+            </Button>
             <Button 
               onClick={handleUpload} 
               disabled={!selectedFile || isUploading}
@@ -235,9 +251,6 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
               {isUploading ? "A carregar..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
             </Button>
           </div>
-          {selectedFile && (
-            <p className="text-sm text-muted-foreground">Arquivo selecionado: {selectedFile.name}</p>
-          )}
         </div>
 
         {/* Lista de Anexos */}
@@ -261,7 +274,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0">
-                      {/* <p className="font-medium text-sm truncate">{att.name}</p> REMOVIDO */}
+                      <p className="font-medium text-sm truncate">{att.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
