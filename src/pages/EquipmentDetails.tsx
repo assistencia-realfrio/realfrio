@@ -127,10 +127,7 @@ const EquipmentDetails: React.FC = () => {
 
         {selectedView === "details" && (
           <Card>
-            <CardHeader>
-              <CardTitle>Detalhes do Equipamento</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
+            <CardContent className="space-y-4 text-sm pt-6">
               <div>
                 <p className="text-muted-foreground">Nome</p>
                 <p className="font-medium">{equipment.name}</p>
