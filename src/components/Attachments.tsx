@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, Image, Trash2, Download, Eye } from "lucide-react";
+import { Upload, FileText, Trash2, Download, Eye } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
-import { v4 as uuidv4 } from 'uuid'; // Importar uuid
-import { Skeleton } from "@/components/ui/skeleton"; // Adicionada importação do Skeleton
+import { v4 as uuidv4 } from 'uuid';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Attachment {
   id: string; // Caminho completo do arquivo no storage (e.g., 'orderId/uniqueFileName.jpg')
@@ -210,16 +210,6 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
     setIsPreviewModalOpen(true);
   };
 
-  const getFileIcon = (type: Attachment['type']) => {
-    if (type === 'image') {
-      return <Image className="h-5 w-5 text-blue-500" />;
-    }
-    if (type === 'document') {
-      return <FileText className="h-5 w-5 text-gray-500" />;
-    }
-    return <FileText className="h-5 w-5 text-gray-500" />; // Ícone padrão para 'other'
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -263,7 +253,13 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
               {attachments.map((att) => (
                 <div key={att.id} className="py-3 flex items-center justify-between">
                   <div className="flex items-center space-x-3 min-w-0">
-                    {getFileIcon(att.type)}
+                    {att.type === 'image' ? (
+                      <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
+                        <img src={att.fileUrl} alt={att.name} className="object-cover w-full h-full" />
+                      </div>
+                    ) : (
+                      <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
+                    )}
                     <div className="min-w-0">
                       <p className="font-medium text-sm truncate">{att.name}</p>
                       <p className="text-xs text-muted-foreground truncate">
