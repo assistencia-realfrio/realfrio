@@ -224,7 +224,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
       <CardContent className="space-y-6">
         {/* Formulário de Upload */}
         <div className="space-y-3 border p-4 rounded-md">
-          <Label htmlFor="file-upload">Adicionar Novo Anexo</Label>
+          {/* <h4 className="text-md font-semibold">Adicionar Novo Anexo</h4> REMOVIDO */}
           <div className="flex flex-col sm:flex-row gap-3">
             <input 
               id="file-upload" 
