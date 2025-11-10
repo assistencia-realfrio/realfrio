@@ -261,7 +261,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{att.name}</p>
+                      {/* <p className="font-medium text-sm truncate">{att.name}</p> REMOVIDO */}
                       <p className="text-xs text-muted-foreground truncate">
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
