@@ -31,6 +31,17 @@ const getStoreBackgroundColorClass = (store: ServiceOrder['store'] | null) => {
   }
 };
 
+const getStoreSidebarColor = (store: ServiceOrder['store'] | null): string => {
+  switch (store) {
+    case "CALDAS DA RAINHA":
+      return "#3b82f6"; // blue-500
+    case "PORTO DE MÓS":
+      return "#ef4444"; // red-500
+    default:
+      return "#9ca3af"; // gray-400
+  }
+};
+
 const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const navigate = useNavigate();
     const { updateOrder } = useServiceOrders();
@@ -63,6 +74,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         : 'text-red-700 dark:text-red-300';
 
     const statusBgColor = statusChartColors[order.status];
+    const storeSidebarColor = getStoreSidebarColor(order.store);
 
     return (
         <div 
@@ -72,8 +84,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 "bg-opacity-75" // Aumentado para 75% de opacidade
             )} 
         >
-            {/* Barra esquerda para o status */}
-            <div className="w-2 rounded-l-md" style={{ backgroundColor: statusBgColor }} />
+            {/* Barra esquerda para a loja */}
+            <div className="w-2 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
 
             <div className="flex flex-col flex-grow p-3 rounded-r-md"> {/* Adicionado rounded-r-md aqui */}
                 <div className="flex flex-row items-start justify-between space-y-0 pb-1">
