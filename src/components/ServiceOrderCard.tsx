@@ -69,7 +69,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             className={cn(
                 "hover:shadow-lg transition-shadow flex relative rounded-lg border", // Mantido 'border'
                 getStoreBackgroundColorClass(order.store), // Aplica a cor base da loja
-                "bg-opacity-40" // Aumentado para 40% de opacidade
+                "bg-opacity-60" // Aumentado para 60% de opacidade
             )} 
         >
             {/* Barra esquerda para o status */}
