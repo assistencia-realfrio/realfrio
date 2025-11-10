@@ -219,12 +219,11 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Anexos do Equipamento</CardTitle>
+        <CardTitle>Anexos</CardTitle> {/* Título alterado aqui */}
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Formulário de Upload */}
         <div className="space-y-3 border p-4 rounded-md">
-          {/* <h4 className="text-md font-semibold">Adicionar Novo Anexo</h4> REMOVIDO */}
           <div className="flex flex-col sm:flex-row gap-3">
             <input 
               id="equipment-file-upload" 
@@ -274,7 +273,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{att.name}</p>
+                      {/* Removido: <p className="font-medium text-sm truncate">{att.name}</p> */}
                       <p className="text-xs text-muted-foreground truncate">
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
