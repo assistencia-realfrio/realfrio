@@ -5,7 +5,7 @@ import { useEquipments } from "@/hooks/useEquipments";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, FolderOpen } from "lucide-react"; // Adicionado FolderOpen
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
@@ -75,6 +75,8 @@ const EquipmentDetails: React.FC = () => {
     );
   }
 
+  const hasGoogleDriveLink = equipment.google_drive_link && equipment.google_drive_link.trim() !== '';
+
   return (
     <Layout>
       <div className="space-y-6 pb-20"> {/* Adicionado padding-bottom para a navegação inferior */}
@@ -143,6 +145,22 @@ const EquipmentDetails: React.FC = () => {
               <div>
                 <p className="text-muted-foreground">Número de Série</p>
                 <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Google Drive</p>
+                {hasGoogleDriveLink ? (
+                  <a 
+                    href={equipment.google_drive_link!} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-1 text-blue-600 hover:underline"
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                    Abrir Pasta
+                  </a>
+                ) : (
+                  <p className="text-muted-foreground">N/A</p>
+                )}
               </div>
             </CardContent>
           </Card>

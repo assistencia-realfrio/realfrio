@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen } from "lucide-react"; // Adicionado FolderOpen
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Caminho corrigido
 import {
@@ -84,6 +84,8 @@ const isGoogleMapsLink = (mapsLink: string | null): boolean => {
 };
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
+    const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
+
     return (
         <div className="space-y-4 text-sm">
             <div>
@@ -114,6 +116,22 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                 ) : (
                   <p className="font-medium">{client.maps_link}</p>
                 )
+              ) : (
+                <p className="text-muted-foreground">N/A</p>
+              )}
+            </div>
+            <div>
+              <p className="text-muted-foreground">Google Drive</p>
+              {hasGoogleDriveLink ? (
+                <a 
+                  href={client.google_drive_link!} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center gap-1 text-blue-600 hover:underline"
+                >
+                  <FolderOpen className="h-4 w-4" />
+                  Abrir Pasta
+                </a>
               ) : (
                 <p className="text-muted-foreground">N/A</p>
               )}
@@ -207,6 +225,7 @@ const ClientDetails: React.FC = () => {
     store: client.store || "CALDAS DA RAINHA",
     maps_link: client.maps_link || "",
     locality: client.locality || "",
+    google_drive_link: client.google_drive_link || "", // NOVO: Adicionando google_drive_link
   };
 
   return (

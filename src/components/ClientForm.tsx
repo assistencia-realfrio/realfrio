@@ -31,6 +31,7 @@ const formSchema = z.object({
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], { message: "Selecione uma loja." }), // Campo 'store' obrigatório
   maps_link: z.string().nullable().optional(), // NOVO: Campo para o link do mapa
   locality: z.string().nullable().optional(), // NOVO: Campo para a localidade
+  google_drive_link: z.string().nullable().optional(), // NOVO: Campo para o link do Google Drive
 });
 
 export type ClientFormValues = z.infer<typeof formSchema>;
@@ -51,6 +52,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
       store: "CALDAS DA RAINHA", // Valor padrão para novas criações
       maps_link: "", // Valor padrão para o link do mapa
       locality: "", // Valor padrão para a localidade
+      google_drive_link: "", // Valor padrão para o link do Google Drive
     },
   });
 
@@ -105,6 +107,25 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
               <FormControl>
                 <Input 
                   placeholder="Link do Google Maps ou coordenadas" 
+                  {...field} 
+                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Campo para o link do Google Drive */}
+        <FormField
+          control={form.control}
+          name="google_drive_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Google Drive (Opcional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Link da pasta ou arquivo no Google Drive" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
                 />

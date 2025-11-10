@@ -22,6 +22,7 @@ const equipmentFormSchema = z.object({
   brand: z.string().optional().or(z.literal('')),
   model: z.string().optional().or(z.literal('')),
   serial_number: z.string().optional().or(z.literal('')),
+  google_drive_link: z.string().optional().or(z.literal('')), // NOVO: Campo para o link do Google Drive
 });
 
 export type EquipmentFormData = z.infer<typeof equipmentFormSchema>;
@@ -41,11 +42,13 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
             brand: initialData.brand || "",
             model: initialData.model || "",
             serial_number: initialData.serial_number || "",
+            google_drive_link: initialData.google_drive_link || "", // NOVO: Definindo valor padrão
         } : { 
             name: "", 
             brand: "", 
             model: "", 
-            serial_number: "" 
+            serial_number: "",
+            google_drive_link: "", // NOVO: Definindo valor padrão
         },
     });
     const { createEquipment, updateEquipment } = useEquipments(clientId);
@@ -63,6 +66,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     brand: data.brand || undefined,
                     model: data.model || undefined,
                     serial_number: data.serial_number || undefined,
+                    google_drive_link: data.google_drive_link || undefined, // NOVO: Enviando google_drive_link
                 });
                 showSuccess(`Equipamento '${data.name}' atualizado com sucesso!`);
             } else {
@@ -73,6 +77,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     brand: data.brand || undefined,
                     model: data.model || undefined,
                     serial_number: data.serial_number || undefined,
+                    google_drive_link: data.google_drive_link || undefined, // NOVO: Enviando google_drive_link
                 });
                 showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
             }
@@ -137,6 +142,19 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                             <FormLabel>Nº de Série (Opcional)</FormLabel>
                             <FormControl>
                                 <Input placeholder="Ex: ABC123XYZ" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="google_drive_link"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Google Drive (Opcional)</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Link da pasta ou arquivo no Google Drive" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
