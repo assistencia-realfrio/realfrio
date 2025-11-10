@@ -260,7 +260,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
           ) : attachments.length > 0 ? (
             <div className="divide-y">
               {attachments.map((att) => (
-                <div key={att.id} className="py-3 flex items-center justify-between">
+                <div key={att.id} className="py-3">
                   <div className="flex items-center space-x-3 min-w-0">
                     {att.type === 'image' ? (
                       <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
@@ -275,7 +275,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2 flex-shrink-0">
+                  <div className="flex justify-end space-x-2 mt-2">
                     <Button variant="ghost" size="icon" onClick={() => handlePreview(att)} aria-label="Visualizar">
                         <Eye className="h-4 w-4" />
                     </Button>
