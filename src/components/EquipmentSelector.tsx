@@ -91,7 +91,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
 
   const selectedEquipment = equipments.find(e => e.id === value);
   const displayValue = selectedEquipment 
-    ? `${selectedEquipment.name} (${selectedEquipment.brand || 'N/A'} - ${selectedEquipment.model || 'N/A'})` 
+    ? selectedEquipment.name
     : "Selecione ou adicione um equipamento";
 
   return (
@@ -128,7 +128,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
                         value === equipment.id ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {equipment.name} ({equipment.brand || 'N/A'} - {equipment.model || 'N/A'})
+                    {equipment.name}
                   </CommandItem>
                 ))}
               </CommandGroup>
