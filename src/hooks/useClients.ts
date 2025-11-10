@@ -17,7 +17,6 @@ export interface Client {
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS" | null; // NOVO: Campo para a loja associada
   maps_link: string | null; // NOVO: Campo para o link do mapa
   locality: string | null; // NOVO: Campo para a localidade
-  google_drive_link: string | null; // NOVO: Campo para o link do Google Drive
 }
 
 // Função de fetch para buscar TODOS os clientes (para a lista)
@@ -26,7 +25,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   
   const { data, error } = await supabase
     .from('clients')
-    .select('id, name, contact, email, status, created_at, store, maps_link, locality, google_drive_link') // Adicionando 'maps_link', 'locality' e 'google_drive_link'
+    .select('id, name, contact, email, status, created_at, store, maps_link, locality') // Adicionando 'maps_link' e 'locality'
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
@@ -41,7 +40,6 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     store: client.store as "CALDAS DA RAINHA" | "PORTO DE MÓS" | null, // Tipagem para o campo 'store'
     maps_link: client.maps_link || null, // Garante que maps_link seja string ou null
     locality: client.locality || null, // Garante que locality seja string ou null
-    google_drive_link: client.google_drive_link || null, // Garante que google_drive_link seja string ou null
   })) as Client[];
 };
 
@@ -96,7 +94,6 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           store: clientData.store,
           maps_link: clientData.maps_link, // Usando o valor transformado pelo Zod
           locality: clientData.locality, // Usando o valor transformado pelo Zod
-          google_drive_link: clientData.google_drive_link, // NOVO: Usando o valor do Google Drive link
         })
         .select()
         .single();
@@ -134,7 +131,6 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           store: clientData.store,
           maps_link: clientData.maps_link, // Usando maps_link
           locality: clientData.locality, // Usando locality
-          google_drive_link: clientData.google_drive_link, // NOVO: Usando google_drive_link
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
