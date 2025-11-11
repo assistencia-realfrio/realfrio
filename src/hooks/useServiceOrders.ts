@@ -23,12 +23,14 @@ export interface ServiceOrder {
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
   updated_at: string | null; // Adicionado campo de atualização
+  scheduled_date: string | null; // NOVO: Campo para a data de agendamento
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
+    scheduled_date?: Date | null; // NOVO: scheduled_date como Date ou null para o formulário
 };
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
@@ -59,6 +61,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       updated_at,
       client_id,
       equipment_id,
+      scheduled_date, -- NOVO: Selecionar scheduled_date
       clients (name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
@@ -88,6 +91,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
+        scheduled_date: order.scheduled_date, // NOVO: Mapear scheduled_date
     };
   }) as ServiceOrder[];
 
@@ -150,6 +154,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           equipment_id: orderData.equipment_id || null,
           display_id: displayId,
           created_by: user.id,
+          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null, // NOVO: Salvar scheduled_date
         })
         .select()
         .single();
@@ -168,6 +173,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           description: { newValue: newOrder.description },
           store: { newValue: newOrder.store },
           equipment: { newValue: newOrder.equipment },
+          scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' }, // NOVO: Log scheduled_date
         }
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -179,7 +185,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
       // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store')
+        .select('status, description, equipment, model, serial_number, store, scheduled_date') // NOVO: Selecionar scheduled_date
         .eq('id', id)
         .single();
 
@@ -199,6 +205,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
+          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null, // NOVO: Atualizar scheduled_date
         })
         .eq('id', id)
         .select()
@@ -241,6 +248,13 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         if (updatedOrder.store !== oldOrder.store) {
           changesSummary.push('a loja');
           activityDetails.store = { oldValue: oldOrder.store, newValue: updatedOrder.store };
+        }
+        // NOVO: Log para scheduled_date
+        const oldScheduledDate = oldOrder.scheduled_date ? format(new Date(oldOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A';
+        const newScheduledDate = updatedOrder.scheduled_date ? format(new Date(updatedOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A';
+        if (newScheduledDate !== oldScheduledDate) {
+            changesSummary.push('a data de agendamento');
+            activityDetails.scheduled_date = { oldValue: oldScheduledDate, newValue: newScheduledDate };
         }
         
         if (changesSummary.length > 0) {

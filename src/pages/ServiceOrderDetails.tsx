@@ -46,6 +46,7 @@ const ServiceOrderDetails: React.FC = () => {
     description: order.description,
     status: order.status,
     store: order.store,
+    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // CORREÇÃO: Converter string para Date
   } : undefined;
 
   const handleGoBack = () => {

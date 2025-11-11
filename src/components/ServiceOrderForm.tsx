@@ -25,11 +25,15 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone } from "lucide-react";
+import { User, MapPin, Phone, CalendarIcon } from "lucide-react"; // Importar CalendarIcon
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
-import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
-// import ServiceOrderNotes from "./ServiceOrderNotes"; // Removido: Não é mais renderizado aqui
+import { isLinkClickable } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Importar Popover
+import { Calendar } from "@/components/ui/calendar"; // Importar Calendar
+import { format } from "date-fns"; // Importar format
+import { ptBR } from "date-fns/locale"; // Importar locale ptBR
+import { cn } from "@/lib/utils"; // Importar cn
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -38,6 +42,7 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
+  scheduled_date: z.date().nullable().optional(), // NOVO: Campo para a data de agendamento
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
@@ -50,27 +55,22 @@ interface ServiceOrderFormProps {
   initialData?: InitialData;
   onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
   onCancel?: () => void;
-  // orderIdForNotes?: string; // Removido: Não é mais necessário
 }
 
-// Removido: isGoogleMapsLink não é mais necessário aqui, pois a lógica foi generalizada
-// const isGoogleMapsLink = (mapsLink: string | null): boolean => {
-//   if (!mapsLink) return false;
-//   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
-// };
-
-const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => { // orderIdForNotes removido
+const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const navigate = useNavigate();
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
         ...initialData,
+        scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null, // Converter string para Date
     } : {
       equipment_id: "",
       client_id: "",
       description: "",
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
+      scheduled_date: null, // Valor padrão para novas criações
     },
   });
 
@@ -132,6 +132,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
+            scheduled_date: data.scheduled_date, // NOVO: Incluir scheduled_date
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -324,9 +325,48 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             </FormItem>
           )}
         />
-        
-        {/* Removido: Renderiza o componente ServiceOrderNotes aqui, entre a descrição e os botões */}
 
+        {/* NOVO: Campo de Data de Agendamento */}
+        <FormField
+          control={form.control}
+          name="scheduled_date"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Data de Agendamento (Opcional)</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP", { locale: ptBR })
+                      ) : (
+                        <span>Selecione uma data</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={field.value || undefined}
+                    onSelect={field.onChange}
+                    initialFocus
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">

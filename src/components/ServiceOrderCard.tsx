@@ -13,8 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon } from "lucide-react"; // Importar CalendarIcon
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
+import { format } from "date-fns"; // Importar format
+import { ptBR } from "date-fns/locale"; // Importar locale ptBR
 
 interface ServiceOrderCardProps {
     order: ServiceOrder;
@@ -59,6 +61,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 model: order.model || undefined,
                 serial_number: order.serial_number || undefined,
                 equipment_id: order.equipment_id || undefined,
+                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // Manter a data de agendamento
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -151,6 +154,12 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             {order.description}
                         </p>
                     </div>
+                    {order.scheduled_date && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <CalendarIcon className="h-3 w-3 flex-shrink-0" />
+                            <span>Agendado para: {format(new Date(order.scheduled_date), 'PPP', { locale: ptBR })}</span>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
