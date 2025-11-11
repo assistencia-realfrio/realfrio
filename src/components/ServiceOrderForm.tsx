@@ -25,15 +25,15 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone, CalendarIcon } from "lucide-react"; // Importar CalendarIcon
+import { User, MapPin, Phone, CalendarIcon, XCircle } from "lucide-react"; // Importar XCircle
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Importar Popover
-import { Calendar } from "@/components/ui/calendar"; // Importar Calendar
-import { format } from "date-fns"; // Importar format
-import { ptBR } from "date-fns/locale"; // Importar locale ptBR
-import { cn } from "@/lib/utils"; // Importar cn
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -42,7 +42,7 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
-  scheduled_date: z.date().nullable().optional(), // NOVO: Campo para a data de agendamento
+  scheduled_date: z.date().nullable().optional(), // Campo para a data de agendamento
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
@@ -132,7 +132,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
-            scheduled_date: data.scheduled_date, // NOVO: Incluir scheduled_date
+            scheduled_date: data.scheduled_date, // Incluir scheduled_date
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -326,42 +326,55 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
-        {/* NOVO: Campo de Data de Agendamento */}
+        {/* Campo de Data de Agendamento */}
         <FormField
           control={form.control}
           name="scheduled_date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Data de Agendamento (Opcional)</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP", { locale: ptBR })
-                      ) : (
-                        <span>Selecione uma data</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value || undefined}
-                    onSelect={field.onChange}
-                    initialFocus
-                    locale={ptBR}
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="flex items-center gap-2"> {/* Adicionado um div para agrupar o Popover e o botão */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP", { locale: ptBR })
+                        ) : (
+                          <span>Selecione uma data</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value || undefined}
+                      onSelect={field.onChange}
+                      initialFocus
+                      locale={ptBR}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {field.value && ( // Mostra o botão "Limpar Data" apenas se houver uma data selecionada
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => field.onChange(null)} // Define a data como null
+                    aria-label="Limpar Data"
+                  >
+                    <XCircle className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}
