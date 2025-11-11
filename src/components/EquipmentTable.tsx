@@ -38,10 +38,10 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>EQUIPAMENTO / MODELO</TableHead>
-            <TableHead>CLIENTE</TableHead>
-            <TableHead className="hidden sm:table-cell">MARCA</TableHead>
-            <TableHead className="hidden md:table-cell">Nº SÉRIE</TableHead>
+            <TableHead>Equipamento / Modelo</TableHead>
+            <TableHead>Cliente</TableHead>
+            <TableHead className="hidden sm:table-cell">Marca</TableHead>
+            <TableHead className="hidden md:table-cell">Nº Série</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -53,18 +53,18 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <TableCell className="font-medium">
-                  <div>{equipment.name.toUpperCase()}</div>
-                  <div className="text-sm text-muted-foreground">{(equipment.model || 'N/A').toUpperCase()}</div>
+                  <div>{equipment.name}</div>
+                  <div className="text-sm text-muted-foreground">{equipment.model || 'N/A'}</div>
                 </TableCell>
-                <TableCell>{equipment.client_name.toUpperCase()}</TableCell>
-                <TableCell className="hidden sm:table-cell">{(equipment.brand || 'N/A').toUpperCase()}</TableCell>
-                <TableCell className="hidden md:table-cell">{(equipment.serial_number || 'N/A').toUpperCase()}</TableCell>
+                <TableCell>{equipment.client_name}</TableCell>
+                <TableCell className="hidden sm:table-cell">{equipment.brand || 'N/A'}</TableCell>
+                <TableCell className="hidden md:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
               <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                NENHUM EQUIPAMENTO ENCONTRADO.
+                Nenhum equipamento encontrado.
               </TableCell>
             </TableRow>
           )}

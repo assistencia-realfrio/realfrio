@@ -47,13 +47,12 @@ export const useProfile = () => {
 
   const updateProfileMutation = useMutation({
     mutationFn: async (payload: UpdateProfilePayload) => {
-      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
+      if (!user?.id) throw new Error("Usuário não autenticado.");
 
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          first_name: payload.first_name?.toUpperCase() || null,
-          last_name: payload.last_name?.toUpperCase() || null,
+          ...payload,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id)
@@ -68,7 +67,7 @@ export const useProfile = () => {
         entity_type: 'profile', // Novo tipo de entidade para logs de perfil
         entity_id: updatedProfile.id,
         action_type: 'updated',
-        content: `PERFIL DO UTILIZADOR ${updatedProfile.first_name || ''} ${updatedProfile.last_name || ''} FOI ATUALIZADO.`,
+        content: `Perfil do utilizador ${updatedProfile.first_name || ''} ${updatedProfile.last_name || ''} foi atualizado.`,
       });
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['activities'] }); // Invalida atividades para atualizar nomes

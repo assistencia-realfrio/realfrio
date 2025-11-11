@@ -45,11 +45,11 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
         first_name: data.first_name || undefined,
         last_name: data.last_name || undefined,
       });
-      showSuccess("PERFIL ATUALIZADO COM SUCESSO!");
+      showSuccess("Perfil atualizado com sucesso!");
       onSuccess();
     } catch (error) {
       console.error("Erro ao atualizar perfil:", error);
-      showError("ERRO AO ATUALIZAR PERFIL. TENTE NOVAMENTE.");
+      showError("Erro ao atualizar perfil. Tente novamente.");
     }
   };
 
@@ -61,14 +61,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
           name="first_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>PRIMEIRO NOME *</FormLabel>
+              <FormLabel>Primeiro Nome *</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="Ex: João" 
-                  {...field} 
-                  value={field.value || ""} 
-                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                />
+                <Input placeholder="Ex: João" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,14 +74,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
           name="last_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>ÚLTIMO NOME *</FormLabel>
+              <FormLabel>Último Nome *</FormLabel>
               <FormControl>
-                <Input 
-                  placeholder="Ex: Silva" 
-                  {...field} 
-                  value={field.value || ""} 
-                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                />
+                <Input placeholder="Ex: Silva" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,10 +84,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
         />
         <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
           <Button type="button" variant="outline" onClick={onCancel} disabled={updateProfile.isPending} className="w-full sm:w-auto">
-            CANCELAR
+            Cancelar
           </Button>
           <Button type="submit" disabled={updateProfile.isPending} className="w-full sm:w-auto">
-            SALVAR ALTERAÇÕES
+            Salvar Alterações
           </Button>
         </div>
       </form>

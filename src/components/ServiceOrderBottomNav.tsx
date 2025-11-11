@@ -36,7 +36,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
             aria-label={item.label}
           >
             <item.icon className="h-6 w-6" />
-            <span className="text-xs mt-1">{item.label.toUpperCase()}</span>
+            <span className="text-xs mt-1">{item.label}</span>
           </Button>
         ))}
       </div>

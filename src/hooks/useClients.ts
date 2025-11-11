@@ -83,20 +83,20 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
 
   const createClientMutation = useMutation({
     mutationFn: async (clientData: ClientFormValues) => {
-      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
+      if (!user?.id) throw new Error("Usuário não autenticado.");
       
       const { data, error } = await supabase
         .from('clients')
         .insert({
-          name: clientData.name.toUpperCase(),
-          contact: clientData.contact?.toUpperCase() || null,
-          email: clientData.email?.toUpperCase() || null,
+          name: clientData.name,
+          contact: clientData.contact, // Usando o valor transformado pelo Zod
+          email: clientData.email,     // Usando o valor transformado pelo Zod
           created_by: user.id,
-          status: 'ATIVO', // Default status
+          status: 'Ativo', // Default status
           store: clientData.store,
-          maps_link: clientData.maps_link?.toUpperCase() || null,
-          locality: clientData.locality?.toUpperCase() || null,
-          google_drive_link: clientData.google_drive_link?.toUpperCase() || null,
+          maps_link: clientData.maps_link, // Usando o valor transformado pelo Zod
+          locality: clientData.locality, // Usando o valor transformado pelo Zod
+          google_drive_link: clientData.google_drive_link, // NOVO: Adicionando google_drive_link
         })
         .select()
         .single();
@@ -112,7 +112,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         entity_type: 'client',
         entity_id: newClient.id,
         action_type: 'created',
-        content: `CLIENTE "${newClient.name}" FOI CRIADO.`
+        content: `Cliente "${newClient.name}" foi criado.`
       });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
@@ -128,13 +128,13 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       const { data, error } = await supabase
         .from('clients')
         .update({
-          name: clientData.name.toUpperCase(),
-          contact: clientData.contact?.toUpperCase() || null,
-          email: clientData.email?.toUpperCase() || null,
+          name: clientData.name,
+          contact: clientData.contact,
+          email: clientData.email,
           store: clientData.store,
-          maps_link: clientData.maps_link?.toUpperCase() || null,
-          locality: clientData.locality?.toUpperCase() || null,
-          google_drive_link: clientData.google_drive_link?.toUpperCase() || null,
+          maps_link: clientData.maps_link, // Usando maps_link
+          locality: clientData.locality, // Usando locality
+          google_drive_link: clientData.google_drive_link, // NOVO: Atualizando google_drive_link
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
@@ -150,8 +150,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
     onSuccess: ({ updatedClient, oldClientName }) => {
       const clientName = updatedClient.name;
       const content = oldClientName && oldClientName !== clientName 
-        ? `CLIENTE "${oldClientName}" FOI RENOMEADO PARA "${clientName}" E ATUALIZADO.`
-        : `CLIENTE "${clientName}" FOI ATUALIZADO.`;
+        ? `Cliente "${oldClientName}" foi renomeado para "${clientName}" e atualizado.`
+        : `Cliente "${clientName}" foi atualizado.`;
 
       logActivity(user, {
         entity_type: 'client',
@@ -181,7 +181,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
           entity_type: 'client',
           entity_id: clientToDelete.id,
           action_type: 'deleted',
-          content: `CLIENTE "${clientToDelete.name}" FOI EXCLUÍDO.`
+          content: `Cliente "${clientToDelete.name}" foi excluído.`
         });
       }
       queryClient.invalidateQueries({ queryKey: ['clients'] });

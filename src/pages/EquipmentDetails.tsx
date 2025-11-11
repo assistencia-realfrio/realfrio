@@ -44,11 +44,11 @@ const EquipmentDetails: React.FC = () => {
     if (!equipment) return;
     try {
       await deleteEquipment.mutateAsync(equipment.id);
-      showSuccess(`EQUIPAMENTO '${equipment.name}' EXCLUÍDO COM SUCESSO.`);
+      showSuccess(`Equipamento '${equipment.name}' excluído com sucesso.`);
       navigate(-1);
     } catch (error) {
       console.error("Erro ao excluir equipamento:", error);
-      showError("ERRO AO EXCLUIR EQUIPAMENTO. TENTE NOVAMENTE.");
+      showError("Erro ao excluir equipamento. Tente novamente.");
     }
   };
 
@@ -67,9 +67,9 @@ const EquipmentDetails: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">EQUIPAMENTO NÃO ENCONTRADO</h2>
-          <p className="text-muted-foreground">O EQUIPAMENTO QUE VOCÊ ESTÁ PROCURANDO NÃO EXISTE.</p>
-          <Button onClick={handleGoBack} className="mt-4">VOLTAR</Button>
+          <h2 className="text-2xl font-bold">Equipamento não encontrado</h2>
+          <p className="text-muted-foreground">O equipamento que você está procurando não existe.</p>
+          <Button onClick={handleGoBack} className="mt-4">Voltar</Button>
         </div>
       </Layout>
     );
@@ -94,7 +94,7 @@ const EquipmentDetails: React.FC = () => {
             </Button>
             <Button variant="outline" onClick={() => setIsEditModalOpen(true)} className="hidden sm:flex">
               <Edit className="h-4 w-4 mr-2" />
-              EDITAR
+              Editar
             </Button>
             
             <AlertDialog>
@@ -105,21 +105,21 @@ const EquipmentDetails: React.FC = () => {
                   </Button>
                   <Button variant="destructive" disabled={deleteEquipment.isPending} className="hidden sm:flex">
                     <Trash2 className="h-4 w-4 mr-2" />
-                    EXCLUIR
+                    Excluir
                   </Button>
                 </>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>TEM CERTEZA?</AlertDialogTitle>
+                  <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    ESTA AÇÃO NÃO PODE SER DESFEITA. O EQUIPAMENTO SERÁ EXCLUÍDO PERMANENTEMENTE.
+                    Esta ação não pode ser desfeita. O equipamento será excluído permanentemente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>CANCELAR</AlertDialogCancel>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                    EXCLUIR
+                    Excluir
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -131,23 +131,23 @@ const EquipmentDetails: React.FC = () => {
           <Card>
             <CardContent className="space-y-4 text-sm pt-6">
               <div>
-                <p className="text-muted-foreground">NOME</p>
-                <p className="font-medium">{equipment.name.toUpperCase()}</p>
+                <p className="text-muted-foreground">Nome</p>
+                <p className="font-medium">{equipment.name}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">MARCA</p>
-                <p className="font-medium">{(equipment.brand || 'N/A').toUpperCase()}</p>
+                <p className="text-muted-foreground">Marca</p>
+                <p className="font-medium">{equipment.brand || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">MODELO</p>
-                <p className="font-medium">{(equipment.model || 'N/A').toUpperCase()}</p>
+                <p className="text-muted-foreground">Modelo</p>
+                <p className="font-medium">{equipment.model || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">NÚMERO DE SÉRIE</p>
-                <p className="font-medium">{(equipment.serial_number || 'N/A').toUpperCase()}</p>
+                <p className="text-muted-foreground">Número de Série</p>
+                <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">GOOGLE DRIVE</p>
+                <p className="text-muted-foreground">Google Drive</p>
                 {hasGoogleDriveLink ? (
                   <a 
                     href={equipment.google_drive_link!} 
@@ -156,7 +156,7 @@ const EquipmentDetails: React.FC = () => {
                     className="flex items-center gap-1 text-blue-600 hover:underline"
                   >
                     <FolderOpen className="h-4 w-4" />
-                    ABRIR PASTA
+                    Abrir Pasta
                   </a>
                 ) : (
                   <p className="text-muted-foreground">N/A</p>
@@ -182,7 +182,7 @@ const EquipmentDetails: React.FC = () => {
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>EDITAR EQUIPAMENTO</DialogTitle>
+            <DialogTitle>Editar Equipamento</DialogTitle>
           </DialogHeader>
           <EquipmentForm
             clientId={equipment.client_id}

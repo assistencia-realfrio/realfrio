@@ -55,7 +55,7 @@ interface ServiceOrderFormProps {
 // Função auxiliar para verificar se o link é do Google Maps ou coordenadas
 const isGoogleMapsLink = (mapsLink: string | null): boolean => {
   if (!mapsLink) return false;
-  return mapsLink.includes("GOOGLE.COM/MAPS") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
+  return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => { // orderIdForNotes removido
@@ -110,7 +110,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     if (!equipmentDetails.name) {
-        showError("SELECIONE UM EQUIPAMENTO VÁLIDO.");
+        showError("Selecione um equipamento válido.");
         return;
     }
     
@@ -135,17 +135,17 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         if (isEditing && initialData.id) {
             await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
-            showSuccess("ORDEM DE SERVIÇO ATUALIZADA COM SUCESSO!");
+            showSuccess("Ordem de Serviço atualizada com sucesso!");
         } else {
             const newOrder = await createOrder.mutateAsync(mutationData);
-            showSuccess("ORDEM DE SERVIÇO CRIADA COM SUCESSO!");
+            showSuccess("Ordem de Serviço criada com sucesso!");
             onSubmit({ ...data, id: newOrder.id });
             return;
         }
         onSubmit(data);
     } catch (error) {
         console.error("Erro ao salvar OS:", error);
-        showError("ERRO AO SALVAR ORDEM DE SERVIÇO. VERIFIQUE OS DADOS.");
+        showError("Erro ao salvar Ordem de Serviço. Verifique os dados.");
     }
   };
 
@@ -171,7 +171,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const hasMapLink = selectedClient && selectedClient.maps_link && isGoogleMapsLink(selectedClient.maps_link);
   const handleMapClick = () => {
     if (hasMapLink) {
-      const mapHref = selectedClient.maps_link.startsWith("HTTP") ? selectedClient.maps_link : `HTTPS://WWW.GOOGLE.COM/MAPS/SEARCH/?API=1&QUERY=${encodeURIComponent(selectedClient.maps_link)}`;
+      const mapHref = selectedClient.maps_link.startsWith("http") ? selectedClient.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedClient.maps_link)}`;
       window.open(mapHref, '_blank', 'noopener,noreferrer');
     }
   };
@@ -179,7 +179,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const hasContact = selectedClient && selectedClient.contact;
   const handlePhoneClick = () => {
     if (hasContact) {
-      window.location.href = `TEL:${selectedClient.contact}`;
+      window.location.href = `tel:${selectedClient.contact}`;
     }
   };
 
@@ -196,7 +196,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="ESTADO *" />
+                      <SelectValue placeholder="Estado *" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -218,12 +218,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="LOJA *" />
+                      <SelectValue placeholder="Loja *" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA</SelectItem>
-                    <SelectItem value="PORTO DE MÓS">PORTO DE MÓS</SelectItem>
+                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -237,7 +237,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           name="client_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>CLIENTE *</FormLabel>
+              <FormLabel>Cliente *</FormLabel>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div className="flex-grow w-full min-w-0">
                   <ClientSelector 
@@ -294,7 +294,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="equipment_id"
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>EQUIPAMENTO *</FormLabel>
+                    <FormLabel>Equipamento *</FormLabel>
                     <FormControl>
                         <EquipmentSelector
                             clientId={clientId}
@@ -313,15 +313,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>DESCRIÇÃO DO SERVIÇO *</FormLabel>
+              <FormLabel>Descrição do Serviço *</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Detalhes do serviço a ser executado..." 
-                  {...field} 
-                  rows={5} 
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                />
+                <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -333,11 +327,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
-              CANCELAR
+              Cancelar
             </Button>
           )}
           <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
-            {isEditing ? "SALVAR ALTERAÇÕES" : "CRIAR ORDEM DE SERVIÇO"}
+            {isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}
           </Button>
         </div>
       </form>

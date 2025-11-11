@@ -29,9 +29,9 @@ const Profile: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">PERFIL NÃO ENCONTRADO</h2>
-          <p className="text-muted-foreground">NÃO FOI POSSÍVEL CARREGAR OS DADOS DO SEU PERFIL.</p>
-          <Button onClick={() => navigate('/')} className="mt-4">VOLTAR PARA O INÍCIO</Button>
+          <h2 className="text-2xl font-bold">Perfil não encontrado</h2>
+          <p className="text-muted-foreground">Não foi possível carregar os dados do seu perfil.</p>
+          <Button onClick={() => navigate('/')} className="mt-4">Voltar para o Início</Button>
         </div>
       </Layout>
     );
@@ -46,16 +46,16 @@ const Profile: React.FC = () => {
           <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-3xl font-bold tracking-tight">MEU PERFIL</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Meu Perfil</h2>
         </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-lg">INFORMAÇÕES DO PERFIL</CardTitle>
+            <CardTitle className="text-lg">Informações do Perfil</CardTitle>
             {!isEditing && (
               <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                 <Edit className="h-4 w-4 mr-2" />
-                EDITAR PERFIL
+                Editar Perfil
               </Button>
             )}
           </CardHeader>
@@ -69,12 +69,12 @@ const Profile: React.FC = () => {
             ) : (
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground">NOME COMPLETO</p>
-                  <p className="font-medium">{(fullName || 'NÃO DEFINIDO').toUpperCase()}</p>
+                  <p className="text-muted-foreground">Nome Completo</p>
+                  <p className="font-medium">{fullName || 'Não definido'}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">EMAIL</p>
-                  <p className="font-medium">{profile.id.toUpperCase()}</p> {/* O ID do perfil é o email do utilizador */}
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium">{profile.id}</p> {/* O ID do perfil é o email do utilizador */}
                 </div>
                 {/* Adicionar mais campos do perfil aqui se existirem */}
               </div>

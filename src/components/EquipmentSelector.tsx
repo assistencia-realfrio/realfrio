@@ -79,7 +79,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             disabled
             className="w-full justify-between text-muted-foreground"
         >
-            SELECIONE UM CLIENTE PRIMEIRO
+            Selecione um cliente primeiro
             <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
     );
@@ -92,7 +92,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   const selectedEquipment = equipments.find(e => e.id === value);
   const displayValue = selectedEquipment 
     ? selectedEquipment.name
-    : "SELECIONE OU ADICIONE UM EQUIPAMENTO";
+    : "Selecione ou adicione um equipamento";
 
   return (
     <>
@@ -105,15 +105,15 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             className="w-full justify-between"
             disabled={disabled} // Aplica a prop disabled aqui
           >
-            {displayValue.toUpperCase()}
+            {displayValue}
             <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command>
-            <CommandInput placeholder="BUSCAR EQUIPAMENTO..." />
+            <CommandInput placeholder="Buscar equipamento..." />
             <CommandList>
-              <CommandEmpty>NENHUM EQUIPAMENTO ENCONTRADO.</CommandEmpty>
+              <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
               <CommandGroup>
                 {equipments.map((equipment) => (
                   <CommandItem
@@ -128,7 +128,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
                         value === equipment.id ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {equipment.name.toUpperCase()}
+                    {equipment.name}
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -140,7 +140,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
                   className="text-primary font-medium cursor-pointer"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  ADICIONAR NOVO EQUIPAMENTO
+                  Adicionar Novo Equipamento
                 </CommandItem>
               </CommandGroup>
             </CommandList>
@@ -152,7 +152,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>ADICIONAR NOVO EQUIPAMENTO</DialogTitle>
+            <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
           </DialogHeader>
           <EquipmentForm 
             clientId={clientId}

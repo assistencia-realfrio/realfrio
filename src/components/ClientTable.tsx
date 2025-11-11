@@ -54,11 +54,11 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>NOME</TableHead>
-            <TableHead className="hidden sm:table-cell">CONTATO</TableHead>
-            <TableHead className="hidden sm:table-cell">LOCALIDADE</TableHead>
-            <TableHead className="hidden md:table-cell">OS TOTAIS</TableHead>
-            <TableHead className="hidden md:table-cell">OS ABERTAS</TableHead>
+            <TableHead>Nome</TableHead>
+            <TableHead className="hidden sm:table-cell">Contato</TableHead>
+            <TableHead className="hidden sm:table-cell">Localidade</TableHead>
+            <TableHead className="hidden md:table-cell">OS Totais</TableHead>
+            <TableHead className="hidden md:table-cell">OS Abertas</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,11 +77,11 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
                             variant="default" 
                             className={cn("h-3 w-3 p-0 rounded-full", getStoreBadgeColor(client.store))}
                         />
-                        {client.name.toUpperCase()}
+                        {client.name}
                     </div>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell">{(client.contact || 'N/A').toUpperCase()}</TableCell>
-                <TableCell className="hidden sm:table-cell">{(client.locality || 'N/A').toUpperCase()}</TableCell>
+                <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
+                <TableCell className="hidden sm:table-cell">{client.locality || 'N/A'}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
                 <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
               </TableRow>
@@ -89,7 +89,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
           ) : (
             <TableRow>
               <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                NENHUM CLIENTE ENCONTRADO.
+                Nenhum cliente encontrado.
               </TableCell>
             </TableRow>
           )}

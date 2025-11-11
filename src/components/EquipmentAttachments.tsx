@@ -38,7 +38,7 @@ const AttachmentPreviewDialog: React.FC<{
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{fileName.toUpperCase()}</DialogTitle>
+          <DialogTitle>{fileName}</DialogTitle>
         </DialogHeader>
         <div className="flex-grow overflow-auto p-2">
           {fileType === 'image' ? (
@@ -47,11 +47,11 @@ const AttachmentPreviewDialog: React.FC<{
             </AspectRatio>
           ) : fileType === 'document' ? (
             <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>
-              SEU NAVEGADOR NÃO SUPORTA IFRAMES. VOCÊ PODE <a href={fileUrl} target="_blank" rel="noopener noreferrer">BAIXAR O ARQUIVO</a>.
+              Seu navegador não suporta iframes. Você pode <a href={fileUrl} target="_blank" rel="noopener noreferrer">baixar o arquivo</a>.
             </iframe>
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
-              <p>ESTE TIPO DE ARQUIVO NÃO PODE SER VISUALIZADO DIRETAMENTE.</p>
+              <p>Este tipo de arquivo não pode ser visualizado diretamente.</p>
             </div>
           )}
         </div>
@@ -116,15 +116,15 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
           name: file.name,
           type: fileType,
           size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB",
-          uploadedBy: (user.email || "DESCONHECIDO").toUpperCase(),
-          date: new Date(file.created_at).toLocaleDateString('pt-BR').toUpperCase(),
+          uploadedBy: user.email || "Desconhecido",
+          date: new Date(file.created_at).toLocaleDateString('pt-BR'),
           fileUrl: publicUrlData.publicUrl,
         };
       }));
       setAttachments(fetched);
     } catch (error) {
       console.error("Erro ao buscar anexos do equipamento:", error);
-      showError("ERRO AO CARREGAR ANEXOS DO EQUIPAMENTO.");
+      showError("Erro ao carregar anexos do equipamento.");
     } finally {
       setIsLoadingAttachments(false);
     }
@@ -148,7 +148,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
 
   const handleUpload = async () => {
     if (!selectedFile || !user?.id) {
-      showError("SELECIONE UM ARQUIVO E CERTIFIQUE-SE DE ESTAR LOGADO.");
+      showError("Selecione um arquivo e certifique-se de estar logado.");
       return;
     }
 
@@ -173,17 +173,17 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
         name: selectedFile.name,
         type: getFileType(selectedFile.type),
         size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-        uploadedBy: (user.email || "DESCONHECIDO").toUpperCase(),
-        date: new Date().toLocaleDateString('pt-BR').toUpperCase(),
+        uploadedBy: user.email || "Desconhecido",
+        date: new Date().toLocaleDateString('pt-BR'),
         fileUrl: publicUrlData.publicUrl,
       };
 
       setAttachments((prev) => [newAttachment, ...prev]);
       setSelectedFile(null);
-      showSuccess(`ARQUIVO '${stripUuidFromFile(newAttachment.name).toUpperCase()}' ANEXADO AO EQUIPAMENTO COM SUCESSO!`);
+      showSuccess(`Arquivo '${stripUuidFromFile(newAttachment.name)}' anexado ao equipamento com sucesso!`);
     } catch (error) {
       console.error("Erro ao fazer upload para o equipamento:", error);
-      showError("ERRO AO ANEXAR ARQUIVO AO EQUIPAMENTO. TENTE NOVAMENTE.");
+      showError("Erro ao anexar arquivo ao equipamento. Tente novamente.");
     } finally {
       setIsUploading(false);
     }
@@ -191,7 +191,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
 
   const handleDelete = async (attachmentId: string, attachmentName: string) => {
     if (!user?.id) {
-      showError("VOCÊ PRECISA ESTAR LOGADO PARA EXCLUIR ARQUIVOS.");
+      showError("Você precisa estar logado para excluir arquivos.");
       return;
     }
 
@@ -201,10 +201,10 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
       if (error) throw error;
 
       setAttachments(attachments.filter(att => att.id !== attachmentId));
-      showSuccess(`ANEXO '${stripUuidFromFile(attachmentName).toUpperCase()}' REMOVIDO DO EQUIPAMENTO.`);
+      showSuccess(`Anexo '${stripUuidFromFile(attachmentName)}' removido do equipamento.`);
     } catch (error) {
       console.error("Erro ao excluir anexo do equipamento:", error);
-      showError("ERRO AO REMOVER ANEXO DO EQUIPAMENTO. TENTE NOVAMENTE.");
+      showError("Erro ao remover anexo do equipamento. Tente novamente.");
     }
   };
 
@@ -218,7 +218,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
   return (
     <Card>
       <CardHeader>
-        <CardTitle>ANEXOS</CardTitle>
+        <CardTitle>Anexos</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3 border p-4 rounded-md">
@@ -238,20 +238,20 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
               disabled={isUploading}
               className="w-full sm:w-auto justify-start"
             >
-              <FileText className="h-4 w-4 mr-2" /> {selectedFile ? stripUuidFromFile(selectedFile.name).toUpperCase() : "SELECIONAR FICHEIRO"}
+              <FileText className="h-4 w-4 mr-2" /> {selectedFile ? stripUuidFromFile(selectedFile.name) : "Selecionar Ficheiro"}
             </Button>
             <Button 
               onClick={handleUpload} 
               disabled={!selectedFile || isUploading}
               className="sm:w-auto w-full"
             >
-              {isUploading ? "A CARREGAR..." : <><Upload className="h-4 w-4 mr-2" /> UPLOAD</>}
+              {isUploading ? "A carregar..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
             </Button>
           </div>
         </div>
 
         <div className="space-y-3">
-          <h4 className="text-md font-semibold">ARQUIVOS ANEXADOS:</h4>
+          <h4 className="text-md font-semibold">Arquivos Anexados:</h4>
           {isLoadingAttachments ? (
             <div className="space-y-2">
               <Skeleton className="h-12 w-full" />
@@ -271,7 +271,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                     )}
                     <div className="min-w-0">
                       <p className="text-xs text-muted-foreground truncate">
-                        {att.size.toUpperCase()} | POR {att.uploadedBy.toUpperCase()} EM {att.date.toUpperCase()}
+                        {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
                     </div>
                   </div>
@@ -292,7 +292,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground text-sm">NENHUM ANEXO ENCONTRADO PARA ESTE EQUIPAMENTO.</p>
+            <p className="text-center text-muted-foreground text-sm">Nenhum anexo encontrado para este equipamento.</p>
           )}
         </div>
       </CardContent>

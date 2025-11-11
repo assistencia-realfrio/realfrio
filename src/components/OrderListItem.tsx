@@ -23,15 +23,15 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
             onClick={handleViewDetails}
         >
             <div className="flex flex-col">
-                <span className="font-medium text-sm">{(order.equipment || '').toUpperCase()} - {(order.model || '').toUpperCase()}</span>
+                <span className="font-medium text-sm">{order.equipment} - {order.model}</span>
                 <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    <span>{order.display_id.toUpperCase()}</span>
+                    <span>{order.display_id}</span>
                     <span>|</span>
-                    <span>{date.toUpperCase()}</span>
+                    <span>{date}</span>
                 </div>
             </div>
             <div className="flex items-center space-x-2">
-                <Badge variant={getStatusBadgeVariant(order.status)}>{order.status.toUpperCase()}</Badge>
+                <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
             </div>
         </div>
     );

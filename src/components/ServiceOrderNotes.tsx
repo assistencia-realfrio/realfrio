@@ -66,7 +66,7 @@ const fetchNotes = async (orderId: string): Promise<Note[]> => {
   return data.map((note: any) => {
     const firstName = note.profiles?.first_name || '';
     const lastName = note.profiles?.last_name || '';
-    const userFullName = `${firstName} ${lastName}`.trim() || 'USUÁRIO DESCONHECIDO';
+    const userFullName = `${firstName} ${lastName}`.trim() || 'Usuário Desconhecido';
 
     return {
       id: note.id,
@@ -95,14 +95,14 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
 
   const addNoteMutation = useMutation({
     mutationFn: async (content: string) => {
-      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
+      if (!user?.id) throw new Error("Usuário não autenticado.");
 
       const { data, error } = await supabase
         .from('service_order_notes')
         .insert({
           service_order_id: orderId,
           user_id: user.id,
-          content: content.toUpperCase(), // Convert to uppercase before saving
+          content: content,
         })
         .select()
         .single();
@@ -117,24 +117,24 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
         entity_type: 'service_order',
         entity_id: orderId,
         action_type: 'created',
-        content: `ADICIONOU UMA NOTA À OS.`,
+        content: `Adicionou uma nota à OS.`,
         details: { noteContent: { newValue: newNote.content } }
       });
-      showSuccess("NOTA ADICIONADA COM SUCESSO!");
+      showSuccess("Nota adicionada com sucesso!");
     },
     onError: (error) => {
       console.error("Erro ao adicionar nota:", error);
-      showError("ERRO AO ADICIONAR NOTA. TENTE NOVAMENTE.");
+      showError("Erro ao adicionar nota. Tente novamente.");
     },
   });
 
   const updateNoteMutation = useMutation({
     mutationFn: async ({ id, content }: { id: string; content: string }) => {
-      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
+      if (!user?.id) throw new Error("Usuário não autenticado.");
 
       const { data, error } = await supabase
         .from('service_order_notes')
-        .update({ content: content.toUpperCase() }) // Convert to uppercase before saving
+        .update({ content: content })
         .eq('id', id)
         .eq('user_id', user.id) // Garante que apenas o próprio utilizador pode editar
         .select()
@@ -149,23 +149,23 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
         entity_type: 'service_order',
         entity_id: orderId,
         action_type: 'updated',
-        content: `EDITOU UMA NOTA NA OS.`,
+        content: `Editou uma nota na OS.`,
         details: { noteContent: { newValue: updatedNote.content } }
       });
-      showSuccess("NOTA ATUALIZADA COM SUCESSO!");
+      showSuccess("Nota atualizada com sucesso!");
       setIsEditModalOpen(false);
       setEditingNote(null);
       setEditedContent("");
     },
     onError: (error) => {
       console.error("Erro ao atualizar nota:", error);
-      showError("ERRO AO ATUALIZAR NOTA. TENTE NOVAMENTE.");
+      showError("Erro ao atualizar nota. Tente novamente.");
     },
   });
 
   const deleteNoteMutation = useMutation({
     mutationFn: async (id: string) => {
-      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
+      if (!user?.id) throw new Error("Usuário não autenticado.");
 
       const { error } = await supabase
         .from('service_order_notes')
@@ -182,14 +182,14 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
         entity_type: 'service_order',
         entity_id: orderId,
         action_type: 'deleted',
-        content: `REMOVEU UMA NOTA DA OS.`,
-        details: { noteId: { oldValue: deletedNoteId, newValue: 'REMOVIDO' } }
+        content: `Removeu uma nota da OS.`,
+        details: { noteId: { oldValue: deletedNoteId, newValue: 'Removido' } }
       });
-      showSuccess("NOTA REMOVIDA COM SUCESSO!");
+      showSuccess("Nota removida com sucesso!");
     },
     onError: (error) => {
       console.error("Erro ao remover nota:", error);
-      showError("ERRO AO REMOVER NOTA. TENTE NOVAMENTE.");
+      showError("Erro ao remover nota. Tente novamente.");
     },
   });
 
@@ -222,17 +222,17 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MessageSquareText className="h-5 w-5" />
-          NOTAS
+          Notas
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Formulário para adicionar nova nota */}
         <div className="space-y-3 border p-4 rounded-md">
-          <h4 className="text-md font-semibold">ADICIONAR NOVA NOTA</h4>
+          <h4 className="text-md font-semibold">Adicionar Nova Nota</h4>
           <Textarea
-            placeholder="ESCREVA SUA NOTA AQUI..."
+            placeholder="Escreva sua nota aqui..."
             value={newNoteContent}
-            onChange={(e) => setNewNoteContent(e.target.value.toUpperCase())} // Convert to uppercase
+            onChange={(e) => setNewNoteContent(e.target.value)}
             rows={3}
             disabled={addNoteMutation.isPending}
           />
@@ -241,13 +241,13 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
             disabled={!newNoteContent.trim() || addNoteMutation.isPending}
             className="w-full sm:w-auto"
           >
-            {addNoteMutation.isPending ? "A ENVIAR..." : <><Send className="h-4 w-4 mr-2" /> ENVIAR NOTA</>}
+            {addNoteMutation.isPending ? "A enviar..." : <><Send className="h-4 w-4 mr-2" /> Enviar Nota</>}
           </Button>
         </div>
 
         {/* Lista de notas existentes */}
         <div className="space-y-3">
-          <h4 className="text-md font-semibold">NOTAS ANTERIORES:</h4>
+          <h4 className="text-md font-semibold">Notas Anteriores:</h4>
           {isLoadingNotes ? (
             <div className="space-y-2">
               <Skeleton className="h-16 w-full" />
@@ -259,10 +259,10 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                 {notes.map((note) => (
                   <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0 flex justify-between items-start">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground mb-1">{note.content.toUpperCase()}</p> {/* Display in uppercase */}
+                      <p className="text-sm text-foreground mb-1">{note.content}</p>
                       <p className="text-xs text-muted-foreground">
-                        POR <span className="font-medium">{note.user_full_name.toUpperCase()}</span> •{" "}
-                        {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR }).toUpperCase()}
+                        Por <span className="font-medium">{note.user_full_name}</span> •{" "}
+                        {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
                       </p>
                     </div>
                     {user?.id === note.user_id && (
@@ -273,32 +273,32 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>AÇÕES DA NOTA</DropdownMenuLabel>
+                          <DropdownMenuLabel>Ações da Nota</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleEditClick(note)}>
-                            <Edit className="mr-2 h-4 w-4" /> EDITAR
+                            <Edit className="mr-2 h-4 w-4" /> Editar
                           </DropdownMenuItem>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" /> EXCLUIR
+                                <Trash2 className="mr-2 h-4 w-4" /> Excluir
                               </DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>TEM CERTEZA ABSOLUTA?</AlertDialogTitle>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  ESTA AÇÃO NÃO PODE SER DESFEITA. ISSO EXCLUIRÁ PERMANENTEMENTE ESTA NOTA.
+                                  Esta ação não pode ser desfeita. Isso excluirá permanentemente esta nota.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel>CANCELAR</AlertDialogCancel>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction 
                                   onClick={() => deleteNoteMutation.mutate(note.id)} 
                                   className="bg-destructive hover:bg-destructive/90"
                                   disabled={deleteNoteMutation.isPending}
                                 >
-                                  EXCLUIR
+                                  Excluir
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -311,7 +311,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
               </ul>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground text-sm">NENHUMA NOTA ADICIONADA AINDA.</p>
+            <p className="text-center text-muted-foreground text-sm">Nenhuma nota adicionada ainda.</p>
           )}
         </div>
       </CardContent>
@@ -320,22 +320,22 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>EDITAR NOTA</DialogTitle>
+            <DialogTitle>Editar Nota</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <Textarea
               value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value.toUpperCase())} // Convert to uppercase
+              onChange={(e) => setEditedContent(e.target.value)}
               rows={5}
               disabled={updateNoteMutation.isPending}
             />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleCancelEdit} disabled={updateNoteMutation.isPending}>
-              CANCELAR
+              Cancelar
             </Button>
             <Button onClick={handleSaveEdit} disabled={!editedContent.trim() || updateNoteMutation.isPending}>
-              SALVAR ALTERAÇÕES
+              Salvar Alterações
             </Button>
           </DialogFooter>
         </DialogContent>

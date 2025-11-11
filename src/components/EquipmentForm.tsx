@@ -68,7 +68,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     serial_number: data.serial_number || undefined,
                     google_drive_link: data.google_drive_link || undefined, // NOVO: Enviando google_drive_link
                 });
-                showSuccess(`EQUIPAMENTO '${data.name}' ATUALIZADO COM SUCESSO!`);
+                showSuccess(`Equipamento '${data.name}' atualizado com sucesso!`);
             } else {
                 // Criar novo equipamento
                 resultEquipment = await createEquipment.mutateAsync({
@@ -79,12 +79,12 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     serial_number: data.serial_number || undefined,
                     google_drive_link: data.google_drive_link || undefined, // NOVO: Enviando google_drive_link
                 });
-                showSuccess(`EQUIPAMENTO '${data.name}' CRIADO COM SUCESSO!`);
+                showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
             }
             onSubmit(resultEquipment);
         } catch (error) {
             console.error("Erro ao salvar equipamento:", error);
-            showError("ERRO AO SALVAR EQUIPAMENTO. TENTE NOVAMENTE.");
+            showError("Erro ao salvar equipamento. Tente novamente.");
         }
     };
 
@@ -100,12 +100,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel>Nome do Equipamento *</FormLabel>
                             <FormControl>
-                                <Input 
-                                  placeholder="Ex: Notebook, Servidor" 
-                                  {...field} 
-                                  value={field.value || ""}
-                                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                />
+                                <Input placeholder="Ex: Notebook, Servidor" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -119,12 +114,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel>Marca (Opcional)</FormLabel>
                             <FormControl>
-                                <Input 
-                                  placeholder="Ex: Dell, Apple, Samsung" 
-                                  {...field} 
-                                  value={field.value || ""}
-                                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                />
+                                <Input placeholder="Ex: Dell, Apple, Samsung" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -138,12 +128,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel>Modelo (Opcional)</FormLabel>
                             <FormControl>
-                                <Input 
-                                  placeholder="Ex: XPS 13, iPhone 15" 
-                                  {...field} 
-                                  value={field.value || ""}
-                                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                />
+                                <Input placeholder="Ex: XPS 13, iPhone 15" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -156,12 +141,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel>Nº de Série (Opcional)</FormLabel>
                             <FormControl>
-                                <Input 
-                                  placeholder="Ex: ABC123XYZ" 
-                                  {...field} 
-                                  value={field.value || ""}
-                                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                />
+                                <Input placeholder="Ex: ABC123XYZ" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -174,12 +154,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel>Google Drive (Opcional)</FormLabel>
                             <FormControl>
-                                <Input 
-                                  placeholder="Link da pasta ou arquivo no Google Drive" 
-                                  {...field} 
-                                  value={field.value || ""}
-                                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                />
+                                <Input placeholder="Link da pasta ou arquivo no Google Drive" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -187,10 +162,10 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                 />
                 <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-2"> {/* Ajustado para empilhar em mobile */}
                     <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} className="w-full sm:w-auto">
-                        CANCELAR
+                        Cancelar
                     </Button>
                     <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-                        {isEditing ? "SALVAR ALTERAÇÕES" : "CRIAR EQUIPAMENTO"}
+                        {isEditing ? "Salvar Alterações" : "Criar Equipamento"}
                     </Button>
                 </div>
             </form>

@@ -30,7 +30,7 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
         </Button>
         <Button variant="outline" className="hidden sm:flex" onClick={onEdit}>
             <Edit className="h-4 w-4 mr-2" />
-            EDITAR
+            Editar
         </Button>
         
         <AlertDialog>
@@ -51,26 +51,26 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
                         disabled={isDeleting}
                     >
                         <Trash2 className="h-4 w-4 mr-2" />
-                        EXCLUIR
+                        Excluir
                     </Button>
                 </>
             </AlertDialogTrigger>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>TEM CERTEZA ABSOLUTA?</AlertDialogTitle>
+                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        ESTA AÇÃO NÃO PODE SER DESFEITA. ISSO EXCLUIRÁ PERMANENTEMENTE O CLIENTE 
-                        <span className="font-semibold"> {client.name.toUpperCase()}</span> E TODOS OS DADOS ASSOCIADOS.
+                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
+                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>CANCELAR</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction 
                         onClick={onDelete} 
                         className="bg-destructive hover:bg-destructive/90"
                         disabled={isDeleting}
                     >
-                        EXCLUIR
+                        Excluir
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -80,7 +80,7 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
 
 const isGoogleMapsLink = (mapsLink: string | null): boolean => {
   if (!mapsLink) return false;
-  return mapsLink.includes("GOOGLE.COM/MAPS") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
+  return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
@@ -89,39 +89,39 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     return (
         <div className="space-y-4 text-sm">
             <div>
-              <p className="text-muted-foreground">NOME</p>
-              <p className="font-medium">{client.name.toUpperCase()}</p>
+              <p className="text-muted-foreground">Nome</p>
+              <p className="font-medium">{client.name}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">LOJA</p>
-              <p className="font-medium">{(client.store || 'N/A').toUpperCase()}</p>
+              <p className="text-muted-foreground">Loja</p>
+              <p className="font-medium">{client.store || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">LOCALIDADE</p>
-              <p className="font-medium">{(client.locality || 'N/A').toUpperCase()}</p>
+              <p className="text-muted-foreground">Localidade</p>
+              <p className="font-medium">{client.locality || 'N/A'}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">MAPS</p>
+              <p className="text-muted-foreground">Maps</p>
               {client.maps_link ? (
                 isGoogleMapsLink(client.maps_link) ? (
                   <a 
-                    href={client.maps_link.startsWith("HTTP") ? client.maps_link : `HTTPS://WWW.GOOGLE.COM/MAPS/SEARCH/?API=1&QUERY=${encodeURIComponent(client.maps_link)}`}
+                    href={client.maps_link.startsWith("http") ? client.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`}
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center gap-1 text-blue-600 hover:underline"
                   >
                     <MapPin className="h-4 w-4" />
-                    VER NO MAPA
+                    Ver no Mapa
                   </a>
                 ) : (
-                  <p className="font-medium">{client.maps_link.toUpperCase()}</p>
+                  <p className="font-medium">{client.maps_link}</p>
                 )
               ) : (
                 <p className="text-muted-foreground">N/A</p>
               )}
             </div>
             <div>
-              <p className="text-muted-foreground">GOOGLE DRIVE</p>
+              <p className="text-muted-foreground">Google Drive</p>
               {hasGoogleDriveLink ? (
                 <a 
                   href={client.google_drive_link!} 
@@ -130,29 +130,29 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                   className="flex items-center gap-1 text-blue-600 hover:underline"
                 >
                   <FolderOpen className="h-4 w-4" />
-                  ABRIR PASTA
+                  Abrir Pasta
                 </a>
               ) : (
                 <p className="text-muted-foreground">N/A</p>
               )}
             </div>
             <div>
-              <p className="text-muted-foreground">CONTATO</p>
+              <p className="text-muted-foreground">Contato</p>
               {client.contact ? (
-                <a href={`TEL:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
                   <Phone className="h-4 w-4" />
-                  {client.contact.toUpperCase()}
+                  {client.contact}
                 </a>
               ) : (
                 <p className="text-muted-foreground">N/A</p>
               )}
             </div>
             <div>
-              <p className="text-muted-foreground">E-MAIL</p>
+              <p className="text-muted-foreground">E-mail</p>
               {client.email ? (
-                <a href={`MAILTO:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
                   <Mail className="h-4 w-4" />
-                  {client.email.toUpperCase()}
+                  {client.email}
                 </a>
               ) : (
                 <p className="text-muted-foreground">N/A</p>
@@ -175,11 +175,11 @@ const ClientDetails: React.FC = () => {
     if (!client?.id) return;
     try {
       await updateClient.mutateAsync({ id: client.id, ...data });
-      showSuccess(`CLIENTE ${data.name} ATUALIZADO COM SUCESSO!`);
+      showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
       setIsEditing(false);
     } catch (error) {
       console.error("Erro ao atualizar cliente:", error);
-      showError("ERRO AO ATUALIZAR CLIENTE. TENTE NOVAMENTE.");
+      showError("Erro ao atualizar cliente. Tente novamente.");
     }
   };
 
@@ -187,11 +187,11 @@ const ClientDetails: React.FC = () => {
     if (!client?.id || !client.name) return;
     try {
         await deleteClient.mutateAsync(client.id);
-        showSuccess(`CLIENTE ${client.name} REMOVIDO COM SUCESSO.`);
+        showSuccess(`Cliente ${client.name} removido com sucesso.`);
         navigate('/clients', { replace: true });
     } catch (error) {
         console.error("Erro ao deletar cliente:", error);
-        showError("ERRO AO DELETAR CLIENTE. TENTE NOVAMENTE.");
+        showError("Erro ao deletar cliente. Tente novamente.");
     }
   };
 
@@ -210,9 +210,9 @@ const ClientDetails: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">CLIENTE NÃO ENCONTRADO</h2>
-          <p className="text-muted-foreground">O CLIENTE COM ID {id} NÃO EXISTE OU VOCÊ NÃO TEM PERMISSÃO PARA VÊ-LO.</p>
-          <Button onClick={() => navigate('/clients')} className="mt-4">VOLTAR PARA CLIENTES</Button>
+          <h2 className="text-2xl font-bold">Cliente não encontrado</h2>
+          <p className="text-muted-foreground">O cliente com ID {id} não existe ou você não tem permissão para vê-lo.</p>
+          <Button onClick={() => navigate('/clients')} className="mt-4">Voltar para Clientes</Button>
         </div>
       </Layout>
     );
@@ -236,7 +236,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name.toUpperCase()}</h2> {/* Adicionado sm:text-3xl, truncate */}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Adicionado sm:text-3xl, truncate */}
           </div>
         </div>
 

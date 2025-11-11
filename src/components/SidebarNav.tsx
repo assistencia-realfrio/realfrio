@@ -23,11 +23,6 @@ const navItems = [
     href: "/clients",
     icon: Users,
   },
-  {
-    title: "Equipamentos", // Novo item para a página de Equipamentos
-    href: "/equipments",
-    icon: HardDrive,
-  },
 ];
 
 interface NavLinkProps {
@@ -59,7 +54,7 @@ const NavLink: React.FC<NavLinkProps> = ({ item, isMobile = false, onClick }) =>
       className={cn(baseClasses, isActive ? activeClasses : inactiveClasses)}
     >
       <Icon className="h-5 w-5" />
-      {item.title.toUpperCase()}
+      {item.title}
     </Link>
   );
 };

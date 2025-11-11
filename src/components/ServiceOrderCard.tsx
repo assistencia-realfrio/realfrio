@@ -51,7 +51,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     };
 
     const handleStatusChange = async (newStatus: ServiceOrderStatus) => {
-        const toastId = showLoading(`ALTERANDO ESTADO PARA ${newStatus}...`);
+        const toastId = showLoading(`Alterando estado para ${newStatus}...`);
         try {
             await updateOrder.mutateAsync({
                 ...order,
@@ -61,10 +61,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 equipment_id: order.equipment_id || undefined,
             });
             dismissToast(toastId);
-            showSuccess("ESTADO DA OS ALTERADO COM SUCESSO!");
+            showSuccess("Estado da OS alterado com sucesso!");
         } catch (error) {
             dismissToast(toastId);
-            showError("ERRO AO ALTERAR O ESTADO DA OS.");
+            showError("Erro ao alterar o estado da OS.");
             console.error("Status update error:", error);
         }
     };
@@ -93,7 +93,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         className={cn("text-xs font-medium truncate cursor-pointer", storeTextColorClass)} // Aplicando a cor da loja ao texto do ID da OS
                         onClick={handleNavigate}
                     >
-                        {order.display_id.toUpperCase()}
+                        {order.display_id}
                     </div>
                     <div className="flex items-center gap-1">
                         <Badge  
@@ -101,7 +101,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             className={cn("whitespace-nowrap text-xs px-2 py-0.5 bg-background/50 font-bold text-foreground")} // Removido border-border
                             style={{ borderColor: statusBgColor }} // Aplicando a cor do status ao contorno
                         >
-                            {order.status.toUpperCase()}
+                            {order.status}
                         </Badge>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -114,7 +114,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuLabel>ALTERAR ESTADO</DropdownMenuLabel>
+                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {serviceOrderStatuses.map((status) => (
                                     <DropdownMenuItem 
@@ -123,7 +123,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                                         disabled={updateOrder.isPending}
                                     >
                                         <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
-                                        {status.toUpperCase()}
+                                        {status}
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
@@ -134,21 +134,21 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     <div className="flex items-center gap-2">
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
                         <div className={cn("text-lg font-bold truncate text-foreground")}>
-                            {order.client.toUpperCase()}
+                            {order.client}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2">
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
                         <p className={cn("text-base truncate text-foreground")}>
-                            {order.equipment.toUpperCase()}
+                            {order.equipment}
                         </p>
                     </div>
                     
                     <div className="flex items-start gap-2">
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 mt-2 bg-foreground")} />
                         <p className={cn("text-sm line-clamp-3 flex-grow text-muted-foreground")}>
-                            {order.description.toUpperCase()}
+                            {order.description}
                         </p>
                     </div>
                 </div>

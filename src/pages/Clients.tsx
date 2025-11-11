@@ -28,11 +28,11 @@ const Clients: React.FC = () => {
   const handleNewClientSubmit = async (data: ClientFormValues) => {
     try {
         await createClient.mutateAsync(data);
-        showSuccess(`CLIENTE ${data.name} CRIADO COM SUCESSO!`);
+        showSuccess(`Cliente ${data.name} criado com sucesso!`);
         setIsNewClientModalOpen(false);
     } catch (error) {
         console.error("Erro ao criar cliente:", error);
-        showError("ERRO AO CRIAR CLIENTE. VERIFIQUE OS DADOS.");
+        showError("Erro ao criar cliente. Verifique os dados.");
     }
   };
 
@@ -40,18 +40,18 @@ const Clients: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-3xl font-bold tracking-tight">GESTÃO DE CLIENTES</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Gestão de Clientes</h2>
           
           <Dialog open={isNewClientModalOpen} onOpenChange={setIsNewClientModalOpen}>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto" onClick={() => setIsNewClientModalOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                NOVO CLIENTE
+                Novo Cliente
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>CRIAR NOVO CLIENTE</DialogTitle>
+                <DialogTitle>Criar Novo Cliente</DialogTitle>
               </DialogHeader>
               <ClientForm 
                 onSubmit={handleNewClientSubmit} 
@@ -66,10 +66,10 @@ const Clients: React.FC = () => {
           <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
-                placeholder="BUSCAR POR NOME OU CONTATO..." 
+                placeholder="Buscar por nome ou contato..." 
                 className="pl-10" 
-                value={searchTerm.toUpperCase()}
-                onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -80,12 +80,12 @@ const Clients: React.FC = () => {
               defaultValue={selectedStore}
             >
               <SelectTrigger>
-                <SelectValue placeholder="FILTRAR POR LOJA" />
+                <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">TODAS AS LOJAS</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA</SelectItem>
-                <SelectItem value="PORTO DE MÓS">PORTO DE MÓS</SelectItem>
+                <SelectItem value="ALL">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -70,16 +70,16 @@ const ServiceOrderDetails: React.FC = () => {
 
     try {
         await deleteOrder.mutateAsync(currentOrderId);
-        showSuccess(`ORDEM DE SERVIÇO ${order?.display_id || currentOrderId} EXCLUÍDA COM SUCESSO.`);
+        showSuccess(`Ordem de Serviço ${order?.display_id || currentOrderId} excluída com sucesso.`);
         navigate('/', { replace: true });
     } catch (error) {
         console.error("Erro ao deletar OS:", error);
-        showError("ERRO AO EXCLUIR ORDEM DE SERVIÇO. TENTE NOVAMENTE.");
+        showError("Erro ao excluir Ordem de Serviço. Tente novamente.");
     }
   };
 
-  const displayTitleId = (order?.display_id || currentOrderId || '').toUpperCase();
-  const titlePrefix = isNew ? "CRIAR NOVA ORDEM DE SERVIÇO" : "OS:";
+  const displayTitleId = order?.display_id || currentOrderId;
+  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "OS:";
 
   if (!isNew && isLoading) {
     return (
@@ -97,9 +97,9 @@ const ServiceOrderDetails: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">OS NÃO ENCONTRADA</h2>
-          <p className="text-muted-foreground">A ORDEM DE SERVIÇO COM ID {id} NÃO EXISTE OU VOCÊ NÃO TEM PERMISSÃO PARA VÊ-LA.</p>
-          <Button onClick={handleGoBack} className="mt-4">VOLTAR</Button>
+          <h2 className="text-2xl font-bold">OS não encontrada</h2>
+          <p className="text-muted-foreground">A Ordem de Serviço com ID {id} não existe ou você não tem permissão para vê-la.</p>
+          <Button onClick={handleGoBack} className="mt-4">Voltar</Button>
         </div>
       </Layout>
     );
@@ -134,20 +134,20 @@ const ServiceOrderDetails: React.FC = () => {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
-                                <AlertDialogTitle>TEM CERTEZA ABSOLUTA?</AlertDialogTitle>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    ESTA AÇÃO NÃO PODE SER DESFEITA. ISSO EXCLUIRÁ PERMANENTEMENTE A ORDEM DE SERVIÇO 
-                                    <span className="font-semibold"> {displayTitleId}</span> E TODOS OS DADOS ASSOCIADOS.
+                                    Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
+                                    <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                                <AlertDialogCancel>CANCELAR</AlertDialogCancel>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction 
                                     onClick={handleDelete} 
                                     className="bg-destructive hover:bg-destructive/90"
                                     disabled={deleteOrder.isPending}
                                 >
-                                    EXCLUIR
+                                    Excluir
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
@@ -159,7 +159,7 @@ const ServiceOrderDetails: React.FC = () => {
         {selectedView === "details" && (
           <Card className="shadow-none border-none">
             <CardHeader>
-              <CardTitle>{isNew ? "PREENCHA OS DETALHES DA NOVA OS" : "EDITAR ORDEM DE SERVIÇO"}</CardTitle> {/* Removido o texto "EDITAR ORDEM DE SERVIÇO" */}
+              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
             </CardHeader>
             <CardContent>
               <ServiceOrderForm 
@@ -173,7 +173,7 @@ const ServiceOrderDetails: React.FC = () => {
 
         {selectedView === "attachments" && (
           !canAccessTabs ? (
-            <p className="text-center text-muted-foreground py-8">SALVE A OS PARA ADICIONAR ANEXOS.</p>
+            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar anexos.</p>
           ) : (
             <Attachments orderId={currentOrderId!} />
           )
@@ -181,7 +181,7 @@ const ServiceOrderDetails: React.FC = () => {
 
         {selectedView === "equipment" && (
           !canAccessTabs || !order?.equipment_id ? (
-            <p className="text-center text-muted-foreground py-8">SALVE A OS E SELECIONE UM EQUIPAMENTO PARA VER SEUS DETALHOS.</p>
+            <p className="text-center text-muted-foreground py-8">Salve a OS e selecione um equipamento para ver seus detalhes.</p>
           ) : (
             <ServiceOrderEquipmentDetails equipmentId={order.equipment_id!} />
           )
@@ -189,7 +189,7 @@ const ServiceOrderDetails: React.FC = () => {
 
         {selectedView === "activity" && (
           !canAccessTabs ? (
-            <p className="text-center text-muted-foreground py-8">SALVE A OS PARA VER O HISTÓRICO DE ATIVIDADES.</p>
+            <p className="text-center text-muted-foreground py-8">Salve a OS para ver o histórico de atividades.</p>
           ) : (
             <ActivityLog entityType="service_order" entityId={currentOrderId!} />
           )
@@ -197,7 +197,7 @@ const ServiceOrderDetails: React.FC = () => {
 
         {selectedView === "notes" && ( // Nova aba para Notas
           !canAccessTabs ? (
-            <p className="text-center text-muted-foreground py-8">SALVE A OS PARA ADICIONAR E VER AS NOTAS.</p>
+            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver as notas.</p>
           ) : (
             <ServiceOrderNotes orderId={currentOrderId!} />
           )

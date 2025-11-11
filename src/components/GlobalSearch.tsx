@@ -33,27 +33,27 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="PESQUISAR CLIENTES, OS, EQUIPAMENTOS..." />
+      <CommandInput placeholder="Pesquisar clientes, OS, equipamentos..." />
       <CommandList>
-        <CommandEmpty>{isLoading ? "A CARREGAR..." : "NENHUM RESULTADO ENCONTRADO."}</CommandEmpty>
+        <CommandEmpty>{isLoading ? "A carregar..." : "Nenhum resultado encontrado."}</CommandEmpty>
         
         {!isLoadingClients && clients.length > 0 && (
-          <CommandGroup heading="CLIENTES">
+          <CommandGroup heading="Clientes">
             {clients.map((client) => (
               <CommandItem
                 key={`client-${client.id}`}
-                value={`CLIENTE ${client.name}`}
+                value={`Cliente ${client.name}`}
                 onSelect={() => runCommand(() => navigate(`/clients/${client.id}`))}
               >
                 <Users className="mr-2 h-4 w-4" />
-                <span>{client.name.toUpperCase()}</span>
+                <span>{client.name}</span>
               </CommandItem>
             ))}
           </CommandGroup>
         )}
 
         {!isLoadingOrders && orders.length > 0 && (
-          <CommandGroup heading="ORDENS DE SERVIÇO">
+          <CommandGroup heading="Ordens de Serviço">
             {orders.map((order) => (
               <CommandItem
                 key={`order-${order.id}`}
@@ -61,22 +61,22 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
                 onSelect={() => runCommand(() => navigate(`/orders/${order.id}`))}
               >
                 <Wrench className="mr-2 h-4 w-4" />
-                <span>{order.display_id.toUpperCase()} - {order.client.toUpperCase()}</span>
+                <span>{order.display_id} - {order.client}</span>
               </CommandItem>
             ))}
           </CommandGroup>
         )}
 
         {!isLoadingEquipments && equipments.length > 0 && (
-          <CommandGroup heading="EQUIPAMENTOS">
+          <CommandGroup heading="Equipamentos">
             {equipments.map((equipment) => (
               <CommandItem
                 key={`equipment-${equipment.id}`}
-                value={`EQUIPAMENTO ${equipment.name} ${equipment.client_name}`}
+                value={`Equipamento ${equipment.name} ${equipment.client_name}`}
                 onSelect={() => runCommand(() => navigate(`/equipments/${equipment.id}`))}
               >
                 <HardDrive className="mr-2 h-4 w-4" />
-                <span>{equipment.name.toUpperCase()} ({equipment.client_name.toUpperCase()})</span>
+                <span>{equipment.name} ({equipment.client_name})</span>
               </CommandItem>
             ))}
           </CommandGroup>
