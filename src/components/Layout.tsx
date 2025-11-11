@@ -104,16 +104,16 @@ const Header = () => {
                     <React.Fragment key={activity.id}>
                       <DropdownMenuItem 
                         onClick={() => handleNotificationClick(activity.entity_type, activity.entity_id)}
-                        className="flex flex-col items-start space-y-1 cursor-pointer py-2" // Adicionado py-2
+                        className="flex flex-col items-start space-y-1 cursor-pointer py-2"
                       >
                         <p className="text-sm text-foreground line-clamp-2">
                           {activity.content}
                         </p>
-                        <p className="text-xs text-muted-foreground self-end">
+                        <p className="text-xs text-muted-foreground"> {/* Removido self-end */}
                           {activity.user_full_name} • {activity.time_ago}
                         </p>
                       </DropdownMenuItem>
-                      {index < activities.length - 1 && <DropdownMenuSeparator />} {/* Adiciona separador entre itens */}
+                      {index < activities.length - 1 && <DropdownMenuSeparator />}
                     </React.Fragment>
                   ))
                 ) : (
