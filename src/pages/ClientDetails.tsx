@@ -80,12 +80,6 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
     </div>
 );
 
-// Removido: isGoogleMapsLink não é mais necessário aqui, pois a lógica foi generalizada
-// const isGoogleMapsLink = (mapsLink: string | null): boolean => {
-//   if (!mapsLink) return false;
-//   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
-// };
-
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
 
@@ -249,7 +243,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Adicionado sm:text-3xl, truncate */}
+            {/* REMOVIDO: Título com o nome do cliente */}
           </div>
         </div>
 
