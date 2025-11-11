@@ -52,7 +52,7 @@ const App = () => (
             } 
           />
           <Route 
-            path="/clients/:clientId" 
+            path="/clients/:id" 
             element={
               <ProtectedRoute>
                 <ClientDetails /> {/* Rota para detalhes do cliente */}

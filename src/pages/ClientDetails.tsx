@@ -1,78 +1,219 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/contexts/SessionContext";
-import { showSuccess, showError } from "@/utils/toast";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, MapPin, Mail, Phone, Store, Calendar, Link as LinkIcon, Loader2, FileText, HardDrive, History } from "lucide-react";
-import EquipmentList from "@/components/EquipmentList";
-import ActivityFeed from "@/components/ActivityFeed";
-import ClientForm from "@/components/ClientForm";
-import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { Separator } from "@/components/ui/separator";
-import { Client } from "@/types";
 import Layout from "@/components/Layout";
-import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav"; // Importar navegação inferior
-import ClientOrdersTab from "@/components/ClientOrdersTab"; // Importar a aba de ordens
+import ClientForm, { ClientFormValues } from "@/components/ClientForm";
+import { Client, useClients } from "@/hooks/useClients";
+import { showSuccess, showError } from "@/utils/toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen } from "lucide-react"; // Adicionado FolderOpen
+import ClientOrdersTab from "@/components/ClientOrdersTab";
+import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Caminho corrigido
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
+import ActivityLog from "@/components/ActivityLog";
+import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
+import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
 
-type View = 'details' | 'orders' | 'equipments' | 'history';
+const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
+    <div className="flex justify-end space-x-2 mb-4">
+        <Button variant="outline" size="icon" className="sm:hidden" onClick={onEdit} aria-label="Editar">
+            <Edit className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" className="hidden sm:flex" onClick={onEdit}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+        </Button>
+        
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <>
+                    <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="sm:hidden"
+                        disabled={isDeleting}
+                        aria-label="Excluir"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                        variant="destructive" 
+                        className="hidden sm:flex"
+                        disabled={isDeleting}
+                    >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Excluir
+                    </Button>
+                </>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
+                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                        onClick={onDelete} 
+                        className="bg-destructive hover:bg-destructive/90"
+                        disabled={isDeleting}
+                    >
+                        Excluir
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </div>
+);
+
+// Removido: isGoogleMapsLink não é mais necessário aqui, pois a lógica foi generalizada
+// const isGoogleMapsLink = (mapsLink: string | null): boolean => {
+//   if (!mapsLink) return false;
+//   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
+// };
+
+const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
+    const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
+
+    // Função auxiliar para construir o href do mapa
+    const getMapHref = (mapsLink: string) => {
+      if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
+        return mapsLink;
+      }
+      // Se for coordenadas, formata para busca no Google Maps
+      if (/^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink)) {
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsLink)}`;
+      }
+      return "#"; // Fallback, embora isLinkClickable já devesse filtrar isso
+    };
+
+    return (
+        <Card> {/* Adicionado Card aqui */}
+            <CardContent className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
+                <div>
+                  <p className="text-muted-foreground">Nome</p>
+                  <p className="font-medium">{client.name}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Loja</p>
+                  <p className="font-medium">{client.store || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Localidade</p>
+                  <p className="font-medium">{client.locality || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Maps</p>
+                  {client.maps_link && isLinkClickable(client.maps_link) ? (
+                    <a 
+                      href={getMapHref(client.maps_link)}
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-1 text-blue-600 hover:underline"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      Ver no Mapa
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">{client.maps_link || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Google Drive</p>
+                  {hasGoogleDriveLink ? (
+                    <a 
+                      href={client.google_drive_link!} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-1 text-blue-600 hover:underline"
+                    >
+                      <FolderOpen className="h-4 w-4" />
+                      Abrir Pasta
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Contato</p>
+                  {client.contact ? (
+                    <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                      <Phone className="h-4 w-4" />
+                      {client.contact}
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-muted-foreground">E-mail</p>
+                  {client.email ? (
+                    <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                      <Mail className="h-4 w-4" />
+                      {client.email}
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+              </CardContent>
+          </Card>
+    );
+};
 
 const ClientDetails: React.FC = () => {
-  const { clientId } = useParams<{ clientId: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useSession();
-  const [client, setClient] = useState<Client | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<View>('details'); // Estado para navegação inferior
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'history'>("details");
 
-  const fetchClient = async () => {
-    if (!clientId) return;
+  const client = id ? clients.find(c => c.id === id) : undefined;
 
-    setIsLoading(true);
+  const handleFormSubmit = async (data: ClientFormValues) => {
+    if (!client?.id) return;
     try {
-      const { data, error } = await supabase
-        .from("clients")
-        .select("*")
-        .eq("id", clientId)
-        .single();
-
-      if (error) throw error;
-      setClient(data as Client); 
+      await updateClient.mutateAsync({ id: client.id, ...data });
+      showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
+      setIsEditing(false);
     } catch (error) {
-      console.error("Erro ao buscar detalhes do cliente:", error);
-      showError("Erro ao carregar detalhes do cliente.");
-    } finally {
-      setIsLoading(false);
+      console.error("Erro ao atualizar cliente:", error);
+      showError("Erro ao atualizar cliente. Tente novamente.");
     }
   };
 
-  useEffect(() => {
-    fetchClient();
-  }, [clientId]);
-
-  const handleUpdate = (updatedClient: Client) => {
-    setClient(updatedClient);
-    setIsEditing(false);
-    showSuccess("Cliente atualizado com sucesso!");
+  const handleDeleteClient = async () => {
+    if (!client?.id || !client.name) return;
+    try {
+        await deleteClient.mutateAsync(client.id);
+        showSuccess(`Cliente ${client.name} removido com sucesso.`);
+        navigate('/clients', { replace: true });
+    } catch (error) {
+        console.error("Erro ao deletar cliente:", error);
+        showError("Erro ao deletar cliente. Tente novamente.");
+    }
   };
-
-  const handleGoBack = () => navigate("/clients");
 
   if (isLoading) {
     return (
       <Layout>
-        <div className="p-4 space-y-4">
-          <Skeleton className="h-10 w-40" />
-          <Skeleton className="h-12 w-full" />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <Skeleton className="h-40 col-span-1" />
-            <Skeleton className="h-40 col-span-2" />
-          </div>
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-96 w-full" />
         </div>
       </Layout>
     );
@@ -81,177 +222,76 @@ const ClientDetails: React.FC = () => {
   if (!client) {
     return (
       <Layout>
-        <div className="p-4 text-center text-muted-foreground">Cliente não encontrado.</div>
-      </Layout>
-    );
-  }
-
-  if (isEditing) {
-    return (
-      <Layout>
-        <div className="p-4 max-w-4xl mx-auto">
-          <Button variant="outline" onClick={() => setIsEditing(false)} className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
-          </Button>
-          <ClientForm initialData={client} onSuccess={handleUpdate} />
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">Cliente não encontrado</h2>
+          <p className="text-muted-foreground">O cliente com ID {id} não existe ou você não tem permissão para vê-lo.</p>
+          <Button onClick={() => navigate('/clients')} className="mt-4">Voltar para Clientes</Button>
         </div>
       </Layout>
     );
   }
 
-  // Componente de Visualização de Detalhes
-  const ClientDetailsView = () => (
-    <Card className="shadow-none border-none">
-      <CardHeader className="p-0 pb-4">
-        <CardTitle className="text-lg">Informações Básicas</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3 text-sm p-0">
-        {/* Localidade */}
-        <div className="flex items-center text-muted-foreground min-w-0">
-          <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="truncate min-w-0" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
-        </div>
-        {/* Loja */}
-        <div className="flex items-center text-muted-foreground min-w-0">
-          <Store className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="truncate min-w-0" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
-        </div>
-        {/* Contato */}
-        <div className="flex items-center text-muted-foreground min-w-0">
-          <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="min-w-0 truncate">
-            Contato: 
-            {client.contact ? (
-              <a 
-                href={`tel:${client.contact}`} 
-                className="text-primary hover:underline ml-1 font-medium"
-              >
-                {client.contact}
-              </a>
-            ) : (
-              " N/A"
-            )}
-          </p>
-        </div>
-        {/* Email */}
-        <div className="flex items-center text-muted-foreground min-w-0">
-          <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="truncate min-w-0" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
-        </div>
-        {/* Criado em */}
-        <div className="flex items-center text-muted-foreground min-w-0">
-          <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="min-w-0 truncate">Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
-        </div>
-        
-        <Separator className="my-3" />
-
-        {/* Google Maps Link */}
-        {client.maps_link && (
-          <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors min-w-0 truncate">
-            <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-            <span className="truncate">Ver no Google Maps</span>
-          </a>
-        )}
-        {/* Google Drive Link */}
-        {client.google_drive_link && (
-          <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors min-w-0 truncate">
-            <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
-            <span className="truncate">Acessar Google Drive</span>
-          </a>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  const renderContent = (view: View) => {
-    switch (view) {
-      case 'details':
-        return <ClientDetailsView />;
-      case 'orders':
-        return <ClientOrdersTab clientId={clientId!} />;
-      case 'equipments':
-        return <EquipmentList clientId={clientId!} />;
-      case 'history':
-        return <ActivityFeed entityType="client" entityId={clientId!} />;
-      default:
-        return <ClientDetailsView />;
-    }
+  const initialFormData: ClientFormValues = {
+    name: client.name,
+    contact: client.contact || "",
+    email: client.email || "",
+    store: client.store || "CALDAS DA RAINHA",
+    maps_link: client.maps_link || "",
+    locality: client.locality || "",
+    google_drive_link: client.google_drive_link || "", // NOVO: Adicionando google_drive_link
   };
 
   return (
     <Layout>
-      <div className="space-y-6 pb-20 lg:pb-8"> {/* Adicionado padding bottom para a navegação inferior */}
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center min-w-0 flex-1">
-            <Button variant="ghost" size="icon" onClick={handleGoBack} className="flex-shrink-0 mr-2">
-              <ArrowLeft className="h-5 w-5" />
+      <div className="space-y-6 pb-20">
+        <div className="flex items-center justify-between gap-2"> {/* Adicionado gap-2 */}
+          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0"> {/* Adicionado flex-1, min-w-0, sm:gap-4 */}
+            <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="min-w-0 flex-1"> 
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
-            </div>
-          </div>
-          <div className="flex-shrink-0">
-            <Button onClick={() => setIsEditing(true)}>
-              <Edit className="h-4 w-4 mr-2" /> Editar Cliente
-            </Button>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Adicionado sm:text-3xl, truncate */}
           </div>
         </div>
 
-        <Separator />
+        {selectedView === 'details' && (
+          <>
+            {!isEditing && (
+              <ClientActions 
+                client={client} 
+                onEdit={() => setIsEditing(true)} 
+                onDelete={handleDeleteClient}
+                isDeleting={deleteClient.isPending}
+              />
+            )}
+            
+            {isEditing ? (
+              <ClientForm 
+                initialData={initialFormData} 
+                onSubmit={handleFormSubmit} 
+                onCancel={() => setIsEditing(false)} 
+              />
+            ) : (
+              <ClientDetailsView client={client} />
+            )}
+          </>
+        )}
 
-        {/* Desktop Tabs / Mobile Content */}
-        <div className="lg:hidden">
-          {/* Mobile: Renderiza apenas o conteúdo da view selecionada */}
-          {renderContent(selectedView)}
-        </div>
+        {selectedView === 'orders' && (
+          <ClientOrdersTab clientId={client.id} />
+        )}
 
-        <div className="hidden lg:grid grid-cols-3 gap-6">
-          {/* Desktop: Coluna de Detalhes Fixa */}
-          <div className="lg:col-span-1 h-fit">
-            <Card>
-              <CardContent className="pt-6">
-                <ClientDetailsView />
-              </CardContent>
-            </Card>
-          </div>
+        {selectedView === 'equipments' && (
+          <ClientEquipmentTab clientId={client.id} />
+        )}
 
-          {/* Desktop: Tabs para Ordens, Equipamentos e Atividade */}
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="orders">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="orders">
-                  <FileText className="h-4 w-4 mr-2" /> Ordens
-                </TabsTrigger>
-                <TabsTrigger value="equipments">
-                  <HardDrive className="h-4 w-4 mr-2" /> Equipamentos
-                </TabsTrigger>
-                <TabsTrigger value="history">
-                  <History className="h-4 w-4 mr-2" /> Histórico
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="orders" className="mt-4">
-                <ClientOrdersTab clientId={clientId!} />
-              </TabsContent>
-              <TabsContent value="equipments" className="mt-4">
-                <EquipmentList clientId={clientId!} />
-              </TabsContent>
-              <TabsContent value="history" className="mt-4">
-                <ActivityFeed entityType="client" entityId={clientId!} />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+        {selectedView === 'history' && (
+          <ActivityLog entityType="client" entityId={client.id} />
+        )}
       </div>
-      
-      {/* Navegação Inferior (Apenas em Mobile) */}
-      <div className="lg:hidden">
-        <ClientDetailsBottomNav
-          selectedView={selectedView}
-          onSelectView={setSelectedView}
-        />
-      </div>
+      <ClientDetailsBottomNav
+        selectedView={selectedView}
+        onSelectView={setSelectedView}
+      />
     </Layout>
   );
 };

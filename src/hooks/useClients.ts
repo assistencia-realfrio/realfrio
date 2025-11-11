@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
-import { ClientFormValues } from "@/components/ClientForm"; // CORRIGIDO: Importação nomeada
+import { ClientFormValues } from "@/components/ClientForm";
 import { useServiceOrders } from "./useServiceOrders"; // Importando o hook de OS
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
 import { logActivity } from "@/utils/activityLogger";

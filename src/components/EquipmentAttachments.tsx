@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, Trash2, Download, Eye, MousePointer } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Upload, FileText, Trash2, Download, Eye } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -9,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from "@/components/ui/skeleton";
-import { stripUuidFromFile, cn } from "@/lib/utils";
+import { stripUuidFromFile } from "@/lib/utils";
 
 interface Attachment {
   id: string;
@@ -68,7 +70,6 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
   const [previewFileName, setPreviewFileName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isLoadingAttachments, setIsLoadingAttachments] = useState(true);
-  const [isDragging, setIsDragging] = useState(false); // Novo estado para drag
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -213,29 +214,6 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
     setPreviewFileName(stripUuidFromFile(attachment.name));
     setIsPreviewModalOpen(true);
   };
-  
-  // --- Drag and Drop Handlers ---
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      setSelectedFile(file);
-      e.dataTransfer.clearData();
-    }
-  };
-  // -----------------------------
 
   return (
     <Card>
@@ -243,24 +221,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
         <CardTitle>Anexos</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div 
-          className={cn(
-            "space-y-3 border-2 border-dashed p-4 rounded-md transition-colors",
-            isDragging ? "border-primary bg-primary/10" : "border-border bg-muted/20"
-          )}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <h4 className="text-md font-semibold flex items-center justify-center text-center">
-            <MousePointer className="h-5 w-5 mr-2 text-muted-foreground" />
-            Arraste e solte um arquivo aqui
-          </h4>
-          
-          <div className="flex items-center justify-center">
-            <span className="text-sm text-muted-foreground">ou</span>
-          </div>
-
+        <div className="space-y-3 border p-4 rounded-md">
           <div className="flex flex-col sm:flex-row gap-3">
             <input 
               id="equipment-file-upload" 
