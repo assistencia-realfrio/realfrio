@@ -38,7 +38,7 @@ export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'c
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'technician_name'> & {
     clients: { name: string } | { name: string }[] | null;
-    profiles: { first_name: string, last_name: string } | { first_name: string, last_name: string }[] | null;
+    technicians: { first_name: string, last_name: string } | { first_name: string, last_name: string }[] | null; // Alterado para 'technicians'
 };
 
 const generateDisplayId = (store: ServiceOrder['store']): string => {
@@ -68,7 +68,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       scheduled_date,
       technician_id,
       clients (name),
-      profiles (first_name, last_name)
+      technicians:profiles!service_orders_technician_id_fkey (first_name, last_name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
 
@@ -85,9 +85,9 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         ? order.clients[0]?.name || 'Cliente Desconhecido'
         : order.clients?.name || 'Cliente Desconhecido';
         
-    const technicianProfile = Array.isArray(order.profiles) 
-        ? order.profiles[0] 
-        : order.profiles;
+    const technicianProfile = Array.isArray(order.technicians) // Alterado para 'technicians'
+        ? order.technicians[0] 
+        : order.technicians;
         
     const technicianName = technicianProfile 
         ? `${technicianProfile.first_name || ''} ${technicianProfile.last_name || ''}`.trim() || 'Técnico Desconhecido'
