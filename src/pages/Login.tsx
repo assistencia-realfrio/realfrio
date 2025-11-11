@@ -13,7 +13,7 @@ const Login: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Carregando...</p>
+        <p className="text-lg text-muted-foreground">CARREGANDO...</p>
       </div>
     );
   }
@@ -29,8 +29,8 @@ const Login: React.FC = () => {
         <CardHeader className="text-center space-y-2">
           {/* Substituído o ícone Wrench pelo logo da empresa */}
           <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-16 mx-auto mb-2" />
-          <CardTitle className="text-2xl font-bold">Gestão de Ordens de Serviço</CardTitle> {/* Título atualizado */}
-          <p className="text-sm text-muted-foreground">Faça login para acessar o sistema.</p>
+          <CardTitle className="text-2xl font-bold">ASSISTÊNCIA TÉCNICA</CardTitle> {/* Título atualizado */}
+          <p className="text-sm text-muted-foreground">FAÇA LOGIN PARA ACESSAR O SISTEMA.</p>
         </CardHeader>
         <CardContent>
           <Auth
