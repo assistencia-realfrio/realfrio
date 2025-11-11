@@ -18,14 +18,17 @@ type StoreFilter = ServiceOrder['store'] | 'ALL';
 
 const Dashboard: React.FC = () => {
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-  const { totalOrders, pendingOrders, completedOrders, totalTimeRegistered, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
+  const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
+
+  // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.
+  const totalTimeRegistered = "0h"; 
 
   if (isLoading) {
     return (
       <Layout>
         <div className="space-y-8">
           <Skeleton className="h-10 w-1/3" />
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
             {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
           </div>
           <Skeleton className="h-[350px] w-full" />
@@ -57,7 +60,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Seção de Métricas */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
           <MetricCard
             title="Total de OS"
             value={totalOrders}
@@ -82,7 +85,7 @@ const Dashboard: React.FC = () => {
           <MetricCard
             title="Tempo Total Registrado"
             value={totalTimeRegistered}
-            description="Tempo total de trabalho registrado."
+            description="Tempo total de trabalho registrado (Mock)."
             icon={Clock}
             iconColorClass="text-yellow-500"
           />
@@ -95,8 +98,8 @@ const Dashboard: React.FC = () => {
           <div className="lg:col-span-2">
             <MetricCard
                 title="Próximos Passos"
-                value="Melhorias e Relatórios"
-                description="Continuar aprimorando a gestão e relatórios."
+                value="Integração de Tempo e Anexos"
+                description="Implementar persistência de dados para Tempo e Anexos."
                 icon={Users}
                 iconColorClass="text-gray-500"
             />
