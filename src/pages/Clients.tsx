@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ClientForm, { ClientFormValues } from "@/components/ClientForm";
+import ClientForm, { ClientFormValues } from "@/components/ClientForm"; // CORRIGIDO: Importação nomeada
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 
@@ -54,7 +54,7 @@ const Clients: React.FC = () => {
                 <DialogTitle>Criar Novo Cliente</DialogTitle>
               </DialogHeader>
               <ClientForm 
-                onSubmit={handleNewClientSubmit} 
+                onSubmit={handleNewClientSubmit} // CORRIGIDO: Passando onSubmit
                 onCancel={() => setIsNewClientModalOpen(false)}
               />
             </DialogContent>

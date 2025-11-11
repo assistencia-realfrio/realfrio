@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import ClientForm, { ClientFormValues } from "./ClientForm";
+import ClientForm, { ClientFormValues } from "./ClientForm"; // CORRIGIDO: Importação nomeada
 import { showSuccess, showError } from "@/utils/toast";
 import { useClients, Client } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
 import { Skeleton } from "@/components/ui/skeleton";
@@ -126,7 +126,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
             <DialogTitle>Adicionar Novo Cliente</DialogTitle>
           </DialogHeader>
           <ClientForm 
-            onSubmit={handleNewClientSubmit} 
+            onSubmit={handleNewClientSubmit} // CORRIGIDO: Passando onSubmit
             onCancel={() => setIsModalOpen(false)}
           />
         </DialogContent>

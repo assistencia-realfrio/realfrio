@@ -7,10 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Client, ClientFormValues, StoreLocation } from '@/types';
+import { Client, StoreLocation } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/contexts/SessionContext';
-import { showError } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast'; // Adicionado showSuccess
 import { Loader2 } from 'lucide-react';
 
 const storeLocations: StoreLocation[] = ["CALDAS DA RAINHA", "PORTO DE MÓS"];
@@ -25,12 +25,19 @@ const formSchema = z.object({
   google_drive_link: z.string().url({ message: "Link do Google Drive inválido." }).nullable().optional().or(z.literal('')),
 });
 
+export type ClientFormValues = z.infer<typeof formSchema>; // EXPORTADO
+
 interface ClientFormProps {
   initialData?: Client;
-  onSuccess: (client: Client) => void;
+  // Alterado para aceitar a função de submissão do modal/página
+  onSubmit?: (values: ClientFormValues) => Promise<void>; 
+  onCancel?: () => void;
+  // Mantido onSuccess para uso interno (se necessário) ou removido se não for usado
+  // Como o ClientDetails usa onSuccess, vamos manter a lógica de submissão separada
+  onSuccess?: (client: Client) => void; 
 }
 
-const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess }) => {
+const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel, onSuccess }) => {
   const { user } = useSession();
   const isEdit = !!initialData;
 
@@ -49,7 +56,14 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess }) => {
 
   const { isSubmitting } = form.formState;
 
-  const onSubmit = async (values: ClientFormValues) => {
+  const handleInternalSubmit = async (values: ClientFormValues) => {
+    // Se a prop onSubmit for fornecida (usado em modais/páginas de criação), chamamos ela.
+    if (onSubmit) {
+        await onSubmit(values);
+        return;
+    }
+    
+    // Lógica de submissão padrão (usado em ClientDetails para edição)
     if (!user?.id) {
       showError("Usuário não autenticado.");
       return;
@@ -57,7 +71,6 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess }) => {
 
     const payload = {
       ...values,
-      // Ensure empty strings are converted to null for database consistency
       contact: values.contact || null,
       email: values.email || null,
       maps_link: values.maps_link || null,
@@ -87,7 +100,12 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess }) => {
 
       if (error) throw error;
 
-      onSuccess(data as Client);
+      if (onSuccess) {
+        onSuccess(data as Client);
+      } else {
+        // Se não houver onSuccess, pelo menos mostre sucesso
+        showSuccess(`Cliente ${isEdit ? 'atualizado' : 'criado'} com sucesso!`);
+      }
     } catch (e) {
       console.error("Erro ao salvar cliente:", e);
       showError(`Falha ao ${isEdit ? 'atualizar' : 'criar'} cliente.`);
@@ -95,13 +113,13 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess }) => {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={isEdit ? "" : "shadow-none border-none"}> {/* Remove Card styling if used in modal */}
+      <CardHeader className={isEdit ? "" : "hidden"}>
         <CardTitle>{isEdit ? "Editar Cliente" : "Novo Cliente"}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={isEdit ? "" : "p-0"}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleInternalSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
@@ -213,13 +231,20 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess }) => {
               )}
             />
 
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                isEdit ? "Salvar Alterações" : "Criar Cliente"
-              )}
-            </Button>
+            <div className="flex justify-end space-x-2 pt-4">
+                {onCancel && (
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+                        Cancelar
+                    </Button>
+                )}
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        isEdit ? "Salvar Alterações" : "Criar Cliente"
+                    )}
+                </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
