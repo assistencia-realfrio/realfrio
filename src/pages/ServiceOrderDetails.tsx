@@ -159,7 +159,7 @@ const ServiceOrderDetails: React.FC = () => {
         {selectedView === "details" && (
           <Card className="shadow-none border-none">
             <CardHeader>
-              <CardTitle>{isNew ? "PREENCHA OS DETALHES DA NOVA OS" : "EDITAR ORDEM DE SERVIÇO"}</CardTitle>
+              <CardTitle>{isNew ? "PREENCHA OS DETALHES DA NOVA OS" : ""}</CardTitle> {/* Removido o texto "EDITAR ORDEM DE SERVIÇO" */}
             </CardHeader>
             <CardContent>
               <ServiceOrderForm 
@@ -181,7 +181,7 @@ const ServiceOrderDetails: React.FC = () => {
 
         {selectedView === "equipment" && (
           !canAccessTabs || !order?.equipment_id ? (
-            <p className="text-center text-muted-foreground py-8">SALVE A OS E SELECIONE UM EQUIPAMENTO PARA VER SEUS DETALHES.</p>
+            <p className="text-center text-muted-foreground py-8">SALVE A OS E SELECIONE UM EQUIPAMENTO PARA VER SEUS DETALHOS.</p>
           ) : (
             <ServiceOrderEquipmentDetails equipmentId={order.equipment_id!} />
           )
