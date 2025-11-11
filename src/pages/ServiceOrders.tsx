@@ -120,7 +120,7 @@ const ServiceOrders: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex flex-row justify-between items-center gap-4">
-          {/* <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ORDENS DE SERVIÇO</h2> */} {/* Removido */}
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ORDENS DE SERVIÇO</h2> {/* Removido */}
           <div className="flex gap-2">
             <Button onClick={handleNewOrder}>
               <PlusCircle className="mr-2 h-4 w-4" />
