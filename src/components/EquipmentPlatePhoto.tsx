@@ -8,6 +8,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils"; // Importar cn para usar classes responsivas
 
 interface EquipmentPlatePhotoProps {
   equipmentId: string;
@@ -24,14 +25,20 @@ const AttachmentPreviewDialog: React.FC<{
 }> = ({ isOpen, onOpenChange, fileUrl, fileName }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] flex flex-col">
+      <DialogContent className={cn(
+        "max-w-[90vw] max-h-[90vh] flex flex-col",
+        "sm:max-w-lg md:max-w-xl lg:max-w-3xl" // Mantém o tamanho limitado em desktop
+      )}>
         <DialogHeader>
           <DialogTitle>{fileName}</DialogTitle>
         </DialogHeader>
-        <div className="flex-grow overflow-auto p-2">
-          <AspectRatio ratio={16 / 9} className="bg-muted">
-            <img src={fileUrl} alt={fileName} className="rounded-md object-contain w-full h-full" />
-          </AspectRatio>
+        <div className="flex-grow overflow-auto p-0 flex items-center justify-center">
+          {/* Remove AspectRatio e usa classes de imagem responsivas */}
+          <img 
+            src={fileUrl} 
+            alt={fileName} 
+            className="rounded-md object-contain w-full h-auto max-h-[80vh]" 
+          />
         </div>
       </DialogContent>
     </Dialog>
