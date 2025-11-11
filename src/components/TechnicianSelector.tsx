@@ -24,12 +24,16 @@ const TechnicianSelector: React.FC<TechnicianSelectorProps> = ({ value, onChange
   }
 
   return (
-    <Select onValueChange={(val) => onChange(val === "" ? undefined : val)} value={value || ""} disabled={disabled}>
+    <Select 
+      onValueChange={(val) => onChange(val === "none" ? undefined : val)} 
+      value={value || "none"} // Define "none" como valor padrão se 'value' for undefined
+      disabled={disabled}
+    >
       <SelectTrigger>
         <SelectValue placeholder="Selecione o Técnico" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="">
+        <SelectItem value="none"> {/* Alterado de "" para "none" */}
             <div className="flex items-center gap-2 text-muted-foreground">
                 <User className="h-4 w-4" />
                 Não Atribuído
