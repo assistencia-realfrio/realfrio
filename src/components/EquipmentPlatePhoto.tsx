@@ -16,6 +16,14 @@ interface EquipmentPlatePhotoProps {
 const BUCKET_NAME = 'equipment_plate_photos';
 const FILE_NAME = 'plate_photo.jpg'; // Nome de arquivo fixo, pois só pode haver 1 por equipamento
 
+// Função auxiliar para adicionar cache-busting
+const getCacheBustedUrl = (url: string): string => {
+    const timestamp = new Date().getTime();
+    const urlObj = new URL(url);
+    urlObj.searchParams.set('t', timestamp.toString());
+    return urlObj.toString();
+};
+
 const AttachmentPreviewDialog: React.FC<{
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -66,9 +74,9 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
       if (listError) throw listError;
 
       if (listData && listData.length > 0) {
-        // Se o arquivo existir, obtém a URL pública
+        // Se o arquivo existir, obtém a URL pública e adiciona cache-busting
         const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-        setPhotoUrl(publicUrlData.publicUrl);
+        setPhotoUrl(getCacheBustedUrl(publicUrlData.publicUrl));
       } else {
         setPhotoUrl(null);
       }
@@ -121,7 +129,10 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-      setPhotoUrl(publicUrlData.publicUrl);
+      
+      // Atualiza o estado com a URL com cache-busting
+      setPhotoUrl(getCacheBustedUrl(publicUrlData.publicUrl));
+      
       setSelectedFile(null);
       showSuccess("Foto da chapa de características atualizada com sucesso!");
     } catch (error) {
@@ -174,6 +185,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
           <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
+                {/* Usando a URL com cache-busting */}
                 <img src={photoUrl} alt="Chapa de Características" className="object-cover w-full h-full" />
               </div>
               <p className="text-sm font-medium">Foto da Chapa Anexada</p>
