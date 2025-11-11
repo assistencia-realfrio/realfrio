@@ -1,298 +1,173 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import ClientForm, { ClientFormValues } from "@/components/ClientForm";
-import { Client, useClients } from "@/hooks/useClients";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/contexts/SessionContext";
 import { showSuccess, showError } from "@/utils/toast";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen } from "lucide-react"; // Adicionado FolderOpen
-import ClientOrdersTab from "@/components/ClientOrdersTab";
-import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Caminho corrigido
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
-import ActivityLog from "@/components/ActivityLog";
-import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
-import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
-
-const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
-    <div className="flex justify-end space-x-2 mb-4">
-        <Button variant="outline" size="icon" className="sm:hidden" onClick={onEdit} aria-label="Editar">
-            <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" className="hidden sm:flex" onClick={onEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
-        </Button>
-        
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <>
-                    <Button 
-                        variant="destructive" 
-                        size="icon" 
-                        className="sm:hidden"
-                        disabled={isDeleting}
-                        aria-label="Excluir"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                        variant="destructive" 
-                        className="hidden sm:flex"
-                        disabled={isDeleting}
-                    >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Excluir
-                    </Button>
-                </>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
-                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction 
-                        onClick={onDelete} 
-                        className="bg-destructive hover:bg-destructive/90"
-                        disabled={isDeleting}
-                    >
-                        Excluir
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-    </div>
-);
-
-// Removido: isGoogleMapsLink não é mais necessário aqui, pois a lógica foi generalizada
-// const isGoogleMapsLink = (mapsLink: string | null): boolean => {
-//   if (!mapsLink) return false;
-//   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
-// };
-
-const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
-    const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
-
-    // Função auxiliar para construir o href do mapa
-    const getMapHref = (mapsLink: string) => {
-      if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
-        return mapsLink;
-      }
-      // Se for coordenadas, formata para busca no Google Maps
-      if (/^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink)) {
-        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsLink)}`;
-      }
-      return "#"; // Fallback, embora isLinkClickable já devesse filtrar isso
-    };
-
-    return (
-        <Card> {/* Adicionado Card aqui */}
-            <CardContent className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
-                <div>
-                  <p className="text-muted-foreground">Nome</p>
-                  <p className="font-medium">{client.name}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Loja</p>
-                  <p className="font-medium">{client.store || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Localidade</p>
-                  <p className="font-medium">{client.locality || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Maps</p>
-                  {client.maps_link && isLinkClickable(client.maps_link) ? (
-                    <a 
-                      href={getMapHref(client.maps_link)}
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-1 text-blue-600 hover:underline"
-                    >
-                      <MapPin className="h-4 w-4" />
-                      Ver no Mapa
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">{client.maps_link || 'N/A'}</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Google Drive</p>
-                  {hasGoogleDriveLink ? (
-                    <a 
-                      href={client.google_drive_link!} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-1 text-blue-600 hover:underline"
-                    >
-                      <FolderOpen className="h-4 w-4" />
-                      Abrir Pasta
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Contato</p>
-                  {client.contact ? (
-                    <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
-                      <Phone className="h-4 w-4" />
-                      {client.contact}
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-muted-foreground">E-mail</p>
-                  {client.email ? (
-                    <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
-                      <Mail className="h-4 w-4" />
-                      {client.email}
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
-                </div>
-              </CardContent>
-          </Card>
-    );
-};
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Edit, MapPin, Mail, Phone, Store, Calendar, Link as LinkIcon, Loader2 } from "lucide-react";
+import EquipmentList from "@/components/EquipmentList";
+import ActivityFeed from "@/components/ActivityFeed";
+import ClientForm from "@/components/ClientForm";
+import { Skeleton } from "@/components/ui/skeleton";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Separator } from "@/components/ui/separator";
+import { Client } from "@/types"; // Importando Client do types
 
 const ClientDetails: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
-  const { clients, isLoading, updateClient, deleteClient } = useClients(); 
+  const { user } = useSession();
+  const [client, setClient] = useState<Client | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'history'>("details");
 
-  const client = id ? clients.find(c => c.id === id) : undefined;
+  const fetchClient = async () => {
+    if (!clientId) return;
 
-  const handleFormSubmit = async (data: ClientFormValues) => {
-    if (!client?.id) return;
+    setIsLoading(true);
     try {
-      await updateClient.mutateAsync({ id: client.id, ...data });
-      showSuccess(`Cliente ${data.name} atualizado com sucesso!`);
-      setIsEditing(false);
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*")
+        .eq("id", clientId)
+        .single();
+
+      if (error) throw error;
+      setClient(data as Client); 
     } catch (error) {
-      console.error("Erro ao atualizar cliente:", error);
-      showError("Erro ao atualizar cliente. Tente novamente.");
+      console.error("Erro ao buscar detalhes do cliente:", error);
+      showError("Erro ao carregar detalhes do cliente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDeleteClient = async () => {
-    if (!client?.id || !client.name) return;
-    try {
-        await deleteClient.mutateAsync(client.id);
-        showSuccess(`Cliente ${client.name} removido com sucesso.`);
-        navigate('/clients', { replace: true });
-    } catch (error) {
-        console.error("Erro ao deletar cliente:", error);
-        showError("Erro ao deletar cliente. Tente novamente.");
-    }
+  useEffect(() => {
+    fetchClient();
+  }, [clientId]);
+
+  const handleUpdate = (updatedClient: Client) => {
+    setClient(updatedClient);
+    setIsEditing(false);
+    showSuccess("Cliente atualizado com sucesso!");
   };
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="space-y-6">
-          <Skeleton className="h-10 w-1/3" />
-          <Skeleton className="h-96 w-full" />
+      <div className="p-4 space-y-4">
+        <Skeleton className="h-10 w-40" />
+        <Skeleton className="h-12 w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <Skeleton className="h-40 col-span-1" />
+          <Skeleton className="h-40 col-span-2" />
         </div>
-      </Layout>
+      </div>
     );
   }
 
   if (!client) {
+    return <div className="p-4 text-center text-muted-foreground">Cliente não encontrado.</div>;
+  }
+
+  if (isEditing) {
     return (
-      <Layout>
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">Cliente não encontrado</h2>
-          <p className="text-muted-foreground">O cliente com ID {id} não existe ou você não tem permissão para vê-lo.</p>
-          <Button onClick={() => navigate('/clients')} className="mt-4">Voltar para Clientes</Button>
-        </div>
-      </Layout>
+      <div className="p-4 max-w-4xl mx-auto">
+        <Button variant="outline" onClick={() => setIsEditing(false)} className="mb-4">
+          <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
+        </Button>
+        <ClientForm initialData={client} onSuccess={handleUpdate} />
+      </div>
     );
   }
 
-  const initialFormData: ClientFormValues = {
-    name: client.name,
-    contact: client.contact || "",
-    email: client.email || "",
-    store: client.store || "CALDAS DA RAINHA",
-    maps_link: client.maps_link || "",
-    locality: client.locality || "",
-    google_drive_link: client.google_drive_link || "", // NOVO: Adicionando google_drive_link
-  };
-
   return (
-    <Layout>
-      <div className="space-y-6 pb-20">
-        <div className="flex items-center justify-between gap-2"> {/* Adicionado gap-2 */}
-          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0"> {/* Adicionado flex-1, min-w-0, sm:gap-4 */}
-            <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Adicionado sm:text-3xl, truncate */}
+    <div className="p-4 space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center min-w-0 flex-1">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/clients")} className="flex-shrink-0 mr-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          {/* Ajuste aqui: Usando flex-1 e min-w-0 no container do título para garantir que o truncate funcione */}
+          <div className="min-w-0 flex-1"> 
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
           </div>
         </div>
-
-        {selectedView === 'details' && (
-          <>
-            {!isEditing && (
-              <ClientActions 
-                client={client} 
-                onEdit={() => setIsEditing(true)} 
-                onDelete={handleDeleteClient}
-                isDeleting={deleteClient.isPending}
-              />
-            )}
-            
-            {isEditing ? (
-              <ClientForm 
-                initialData={initialFormData} 
-                onSubmit={handleFormSubmit} 
-                onCancel={() => setIsEditing(false)} 
-              />
-            ) : (
-              <ClientDetailsView client={client} />
-            )}
-          </>
-        )}
-
-        {selectedView === 'orders' && (
-          <ClientOrdersTab clientId={client.id} />
-        )}
-
-        {selectedView === 'equipments' && (
-          <ClientEquipmentTab clientId={client.id} />
-        )}
-
-        {selectedView === 'history' && (
-          <ActivityLog entityType="client" entityId={client.id} />
-        )}
+        <div className="flex-shrink-0">
+          <Button onClick={() => setIsEditing(true)}>
+            <Edit className="h-4 w-4 mr-2" /> Editar Cliente
+          </Button>
+        </div>
       </div>
-      <ClientDetailsBottomNav
-        selectedView={selectedView}
-        onSelectView={setSelectedView}
-      />
-    </Layout>
+
+      <Separator />
+
+      {/* Client Info and Details */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Client Details Card (Col 1) */}
+        <Card className="lg:col-span-1 h-fit">
+          <CardHeader>
+            <CardTitle>Informações Básicas</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div className="flex items-center text-muted-foreground">
+              <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
+              <p className="truncate" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <Store className="h-4 w-4 mr-3 flex-shrink-0" />
+              <p className="truncate" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
+              <p>Contato: {client.contact || "N/A"}</p>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
+              <p className="truncate" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
+            </div>
+            <div className="flex items-center text-muted-foreground">
+              <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
+              <p>Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
+            </div>
+            
+            <Separator className="my-3" />
+
+            {client.maps_link && (
+              <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+                <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
+                Ver no Google Maps
+              </a>
+            )}
+            {client.google_drive_link && (
+              <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+                <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
+                Acessar Google Drive
+              </a>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Tabs Section (Col 2 & 3) */}
+        <div className="lg:col-span-2">
+          <Tabs defaultValue="equipments">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="equipments">Equipamentos</TabsTrigger>
+              <TabsTrigger value="activity">Atividade</TabsTrigger>
+            </TabsList>
+            <TabsContent value="equipments" className="mt-4">
+              <EquipmentList clientId={clientId} />
+            </TabsContent>
+            <TabsContent value="activity" className="mt-4">
+              <ActivityFeed entityType="client" entityId={clientId} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
   );
 };
 
