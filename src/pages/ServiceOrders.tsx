@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { PlusCircle, Search } from "lucide-react";
+import { PlusCircle } from "lucide-react"; // Removido Search icon
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// Removido Input component
 import ServiceOrderCard from "@/components/ServiceOrderCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -29,27 +29,24 @@ const ServiceOrders: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
     (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
   );
-  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || "");
+  // Removido searchTerm e setSearchTerm
   
   const { orders, isLoading } = useServiceOrders();
 
-  // Removido o filtro para mostrar apenas OS ativas na página principal
-  // Agora, 'orders' já contém todas as ordens, e o filtro será aplicado abaixo.
   const allOrders = orders;
 
-  // Filtra os status disponíveis para o dropdown, agora incluindo todos
   const availableStatuses = useMemo(() => {
-    return serviceOrderStatuses; // Retorna todos os status
+    return serviceOrderStatuses;
   }, []);
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (searchTerm) params.set('q', searchTerm);
+    // Removido params.set('q', searchTerm);
     if (selectedStatus) params.set('status', selectedStatus);
     if (selectedStore) params.set('store', selectedStore);
     
     setSearchParams(params, { replace: true });
-  }, [searchTerm, selectedStatus, selectedStore, setSearchParams]);
+  }, [selectedStatus, selectedStore, setSearchParams]); // Removido searchTerm das dependências
 
   const handleNewOrder = () => {
     navigate("/orders/new");
@@ -75,31 +72,22 @@ const ServiceOrders: React.FC = () => {
     if (selectedStatus !== 'ALL') {
       filtered = filtered.filter(order => order.status === selectedStatus);
     }
-
-    if (searchTerm.trim()) {
-      const lowerCaseSearch = searchTerm.toLowerCase();
-      filtered = filtered.filter(order => 
-        order.display_id.toLowerCase().includes(lowerCaseSearch) ||
-        order.client.toLowerCase().includes(lowerCaseSearch) ||
-        order.equipment.toLowerCase().includes(lowerCaseSearch) ||
-        (order.model && order.model.toLowerCase().includes(lowerCaseSearch))
-      );
-    }
+    // Removido o bloco de filtro por searchTerm
     
     return filtered;
-  }, [ordersFilteredByStore, selectedStatus, searchTerm]);
+  }, [ordersFilteredByStore, selectedStatus]); // Removido searchTerm das dependências
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     if (isLoading) {
         return (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
             </div>
         );
     }
 
     return (
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {ordersToRender.map((order) => (
           <ServiceOrderCard key={order.id} order={order} />
         ))}
@@ -129,19 +117,10 @@ const ServiceOrders: React.FC = () => {
           </div>
         </div>
 
+        {/* Ajustado o layout para que os selects ocupem a largura total */}
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-          <div className="relative flex-grow w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input 
-              placeholder="BUSCAR POR ID, CLIENTE, EQUIPAMENTO OU MODELO..." 
-              className="pl-10" 
-              value={searchTerm.toUpperCase()}
-              onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
-            />
-          </div>
-          
-          <div className="flex w-full md:w-auto items-center gap-2">
-            <div className="flex-1 md:flex-none md:w-56">
+          <div className="flex w-full items-center gap-2"> {/* Removido md:w-auto */}
+            <div className="flex-1"> {/* Removido md:flex-none md:w-56 */}
               <Select 
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
                 value={selectedStore}
@@ -157,7 +136,7 @@ const ServiceOrders: React.FC = () => {
               </Select>
             </div>
 
-            <div className="flex-1 md:flex-none md:w-56">
+            <div className="flex-1"> {/* Removido md:flex-none md:w-56 */}
               <Select 
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
                 value={selectedStatus}
