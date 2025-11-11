@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2 } from "lucide-react"; // FileText removido
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +23,8 @@ import {
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
-import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
+import ServiceOrderNotes from "@/components/ServiceOrderNotes";
+import ServiceOrderTimeEntries from "@/components/ServiceOrderTimeEntries"; // Importar o novo componente de tempo
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +36,7 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes" | "time">("details"); // 'time' adicionado ao tipo
 
   const currentOrderId = newOrderId || id;
 
@@ -124,7 +125,6 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {/* Botão de Relatório Removido */}
                 {!isNew && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -195,11 +195,19 @@ const ServiceOrderDetails: React.FC = () => {
           )
         )}
 
-        {selectedView === "notes" && ( // Nova aba para Notas
+        {selectedView === "notes" && (
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver as notas.</p>
           ) : (
             <ServiceOrderNotes orderId={currentOrderId!} />
+          )
+        )}
+
+        {selectedView === "time" && ( // Nova aba para Tempo
+          !canAccessTabs ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver os registos de tempo.</p>
+          ) : (
+            <ServiceOrderTimeEntries serviceOrderId={currentOrderId!} />
           )
         )}
       </div>
