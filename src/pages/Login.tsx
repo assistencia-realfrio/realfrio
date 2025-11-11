@@ -30,7 +30,7 @@ const Login: React.FC = () => {
           {/* Substituído o ícone Wrench pelo logo da empresa */}
           <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-16 mx-auto mb-2" />
           <CardTitle className="text-2xl font-bold">Assistência Técnica</CardTitle> {/* Título atualizado */}
-          <p className="text-sm text-muted-foreground">FAça Login para entrar no Sistema.</p>
+          <p className="text-sm text-muted-foreground">Fazer Login para entrar no Sistema.</p>
         </CardHeader>
         <CardContent>
           <Auth
