@@ -45,7 +45,6 @@ const generateDisplayId = (store: ServiceOrder['store']): string => {
 
 const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
   if (!userId) {
-    console.log("[useServiceOrders] No user ID, returning empty array.");
     return [];
   }
   
@@ -79,8 +78,6 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
     console.error("[useServiceOrders] Error fetching service orders:", error);
     throw error;
   }
-
-  console.log("[useServiceOrders] Fetched raw service orders data:", data); // Log dos dados brutos
 
   const mappedData = (data as unknown as ServiceOrderRaw[]).map(order => {
     const clientName = Array.isArray(order.clients) 
@@ -118,8 +115,6 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
     
     return dateB - dateA;
   });
-
-  console.log("[useServiceOrders] Mapped and sorted service orders:", mappedData); // Log dos dados mapeados e ordenados
 
   return mappedData;
 };

@@ -22,54 +22,52 @@ const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Desativando estados de filtro para depuração
-  // const [selectedStore, setSelectedStore] = useState<StoreFilter>(
-  //   (searchParams.get('store') as StoreFilter) || 'ALL'
-  // );
-  // const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-  //   (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
-  // );
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>(
+    (searchParams.get('store') as StoreFilter) || 'ALL'
+  );
+  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
+    (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
+  );
   
   const { orders, isLoading } = useServiceOrders();
 
   const allOrders = orders;
 
-  // Desativando availableStatuses e useEffect para depuração
-  // const availableStatuses = useMemo(() => {
-  //   return serviceOrderStatuses;
-  // }, []);
+  const availableStatuses = useMemo(() => {
+    return serviceOrderStatuses;
+  }, []);
 
-  // useEffect(() => {
-  //   const params = new URLSearchParams();
-  //   // if (selectedStatus) params.set('status', selectedStatus);
-  //   // if (selectedStore) params.set('store', selectedStore);
-  //   setSearchParams(params, { replace: true });
-  // }, [setSearchParams]); // Removido selectedStatus, selectedStore, searchTerm
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedStatus && selectedStatus !== 'ALL') params.set('status', selectedStatus);
+    if (selectedStore && selectedStore !== 'ALL') params.set('store', selectedStore);
+    setSearchParams(params, { replace: true });
+  }, [selectedStatus, selectedStore, setSearchParams]);
 
   const handleNewOrder = () => {
     navigate("/orders/new");
   };
 
-  // Desativando filtragem por loja para depuração
-  // const ordersFilteredByStore = useMemo(() => {
-  //   if (selectedStore === 'ALL') {
-  //     return allOrders;
-  //   }
-  //   return allOrders.filter(order => order.store === selectedStore);
-  // }, [allOrders, selectedStore]);
+  const ordersFilteredByStore = useMemo(() => {
+    if (selectedStore === 'ALL') {
+      return allOrders;
+    }
+    return allOrders.filter(order => order.store === selectedStore);
+  }, [allOrders, selectedStore]);
 
-  // Desativando statusCounts para depuração
-  // const statusCounts = useMemo(() => {
-  //   return ordersFilteredByStore.reduce((acc, order) => {
-  //     acc[order.status] = (acc[order.status] || 0) + 1;
-  //     return acc;
-  //   }, {} as Record<ServiceOrderStatus, number>);
-  // }, [ordersFilteredByStore]);
+  const statusCounts = useMemo(() => {
+    return ordersFilteredByStore.reduce((acc, order) => {
+      acc[order.status] = (acc[order.status] || 0) + 1;
+      return acc;
+    }, {} as Record<ServiceOrderStatus, number>);
+  }, [ordersFilteredByStore]);
 
   const filteredOrders = useMemo(() => {
-    // Para depuração, retorna todas as ordens diretamente
-    return allOrders;
-  }, [allOrders]); // Removido ordersFilteredByStore, selectedStatus, searchTerm
+    if (selectedStatus === 'ALL') {
+      return ordersFilteredByStore;
+    }
+    return ordersFilteredByStore.filter(order => order.status === selectedStatus);
+  }, [ordersFilteredByStore, selectedStatus]);
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     if (isLoading) {
@@ -94,10 +92,9 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  // Desativando contagens para depuração
-  // const allOrdersCount = allOrders.length;
-  // const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  // const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+  const allOrdersCount = allOrders.length;
+  const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>
@@ -112,8 +109,7 @@ const ServiceOrders: React.FC = () => {
           </div>
         </div>
 
-        {/* Interface de filtro desativada para depuração */}
-        {/* <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
+        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
           <div className="flex w-full items-center gap-2">
             <div className="flex-1">
               <Select 
@@ -150,7 +146,7 @@ const ServiceOrders: React.FC = () => {
               </Select>
             </div>
           </div>
-        </div> */}
+        </div>
 
         <div className="mt-6">
           {renderOrderGrid(filteredOrders)}
