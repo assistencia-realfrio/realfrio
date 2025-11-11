@@ -43,7 +43,7 @@ const AttachmentPreviewDialog: React.FC<{
         <div className="flex-grow overflow-auto p-2">
           {fileType === 'image' ? (
             <AspectRatio ratio={16 / 9} className="bg-muted">
-              <img src={fileUrl} alt={fileName} className="rounded-md object-contain w-full h-full" />
+              <img src={fileUrl} alt={fileName} className="rounded-md object-cover w-full h-full" /> {/* Alterado object-contain para object-cover */}
             </AspectRatio>
           ) : fileType === 'document' ? (
             <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>
