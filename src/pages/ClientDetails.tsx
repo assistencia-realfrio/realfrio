@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
 import { Client } from "@/types"; // Importando Client do types
+import Layout from "@/components/Layout"; // Importar Layout
 
 const ClientDetails: React.FC = () => {
   const { clientId } = useParams<{ clientId: string }>();
@@ -57,117 +58,139 @@ const ClientDetails: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-4 space-y-4">
-        <Skeleton className="h-10 w-40" />
-        <Skeleton className="h-12 w-full" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Skeleton className="h-40 col-span-1" />
-          <Skeleton className="h-40 col-span-2" />
+      <Layout> {/* Envolvido em Layout */}
+        <div className="p-4 space-y-4">
+          <Skeleton className="h-10 w-40" />
+          <Skeleton className="h-12 w-full" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <Skeleton className="h-40 col-span-1" />
+            <Skeleton className="h-40 col-span-2" />
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (!client) {
-    return <div className="p-4 text-center text-muted-foreground">Cliente não encontrado.</div>;
+    return (
+      <Layout> {/* Envolvido em Layout */}
+        <div className="p-4 text-center text-muted-foreground">Cliente não encontrado.</div>
+      </Layout>
+    );
   }
 
   if (isEditing) {
     return (
-      <div className="p-4 max-w-4xl mx-auto">
-        <Button variant="outline" onClick={() => setIsEditing(false)} className="mb-4">
-          <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
-        </Button>
-        <ClientForm initialData={client} onSuccess={handleUpdate} />
-      </div>
+      <Layout> {/* Envolvido em Layout */}
+        <div className="p-4 max-w-4xl mx-auto">
+          <Button variant="outline" onClick={() => setIsEditing(false)} className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
+          </Button>
+          <ClientForm initialData={client} onSuccess={handleUpdate} />
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="p-4 space-y-6">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center min-w-0 flex-1">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/clients")} className="flex-shrink-0 mr-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          {/* Ajuste aqui: Usando flex-1 e min-w-0 no container do título para garantir que o truncate funcione */}
-          <div className="min-w-0 flex-1"> 
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
+    <Layout> {/* Envolvido em Layout */}
+      <div className="p-4 space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center min-w-0 flex-1">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/clients")} className="flex-shrink-0 mr-2">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            {/* Ajuste aqui: Usando flex-1 e min-w-0 no container do título para garantir que o truncate funcione */}
+            <div className="min-w-0 flex-1"> 
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
+            </div>
+          </div>
+          <div className="flex-shrink-0">
+            <Button onClick={() => setIsEditing(true)}>
+              <Edit className="h-4 w-4 mr-2" /> Editar Cliente
+            </Button>
           </div>
         </div>
-        <div className="flex-shrink-0">
-          <Button onClick={() => setIsEditing(true)}>
-            <Edit className="h-4 w-4 mr-2" /> Editar Cliente
-          </Button>
-        </div>
-      </div>
 
-      <Separator />
+        <Separator />
 
-      {/* Client Info and Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Client Details Card (Col 1) */}
-        <Card className="lg:col-span-1 h-fit">
-          <CardHeader>
-            <CardTitle>Informações Básicas</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex items-center text-muted-foreground">
-              <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-              <p className="truncate" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
-            </div>
-            <div className="flex items-center text-muted-foreground">
-              <Store className="h-4 w-4 mr-3 flex-shrink-0" />
-              <p className="truncate" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
-            </div>
-            <div className="flex items-center text-muted-foreground">
-              <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
-              <p>Contato: {client.contact || "N/A"}</p>
-            </div>
-            <div className="flex items-center text-muted-foreground">
-              <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
-              <p className="truncate" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
-            </div>
-            <div className="flex items-center text-muted-foreground">
-              <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
-              <p>Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
-            </div>
-            
-            <Separator className="my-3" />
-
-            {client.maps_link && (
-              <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+        {/* Client Info and Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Client Details Card (Col 1) */}
+          <Card className="lg:col-span-1 h-fit">
+            <CardHeader>
+              <CardTitle>Informações Básicas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-center text-muted-foreground">
                 <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-                Ver no Google Maps
-              </a>
-            )}
-            {client.google_drive_link && (
-              <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
-                <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
-                Acessar Google Drive
-              </a>
-            )}
-          </CardContent>
-        </Card>
+                <p className="truncate" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
+              </div>
+              <div className="flex items-center text-muted-foreground">
+                <Store className="h-4 w-4 mr-3 flex-shrink-0" />
+                <p className="truncate" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
+              </div>
+              <div className="flex items-center text-muted-foreground">
+                <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
+                <p>
+                  Contato: 
+                  {client.contact ? (
+                    <a 
+                      href={`tel:${client.contact}`} 
+                      className="text-primary hover:underline ml-1 font-medium"
+                    >
+                      {client.contact}
+                    </a>
+                  ) : (
+                    " N/A"
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center text-muted-foreground">
+                <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
+                <p className="truncate" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
+              </div>
+              <div className="flex items-center text-muted-foreground">
+                <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
+                <p>Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
+              </div>
+              
+              <Separator className="my-3" />
 
-        {/* Tabs Section (Col 2 & 3) */}
-        <div className="lg:col-span-2">
-          <Tabs defaultValue="equipments">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="equipments">Equipamentos</TabsTrigger>
-              <TabsTrigger value="activity">Atividade</TabsTrigger>
-            </TabsList>
-            <TabsContent value="equipments" className="mt-4">
-              <EquipmentList clientId={clientId} />
-            </TabsContent>
-            <TabsContent value="activity" className="mt-4">
-              <ActivityFeed entityType="client" entityId={clientId} />
-            </TabsContent>
-          </Tabs>
+              {client.maps_link && (
+                <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+                  <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
+                  Ver no Google Maps
+                </a>
+              )}
+              {client.google_drive_link && (
+                <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+                  <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
+                  Acessar Google Drive
+                </a>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Tabs Section (Col 2 & 3) */}
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="equipments">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="equipments">Equipamentos</TabsTrigger>
+                <TabsTrigger value="activity">Atividade</TabsTrigger>
+              </TabsList>
+              <TabsContent value="equipments" className="mt-4">
+                <EquipmentList clientId={clientId!} /> {/* Adicionado ! para garantir que clientId existe */}
+              </TabsContent>
+              <TabsContent value="activity" className="mt-4">
+                <ActivityFeed entityType="client" entityId={clientId!} /> {/* Adicionado ! para garantir que clientId existe */}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
