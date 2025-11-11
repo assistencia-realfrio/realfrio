@@ -5,9 +5,8 @@ import { useEquipments } from "@/hooks/useEquipments";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Trash2, FolderOpen } from "lucide-react"; // Adicionado FolderOpen
+import { ArrowLeft, Edit, Trash2, Save, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
 import {
   AlertDialog,
@@ -23,21 +22,43 @@ import {
 import ActivityLog from "@/components/ActivityLog";
 import EquipmentOrdersTab from "@/components/EquipmentOrdersTab";
 import EquipmentDetailsBottomNav from "@/components/EquipmentDetailsBottomNav";
-import EquipmentAttachments from "@/components/EquipmentAttachments"; // Importando o novo componente de anexos
+import EquipmentAttachments from "@/components/EquipmentAttachments";
+import EquipmentDetailsView from "@/components/EquipmentDetailsView"; // Importar o novo componente de visualização
+import EquipmentPlatePhoto from "@/components/EquipmentPlatePhoto"; // Importar o novo componente de foto da chapa
 
 const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const { singleEquipment: equipment, isLoading, deleteEquipment } = useEquipments(undefined, id);
+  const { singleEquipment: equipment, isLoading, deleteEquipment, updateEquipment } = useEquipments(undefined, id);
   
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedView, setSelectedView] = useState<"details" | "orders" | "attachments">("details"); // 'history' removido do tipo e valor inicial
+  const [isEditing, setIsEditing] = useState(false); // Novo estado para o modo de edição
+  const [selectedView, setSelectedView] = useState<"details" | "orders" | "attachments">("details");
 
   const handleGoBack = () => navigate(-1);
 
   const handleEditSuccess = () => {
-    setIsEditModalOpen(false);
+    setIsEditing(false);
+    showSuccess("Equipamento atualizado com sucesso!");
+  };
+
+  const handleFormSubmit = async (data: any) => {
+    if (!equipment?.id) return;
+    try {
+        await updateEquipment.mutateAsync({
+            id: equipment.id,
+            client_id: equipment.client_id,
+            name: data.name,
+            brand: data.brand || undefined,
+            model: data.model || undefined,
+            serial_number: data.serial_number || undefined,
+            google_drive_link: data.google_drive_link || undefined,
+        });
+        handleEditSuccess();
+    } catch (error) {
+        console.error("Erro ao atualizar equipamento:", error);
+        showError("Erro ao atualizar equipamento. Tente novamente.");
+    }
   };
 
   const handleDelete = async () => {
@@ -75,27 +96,39 @@ const EquipmentDetails: React.FC = () => {
     );
   }
 
-  const hasGoogleDriveLink = equipment.google_drive_link && equipment.google_drive_link.trim() !== '';
-
   return (
     <Layout>
-      <div className="space-y-6 pb-20"> {/* Adicionado padding-bottom para a navegação inferior */}
+      <div className="space-y-6 pb-20">
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={handleGoBack}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* Removido o h2 que exibia o nome do equipamento */}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{equipment.name}</h2>
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
-            <Button variant="outline" onClick={() => setIsEditModalOpen(true)} size="icon" className="sm:hidden" aria-label="Editar">
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" onClick={() => setIsEditModalOpen(true)} className="hidden sm:flex">
-              <Edit className="h-4 w-4 mr-2" />
-              Editar
-            </Button>
+            {isEditing ? (
+                <Button variant="outline" onClick={() => setIsEditing(false)} size="icon" className="sm:hidden" aria-label="Cancelar Edição">
+                    <X className="h-4 w-4" />
+                </Button>
+            ) : (
+                <Button variant="outline" onClick={() => setIsEditing(true)} size="icon" className="sm:hidden" aria-label="Editar">
+                    <Edit className="h-4 w-4" />
+                </Button>
+            )}
+            
+            {isEditing ? (
+                <Button variant="outline" onClick={() => setIsEditing(false)} className="hidden sm:flex">
+                    <X className="h-4 w-4 mr-2" />
+                    Cancelar
+                </Button>
+            ) : (
+                <Button variant="outline" onClick={() => setIsEditing(true)} className="hidden sm:flex">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Editar
+                </Button>
+            )}
             
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -128,70 +161,38 @@ const EquipmentDetails: React.FC = () => {
         </div>
 
         {selectedView === "details" && (
-          <Card>
-            <CardContent className="space-y-4 text-sm pt-6">
-              <div>
-                <p className="text-muted-foreground">Nome</p>
-                <p className="font-medium">{equipment.name}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Marca</p>
-                <p className="font-medium">{equipment.brand || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Modelo</p>
-                <p className="font-medium">{equipment.model || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Número de Série</p>
-                <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Google Drive</p>
-                {hasGoogleDriveLink ? (
-                  <a 
-                    href={equipment.google_drive_link!} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
-                  >
-                    <FolderOpen className="h-4 w-4" />
-                    Abrir Pasta
-                  </a>
-                ) : (
-                  <p className="text-muted-foreground">N/A</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            {isEditing ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Editar Detalhes do Equipamento</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <EquipmentForm
+                            clientId={equipment.client_id}
+                            initialData={equipment}
+                            onSubmit={handleFormSubmit}
+                            onCancel={() => setIsEditing(false)}
+                        />
+                    </CardContent>
+                </Card>
+            ) : (
+                <EquipmentDetailsView equipment={equipment} />
+            )}
+            
+            {/* Novo componente para a foto da chapa */}
+            <EquipmentPlatePhoto equipmentId={equipment.id} />
+          </div>
         )}
 
         {selectedView === "orders" && (
           <EquipmentOrdersTab equipmentId={equipment.id} />
         )}
 
-        {selectedView === "attachments" && ( // Aba para anexos do equipamento
+        {selectedView === "attachments" && (
           <EquipmentAttachments equipmentId={equipment.id} />
         )}
-
-        {/* Removido: {selectedView === "history" && ( // Aba de histórico de atividades do equipamento
-          <ActivityLog entityType="equipment" entityId={equipment.id} />
-        )} */}
       </div>
-
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Editar Equipamento</DialogTitle>
-          </DialogHeader>
-          <EquipmentForm
-            clientId={equipment.client_id}
-            initialData={equipment}
-            onSubmit={handleEditSuccess}
-            onCancel={() => setIsEditModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
 
       <EquipmentDetailsBottomNav
         selectedView={selectedView}
