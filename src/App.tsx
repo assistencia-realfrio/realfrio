@@ -14,7 +14,6 @@ import ClientDetails from "./pages/ClientDetails";
 import Equipments from "./pages/Equipments";
 import EquipmentDetails from "./pages/EquipmentDetails";
 import Profile from "./pages/Profile"; // Importando a nova página de perfil
-import CalendarPage from "./pages/Calendar"; // Importando a nova página de Calendário
 
 const queryClient = new QueryClient();
 
@@ -41,14 +40,6 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/calendar" 
-            element={
-              <ProtectedRoute>
-                <CalendarPage /> {/* Nova rota para o Calendário */}
               </ProtectedRoute>
             } 
           />

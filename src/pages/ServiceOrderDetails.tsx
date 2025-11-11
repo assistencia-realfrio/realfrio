@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2, Calendar as CalendarIcon, User } from "lucide-react"; // Importado CalendarIcon e User
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,8 +24,6 @@ import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
 import ServiceOrderNotes from "@/components/ServiceOrderNotes";
-import { format, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -48,8 +46,6 @@ const ServiceOrderDetails: React.FC = () => {
     description: order.description,
     status: order.status,
     store: order.store,
-    scheduled_date: order.scheduled_date, // NOVO
-    technician_id: order.technician_id || undefined, // NOVO
   } : undefined;
 
   const handleGoBack = () => {
@@ -65,7 +61,6 @@ const ServiceOrderDetails: React.FC = () => {
         setNewOrderId(data.id);
         navigate(`/orders/${data.id}`, { replace: true });
     } else {
-        // Se for edição, apenas volta
         handleGoBack(); 
     }
   };
@@ -111,8 +106,6 @@ const ServiceOrderDetails: React.FC = () => {
   }
 
   const canAccessTabs = !isNew || !!newOrderId;
-  
-  const scheduledDate = order?.scheduled_date ? parseISO(order.scheduled_date) : null;
 
   return (
     <Layout>
@@ -163,30 +156,11 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <Card>
+          <Card className="shadow-none border-none">
             <CardHeader>
-              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Detalhes da Ordem de Serviço"}</CardTitle>
+              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : ""}</CardTitle> {/* Alterado aqui */}
             </CardHeader>
             <CardContent>
-              {!isNew && order && (
-                <div className="mb-6 p-4 border rounded-md space-y-2 bg-muted/50">
-                    <h3 className="text-md font-semibold mb-2">Agendamento</h3>
-                    <div className="flex items-center text-sm">
-                        <CalendarIcon className="h-4 w-4 mr-2 text-primary" />
-                        <span className="text-muted-foreground">Data Prevista: </span>
-                        <span className="ml-2 font-medium">
-                            {scheduledDate ? format(scheduledDate, 'PPP', { locale: ptBR }) : 'Não Agendado'}
-                        </span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                        <User className="h-4 w-4 mr-2 text-primary" />
-                        <span className="text-muted-foreground">Técnico: </span>
-                        <span className="ml-2 font-medium">
-                            {order.technician_name || 'Não Atribuído'}
-                        </span>
-                    </div>
-                </div>
-              )}
               <ServiceOrderForm 
                 initialData={initialData} 
                 onSubmit={handleSubmit} 

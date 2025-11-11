@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Menu, Users, Calendar as CalendarIcon } from "lucide-react"; // Importado CalendarIcon
+import { LayoutDashboard, Wrench, Menu, Users, HardDrive } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,11 +17,6 @@ const navItems = [
     title: "Assistências", // Alterado de "Ordens de Serviço" para "Assistências"
     href: "/",
     icon: Wrench,
-  },
-  {
-    title: "Calendário", // NOVO: Item para o Calendário
-    href: "/calendar",
-    icon: CalendarIcon,
   },
   {
     title: "Clientes", // Novo item para a página de Clientes

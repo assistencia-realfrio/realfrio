@@ -105,19 +105,19 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                 <div>
                   <p className="text-muted-foreground">Maps</p>
                   {client.maps_link ? (
-                    <a 
-                      href={
-                        client.maps_link.startsWith("http") 
-                          ? client.maps_link 
-                          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`
-                      }
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-1 text-blue-600 hover:underline"
-                    >
-                      <MapPin className="h-4 w-4" />
-                      {isGoogleMapsLink(client.maps_link) ? "Ver no Mapa" : "Pesquisar no Mapa"}
-                    </a>
+                    isGoogleMapsLink(client.maps_link) ? (
+                      <a 
+                        href={client.maps_link.startsWith("http") ? client.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center gap-1 text-blue-600 hover:underline"
+                      >
+                        <MapPin className="h-4 w-4" />
+                        Ver no Mapa
+                      </a>
+                    ) : (
+                      <p className="font-medium">{client.maps_link}</p>
+                    )
                   ) : (
                     <p className="text-muted-foreground">N/A</p>
                   )}
