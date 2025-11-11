@@ -35,12 +35,12 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
 
   return (
     <Card className="shadow-none border-none">
-      <CardHeader className="p-0 pb-4">
+      <CardHeader className="p-0 pb-4 px-4"> {/* Adicionado px-4 aqui */}
         <CardTitle className="text-lg">Detalhes do Equipamento</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="details" onValueChange={(value: "details" | "orders" | "history") => setSelectedTab(value)}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 px-4"> {/* Adicionado px-4 aqui */}
             <TabsTrigger value="details">
               <FileText className="h-4 w-4 mr-2" />
               Detalhes
@@ -56,7 +56,7 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
           </TabsList>
 
           <TabsContent value="details" className="mt-4">
-            <div className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
+            <div className="space-y-4 text-sm p-4"> {/* Já tinha p-4 */}
               <div>
                 <p className="text-muted-foreground">Nome</p>
                 <p className="font-medium">{equipment.name}</p>
