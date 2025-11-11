@@ -38,12 +38,12 @@ const AttachmentPreviewDialog: React.FC<{
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[90vw] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{fileName}</DialogTitle>
+          {/* <DialogTitle>{fileName}</DialogTitle> */} {/* Removido o título do ficheiro */}
         </DialogHeader>
         <div className="flex-grow overflow-auto p-2">
           {fileType === 'image' ? (
             <AspectRatio ratio={16 / 9} className="bg-muted">
-              <img src={fileUrl} alt={fileName} className="rounded-md object-cover w-full h-full" /> {/* Alterado object-contain para object-cover */}
+              <img src={fileUrl} alt={fileName} className="rounded-md object-cover w-full h-full" />
             </AspectRatio>
           ) : fileType === 'document' ? (
             <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>
