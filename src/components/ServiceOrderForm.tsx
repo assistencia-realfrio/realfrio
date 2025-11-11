@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
+import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
 // import ServiceOrderNotes from "./ServiceOrderNotes"; // Removido: Não é mais renderizado aqui
 
 // Definição do Schema de Validação
@@ -52,11 +53,11 @@ interface ServiceOrderFormProps {
   // orderIdForNotes?: string; // Removido: Não é mais necessário
 }
 
-// Função auxiliar para verificar se o link é do Google Maps ou coordenadas
-const isGoogleMapsLink = (mapsLink: string | null): boolean => {
-  if (!mapsLink) return false;
-  return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
-};
+// Removido: isGoogleMapsLink não é mais necessário aqui, pois a lógica foi generalizada
+// const isGoogleMapsLink = (mapsLink: string | null): boolean => {
+//   if (!mapsLink) return false;
+//   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
+// };
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => { // orderIdForNotes removido
   const navigate = useNavigate();
@@ -168,10 +169,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   }
   
   // Lógica para os botões de mapa e telefone
-  const hasMapLink = selectedClient && selectedClient.maps_link && isGoogleMapsLink(selectedClient.maps_link);
+  const hasMapLink = selectedClient && selectedClient.maps_link && isLinkClickable(selectedClient.maps_link);
   const handleMapClick = () => {
-    if (hasMapLink) {
-      const mapHref = selectedClient.maps_link.startsWith("http") ? selectedClient.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedClient.maps_link)}`;
+    if (hasMapLink && selectedClient?.maps_link) {
+      const mapHref = selectedClient.maps_link.startsWith("http") 
+        ? selectedClient.maps_link 
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedClient.maps_link)}`;
       window.open(mapHref, '_blank', 'noopener,noreferrer');
     }
   };

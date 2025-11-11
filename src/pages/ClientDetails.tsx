@@ -23,6 +23,7 @@ import {
 import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
+import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
 
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
     <div className="flex justify-end space-x-2 mb-4">
@@ -79,13 +80,26 @@ const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: ()
     </div>
 );
 
-const isGoogleMapsLink = (mapsLink: string | null): boolean => {
-  if (!mapsLink) return false;
-  return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
-};
+// Removido: isGoogleMapsLink não é mais necessário aqui, pois a lógica foi generalizada
+// const isGoogleMapsLink = (mapsLink: string | null): boolean => {
+//   if (!mapsLink) return false;
+//   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
+// };
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
+
+    // Função auxiliar para construir o href do mapa
+    const getMapHref = (mapsLink: string) => {
+      if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
+        return mapsLink;
+      }
+      // Se for coordenadas, formata para busca no Google Maps
+      if (/^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink)) {
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsLink)}`;
+      }
+      return "#"; // Fallback, embora isLinkClickable já devesse filtrar isso
+    };
 
     return (
         <Card> {/* Adicionado Card aqui */}
@@ -104,22 +118,18 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Maps</p>
-                  {client.maps_link ? (
-                    isGoogleMapsLink(client.maps_link) ? (
-                      <a 
-                        href={client.maps_link.startsWith("http") ? client.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`}
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                      >
-                        <MapPin className="h-4 w-4" />
-                        Ver no Mapa
-                      </a>
-                    ) : (
-                      <p className="font-medium">{client.maps_link}</p>
-                    )
+                  {client.maps_link && isLinkClickable(client.maps_link) ? (
+                    <a 
+                      href={getMapHref(client.maps_link)}
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-1 text-blue-600 hover:underline"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      Ver no Mapa
+                    </a>
                   ) : (
-                    <p className="text-muted-foreground">N/A</p>
+                    <p className="text-muted-foreground">{client.maps_link || 'N/A'}</p>
                   )}
                 </div>
                 <div>
