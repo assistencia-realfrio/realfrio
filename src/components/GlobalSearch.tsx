@@ -12,6 +12,8 @@ import { useClients } from '@/hooks/useClients';
 import { useServiceOrders } from '@/hooks/useServiceOrders';
 import { useAllEquipments } from '@/hooks/useAllEquipments';
 import { Users, Wrench, HardDrive } from 'lucide-react';
+import { Badge } from '@/components/ui/badge'; // Importar Badge
+import { getStatusBadgeVariant } from '@/lib/serviceOrderStatus'; // Importar função para variante do badge
 
 interface GlobalSearchProps {
   open: boolean;
@@ -57,11 +59,19 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
             {orders.map((order) => (
               <CommandItem
                 key={`order-${order.id}`}
-                value={`OS ${order.display_id} ${order.client} ${order.equipment}`}
+                value={`OS ${order.display_id} ${order.client} ${order.equipment} ${order.status}`}
                 onSelect={() => runCommand(() => navigate(`/orders/${order.id}`))}
+                className="flex items-center justify-between" // Adicionado para alinhar badge à direita
               >
-                <Wrench className="mr-2 h-4 w-4" />
-                <span>{order.display_id} - {order.client}</span>
+                <div className="flex items-center min-w-0 flex-grow"> {/* Adicionado min-w-0 e flex-grow */}
+                  <Wrench className="mr-2 h-4 w-4 flex-shrink-0" /> {/* flex-shrink-0 para evitar encolher */}
+                  <span className="truncate"> {/* truncate para lidar com textos longos */}
+                    {order.display_id} - {order.client} ({order.equipment})
+                  </span>
+                </div>
+                <Badge variant={getStatusBadgeVariant(order.status)} className="ml-2 flex-shrink-0"> {/* flex-shrink-0 para evitar encolher */}
+                  {order.status}
+                </Badge>
               </CommandItem>
             ))}
           </CommandGroup>
