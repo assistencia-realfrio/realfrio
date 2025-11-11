@@ -25,10 +25,12 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone } from "lucide-react";
+import { User, MapPin, Phone, Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
-// import ServiceOrderNotes from "./ServiceOrderNotes"; // Removido: Não é mais renderizado aqui
+import DatePicker from "./DatePicker"; // Importando o DatePicker
+import TechnicianSelector from "./TechnicianSelector"; // Importando o TechnicianSelector
+import { formatISO } from "date-fns";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -37,19 +39,21 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
+  scheduled_date: z.date().nullable().optional(), // NOVO: Data como objeto Date ou null
+  technician_id: z.string().uuid({ message: "Selecione um técnico válido." }).nullable().optional(), // NOVO: ID do técnico
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
-interface InitialData extends ServiceOrderFormValues {
+interface InitialData extends Omit<ServiceOrderFormValues, 'scheduled_date'> {
     id?: string;
+    scheduled_date?: string | null; // Recebe string ISO ou null
 }
 
 interface ServiceOrderFormProps {
   initialData?: InitialData;
   onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
   onCancel?: () => void;
-  // orderIdForNotes?: string; // Removido: Não é mais necessário
 }
 
 // Função auxiliar para verificar se o link é do Google Maps ou coordenadas
@@ -58,18 +62,28 @@ const isGoogleMapsLink = (mapsLink: string | null): boolean => {
   return mapsLink.includes("google.com/maps") || /^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink);
 };
 
-const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => { // orderIdForNotes removido
+const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const navigate = useNavigate();
+  
+  // Converte scheduled_date de string ISO para Date object para o useForm
+  const defaultScheduledDate = initialData?.scheduled_date 
+    ? new Date(initialData.scheduled_date) 
+    : undefined;
+
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
         ...initialData,
+        scheduled_date: defaultScheduledDate,
+        technician_id: initialData.technician_id || undefined,
     } : {
       equipment_id: "",
       client_id: "",
       description: "",
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
+      scheduled_date: undefined,
+      technician_id: undefined,
     },
   });
 
@@ -122,6 +136,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             ? `${equipmentName} / ${equipmentBrand}` 
             : equipmentName;
 
+        // Converte Date para string ISO para o Supabase
+        const scheduledDateISO = data.scheduled_date ? formatISO(data.scheduled_date) : null;
+
         const mutationData: MutationServiceOrderFormValues = {
             client_id: data.client_id,
             description: data.description,
@@ -131,6 +148,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
+            scheduled_date: scheduledDateISO, // NOVO: Data agendada
+            technician_id: data.technician_id || null, // NOVO: Técnico
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -193,6 +212,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="status"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Estado *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -215,6 +235,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="store"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Loja *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -230,6 +251,43 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               </FormItem>
             )}
           />
+        </div>
+
+        {/* Campos de Agendamento */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+                control={form.control}
+                name="scheduled_date"
+                render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                        <FormLabel>Data Agendada (Opcional)</FormLabel>
+                        <FormControl>
+                            <DatePicker 
+                                date={field.value} 
+                                setDate={field.onChange} 
+                                placeholder="Selecione a data prevista"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="technician_id"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Técnico Atribuído (Opcional)</FormLabel>
+                        <FormControl>
+                            <TechnicianSelector 
+                                value={field.value} 
+                                onChange={field.onChange}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
         </div>
 
         <FormField
@@ -322,8 +380,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
         
-        {/* Removido: Renderiza o componente ServiceOrderNotes aqui, entre a descrição e os botões */}
-
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
