@@ -14,7 +14,7 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Ordens de Serviço",
+    title: "Assistências", // Alterado de "Ordens de Serviço" para "Assistências"
     href: "/",
     icon: Wrench,
   },
