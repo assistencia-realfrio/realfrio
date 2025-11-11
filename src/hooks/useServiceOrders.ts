@@ -1,36 +1,36 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/contexts/SessionContext"; // Importar useSession
+import { useSession } from "@/contexts/SessionContext";
 import { format } from "date-fns";
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
 import { logActivity } from "@/utils/activityLogger";
-import { showError } from "@/utils/toast"; // Importar showError
+import { showError } from "@/utils/toast";
 
 export type { ServiceOrderStatus };
 export { serviceOrderStatuses };
 
 export interface ServiceOrder {
   id: string;
-  display_id: string; // Novo campo para o ID formatado
+  display_id: string;
   equipment: string;
   model: string | null;
   serial_number: string | null; 
   client: string;
   client_id: string;
-  equipment_id: string | null; // Novo campo para referenciar o equipamento
+  equipment_id: string | null;
   description: string;
   status: ServiceOrderStatus;
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
   created_at: string;
-  updated_at: string | null; // Adicionado campo de atualização
-  scheduled_date: string | null; // NOVO: Campo para a data de agendamento
+  updated_at: string | null;
+  scheduled_date: string | null;
 }
 
 export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
-    scheduled_date?: Date | null; // NOVO: scheduled_date como Date ou null para o formulário
+    scheduled_date?: Date | null;
 };
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
@@ -44,7 +44,10 @@ const generateDisplayId = (store: ServiceOrder['store']): string => {
 };
 
 const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
-  if (!userId) return [];
+  if (!userId) {
+    console.log("[useServiceOrders] No user ID, returning empty array.");
+    return [];
+  }
   
   let query = supabase
     .from('service_orders')
@@ -61,7 +64,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       updated_at,
       client_id,
       equipment_id,
-      scheduled_date, -- NOVO: Selecionar scheduled_date
+      scheduled_date,
       clients (name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
@@ -72,7 +75,12 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
 
   const { data, error } = await query;
 
-  if (error) throw error;
+  if (error) {
+    console.error("[useServiceOrders] Error fetching service orders:", error);
+    throw error;
+  }
+
+  console.log("[useServiceOrders] Fetched raw service orders data:", data); // Log dos dados brutos
 
   const mappedData = (data as unknown as ServiceOrderRaw[]).map(order => {
     const clientName = Array.isArray(order.clients) 
@@ -91,7 +99,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         serial_number: order.serial_number,
         model: order.model,
         equipment_id: order.equipment_id,
-        scheduled_date: order.scheduled_date, // NOVO: Mapear scheduled_date
+        scheduled_date: order.scheduled_date,
     };
   }) as ServiceOrder[];
 
@@ -111,18 +119,20 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
     return dateB - dateA;
   });
 
+  console.log("[useServiceOrders] Mapped and sorted service orders:", mappedData); // Log dos dados mapeados e ordenados
+
   return mappedData;
 };
 
-export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL') => { // Adicionado storeFilter
-  const { user, session } = useSession(); // Obter o objeto session
+export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL') => {
+  const { user, session } = useSession();
   const queryClient = useQueryClient();
 
-  const queryKey = id ? ['serviceOrders', id, storeFilter] : ['serviceOrders', storeFilter]; // Adicionado storeFilter ao queryKey
+  const queryKey = id ? ['serviceOrders', id, storeFilter] : ['serviceOrders', storeFilter];
 
   const { data: orders, isLoading } = useQuery<ServiceOrder[], Error>({
     queryKey: queryKey,
-    queryFn: () => fetchServiceOrders(user?.id, storeFilter), // Passando storeFilter
+    queryFn: () => fetchServiceOrders(user?.id, storeFilter),
     enabled: !!user?.id,
     select: (data) => {
       if (id) {
@@ -154,7 +164,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           equipment_id: orderData.equipment_id || null,
           display_id: displayId,
           created_by: user.id,
-          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null, // NOVO: Salvar scheduled_date
+          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
         })
         .select()
         .single();
@@ -173,7 +183,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           description: { newValue: newOrder.description },
           store: { newValue: newOrder.store },
           equipment: { newValue: newOrder.equipment },
-          scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' }, // NOVO: Log scheduled_date
+          scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' },
         }
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -182,10 +192,9 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
-      // Tenta obter o estado antigo da ordem diretamente da base de dados para comparação precisa
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, scheduled_date') // NOVO: Selecionar scheduled_date
+        .select('status, description, equipment, model, serial_number, store, scheduled_date')
         .eq('id', id)
         .single();
 
@@ -205,7 +214,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
-          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null, // NOVO: Atualizar scheduled_date
+          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
         })
         .eq('id', id)
         .select()
@@ -249,7 +258,6 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           changesSummary.push('a loja');
           activityDetails.store = { oldValue: oldOrder.store, newValue: updatedOrder.store };
         }
-        // NOVO: Log para scheduled_date
         const oldScheduledDate = oldOrder.scheduled_date ? format(new Date(oldOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A';
         const newScheduledDate = updatedOrder.scheduled_date ? format(new Date(updatedOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A';
         if (newScheduledDate !== oldScheduledDate) {
@@ -272,7 +280,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         entity_id: updatedOrder.id,
         action_type: actionType,
         content: logContent,
-        details: Object.keys(activityDetails).length > 0 ? activityDetails : undefined, // Only add details if there are actual changes
+        details: Object.keys(activityDetails).length > 0 ? activityDetails : undefined,
       });
       
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });

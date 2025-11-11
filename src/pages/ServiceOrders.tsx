@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { PlusCircle } from "lucide-react"; // Removido Search icon
+import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// Removido Input component
 import ServiceOrderCard from "@/components/ServiceOrderCard";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -23,59 +22,54 @@ const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>(
-    (searchParams.get('store') as StoreFilter) || 'ALL'
-  );
-  const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-    (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
-  );
-  // Removido searchTerm e setSearchTerm
+  // Desativando estados de filtro para depuração
+  // const [selectedStore, setSelectedStore] = useState<StoreFilter>(
+  //   (searchParams.get('store') as StoreFilter) || 'ALL'
+  // );
+  // const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
+  //   (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
+  // );
   
   const { orders, isLoading } = useServiceOrders();
 
   const allOrders = orders;
 
-  const availableStatuses = useMemo(() => {
-    return serviceOrderStatuses;
-  }, []);
+  // Desativando availableStatuses e useEffect para depuração
+  // const availableStatuses = useMemo(() => {
+  //   return serviceOrderStatuses;
+  // }, []);
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    // Removido params.set('q', searchTerm);
-    if (selectedStatus) params.set('status', selectedStatus);
-    if (selectedStore) params.set('store', selectedStore);
-    
-    setSearchParams(params, { replace: true });
-  }, [selectedStatus, selectedStore, setSearchParams]); // Removido searchTerm das dependências
+  // useEffect(() => {
+  //   const params = new URLSearchParams();
+  //   // if (selectedStatus) params.set('status', selectedStatus);
+  //   // if (selectedStore) params.set('store', selectedStore);
+  //   setSearchParams(params, { replace: true });
+  // }, [setSearchParams]); // Removido selectedStatus, selectedStore, searchTerm
 
   const handleNewOrder = () => {
     navigate("/orders/new");
   };
 
-  const ordersFilteredByStore = useMemo(() => {
-    if (selectedStore === 'ALL') {
-      return allOrders;
-    }
-    return allOrders.filter(order => order.store === selectedStore);
-  }, [allOrders, selectedStore]);
+  // Desativando filtragem por loja para depuração
+  // const ordersFilteredByStore = useMemo(() => {
+  //   if (selectedStore === 'ALL') {
+  //     return allOrders;
+  //   }
+  //   return allOrders.filter(order => order.store === selectedStore);
+  // }, [allOrders, selectedStore]);
 
-  const statusCounts = useMemo(() => {
-    return ordersFilteredByStore.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1;
-      return acc;
-    }, {} as Record<ServiceOrderStatus, number>);
-  }, [ordersFilteredByStore]);
+  // Desativando statusCounts para depuração
+  // const statusCounts = useMemo(() => {
+  //   return ordersFilteredByStore.reduce((acc, order) => {
+  //     acc[order.status] = (acc[order.status] || 0) + 1;
+  //     return acc;
+  //   }, {} as Record<ServiceOrderStatus, number>);
+  // }, [ordersFilteredByStore]);
 
   const filteredOrders = useMemo(() => {
-    let filtered = ordersFilteredByStore;
-
-    if (selectedStatus !== 'ALL') {
-      filtered = filtered.filter(order => order.status === selectedStatus);
-    }
-    // Removido o bloco de filtro por searchTerm
-    
-    return filtered;
-  }, [ordersFilteredByStore, selectedStatus]); // Removido searchTerm das dependências
+    // Para depuração, retorna todas as ordens diretamente
+    return allOrders;
+  }, [allOrders]); // Removido ordersFilteredByStore, selectedStatus, searchTerm
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     if (isLoading) {
@@ -100,9 +94,10 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  const allOrdersCount = allOrders.length;
-  const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+  // Desativando contagens para depuração
+  // const allOrdersCount = allOrders.length;
+  // const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  // const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>
@@ -117,10 +112,10 @@ const ServiceOrders: React.FC = () => {
           </div>
         </div>
 
-        {/* Ajustado o layout para que os selects ocupem a largura total */}
-        <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-          <div className="flex w-full items-center gap-2"> {/* Removido md:w-auto */}
-            <div className="flex-1"> {/* Removido md:flex-none md:w-56 */}
+        {/* Interface de filtro desativada para depuração */}
+        {/* <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
+          <div className="flex w-full items-center gap-2">
+            <div className="flex-1">
               <Select 
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
                 value={selectedStore}
@@ -136,7 +131,7 @@ const ServiceOrders: React.FC = () => {
               </Select>
             </div>
 
-            <div className="flex-1"> {/* Removido md:flex-none md:w-56 */}
+            <div className="flex-1">
               <Select 
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
                 value={selectedStatus}
@@ -155,7 +150,7 @@ const ServiceOrders: React.FC = () => {
               </Select>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="mt-6">
           {renderOrderGrid(filteredOrders)}
