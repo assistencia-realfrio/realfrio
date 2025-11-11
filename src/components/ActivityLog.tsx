@@ -15,20 +15,20 @@ const RenderActivityDetails: React.FC<{ details: Record<string, { oldValue?: any
   if (!details || Object.keys(details).length === 0) return null;
 
   return (
-    <div className="mt-1 text-xs text-muted-foreground/80 space-y-0.5 break-words"> {/* Adicionado break-words aqui */}
+    <div className="mt-1 text-xs text-muted-foreground/80 space-y-0.5">
       {Object.entries(details).map(([key, { oldValue, newValue }]) => {
         const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase()); // Formata 'status_changed' para 'Status Changed'
         
         if (oldValue === undefined && newValue !== undefined) {
           return (
-            <p key={key}> {/* Removido truncate */}
+            <p key={key} className="truncate"> {/* Adicionado truncate */}
               <span className="font-semibold">{formattedKey}:</span>{" "}
               <span className="text-green-500">{newValue || 'Vazio'}</span>
             </p>
           );
         } else if (oldValue !== undefined && newValue !== undefined && oldValue !== newValue) {
           return (
-            <p key={key}> {/* Removido truncate */}
+            <p key={key} className="truncate"> {/* Adicionado truncate */}
               <span className="font-semibold">{formattedKey}:</span>{" "}
               <span className="line-through text-red-500">{oldValue || 'Vazio'}</span>{" "}
               <span className="text-green-500">→ {newValue || 'Vazio'}</span>
@@ -77,9 +77,9 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
                     {activity.user_full_name.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground break-words">{activity.content}</p> {/* Adicionado break-words aqui */}
-                  <RenderActivityDetails details={activity.details} />
+                <div className="flex-1 min-w-0"> {/* Adicionado min-w-0 */}
+                  <p className="text-sm text-foreground">{activity.content}</p>
+                  <RenderActivityDetails details={activity.details} /> {/* Renderiza os detalhes aqui */}
                   <p className="text-xs text-muted-foreground">
                     {activity.user_full_name} • {activity.time_ago}
                   </p>
