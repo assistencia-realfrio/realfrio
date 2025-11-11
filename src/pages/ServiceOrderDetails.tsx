@@ -181,13 +181,9 @@ const ServiceOrderDetails: React.FC = () => {
                     <div className="flex items-center text-sm">
                         <User className="h-4 w-4 mr-2 text-primary" />
                         <span className="text-muted-foreground">Técnico: </span>
-                        {order.technician_name ? (
-                            <span className="ml-2 font-medium">
-                                {order.technician_name}
-                            </span>
-                        ) : (
-                            <span className="ml-2 text-muted-foreground italic">Não Atribuído</span>
-                        )}
+                        <span className="ml-2 font-medium">
+                            {order.technician_name || 'Não Atribuído'}
+                        </span>
                     </div>
                 </div>
               )}
