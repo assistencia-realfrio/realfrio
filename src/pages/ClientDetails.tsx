@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
+import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
 
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
     <div className="flex justify-end space-x-2 mb-4">
@@ -87,78 +88,80 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
 
     return (
-        <div className="space-y-4 text-sm">
-            <div>
-              <p className="text-muted-foreground">Nome</p>
-              <p className="font-medium">{client.name}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Loja</p>
-              <p className="font-medium">{client.store || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Localidade</p>
-              <p className="font-medium">{client.locality || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Maps</p>
-              {client.maps_link ? (
-                isGoogleMapsLink(client.maps_link) ? (
-                  <a 
-                    href={client.maps_link.startsWith("http") ? client.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex items-center gap-1 text-blue-600 hover:underline"
-                  >
-                    <MapPin className="h-4 w-4" />
-                    Ver no Mapa
-                  </a>
-                ) : (
-                  <p className="font-medium">{client.maps_link}</p>
-                )
-              ) : (
-                <p className="text-muted-foreground">N/A</p>
-              )}
-            </div>
-            <div>
-              <p className="text-muted-foreground">Google Drive</p>
-              {hasGoogleDriveLink ? (
-                <a 
-                  href={client.google_drive_link!} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center gap-1 text-blue-600 hover:underline"
-                >
-                  <FolderOpen className="h-4 w-4" />
-                  Abrir Pasta
-                </a>
-              ) : (
-                <p className="text-muted-foreground">N/A</p>
-              )}
-            </div>
-            <div>
-              <p className="text-muted-foreground">Contato</p>
-              {client.contact ? (
-                <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
-                  <Phone className="h-4 w-4" />
-                  {client.contact}
-                </a>
-              ) : (
-                <p className="text-muted-foreground">N/A</p>
-              )}
-            </div>
-            <div>
-              <p className="text-muted-foreground">E-mail</p>
-              {client.email ? (
-                <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
-                  <Mail className="h-4 w-4" />
-                  {client.email}
-                </a>
-              ) : (
-                <p className="text-muted-foreground">N/A</p>
-              )}
-            </div>
-          </div>
+        <Card> {/* Adicionado Card aqui */}
+            <CardContent className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
+                <div>
+                  <p className="text-muted-foreground">Nome</p>
+                  <p className="font-medium">{client.name}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Loja</p>
+                  <p className="font-medium">{client.store || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Localidade</p>
+                  <p className="font-medium">{client.locality || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Maps</p>
+                  {client.maps_link ? (
+                    isGoogleMapsLink(client.maps_link) ? (
+                      <a 
+                        href={client.maps_link.startsWith("http") ? client.maps_link : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(client.maps_link)}`}
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center gap-1 text-blue-600 hover:underline"
+                      >
+                        <MapPin className="h-4 w-4" />
+                        Ver no Mapa
+                      </a>
+                    ) : (
+                      <p className="font-medium">{client.maps_link}</p>
+                    )
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Google Drive</p>
+                  {hasGoogleDriveLink ? (
+                    <a 
+                      href={client.google_drive_link!} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-1 text-blue-600 hover:underline"
+                    >
+                      <FolderOpen className="h-4 w-4" />
+                      Abrir Pasta
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Contato</p>
+                  {client.contact ? (
+                    <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                      <Phone className="h-4 w-4" />
+                      {client.contact}
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-muted-foreground">E-mail</p>
+                  {client.email ? (
+                    <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
+                      <Mail className="h-4 w-4" />
+                      {client.email}
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground">N/A</p>
+                  )}
+                </div>
+              </CardContent>
+          </Card>
     );
 };
 
