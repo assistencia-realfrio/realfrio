@@ -13,8 +13,8 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useEquipments, Equipment } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import EquipmentForm from "./EquipmentForm";
 import { useNavigate } from "react-router-dom";
+import EquipmentForm from "./EquipmentForm"; // Importação adicionada
 
 interface ClientEquipmentTabProps {
   clientId: string;
@@ -47,17 +47,17 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
   return (
     <Card className="shadow-none border-none">
       <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Equipamentos Associados</CardTitle>
+        <CardTitle className="text-lg">EQUIPAMENTOS ASSOCIADOS</CardTitle>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={() => setIsAddModalOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Adicionar Equipamento
+              ADICIONAR EQUIPAMENTO
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
+              <DialogTitle>ADICIONAR NOVO EQUIPAMENTO</DialogTitle>
             </DialogHeader>
             <EquipmentForm 
               clientId={clientId} 
@@ -73,10 +73,10 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Marca</TableHead>
-                  <TableHead>Modelo</TableHead>
-                  <TableHead className="hidden sm:table-cell">Nº Série</TableHead>
+                  <TableHead>NOME</TableHead>
+                  <TableHead>MARCA</TableHead>
+                  <TableHead>MODELO</TableHead>
+                  <TableHead className="hidden sm:table-cell">Nº SÉRIE</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -86,10 +86,10 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
                     onClick={() => handleRowClick(equipment.id)}
                     className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    <TableCell className="font-medium">{equipment.name}</TableCell>
-                    <TableCell>{equipment.brand || 'N/A'}</TableCell>
-                    <TableCell>{equipment.model || 'N/A'}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
+                    <TableCell className="font-medium">{equipment.name.toUpperCase()}</TableCell>
+                    <TableCell>{(equipment.brand || 'N/A').toUpperCase()}</TableCell>
+                    <TableCell>{(equipment.model || 'N/A').toUpperCase()}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{(equipment.serial_number || 'N/A').toUpperCase()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -97,7 +97,7 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
           </div>
         ) : (
           <p className="text-center text-muted-foreground py-8 text-sm">
-            Nenhum equipamento associado a este cliente.
+            NENHUM EQUIPAMENTO ASSOCIADO A ESTE CLIENTE.
           </p>
         )}
       </CardContent>

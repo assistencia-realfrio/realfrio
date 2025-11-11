@@ -27,8 +27,8 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
   if (!equipment) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-bold">Equipamento não encontrado</h3>
-        <p className="text-muted-foreground">Não foi possível carregar os detalhes do equipamento.</p>
+        <h3 className="text-xl font-bold">EQUIPAMENTO NÃO ENCONTRADO</h3>
+        <p className="text-muted-foreground">NÃO FOI POSSÍVEL CARREGAR OS DETALHES DO EQUIPAMENTO.</p>
       </div>
     );
   }
@@ -36,42 +36,42 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
   return (
     <Card className="shadow-none border-none">
       <CardHeader className="p-0 pb-4">
-        <CardTitle className="text-lg">Detalhes do Equipamento</CardTitle>
+        <CardTitle className="text-lg">DETALHES DO EQUIPAMENTO</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="details" onValueChange={(value: "details" | "orders" | "history") => setSelectedTab(value)}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="details">
               <FileText className="h-4 w-4 mr-2" />
-              Detalhes
+              DETALHES
             </TabsTrigger>
             <TabsTrigger value="orders">
               <Wrench className="h-4 w-4 mr-2" />
-              Ordens
+              ORDENS
             </TabsTrigger>
             <TabsTrigger value="history">
               <History className="h-4 w-4 mr-2" />
-              Histórico
+              HISTÓRICO
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="mt-4">
             <div className="space-y-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Nome</p>
-                <p className="font-medium">{equipment.name}</p>
+                <p className="text-muted-foreground">NOME</p>
+                <p className="font-medium">{equipment.name.toUpperCase()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Marca</p>
-                <p className="font-medium">{equipment.brand || 'N/A'}</p>
+                <p className="text-muted-foreground">MARCA</p>
+                <p className="font-medium">{(equipment.brand || 'N/A').toUpperCase()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Modelo</p>
-                <p className="font-medium">{equipment.model || 'N/A'}</p>
+                <p className="text-muted-foreground">MODELO</p>
+                <p className="font-medium">{(equipment.model || 'N/A').toUpperCase()}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Número de Série</p>
-                <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
+                <p className="text-muted-foreground">NÚMERO DE SÉRIE</p>
+                <p className="font-medium">{(equipment.serial_number || 'N/A').toUpperCase()}</p>
               </div>
             </div>
           </TabsContent>

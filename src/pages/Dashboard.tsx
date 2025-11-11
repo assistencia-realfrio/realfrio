@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
   const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics();
 
   // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.
-  const totalTimeRegistered = "0h"; 
+  const totalTimeRegistered = "0H"; 
 
   if (isLoading) {
     return (
@@ -29,35 +29,35 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-8">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Gestão</h2>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">DASHBOARD DE GESTÃO</h2>
 
         {/* Seção de Métricas */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
           <MetricCard
-            title="Total de OS"
+            title="TOTAL DE OS"
             value={totalOrders}
-            description="Total de Ordens de Serviço registradas."
+            description="TOTAL DE ORDENS DE SERVIÇO REGISTRADAS."
             icon={Users}
             iconColorClass="text-blue-500"
           />
           <MetricCard
-            title="OS Pendentes"
+            title="OS PENDENTES"
             value={pendingOrders}
-            description="Ordens aguardando início."
+            description="ORDENS AGUARDANDO INÍCIO."
             icon={AlertTriangle}
             iconColorClass="text-destructive"
           />
           <MetricCard
-            title="OS Concluídas (Total)"
+            title="OS CONCLUÍDAS (TOTAL)"
             value={completedOrders}
-            description="Ordens concluídas no sistema."
+            description="ORDENS CONCLUÍDAS NO SISTEMA."
             icon={CheckCircle}
             iconColorClass="text-green-500"
           />
           <MetricCard
-            title="Tempo Total Registrado"
+            title="TEMPO TOTAL REGISTRADO"
             value={totalTimeRegistered}
-            description="Tempo total de trabalho registrado (Mock)."
+            description="TEMPO TOTAL DE TRABALHO REGISTRADO (MOCK)."
             icon={Clock}
             iconColorClass="text-yellow-500"
           />
@@ -69,9 +69,9 @@ const Dashboard: React.FC = () => {
           {/* Outros gráficos ou listas podem ser adicionados aqui */}
           <div className="lg:col-span-2">
             <MetricCard
-                title="Próximos Passos"
-                value="Integração de Tempo e Anexos"
-                description="Implementar persistência de dados para Tempo e Anexos."
+                title="PRÓXIMOS PASSOS"
+                value="INTEGRAÇÃO DE TEMPO E ANEXOS"
+                description="IMPLEMENTAR PERSISTÊNCIA DE DADOS PARA TEMPO E ANEXOS."
                 icon={Users}
                 iconColorClass="text-gray-500"
             />

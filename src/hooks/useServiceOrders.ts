@@ -67,8 +67,8 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
 
   const mappedData = (data as unknown as ServiceOrderRaw[]).map(order => {
     const clientName = Array.isArray(order.clients) 
-        ? order.clients[0]?.name || 'Cliente Desconhecido'
-        : order.clients?.name || 'Cliente Desconhecido';
+        ? order.clients[0]?.name || 'CLIENTE DESCONHECIDO'
+        : order.clients?.name || 'CLIENTE DESCONHECIDO';
 
     return {
         ...order,
@@ -127,17 +127,17 @@ export const useServiceOrders = (id?: string) => {
 
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: ServiceOrderFormValues) => {
-      if (!user?.id) throw new Error("Usuário não autenticado.");
+      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
       
       const displayId = generateDisplayId(orderData.store);
       
       const { data, error } = await supabase
         .from('service_orders')
         .insert({
-          equipment: orderData.equipment,
-          model: orderData.model || null,
-          serial_number: orderData.serial_number || null,
-          description: orderData.description,
+          equipment: orderData.equipment.toUpperCase(),
+          model: orderData.model?.toUpperCase() || null,
+          serial_number: orderData.serial_number?.toUpperCase() || null,
+          description: orderData.description.toUpperCase(),
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
@@ -156,7 +156,7 @@ export const useServiceOrders = (id?: string) => {
         entity_type: 'service_order',
         entity_id: newOrder.id,
         action_type: 'created',
-        content: `Ordem de Serviço "${newOrder.display_id}" foi criada.`,
+        content: `ORDEM DE SERVIÇO "${newOrder.display_id}" FOI CRIADA.`,
         details: {
           status: { newValue: newOrder.status },
           description: { newValue: newOrder.description },
@@ -184,10 +184,10 @@ export const useServiceOrders = (id?: string) => {
       const { data, error } = await supabase
         .from('service_orders')
         .update({
-          equipment: orderData.equipment,
-          model: orderData.model || null,
-          serial_number: orderData.serial_number || null,
-          description: orderData.description,
+          equipment: orderData.equipment.toUpperCase(),
+          model: orderData.model?.toUpperCase() || null,
+          serial_number: orderData.serial_number?.toUpperCase() || null,
+          description: orderData.description.toUpperCase(),
           status: orderData.status,
           store: orderData.store,
           client_id: orderData.client_id,
@@ -205,7 +205,7 @@ export const useServiceOrders = (id?: string) => {
       return { updatedOrder: updatedOrder, oldOrder: oldOrder as typeof oldOrder | null };
     },
     onSuccess: ({ updatedOrder, oldOrder }) => {
-      let logContent = `OS "${updatedOrder.display_id}" foi atualizada.`;
+      let logContent = `OS "${updatedOrder.display_id}" FOI ATUALIZADA.`;
       let actionType: 'updated' | 'status_changed' = 'updated';
       const activityDetails: Record<string, { oldValue: any; newValue: any }> = {};
 
@@ -213,36 +213,36 @@ export const useServiceOrders = (id?: string) => {
         const changesSummary: string[] = [];
         if (updatedOrder.status !== oldOrder.status) {
           actionType = 'status_changed';
-          changesSummary.push(`o estado de "${oldOrder.status}" para "${updatedOrder.status}"`);
+          changesSummary.push(`O ESTADO DE "${oldOrder.status}" PARA "${updatedOrder.status}"`);
           activityDetails.status = { oldValue: oldOrder.status, newValue: updatedOrder.status };
         }
         if (updatedOrder.description !== oldOrder.description) {
-          changesSummary.push('a descrição');
+          changesSummary.push('A DESCRIÇÃO');
           activityDetails.description = { oldValue: oldOrder.description, newValue: updatedOrder.description };
         }
         if (updatedOrder.equipment !== oldOrder.equipment) {
-          changesSummary.push('o equipamento');
+          changesSummary.push('O EQUIPAMENTO');
           activityDetails.equipment = { oldValue: oldOrder.equipment, newValue: updatedOrder.equipment };
         }
         if (updatedOrder.model !== oldOrder.model) {
-          changesSummary.push('o modelo');
+          changesSummary.push('O MODELO');
           activityDetails.model = { oldValue: oldOrder.model, newValue: updatedOrder.model };
         }
         if (updatedOrder.serial_number !== oldOrder.serial_number) {
-          changesSummary.push('o número de série');
+          changesSummary.push('O NÚMERO DE SÉRIE');
           activityDetails.serial_number = { oldValue: oldOrder.serial_number, newValue: updatedOrder.serial_number };
         }
         if (updatedOrder.store !== oldOrder.store) {
-          changesSummary.push('a loja');
+          changesSummary.push('A LOJA');
           activityDetails.store = { oldValue: oldOrder.store, newValue: updatedOrder.store };
         }
         
         if (changesSummary.length > 0) {
           const firstChange = changesSummary[0].charAt(0).toUpperCase() + changesSummary[0].slice(1);
           const restOfChanges = changesSummary.slice(1);
-          logContent = `Na OS "${updatedOrder.display_id}", ${firstChange}${restOfChanges.length > 0 ? ' e ' + restOfChanges.join(', ') : ''}.`;
+          logContent = `NA OS "${updatedOrder.display_id}", ${firstChange}${restOfChanges.length > 0 ? ' E ' + restOfChanges.join(', ') : ''}.`;
         } else {
-            logContent = `OS "${updatedOrder.display_id}" foi atualizada (sem alterações visíveis).`;
+            logContent = `OS "${updatedOrder.display_id}" FOI ATUALIZADA (SEM ALTERAÇÕES VISÍVEIS).`;
             actionType = 'updated';
         }
       }
@@ -279,9 +279,9 @@ export const useServiceOrders = (id?: string) => {
           entity_type: 'service_order',
           entity_id: orderToDelete.id,
           action_type: 'deleted',
-          content: `OS "${orderToDelete.display_id}" foi excluída.`,
+          content: `OS "${orderToDelete.display_id}" FOI EXCLUÍDA.`,
           details: {
-            name: { oldValue: orderToDelete.display_id, newValue: 'Excluído' }
+            name: { oldValue: orderToDelete.display_id, newValue: 'EXCLUÍDO' }
           }
         });
       }

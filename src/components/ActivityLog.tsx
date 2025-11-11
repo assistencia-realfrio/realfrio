@@ -22,16 +22,16 @@ const RenderActivityDetails: React.FC<{ details: Record<string, { oldValue?: any
         if (oldValue === undefined && newValue !== undefined) {
           return (
             <p key={key} className="truncate"> {/* Adicionado truncate */}
-              <span className="font-semibold">{formattedKey}:</span>{" "}
-              <span className="text-green-500">{newValue || 'Vazio'}</span>
+              <span className="font-semibold">{formattedKey.toUpperCase()}:</span>{" "}
+              <span className="text-green-500">{(newValue || 'VAZIO').toUpperCase()}</span>
             </p>
           );
         } else if (oldValue !== undefined && newValue !== undefined && oldValue !== newValue) {
           return (
             <p key={key} className="truncate"> {/* Adicionado truncate */}
-              <span className="font-semibold">{formattedKey}:</span>{" "}
-              <span className="line-through text-red-500">{oldValue || 'Vazio'}</span>{" "}
-              <span className="text-green-500">→ {newValue || 'Vazio'}</span>
+              <span className="font-semibold">{formattedKey.toUpperCase()}:</span>{" "}
+              <span className="line-through text-red-500">{(oldValue || 'VAZIO').toUpperCase()}</span>{" "}
+              <span className="text-green-500">→ {(newValue || 'VAZIO').toUpperCase()}</span>
             </p>
           );
         }
@@ -48,7 +48,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Histórico de Atividades</CardTitle>
+          <CardTitle>HISTÓRICO DE ATIVIDADES</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Skeleton className="h-12 w-full" />
@@ -64,7 +64,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <List className="h-5 w-5" />
-          Histórico de Atividades
+          HISTÓRICO DE ATIVIDADES
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -78,17 +78,17 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0"> {/* Adicionado min-w-0 */}
-                  <p className="text-sm text-foreground">{activity.content}</p>
+                  <p className="text-sm text-foreground">{activity.content.toUpperCase()}</p>
                   <RenderActivityDetails details={activity.details} /> {/* Renderiza os detalhes aqui */}
                   <p className="text-xs text-muted-foreground">
-                    {activity.user_full_name} • {activity.time_ago}
+                    {activity.user_full_name.toUpperCase()} • {activity.time_ago.toUpperCase()}
                   </p>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-center text-muted-foreground text-sm">Nenhuma atividade registrada.</p>
+          <p className="text-center text-muted-foreground text-sm">NENHUMA ATIVIDADE REGISTRADA.</p>
         )}
       </CardContent>
     </Card>

@@ -23,11 +23,11 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-primary" />
-            Distribuição de Status das OS
+            DISTRIBUIÇÃO DE STATUS DAS OS
           </CardTitle>
         </CardHeader>
         <CardContent className="h-[250px] sm:h-[300px] flex items-center justify-center">
-          <p className="text-muted-foreground">Carregando dados...</p>
+          <p className="text-muted-foreground">CARREGANDO DADOS...</p>
         </CardContent>
       </Card>
     );
@@ -38,7 +38,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wrench className="h-5 w-5 text-primary" />
-          Distribuição de Status das OS
+          DISTRIBUIÇÃO DE STATUS DAS OS
         </CardTitle>
       </CardHeader>
       <CardContent className="h-[250px] sm:h-[300px] p-0">
@@ -60,13 +60,13 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip />
-              <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" />
+              <Tooltip formatter={(value, name) => [String(value).toUpperCase(), String(name).toUpperCase()]} />
+              <Legend layout="horizontal" verticalAlign="bottom" align="center" iconType="circle" formatter={(value) => value.toUpperCase()} />
             </PieChart>
           </ResponsiveContainer>
         ) : (
           <div className="flex items-center justify-center h-full text-muted-foreground">
-            Nenhum dado de status disponível.
+            NENHUM DADO DE STATUS DISPONÍVEL.
           </div>
         )}
       </CardContent>

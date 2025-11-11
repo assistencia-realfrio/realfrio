@@ -80,17 +80,17 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
 
   const createEquipmentMutation = useMutation({
     mutationFn: async (equipmentData: EquipmentFormValues) => {
-      if (!user?.id) throw new Error("Usuário não autenticado.");
+      if (!user?.id) throw new Error("USUÁRIO NÃO AUTENTICADO.");
       
       const { data, error } = await supabase
         .from('equipments')
         .insert({
           client_id: equipmentData.client_id,
-          name: equipmentData.name,
-          brand: equipmentData.brand || null, // Salvando a marca
-          model: equipmentData.model || null,
-          serial_number: equipmentData.serial_number || null,
-          google_drive_link: equipmentData.google_drive_link || null, // NOVO: Salvando google_drive_link
+          name: equipmentData.name.toUpperCase(),
+          brand: equipmentData.brand?.toUpperCase() || null, // Salvando a marca
+          model: equipmentData.model?.toUpperCase() || null,
+          serial_number: equipmentData.serial_number?.toUpperCase() || null,
+          google_drive_link: equipmentData.google_drive_link?.toUpperCase() || null, // NOVO: Salvando google_drive_link
           created_by: user.id,
         })
         .select()
@@ -104,7 +104,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
         entity_type: 'equipment',
         entity_id: newEquipment.id,
         action_type: 'created',
-        content: `Equipamento "${newEquipment.name}" foi criado.`
+        content: `EQUIPAMENTO "${newEquipment.name}" FOI CRIADO.`
       });
       queryClient.invalidateQueries({ queryKey: ['equipments', newEquipment.client_id] });
       queryClient.invalidateQueries({ queryKey: ['equipment', newEquipment.id] });
@@ -119,11 +119,11 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       const { data, error } = await supabase
         .from('equipments')
         .update({
-          name: equipmentData.name,
-          brand: equipmentData.brand || null,
-          model: equipmentData.model || null,
-          serial_number: equipmentData.serial_number || null,
-          google_drive_link: equipmentData.google_drive_link || null, // NOVO: Atualizando google_drive_link
+          name: equipmentData.name.toUpperCase(),
+          brand: equipmentData.brand?.toUpperCase() || null,
+          model: equipmentData.model?.toUpperCase() || null,
+          serial_number: equipmentData.serial_number?.toUpperCase() || null,
+          google_drive_link: equipmentData.google_drive_link?.toUpperCase() || null, // NOVO: Atualizando google_drive_link
           updated_at: new Date().toISOString(), // Adiciona updated_at
         })
         .eq('id', id)
@@ -150,7 +150,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
         entity_type: 'equipment',
         entity_id: updatedEquipment.id,
         action_type: 'updated',
-        content: `Equipamento "${equipmentName}" foi atualizado.`
+        content: `EQUIPAMENTO "${equipmentName}" FOI ATUALIZADO.`
       });
       
       queryClient.invalidateQueries({ queryKey: ['equipments', updatedEquipment.client_id] });
@@ -177,7 +177,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
           entity_type: 'equipment',
           entity_id: equipmentToDelete.id,
           action_type: 'deleted',
-          content: `Equipamento "${equipmentToDelete.name}" foi excluído.`
+          content: `EQUIPAMENTO "${equipmentToDelete.name}" FOI EXCLUÍDO.`
         });
       }
       queryClient.invalidateQueries({ queryKey: ['equipments', clientId] });

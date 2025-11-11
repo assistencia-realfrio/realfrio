@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod"; // Corrigido: de '*s z' para '* as z'
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -71,7 +71,12 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
             <FormItem>
               <FormLabel>Nome do Cliente/Empresa *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Empresa XYZ" {...field} />
+                <Input 
+                  placeholder="Ex: Empresa XYZ" 
+                  {...field} 
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,6 +95,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Ex: Caldas da Rainha, Porto de Mós" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                 />
               </FormControl>
               <FormMessage />
@@ -109,6 +115,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Link do Google Maps ou coordenadas" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                 />
               </FormControl>
               <FormMessage />
@@ -128,6 +135,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Link da pasta ou arquivo no Google Drive" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                 />
               </FormControl>
               <FormMessage />
@@ -146,6 +154,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="(XX) XXXXX-XXXX" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                 />
               </FormControl>
               <FormMessage />
@@ -164,6 +173,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="contato@exemplo.com" 
                   {...field} 
                   value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                 />
               </FormControl>
               <FormMessage />
@@ -185,8 +195,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                  <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">PORTO DE MÓS</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -196,10 +206,10 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
 
         <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
           <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
-            Cancelar
+            CANCELAR
           </Button>
           <Button type="submit" className="w-full sm:w-auto">
-            {initialData ? "Salvar Alterações" : "Criar Cliente"}
+            {initialData ? "SALVAR ALTERAÇÕES" : "CRIAR CLIENTE"}
           </Button>
         </div>
       </form>

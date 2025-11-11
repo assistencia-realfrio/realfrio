@@ -33,7 +33,7 @@ const ClientDetailsBottomNav: React.FC<ClientDetailsBottomNavProps> = ({ selecte
             aria-label={item.label}
           >
             <item.icon className="h-6 w-6" />
-            <span className="text-xs mt-1">{item.label}</span>
+            <span className="text-xs mt-1">{item.label.toUpperCase()}</span>
           </Button>
         ))}
       </div>

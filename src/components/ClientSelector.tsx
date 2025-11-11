@@ -46,10 +46,10 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
         onChange(newClient.id);
         
         setIsModalOpen(false);
-        showSuccess(`Novo cliente '${data.name}' criado com sucesso!`);
+        showSuccess(`NOVO CLIENTE '${data.name}' CRIADO COM SUCESSO!`);
     } catch (error) {
         console.error("Erro ao criar cliente:", error);
-        showError("Erro ao criar novo cliente. Tente novamente.");
+        showError("ERRO AO CRIAR NOVO CLIENTE. TENTE NOVAMENTE.");
     }
   };
 
@@ -77,15 +77,15 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
             className="w-full justify-between"
             disabled={disabled} // Aplica a prop disabled aqui
           >
-            {selectedClientName || "Selecione ou adicione um cliente"}
+            {(selectedClientName || "SELECIONE OU ADICIONE UM CLIENTE").toUpperCase()}
             <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command>
-            <CommandInput placeholder="Buscar cliente..." />
+            <CommandInput placeholder="BUSCAR CLIENTE..." />
             <CommandList>
-              <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+              <CommandEmpty>NENHUM CLIENTE ENCONTRADO.</CommandEmpty>
               <CommandGroup>
                 {clients.map((client) => (
                   <CommandItem
@@ -99,7 +99,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
                         value === client.id ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {client.name}
+                    {client.name.toUpperCase()}
                   </CommandItem>
                 ))}
               </CommandGroup>
@@ -111,7 +111,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
                   className="text-primary font-medium cursor-pointer"
                 >
                   <UserPlus className="mr-2 h-4 w-4" />
-                  Adicionar Novo Cliente
+                  ADICIONAR NOVO CLIENTE
                 </CommandItem>
               </CommandGroup>
             </CommandList>
@@ -123,7 +123,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Adicionar Novo Cliente</DialogTitle>
+            <DialogTitle>ADICIONAR NOVO CLIENTE</DialogTitle>
           </DialogHeader>
           <ClientForm 
             onSubmit={handleNewClientSubmit} 

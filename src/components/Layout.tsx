@@ -32,7 +32,7 @@ const Header = () => {
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+      if (e.key === "K" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setIsSearchOpen((open) => !open);
       }
@@ -44,10 +44,10 @@ const Header = () => {
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      showError("Erro ao fazer logout.");
+      showError("ERRO AO FAZER LOGOUT.");
       console.error("Logout error:", error);
     } else {
-      showSuccess("Logout realizado com sucesso!");
+      showSuccess("LOGOUT REALIZADO COM SUCESSO!");
     }
   };
 
@@ -62,7 +62,7 @@ const Header = () => {
   // Usar o nome do perfil se disponível, caso contrário, o e-mail
   const userName = (profile?.first_name || profile?.last_name) 
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-    : user?.email || "Usuário";
+    : user?.email || "USUÁRIO";
   const displayEmail = user?.email;
 
   return (
@@ -95,10 +95,10 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Atividade Recente</DropdownMenuLabel>
+                <DropdownMenuLabel>ATIVIDADE RECENTE</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {isLoadingActivities ? (
-                  <DropdownMenuItem disabled>Carregando...</DropdownMenuItem>
+                  <DropdownMenuItem disabled>CARREGANDO...</DropdownMenuItem>
                 ) : activities && activities.length > 0 ? (
                   activities.map((activity) => (
                     <DropdownMenuItem 
@@ -107,15 +107,15 @@ const Header = () => {
                       className="flex flex-col items-start space-y-1 cursor-pointer"
                     >
                       <p className="text-sm text-foreground line-clamp-2">
-                        {activity.content}
+                        {activity.content.toUpperCase()}
                       </p>
                       <p className="text-xs text-muted-foreground self-end">
-                        {activity.user_full_name} • {activity.time_ago}
+                        {activity.user_full_name.toUpperCase()} • {activity.time_ago.toUpperCase()}
                       </p>
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  <DropdownMenuItem disabled>Nenhuma atividade recente.</DropdownMenuItem>
+                  <DropdownMenuItem disabled>NENHUMA ATIVIDADE RECENTE.</DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -129,10 +129,10 @@ const Header = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-sm font-medium leading-none">{userName.toUpperCase()}</p>
                     {displayEmail && (
                       <p className="text-xs leading-none text-muted-foreground">
-                        {displayEmail}
+                        {displayEmail.toUpperCase()}
                       </p>
                     )}
                   </div>
@@ -140,11 +140,11 @@ const Header = () => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
-                  Meu Perfil
+                  MEU PERFIL
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sair
+                  SAIR
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

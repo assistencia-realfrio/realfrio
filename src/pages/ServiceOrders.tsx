@@ -105,7 +105,7 @@ const ServiceOrders: React.FC = () => {
         ))}
         {ordersToRender.length === 0 && (
           <div className="col-span-full text-center py-12 text-muted-foreground">
-            Nenhuma ordem de serviço encontrada para os filtros aplicados.
+            NENHUMA ORDEM DE SERVIÇO ENCONTRADA PARA OS FILTROS APLICADOS.
           </div>
         )}
       </div>
@@ -120,11 +120,11 @@ const ServiceOrders: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex flex-row justify-between items-center gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Ordens de Serviço</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ORDENS DE SERVIÇO</h2>
           <div className="flex gap-2">
             <Button onClick={handleNewOrder}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Nova OS
+              NOVA OS
             </Button>
           </div>
         </div>
@@ -133,10 +133,10 @@ const ServiceOrders: React.FC = () => {
           <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
-              placeholder="Buscar por ID, cliente, equipamento ou modelo..." 
+              placeholder="BUSCAR POR ID, CLIENTE, EQUIPAMENTO OU MODELO..." 
               className="pl-10" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm.toUpperCase()}
+              onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
             />
           </div>
           
@@ -147,12 +147,12 @@ const ServiceOrders: React.FC = () => {
                 value={selectedStore}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Loja" />
+                  <SelectValue placeholder="LOJA" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Todas as Lojas ({allOrdersCount})</SelectItem>
-                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha ({caldasOrdersCount})</SelectItem>
-                  <SelectItem value="PORTO DE MÓS">Porto de Mós ({portoOrdersCount})</SelectItem>
+                  <SelectItem value="ALL">TODAS AS LOJAS ({allOrdersCount})</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA ({caldasOrdersCount})</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">PORTO DE MÓS ({portoOrdersCount})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -163,13 +163,13 @@ const ServiceOrders: React.FC = () => {
                 value={selectedStatus}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Estados" />
+                  <SelectValue placeholder="ESTADOS" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Todos ({ordersFilteredByStore.length})</SelectItem>
+                  <SelectItem value="ALL">TODOS ({ordersFilteredByStore.length})</SelectItem>
                   {availableStatuses.map(status => (
                     <SelectItem key={status} value={status}>
-                      {status} ({statusCounts[status] || 0})
+                      {status.toUpperCase()} ({statusCounts[status] || 0})
                     </SelectItem>
                   ))}
                 </SelectContent>
