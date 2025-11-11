@@ -3,18 +3,20 @@ import Layout from "@/components/Layout";
 import { Calendar as CalendarIcon, User, Clock } from "lucide-react";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format, isToday, isTomorrow, parseISO } from 'date-fns';
+import { format, isToday, isTomorrow, parseISO, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import OrderListItem from "@/components/OrderListItem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useTechnicians } from "@/hooks/useTechnicians";
+import { Calendar } from "@/components/ui/calendar"; // Importar o componente Calendar
 
 const CalendarPage: React.FC = () => {
   const { orders, isLoading: isLoadingOrders } = useServiceOrders();
   const { data: technicians, isLoading: isLoadingTechnicians } = useTechnicians();
 
   const isLoading = isLoadingOrders || isLoadingTechnicians;
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date()); // Estado para a data selecionada no calendário
 
   const technicianMap = useMemo(() => {
     return technicians?.reduce((map, tech) => {
@@ -45,10 +47,14 @@ const CalendarPage: React.FC = () => {
     }, {} as Record<string, (ServiceOrder & { scheduledDateObj: Date, technicianName: string | null })[]>);
   }, [scheduledOrders]);
 
-  const sortedDates = useMemo(() => Object.keys(groupedOrders).sort(), [groupedOrders]);
+  // Filtra as ordens para exibir apenas as da data selecionada
+  const ordersForSelectedDate = useMemo(() => {
+    if (!selectedDate) return [];
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    return groupedOrders[dateKey] || [];
+  }, [selectedDate, groupedOrders]);
 
-  const formatDateHeader = (dateKey: string): string => {
-    const date = parseISO(dateKey);
+  const formatDateHeader = (date: Date): string => {
     if (isToday(date)) return `Hoje, ${format(date, 'dd/MM', { locale: ptBR })}`;
     if (isTomorrow(date)) return `Amanhã, ${format(date, 'dd/MM', { locale: ptBR })}`;
     return format(date, 'EEEE, dd \'de\' MMMM', { locale: ptBR });
@@ -75,42 +81,56 @@ const CalendarPage: React.FC = () => {
           </h2>
         </div>
 
-        {scheduledOrders.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              Nenhuma Ordem de Serviço agendada encontrada.
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Calendário Mensal */}
+          <Card className="lg:col-span-1">
+            <CardHeader className="border-b">
+              <CardTitle className="text-lg font-semibold">Navegar por Mês</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 flex justify-center">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                initialFocus
+                locale={ptBR}
+                className="rounded-md border"
+              />
             </CardContent>
           </Card>
-        ) : (
-          <div className="space-y-8">
-            {sortedDates.map(dateKey => (
-              <Card key={dateKey}>
-                <CardHeader className="bg-muted/50 border-b">
-                  <CardTitle className="text-lg font-semibold text-primary">
-                    {formatDateHeader(dateKey)} ({groupedOrders[dateKey].length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 space-y-4">
-                  {groupedOrders[dateKey].map(order => (
-                    <div key={order.id} className="border p-3 rounded-md hover:bg-background transition-colors">
-                        <OrderListItem order={order} />
-                        <div className="flex items-center justify-between text-xs text-muted-foreground mt-2 pt-2 border-t">
-                            <div className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                <span>Agendado: {format(order.scheduledDateObj, 'HH:mm', { locale: ptBR })}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <User className="h-3 w-3" />
-                                <span>Técnico: {order.technicianName || 'Não Atribuído'}</span>
-                            </div>
-                        </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+
+          {/* Ordens para a Data Selecionada */}
+          <Card className="lg:col-span-1">
+            <CardHeader className="border-b">
+              <CardTitle className="text-lg font-semibold">
+                Ordens para {selectedDate ? formatDateHeader(selectedDate) : 'Nenhuma Data Selecionada'} ({ordersForSelectedDate.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+              {ordersForSelectedDate.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8 text-sm">
+                  Nenhuma Ordem de Serviço agendada para esta data.
+                </p>
+              ) : (
+                ordersForSelectedDate.map(order => (
+                  <div key={order.id} className="border p-3 rounded-md hover:bg-background transition-colors">
+                      <OrderListItem order={order} />
+                      <div className="flex items-center justify-between text-xs text-muted-foreground mt-2 pt-2 border-t">
+                          <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              <span>Agendado: {format(order.scheduledDateObj, 'HH:mm', { locale: ptBR })}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              <span>Técnico: {order.technicianName || 'Não Atribuído'}</span>
+                          </div>
+                      </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </Layout>
   );
