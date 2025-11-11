@@ -56,7 +56,7 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
           </TabsList>
 
           <TabsContent value="details" className="mt-4">
-            <div className="space-y-4 text-sm">
+            <div className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
               <div>
                 <p className="text-muted-foreground">Nome</p>
                 <p className="font-medium">{equipment.name}</p>
