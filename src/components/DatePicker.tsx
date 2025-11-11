@@ -1,6 +1,6 @@
 import * as React from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, XCircle } from "lucide-react"; // Importado XCircle para o botão de limpar
 import { ptBR } from 'date-fns/locale';
 
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator"; // Importado Separator
 
 interface DatePickerProps {
     date: Date | undefined;
@@ -43,6 +44,21 @@ const DatePicker: React.FC<DatePickerProps> = ({ date, setDate, placeholder = "S
           initialFocus
           locale={ptBR}
         />
+        {date && ( // Mostra o botão de limpar apenas se uma data estiver selecionada
+          <>
+            <Separator />
+            <div className="p-2">
+              <Button 
+                variant="ghost" 
+                onClick={() => setDate(undefined)} 
+                className="w-full text-destructive hover:text-destructive"
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                Limpar Data
+              </Button>
+            </div>
+          </>
+        )}
       </PopoverContent>
     </Popover>
   );
