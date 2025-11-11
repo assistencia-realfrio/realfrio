@@ -41,7 +41,7 @@ const EquipmentList: React.FC<EquipmentListProps> = ({ clientId }) => {
   }, [clientId]);
 
   const handleNavigateToEquipment = (equipmentId: string) => {
-    navigate(`/equipment/${equipmentId}`);
+    navigate(`/equipments/${equipmentId}`); // CORRIGIDO: Rota para /equipments/:id
   };
 
   if (isLoading) {
@@ -57,7 +57,7 @@ const EquipmentList: React.FC<EquipmentListProps> = ({ clientId }) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg font-medium">Equipamentos ({equipment.length})</CardTitle>
-        <Button size="sm" onClick={() => navigate(`/equipment/new?clientId=${clientId}`)}>
+        <Button size="sm" onClick={() => navigate(`/equipments/new?clientId=${clientId}`)}> {/* CORRIGIDO: Rota para /equipments/new */}
           <Plus className="h-4 w-4 mr-2" /> Novo Equipamento
         </Button>
       </CardHeader>

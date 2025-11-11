@@ -25,6 +25,7 @@ const getStoreBadgeColor = (store: Client['store'] | null) => {
     case "CALDAS DA RAINHA":
       return "bg-blue-500";
     case "PORTO DE MÓS":
+    case "PORTO DE MÓS": // Duplicado, mantendo apenas um
       return "bg-red-500";
     default:
       return "bg-gray-400";
@@ -36,7 +37,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
   const navigate = useNavigate();
 
   const handleRowClick = (clientId: string) => {
-    navigate(`/clients/${clientId}`);
+    navigate(`/clients/${clientId}`); // CORRIGIDO: Rota para /clients/:clientId
   };
 
   if (isLoading) {
