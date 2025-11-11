@@ -41,10 +41,10 @@ const generateDisplayId = (store: ServiceOrder['store']): string => {
     return `${prefix}-${dateTimePart}`;
 };
 
-const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOrder[]> => {
+const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
   if (!userId) return [];
   
-  const { data, error } = await supabase
+  let query = supabase
     .from('service_orders')
     .select(`
       id, 
@@ -62,6 +62,12 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
       clients (name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
+
+  if (storeFilter !== 'ALL') {
+    query = query.eq('store', storeFilter);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 
@@ -104,15 +110,15 @@ const fetchServiceOrders = async (userId: string | undefined): Promise<ServiceOr
   return mappedData;
 };
 
-export const useServiceOrders = (id?: string) => {
+export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL') => { // Adicionado storeFilter
   const { user, session } = useSession(); // Obter o objeto session
   const queryClient = useQueryClient();
 
-  const queryKey = id ? ['serviceOrders', id] : ['serviceOrders'];
+  const queryKey = id ? ['serviceOrders', id, storeFilter] : ['serviceOrders', storeFilter]; // Adicionado storeFilter ao queryKey
 
   const { data: orders, isLoading } = useQuery<ServiceOrder[], Error>({
     queryKey: queryKey,
-    queryFn: () => fetchServiceOrders(user?.id),
+    queryFn: () => fetchServiceOrders(user?.id, storeFilter), // Passando storeFilter
     enabled: !!user?.id,
     select: (data) => {
       if (id) {

@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import MetricCard from "@/components/MetricCard";
 import StatusChart from "@/components/StatusChart";
 import { Users, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import { useDashboardMetrics } from "@/hooks/useDashboardMetrics";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ServiceOrder } from "@/hooks/useServiceOrders"; // Importar ServiceOrder para o tipo
+
+type StoreFilter = ServiceOrder['store'] | 'ALL';
 
 const Dashboard: React.FC = () => {
-  const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics();
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
+  const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
 
   // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.
   const totalTimeRegistered = "0h"; 
@@ -29,7 +40,24 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-8">
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Gestão</h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Gestão</h2>
+          <div className="w-full sm:w-48">
+            <Select 
+              onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
+              defaultValue={selectedStore}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Filtrar por Loja" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         {/* Seção de Métricas */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}

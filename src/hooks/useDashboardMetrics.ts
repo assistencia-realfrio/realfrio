@@ -16,8 +16,8 @@ interface DashboardMetrics {
   isLoading: boolean;
 }
 
-export const useDashboardMetrics = (): DashboardMetrics => {
-  const { orders, isLoading } = useServiceOrders();
+export const useDashboardMetrics = (storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): DashboardMetrics => {
+  const { orders, isLoading } = useServiceOrders(undefined, storeFilter); // Passando storeFilter para useServiceOrders
 
   const metrics = useMemo(() => {
     if (isLoading) {
