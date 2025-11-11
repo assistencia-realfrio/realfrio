@@ -49,6 +49,12 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
   const fileInputRef = useRef<HTMLInputElement>(null);
   const filePath = `${equipmentId}/${FILE_NAME}`;
 
+  const getUrlWithCacheBuster = (url: string) => {
+    if (!url) return null;
+    const timestamp = new Date().getTime();
+    return `${url}?t=${timestamp}`;
+  };
+
   const fetchPhoto = async () => {
     if (!user?.id) {
       setIsLoading(false);
@@ -66,9 +72,9 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
       if (listError) throw listError;
 
       if (listData && listData.length > 0) {
-        // Se o arquivo existir, obtém a URL pública
+        // Se o arquivo existir, obtém a URL pública e adiciona o cachebuster
         const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-        setPhotoUrl(publicUrlData.publicUrl);
+        setPhotoUrl(getUrlWithCacheBuster(publicUrlData.publicUrl));
       } else {
         setPhotoUrl(null);
       }
@@ -121,7 +127,9 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
-      setPhotoUrl(publicUrlData.publicUrl);
+      
+      // Adiciona cachebuster para forçar o recarregamento
+      setPhotoUrl(getUrlWithCacheBuster(publicUrlData.publicUrl));
       setSelectedFile(null);
       showSuccess("Foto da chapa de características atualizada com sucesso!");
     } catch (error) {
@@ -172,9 +180,15 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
       <CardContent className="space-y-4">
         {photoUrl ? (
           <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 min-w-0">
               <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
-                <img src={photoUrl} alt="Chapa de Características" className="object-cover w-full h-full" />
+                <img 
+                  src={photoUrl} 
+                  alt="Chapa de Características" 
+                  className="object-cover w-full h-full" 
+                  // Adicionado key para forçar o re-render se a URL mudar (mesmo com cachebuster)
+                  key={photoUrl} 
+                />
               </div>
               <p className="text-sm font-medium">Foto da Chapa Anexada</p>
             </div>
