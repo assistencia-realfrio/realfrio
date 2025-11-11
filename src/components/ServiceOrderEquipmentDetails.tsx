@@ -5,7 +5,9 @@ import { useEquipments } from "@/hooks/useEquipments";
 import EquipmentOrdersTab from "@/components/EquipmentOrdersTab";
 import ActivityLog from "@/components/ActivityLog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Wrench, History } from "lucide-react";
+import { FileText, Wrench, History, Camera } from "lucide-react"; // Adicionado Camera
+import EquipmentDetailsView from "./EquipmentDetailsView"; // Importar o componente de visualização
+import EquipmentPlatePhoto from "./EquipmentPlatePhoto"; // Importar o componente de foto da chapa
 
 interface ServiceOrderEquipmentDetailsProps {
   equipmentId: string;
@@ -13,7 +15,8 @@ interface ServiceOrderEquipmentDetailsProps {
 
 const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> = ({ equipmentId }) => {
   const { singleEquipment: equipment, isLoading } = useEquipments(undefined, equipmentId);
-  const [selectedTab, setSelectedTab] = React.useState<"details" | "orders" | "history">("details");
+  
+  // O estado local de selectedTab não é mais necessário, pois usamos Tabs do shadcn/ui
 
   if (isLoading) {
     return (
@@ -35,12 +38,15 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
 
   return (
     <Card className="shadow-none border-none">
-      {/* Removido CardHeader com o título "Detalhes do Equipamento" */}
-      <Tabs defaultValue="details" onValueChange={(value: "details" | "orders" | "history") => setSelectedTab(value)}>
-        <TabsList className="grid w-full grid-cols-3 px-4">
+      <Tabs defaultValue="details">
+        <TabsList className="grid w-full grid-cols-4 px-4"> {/* Aumentado para 4 colunas */}
           <TabsTrigger value="details">
             <FileText className="h-4 w-4 mr-2" />
             Detalhes
+          </TabsTrigger>
+          <TabsTrigger value="plate_photo"> {/* Nova aba para Foto da Chapa */}
+            <Camera className="h-4 w-4 mr-2" />
+            Chapa
           </TabsTrigger>
           <TabsTrigger value="orders">
             <Wrench className="h-4 w-4 mr-2" />
@@ -53,24 +59,12 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
         </TabsList>
 
         <TabsContent value="details" className="mt-4">
-          <div className="space-y-4 text-sm p-4">
-            <div>
-              <p className="text-muted-foreground">Nome</p>
-              <p className="font-medium">{equipment.name}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Marca</p>
-              <p className="font-medium">{equipment.brand || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Modelo</p>
-              <p className="font-medium">{equipment.model || 'N/A'}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Número de Série</p>
-              <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
-            </div>
-          </div>
+          {/* Usando o componente EquipmentDetailsView para exibir os detalhes */}
+          <EquipmentDetailsView equipment={equipment} />
+        </TabsContent>
+        
+        <TabsContent value="plate_photo" className="mt-4"> {/* Conteúdo da Foto da Chapa */}
+          <EquipmentPlatePhoto equipmentId={equipment.id} />
         </TabsContent>
 
         <TabsContent value="orders" className="mt-4">
