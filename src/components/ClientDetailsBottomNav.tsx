@@ -19,7 +19,7 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
 
 const ClientDetailsBottomNav: React.FC<ClientDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64"> {/* Alterado aqui */}
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:hidden"> {/* Alterado para hidden em lg */}
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
           <Button

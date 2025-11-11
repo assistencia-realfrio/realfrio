@@ -6,7 +6,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, MapPin, Mail, Phone, Store, Calendar, Link as LinkIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, Edit, MapPin, Mail, Phone, Store, Calendar, Link as LinkIcon, Loader2, FileText, HardDrive, History } from "lucide-react";
 import EquipmentList from "@/components/EquipmentList";
 import ActivityFeed from "@/components/ActivityFeed";
 import ClientForm from "@/components/ClientForm";
@@ -14,8 +14,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
-import { Client } from "@/types"; // Importando Client do types
-import Layout from "@/components/Layout"; // Importar Layout
+import { Client } from "@/types";
+import Layout from "@/components/Layout";
+import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav"; // Importar navegação inferior
+import ClientOrdersTab from "@/components/ClientOrdersTab"; // Importar a aba de ordens
+
+type View = 'details' | 'orders' | 'equipments' | 'history';
 
 const ClientDetails: React.FC = () => {
   const { clientId } = useParams<{ clientId: string }>();
@@ -24,6 +28,7 @@ const ClientDetails: React.FC = () => {
   const [client, setClient] = useState<Client | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedView, setSelectedView] = useState<View>('details'); // Estado para navegação inferior
 
   const fetchClient = async () => {
     if (!clientId) return;
@@ -56,9 +61,11 @@ const ClientDetails: React.FC = () => {
     showSuccess("Cliente atualizado com sucesso!");
   };
 
+  const handleGoBack = () => navigate("/clients");
+
   if (isLoading) {
     return (
-      <Layout> {/* Envolvido em Layout */}
+      <Layout>
         <div className="p-4 space-y-4">
           <Skeleton className="h-10 w-40" />
           <Skeleton className="h-12 w-full" />
@@ -73,7 +80,7 @@ const ClientDetails: React.FC = () => {
 
   if (!client) {
     return (
-      <Layout> {/* Envolvido em Layout */}
+      <Layout>
         <div className="p-4 text-center text-muted-foreground">Cliente não encontrado.</div>
       </Layout>
     );
@@ -81,7 +88,7 @@ const ClientDetails: React.FC = () => {
 
   if (isEditing) {
     return (
-      <Layout> {/* Envolvido em Layout */}
+      <Layout>
         <div className="p-4 max-w-4xl mx-auto">
           <Button variant="outline" onClick={() => setIsEditing(false)} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" /> Voltar
@@ -92,16 +99,88 @@ const ClientDetails: React.FC = () => {
     );
   }
 
+  // Componente de Visualização de Detalhes
+  const ClientDetailsView = () => (
+    <Card className="shadow-none border-none">
+      <CardHeader className="p-0 pb-4">
+        <CardTitle className="text-lg">Informações Básicas</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm p-0">
+        <div className="flex items-center text-muted-foreground">
+          <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
+          <p className="truncate" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
+        </div>
+        <div className="flex items-center text-muted-foreground">
+          <Store className="h-4 w-4 mr-3 flex-shrink-0" />
+          <p className="truncate" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
+        </div>
+        <div className="flex items-center text-muted-foreground">
+          <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
+          <p>
+            Contato: 
+            {client.contact ? (
+              <a 
+                href={`tel:${client.contact}`} 
+                className="text-primary hover:underline ml-1 font-medium"
+              >
+                {client.contact}
+              </a>
+            ) : (
+              " N/A"
+            )}
+          </p>
+        </div>
+        <div className="flex items-center text-muted-foreground">
+          <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
+          <p className="truncate" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
+        </div>
+        <div className="flex items-center text-muted-foreground">
+          <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
+          <p>Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
+        </div>
+        
+        <Separator className="my-3" />
+
+        {client.maps_link && (
+          <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+            <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
+            Ver no Google Maps
+          </a>
+        )}
+        {client.google_drive_link && (
+          <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+            <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
+            Acessar Google Drive
+          </a>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderContent = (view: View) => {
+    switch (view) {
+      case 'details':
+        return <ClientDetailsView />;
+      case 'orders':
+        return <ClientOrdersTab clientId={clientId!} />;
+      case 'equipments':
+        return <EquipmentList clientId={clientId!} />;
+      case 'history':
+        return <ActivityFeed entityType="client" entityId={clientId!} />;
+      default:
+        return <ClientDetailsView />;
+    }
+  };
+
   return (
-    <Layout> {/* Envolvido em Layout */}
-      <div className="p-4 space-y-6">
+    <Layout>
+      <div className="space-y-6 pb-20 lg:pb-8"> {/* Adicionado padding bottom para a navegação inferior */}
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center min-w-0 flex-1">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/clients")} className="flex-shrink-0 mr-2">
+            <Button variant="ghost" size="icon" onClick={handleGoBack} className="flex-shrink-0 mr-2">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            {/* Ajuste aqui: Usando flex-1 e min-w-0 no container do título para garantir que o truncate funcione */}
             <div className="min-w-0 flex-1"> 
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
             </div>
@@ -115,80 +194,56 @@ const ClientDetails: React.FC = () => {
 
         <Separator />
 
-        {/* Client Info and Details */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Client Details Card (Col 1) */}
-          <Card className="lg:col-span-1 h-fit">
-            <CardHeader>
-              <CardTitle>Informações Básicas</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center text-muted-foreground">
-                <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-                <p className="truncate" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <Store className="h-4 w-4 mr-3 flex-shrink-0" />
-                <p className="truncate" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
-                <p>
-                  Contato: 
-                  {client.contact ? (
-                    <a 
-                      href={`tel:${client.contact}`} 
-                      className="text-primary hover:underline ml-1 font-medium"
-                    >
-                      {client.contact}
-                    </a>
-                  ) : (
-                    " N/A"
-                  )}
-                </p>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
-                <p className="truncate" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
-                <p>Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
-              </div>
-              
-              <Separator className="my-3" />
+        {/* Desktop Tabs / Mobile Content */}
+        <div className="lg:hidden">
+          {/* Mobile: Renderiza apenas o conteúdo da view selecionada */}
+          {renderContent(selectedView)}
+        </div>
 
-              {client.maps_link && (
-                <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
-                  <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-                  Ver no Google Maps
-                </a>
-              )}
-              {client.google_drive_link && (
-                <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
-                  <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
-                  Acessar Google Drive
-                </a>
-              )}
-            </CardContent>
-          </Card>
+        <div className="hidden lg:grid grid-cols-3 gap-6">
+          {/* Desktop: Coluna de Detalhes Fixa */}
+          <div className="lg:col-span-1 h-fit">
+            <Card>
+              <CardContent className="pt-6">
+                <ClientDetailsView />
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Tabs Section (Col 2 & 3) */}
+          {/* Desktop: Tabs para Ordens, Equipamentos e Atividade */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="equipments">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="equipments">Equipamentos</TabsTrigger>
-                <TabsTrigger value="activity">Atividade</TabsTrigger>
+            <Tabs defaultValue="orders">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="orders">
+                  <FileText className="h-4 w-4 mr-2" /> Ordens
+                </TabsTrigger>
+                <TabsTrigger value="equipments">
+                  <HardDrive className="h-4 w-4 mr-2" /> Equipamentos
+                </TabsTrigger>
+                <TabsTrigger value="history">
+                  <History className="h-4 w-4 mr-2" /> Histórico
+                </TabsTrigger>
               </TabsList>
-              <TabsContent value="equipments" className="mt-4">
-                <EquipmentList clientId={clientId!} /> {/* Adicionado ! para garantir que clientId existe */}
+              <TabsContent value="orders" className="mt-4">
+                <ClientOrdersTab clientId={clientId!} />
               </TabsContent>
-              <TabsContent value="activity" className="mt-4">
-                <ActivityFeed entityType="client" entityId={clientId!} /> {/* Adicionado ! para garantir que clientId existe */}
+              <TabsContent value="equipments" className="mt-4">
+                <EquipmentList clientId={clientId!} />
+              </TabsContent>
+              <TabsContent value="history" className="mt-4">
+                <ActivityFeed entityType="client" entityId={clientId!} />
               </TabsContent>
             </Tabs>
           </div>
         </div>
+      </div>
+      
+      {/* Navegação Inferior (Apenas em Mobile) */}
+      <div className="lg:hidden">
+        <ClientDetailsBottomNav
+          selectedView={selectedView}
+          onSelectView={setSelectedView}
+        />
       </div>
     </Layout>
   );
