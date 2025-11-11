@@ -106,17 +106,20 @@ const ClientDetails: React.FC = () => {
         <CardTitle className="text-lg">Informações Básicas</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 text-sm p-0">
-        <div className="flex items-center text-muted-foreground">
+        {/* Localidade */}
+        <div className="flex items-center text-muted-foreground min-w-0">
           <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="truncate" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
+          <p className="truncate min-w-0" title={client.locality || "N/A"}>Localidade: {client.locality || "N/A"}</p>
         </div>
-        <div className="flex items-center text-muted-foreground">
+        {/* Loja */}
+        <div className="flex items-center text-muted-foreground min-w-0">
           <Store className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="truncate" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
+          <p className="truncate min-w-0" title={client.store || "N/A"}>Loja: {client.store || "N/A"}</p>
         </div>
-        <div className="flex items-center text-muted-foreground">
+        {/* Contato */}
+        <div className="flex items-center text-muted-foreground min-w-0">
           <Phone className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p>
+          <p className="min-w-0 truncate">
             Contato: 
             {client.contact ? (
               <a 
@@ -130,27 +133,31 @@ const ClientDetails: React.FC = () => {
             )}
           </p>
         </div>
-        <div className="flex items-center text-muted-foreground">
+        {/* Email */}
+        <div className="flex items-center text-muted-foreground min-w-0">
           <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p className="truncate" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
+          <p className="truncate min-w-0" title={client.email || "N/A"}>Email: {client.email || "N/A"}</p>
         </div>
-        <div className="flex items-center text-muted-foreground">
+        {/* Criado em */}
+        <div className="flex items-center text-muted-foreground min-w-0">
           <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
-          <p>Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
+          <p className="min-w-0 truncate">Criado em: {format(new Date(client.created_at), "dd/MM/yyyy", { locale: ptBR })}</p>
         </div>
         
         <Separator className="my-3" />
 
+        {/* Google Maps Link */}
         {client.maps_link && (
-          <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+          <a href={client.maps_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors min-w-0 truncate">
             <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
-            Ver no Google Maps
+            <span className="truncate">Ver no Google Maps</span>
           </a>
         )}
+        {/* Google Drive Link */}
         {client.google_drive_link && (
-          <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+          <a href={client.google_drive_link} target="_blank" rel="noopener noreferrer" className="flex items-center text-blue-600 hover:text-blue-700 transition-colors min-w-0 truncate">
             <LinkIcon className="h-4 w-4 mr-3 flex-shrink-0" />
-            Acessar Google Drive
+            <span className="truncate">Acessar Google Drive</span>
           </a>
         )}
       </CardContent>
