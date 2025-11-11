@@ -100,19 +100,21 @@ const Header = () => {
                 {isLoadingActivities ? (
                   <DropdownMenuItem disabled>Carregando...</DropdownMenuItem>
                 ) : activities && activities.length > 0 ? (
-                  activities.map((activity) => (
-                    <DropdownMenuItem 
-                      key={activity.id} 
-                      onClick={() => handleNotificationClick(activity.entity_type, activity.entity_id)}
-                      className="flex flex-col items-start space-y-1 cursor-pointer"
-                    >
-                      <p className="text-sm text-foreground line-clamp-2">
-                        {activity.content}
-                      </p>
-                      <p className="text-xs text-muted-foreground self-end">
-                        {activity.user_full_name} • {activity.time_ago}
-                      </p>
-                    </DropdownMenuItem>
+                  activities.map((activity, index) => (
+                    <React.Fragment key={activity.id}>
+                      <DropdownMenuItem 
+                        onClick={() => handleNotificationClick(activity.entity_type, activity.entity_id)}
+                        className="flex flex-col items-start space-y-1 cursor-pointer py-2" // Adicionado py-2
+                      >
+                        <p className="text-sm text-foreground line-clamp-2">
+                          {activity.content}
+                        </p>
+                        <p className="text-xs text-muted-foreground self-end">
+                          {activity.user_full_name} • {activity.time_ago}
+                        </p>
+                      </DropdownMenuItem>
+                      {index < activities.length - 1 && <DropdownMenuSeparator />} {/* Adiciona separador entre itens */}
+                    </React.Fragment>
                   ))
                 ) : (
                   <DropdownMenuItem disabled>Nenhuma atividade recente.</DropdownMenuItem>
