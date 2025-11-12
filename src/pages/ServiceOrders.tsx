@@ -26,7 +26,7 @@ const ServiceOrders: React.FC = () => {
     (searchParams.get('store') as StoreFilter) || 'ALL'
   );
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-    (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
+    (searchParams.get('status') as StatusFilter) || 'ALL' // Alterado de 'POR INICIAR' para 'ALL'
   );
   
   const { orders, isLoading } = useServiceOrders();
