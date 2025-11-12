@@ -191,12 +191,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
+        {/* Campos de Status e Loja em duas colunas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Estado *</FormLabel> {/* Adicionado FormLabel */}
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -219,6 +221,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="store"
             render={({ field }) => (
               <FormItem>
+                <FormLabel>Loja *</FormLabel> {/* Adicionado FormLabel */}
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -236,6 +239,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
+        {/* Campo de Cliente - largura total */}
         <FormField
           control={form.control}
           name="client_id"
@@ -293,6 +297,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
+        {/* Campo de Equipamento - largura total */}
         <FormField
             control={form.control}
             name="equipment_id"
@@ -312,6 +317,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
         />
 
+        {/* Campo de Descrição do Serviço - largura total */}
         <FormField
           control={form.control}
           name="description"
@@ -326,7 +332,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
 
-        {/* Campo de Data de Agendamento */}
+        {/* Campo de Data de Agendamento - largura total */}
         <FormField
           control={form.control}
           name="scheduled_date"
@@ -380,6 +386,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           )}
         />
         
+        {/* Botões de ação centralizados */}
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
