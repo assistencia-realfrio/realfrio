@@ -90,8 +90,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             {/* Barra esquerda para a loja */}
             <div className="w-2 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
 
-            <div className="flex flex-col flex-grow p-3 rounded-r-md"> {/* Adicionado rounded-r-md aqui */}
-                <div className="flex flex-row items-start justify-between space-y-0 pb-1">
+            <div className="flex flex-col flex-grow p-2 rounded-r-md"> {/* Reduzido p-3 para p-2 */}
+                <div className="flex flex-row items-start justify-between space-y-0 pb-0.5"> {/* Reduzido pb-1 para pb-0.5 */}
                     <div 
                         className={cn("text-xs font-medium truncate cursor-pointer", storeTextColorClass)} // Aplicando a cor da loja ao texto do ID da OS
                         onClick={handleNavigate}
@@ -133,31 +133,31 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </DropdownMenu>
                     </div>
                 </div>
-                <div onClick={handleNavigate} className="cursor-pointer pt-2 flex flex-col flex-grow space-y-1.5">
-                    <div className="flex items-center gap-2">
+                <div onClick={handleNavigate} className="cursor-pointer pt-1 flex flex-col flex-grow space-y-1"> {/* Reduzido pt-2 para pt-1 e space-y-1.5 para space-y-1 */}
+                    <div className="flex items-center gap-1"> {/* Reduzido gap-2 para gap-1 */}
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
-                        <div className={cn("text-lg font-bold truncate text-foreground")}>
+                        <div className={cn("text-base font-bold truncate text-foreground")}> {/* Reduzido text-lg para text-base */}
                             {order.client}
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1"> {/* Reduzido gap-2 para gap-1 */}
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
-                        <p className={cn("text-base truncate text-foreground")}>
+                        <p className={cn("text-sm truncate text-foreground")}> {/* Reduzido text-base para text-sm */}
                             {order.equipment}
                         </p>
                     </div>
                     
-                    <div className="flex items-start gap-2">
-                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 mt-2 bg-foreground")} />
-                        <p className={cn("text-sm line-clamp-3 flex-grow text-muted-foreground")}>
+                    <div className="flex items-start gap-1"> {/* Reduzido gap-2 para gap-1 */}
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 mt-1 bg-foreground")} /> {/* Reduzido mt-2 para mt-1 */}
+                        <p className={cn("text-xs line-clamp-2 flex-grow text-muted-foreground")}> {/* Reduzido text-sm para text-xs e line-clamp-3 para line-clamp-2 */}
                             {order.description}
                         </p>
                     </div>
                     {order.scheduled_date && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0"> {/* Reduzido gap-2 para gap-1 e mt-1 para mt-0 */}
                             <CalendarIcon className="h-3 w-3 flex-shrink-0" />
-                            <span>Agendado para: {format(new Date(order.scheduled_date), 'PPP', { locale: ptBR })}</span>
+                            <span>Agendado para: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
                         </div>
                     )}
                 </div>
