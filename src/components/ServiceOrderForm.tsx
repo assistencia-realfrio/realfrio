@@ -25,7 +25,7 @@ import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone, CalendarIcon, XCircle } from "lucide-react"; // Importar XCircle
+import { User, MapPin, Phone, CalendarIcon, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
@@ -34,6 +34,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -42,7 +43,7 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
-  scheduled_date: z.date().nullable().optional(), // Campo para a data de agendamento
+  scheduled_date: z.date().nullable().optional(),
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
@@ -63,14 +64,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
         ...initialData,
-        scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null, // Converter string para Date
+        scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
     } : {
       equipment_id: "",
       client_id: "",
       description: "",
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
-      scheduled_date: null, // Valor padrão para novas criações
+      scheduled_date: null,
     },
   });
 
@@ -132,7 +133,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
-            scheduled_date: data.scheduled_date, // Incluir scheduled_date
+            scheduled_date: data.scheduled_date,
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -189,16 +190,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         
         {/* Campos de Status e Loja em duas colunas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Estado *</FormLabel> {/* Adicionado FormLabel */}
+                <FormLabel>Estado *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -221,7 +222,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="store"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Loja *</FormLabel> {/* Adicionado FormLabel */}
+                <FormLabel>Loja *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -238,6 +239,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
         </div>
+
+        <Separator className="my-4" />
 
         {/* Campo de Cliente - largura total */}
         <FormField
@@ -317,6 +320,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
         />
 
+        <Separator className="my-4" />
+
         {/* Campo de Descrição do Serviço - largura total */}
         <FormField
           control={form.control}
@@ -339,7 +344,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Data de Agendamento (Opcional)</FormLabel>
-              <div className="flex items-center gap-2"> {/* Adicionado um div para agrupar o Popover e o botão */}
+              <div className="flex items-center gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -369,12 +374,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     />
                   </PopoverContent>
                 </Popover>
-                {field.value && ( // Mostra o botão "Limpar Data" apenas se houver uma data selecionada
+                {field.value && (
                   <Button 
                     type="button" 
                     variant="outline" 
                     size="icon" 
-                    onClick={() => field.onChange(null)} // Define a data como null
+                    onClick={() => field.onChange(null)}
                     aria-label="Limpar Data"
                   >
                     <XCircle className="h-4 w-4 text-destructive" />
