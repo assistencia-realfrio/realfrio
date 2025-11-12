@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2, User } from "lucide-react"; // Importar User
+import { ArrowLeft, Trash2 } from "lucide-react"; // FileText removido
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +23,7 @@ import {
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
-import ServiceOrderNotes from "@/components/ServiceOrderNotes";
+import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,7 +35,7 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details");
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
 
   const currentOrderId = newOrderId || id;
 
@@ -46,8 +46,7 @@ const ServiceOrderDetails: React.FC = () => {
     description: order.description,
     status: order.status,
     store: order.store,
-    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
-    technician_id: order.technician_id, // NOVO: Incluir technician_id
+    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // CORREÇÃO: Converter string para Date
   } : undefined;
 
   const handleGoBack = () => {
@@ -117,21 +116,13 @@ const ServiceOrderDetails: React.FC = () => {
                 <Button variant="outline" size="icon" onClick={handleGoBack}>
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
-                <div className="min-w-0">
-                    <h2 className="text-lg sm:text-xl font-bold tracking-tight truncate">
-                      {isNew ? titlePrefix : (
-                        <>
-                          {titlePrefix} {displayTitleId}
-                        </>
-                      )}
-                    </h2>
-                    {order?.technician_name && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 truncate">
-                            <User className="h-3 w-3" />
-                            Atribuído a: {order.technician_name}
-                        </p>
-                    )}
-                </div>
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight truncate">
+                  {isNew ? titlePrefix : (
+                    <>
+                      {titlePrefix} {displayTitleId}
+                    </>
+                  )}
+                </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
                 {/* Botão de Relatório Removido */}
@@ -205,7 +196,7 @@ const ServiceOrderDetails: React.FC = () => {
           )
         )}
 
-        {selectedView === "notes" && (
+        {selectedView === "notes" && ( // Nova aba para Notas
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver as notas.</p>
           ) : (

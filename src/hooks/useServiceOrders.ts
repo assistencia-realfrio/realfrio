@@ -24,21 +24,17 @@ export interface ServiceOrder {
   created_at: string;
   updated_at: string | null;
   scheduled_date: string | null;
-  technician_id: string | null; // NOVO: ID do técnico
-  technician_name: string | null; // NOVO: Nome do técnico
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'technician_name' | 'technician_id'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
     scheduled_date?: Date | null;
-    technician_id?: string | null; // NOVO: ID do técnico para o formulário
 };
 
-type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'technician_name'> & {
+type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
     clients: { name: string } | { name: string }[] | null;
-    technicians: { first_name: string, last_name: string } | null; // Assumindo que 'technicians' é o alias para profiles
 };
 
 const generateDisplayId = (store: ServiceOrder['store']): string => {
@@ -68,9 +64,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       client_id,
       equipment_id,
       scheduled_date,
-      technician_id,
-      clients (name),
-      technicians:profiles!service_orders_technician_id_fkey (first_name, last_name)
+      clients (name)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
 
@@ -89,14 +83,6 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
     const clientName = Array.isArray(order.clients) 
         ? order.clients[0]?.name || 'Cliente Desconhecido'
         : order.clients?.name || 'Cliente Desconhecido';
-        
-    const technicianProfile = order.technicians;
-    let technicianName: string | null = null;
-    if (technicianProfile) {
-        const firstName = (technicianProfile as { first_name: string, last_name: string }).first_name || '';
-        const lastName = (technicianProfile as { first_name: string, last_name: string }).last_name || '';
-        technicianName = `${firstName} ${lastName}`.trim() || null;
-    }
 
     return {
         ...order,
@@ -111,8 +97,6 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         model: order.model,
         equipment_id: order.equipment_id,
         scheduled_date: order.scheduled_date,
-        technician_id: order.technician_id,
-        technician_name: technicianName, // NOVO: Adicionando nome do técnico
     };
   }) as ServiceOrder[];
 
@@ -176,7 +160,6 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           display_id: displayId,
           created_by: user.id,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
-          technician_id: orderData.technician_id || null, // NOVO: Salvando technician_id
         })
         .select()
         .single();
@@ -196,7 +179,6 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           store: { newValue: newOrder.store },
           equipment: { newValue: newOrder.equipment },
           scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' },
-          technician_id: { newValue: newOrder.technician_id || 'N/A' },
         }
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -207,7 +189,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, scheduled_date, technician_id') // Adicionado technician_id
+        .select('status, description, equipment, model, serial_number, store, scheduled_date')
         .eq('id', id)
         .single();
 
@@ -228,7 +210,6 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
-          technician_id: orderData.technician_id || null, // NOVO: Atualizando technician_id
         })
         .eq('id', id)
         .select()
@@ -277,14 +258,6 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         if (newScheduledDate !== oldScheduledDate) {
             changesSummary.push('a data de agendamento');
             activityDetails.scheduled_date = { oldValue: oldScheduledDate, newValue: newScheduledDate };
-        }
-        
-        // NOVO: Log para alteração do técnico
-        if (updatedOrder.technician_id !== oldOrder.technician_id) {
-            const oldTechName = oldOrder.technician_id || 'N/A';
-            const newTechName = updatedOrder.technician_id || 'N/A';
-            changesSummary.push('o técnico atribuído');
-            activityDetails.technician_id = { oldValue: oldTechName, newValue: newTechName };
         }
         
         if (changesSummary.length > 0) {

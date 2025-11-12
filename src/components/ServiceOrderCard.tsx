@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ServiceOrder, useServiceOrders, serviceOrderStatuses, ServiceOrderStatus } from "@/hooks/useServiceOrders";
-import { statusChartColors } from "@/lib/serviceOrderStatus";
+import { statusChartColors } from "@/lib/serviceOrderStatus"; // Importando statusChartColors
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User } from "lucide-react"; // Importar User
+import { Check, MoreHorizontal, Calendar as CalendarIcon } from "lucide-react"; // Importar CalendarIcon
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { format } from "date-fns"; // Importar format
+import { ptBR } from "date-fns/locale"; // Importar locale ptBR
 
 interface ServiceOrderCardProps {
     order: ServiceOrder;
@@ -61,8 +61,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 model: order.model || undefined,
                 serial_number: order.serial_number || undefined,
                 equipment_id: order.equipment_id || undefined,
-                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
-                technician_id: order.technician_id, // Incluir technician_id
+                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // Manter a data de agendamento
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -83,18 +82,18 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     return (
         <div 
             className={cn(
-                "hover:shadow-lg transition-shadow flex relative rounded-lg border",
-                getStoreBackgroundColorClass(order.store),
-                "bg-opacity-75"
+                "hover:shadow-lg transition-shadow flex relative rounded-lg border", // Mantido 'border'
+                getStoreBackgroundColorClass(order.store), // Aplica a cor base da loja
+                "bg-opacity-75" // Aumentado para 75% de opacidade
             )} 
         >
             {/* Barra esquerda para a loja */}
             <div className="w-2 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
 
-            <div className="flex flex-col flex-grow p-3 rounded-r-md">
+            <div className="flex flex-col flex-grow p-3 rounded-r-md"> {/* Adicionado rounded-r-md aqui */}
                 <div className="flex flex-row items-start justify-between space-y-0 pb-1">
                     <div 
-                        className={cn("text-xs font-medium truncate cursor-pointer", storeTextColorClass)}
+                        className={cn("text-xs font-medium truncate cursor-pointer", storeTextColorClass)} // Aplicando a cor da loja ao texto do ID da OS
                         onClick={handleNavigate}
                     >
                         {order.display_id}
@@ -102,8 +101,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     <div className="flex items-center gap-1">
                         <Badge  
                             variant="outline" 
-                            className={cn("whitespace-nowrap text-xs px-2 py-0.5 bg-background/50 font-bold text-foreground")}
-                            style={{ borderColor: statusBgColor }}
+                            className={cn("whitespace-nowrap text-xs px-2 py-0.5 bg-background/50 font-bold text-foreground")} // Removido border-border
+                            style={{ borderColor: statusBgColor }} // Aplicando a cor do status ao contorno
                         >
                             {order.status}
                         </Badge>
@@ -155,15 +154,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             {order.description}
                         </p>
                     </div>
-                    
-                    {/* NOVO: Exibição do Técnico Atribuído */}
-                    {order.technician_name && (
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                            <User className="h-3 w-3 flex-shrink-0" />
-                            <span>Técnico: {order.technician_name}</span>
-                        </div>
-                    )}
-
                     {order.scheduled_date && (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                             <CalendarIcon className="h-3 w-3 flex-shrink-0" />
