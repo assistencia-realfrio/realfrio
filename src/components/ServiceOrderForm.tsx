@@ -190,14 +190,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Reduzido space-y de 6 para 4 */}
         
         {/* Card para Status e Loja */}
         <Card>
-          <CardHeader className="pb-2"> {/* Reduzido o padding-bottom */}
-            {/* <CardTitle className="text-lg">Informações Básicas</CardTitle> */} {/* Removido o título */}
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"> {/* Reduzido o padding-top */}
+          <CardHeader className="p-0" /> {/* Removido pb-2 */}
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4"> {/* Ajustado para p-4 */}
             <FormField
               control={form.control}
               name="status"
@@ -247,10 +245,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Cliente e Equipamento */}
         <Card>
-          <CardHeader className="pb-2"> {/* Reduzido o padding-bottom */}
-            {/* <CardTitle className="text-lg">Cliente e Equipamento</CardTitle> */} {/* Removido o título */}
-          </CardHeader>
-          <CardContent className="space-y-4 pt-2"> {/* Reduzido o padding-top */}
+          <CardHeader className="p-0" /> {/* Removido pb-2 */}
+          <CardContent className="space-y-4 p-4"> {/* Ajustado para p-4 */}
             <FormField
               control={form.control}
               name="client_id"
@@ -331,10 +327,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Descrição do Serviço e Data de Agendamento */}
         <Card>
-          <CardHeader className="pb-2"> {/* Reduzido o padding-bottom */}
-            {/* <CardTitle className="text-lg">Detalhes do Serviço</CardTitle> */} {/* Removido o título */}
-          </CardHeader>
-          <CardContent className="space-y-4 pt-2"> {/* Reduzido o padding-top */}
+          <CardHeader className="p-0" /> {/* Removido pb-2 */}
+          <CardContent className="space-y-4 p-4"> {/* Ajustado para p-4 */}
             <FormField
               control={form.control}
               name="description"
