@@ -34,7 +34,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Importar Card e CardContent
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -190,206 +190,219 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6"> {/* Aumentado space-y para 6 para dar espaço entre os Cards */}
         
-        {/* Campos de Status e Loja em duas colunas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Estado *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Estado *" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {serviceOrderStatuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        
-          <FormField
-            control={form.control}
-            name="store"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Loja *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Loja *" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <Separator className="my-4" />
-
-        {/* Campo de Cliente - largura total */}
-        <FormField
-          control={form.control}
-          name="client_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Cliente *</FormLabel>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                <div className="flex-grow w-full min-w-0">
-                  <ClientSelector 
-                    value={field.value} 
-                    onChange={field.onChange} 
-                    disabled={isEditing}
-                  />
-                </div>
-                <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={handleViewClientDetails}
-                    disabled={!field.value}
-                    aria-label="Ver detalhes do cliente"
-                    className="flex-grow sm:flex-grow-0"
-                  >
-                    <User className="h-4 w-4" />
-                  </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    aria-label="Ver no mapa"
-                    disabled={!hasMapLink}
-                    onClick={handleMapClick}
-                    className="flex-grow sm:flex-grow-0"
-                  >
-                    <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    aria-label="Ligar para o cliente"
-                    disabled={!hasContact}
-                    onClick={handlePhoneClick}
-                    className="flex-grow sm:flex-grow-0"
-                  >
-                    <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
-                  </Button>
-                </div>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Campo de Equipamento - largura total */}
-        <FormField
-            control={form.control}
-            name="equipment_id"
-            render={({ field }) => (
+        {/* Card para Status e Loja */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Informações Básicas</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Equipamento *</FormLabel>
+                  <FormLabel>Estado *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <EquipmentSelector
-                            clientId={clientId}
-                            value={field.value}
-                            onChange={handleEquipmentChange}
-                            disabled={isEditing}
-                        />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Estado *" />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
+                    <SelectContent>
+                      {serviceOrderStatuses.map(status => (
+                        <SelectItem key={status} value={status}>{status}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
                 </FormItem>
-            )}
-        />
-
-        <Separator className="my-4" />
-
-        {/* Campo de Descrição do Serviço - largura total */}
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Descrição do Serviço *</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Campo de Data de Agendamento - largura total */}
-        <FormField
-          control={form.control}
-          name="scheduled_date"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Data de Agendamento (Opcional)</FormLabel>
-              <div className="flex items-center gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
+              )}
+            />
+          
+            <FormField
+              control={form.control}
+              name="store"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Loja *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP", { locale: ptBR })
-                        ) : (
-                          <span>Selecione uma data</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Loja *" />
+                      </SelectTrigger>
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value || undefined}
-                      onSelect={field.onChange}
-                      initialFocus
-                      locale={ptBR}
-                    />
-                  </PopoverContent>
-                </Popover>
-                {field.value && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={() => field.onChange(null)}
-                    aria-label="Limpar Data"
-                  >
-                    <XCircle className="h-4 w-4 text-destructive" />
-                  </Button>
+                    <SelectContent>
+                      <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                      <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Card para Cliente e Equipamento */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Cliente e Equipamento</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="client_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cliente *</FormLabel>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex-grow w-full min-w-0">
+                      <ClientSelector 
+                        value={field.value} 
+                        onChange={field.onChange} 
+                        disabled={isEditing}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={handleViewClientDetails}
+                        disabled={!field.value}
+                        aria-label="Ver detalhes do cliente"
+                        className="flex-grow sm:flex-grow-0"
+                      >
+                        <User className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        aria-label="Ver no mapa"
+                        disabled={!hasMapLink}
+                        onClick={handleMapClick}
+                        className="flex-grow sm:flex-grow-0"
+                      >
+                        <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        aria-label="Ligar para o cliente"
+                        disabled={!hasContact}
+                        onClick={handlePhoneClick}
+                        className="flex-grow sm:flex-grow-0"
+                      >
+                        <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
+                      </Button>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+                control={form.control}
+                name="equipment_id"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Equipamento *</FormLabel>
+                        <FormControl>
+                            <EquipmentSelector
+                                clientId={clientId}
+                                value={field.value}
+                                onChange={handleEquipmentChange}
+                                disabled={isEditing}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            />
+          </CardContent>
+        </Card>
+
+        {/* Card para Descrição do Serviço e Data de Agendamento */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Detalhes do Serviço</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição do Serviço *</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="scheduled_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data de Agendamento (Opcional)</FormLabel>
+                  <div className="flex items-center gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: ptBR })
+                            ) : (
+                              <span>Selecione uma data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value || undefined}
+                          onSelect={field.onChange}
+                          initialFocus
+                          locale={ptBR}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {field.value && (
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => field.onChange(null)}
+                        aria-label="Limpar Data"
+                      >
+                        <XCircle className="h-4 w-4 text-destructive" />
+                      </Button>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
         
         {/* Botões de ação centralizados */}
         <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
