@@ -6,7 +6,7 @@ import { getStatusBadgeVariant } from "@/lib/serviceOrderStatus";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
+import { Card, CardContent } from "@/components/ui/card";
 
 interface OrderListItemProps {
   order: ServiceOrder;
@@ -23,18 +23,19 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
 
     return (
         <Card 
-            className="mb-2 cursor-pointer hover:bg-muted/50 transition-colors" // Adicionado mb-2 para espaçamento entre os cartões
+            className="mb-2 cursor-pointer hover:bg-muted/50 transition-colors"
             onClick={handleViewDetails}
         >
-            <CardContent className="flex justify-between items-start p-3"> {/* Ajustado padding */}
+            <CardContent className="flex justify-between items-start p-3">
                 <div className="flex flex-col flex-grow min-w-0">
                     <span className="font-medium text-sm truncate">{order.equipment} - {order.model}</span>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1 mb-2"> {/* Adicionada a descrição */}
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                         {order.description}
                     </p>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                        <span>{order.display_id}</span>
-                        <span>|</span>
+                    <p className="text-xs text-muted-foreground mt-2 font-semibold"> {/* Display ID em linha própria, com mais espaçamento */}
+                        {order.display_id}
+                    </p>
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1"> {/* Datas em nova linha */}
                         <span>{createdAtDate}</span>
                         {order.scheduled_date && (
                             <>
@@ -45,7 +46,7 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                         )}
                     </div>
                 </div>
-                <div className="flex-shrink-0 ml-4"> {/* Adicionado ml-4 para espaçamento */}
+                <div className="flex-shrink-0 ml-4">
                     <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                 </div>
             </CardContent>
