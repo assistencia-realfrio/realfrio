@@ -9,7 +9,7 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel, // Manter import, mas não usar o componente
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -190,18 +190,18 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Reduzido space-y de 6 para 4 */}
         
         {/* Card para Status e Loja */}
         <Card>
-          <CardHeader className="p-0" />
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+          <CardHeader className="p-0" /> {/* Removido pb-2 */}
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4"> {/* Ajustado para p-4 */}
             <FormField
               control={form.control}
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  {/* <FormLabel>Estado *</FormLabel> */} {/* Removido o título */}
+                  <FormLabel>Estado *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -224,7 +224,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="store"
               render={({ field }) => (
                 <FormItem>
-                  {/* <FormLabel>Loja *</FormLabel> */} {/* Removido o título */}
+                  <FormLabel>Loja *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -245,14 +245,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Cliente e Equipamento */}
         <Card>
-          <CardHeader className="p-0" />
-          <CardContent className="space-y-4 p-4">
+          <CardHeader className="p-0" /> {/* Removido pb-2 */}
+          <CardContent className="space-y-4 p-4"> {/* Ajustado para p-4 */}
             <FormField
               control={form.control}
               name="client_id"
               render={({ field }) => (
                 <FormItem>
-                  {/* <FormLabel>Cliente *</FormLabel> */} {/* Removido o título */}
+                  <FormLabel>Cliente *</FormLabel>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-grow w-full min-w-0">
                       <ClientSelector 
@@ -309,7 +309,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="equipment_id"
                 render={({ field }) => (
                     <FormItem>
-                        {/* <FormLabel>Equipamento *</FormLabel> */} {/* Removido o título */}
+                        <FormLabel>Equipamento *</FormLabel>
                         <FormControl>
                             <EquipmentSelector
                                 clientId={clientId}
@@ -327,14 +327,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Descrição do Serviço e Data de Agendamento */}
         <Card>
-          <CardHeader className="p-0" />
-          <CardContent className="space-y-4 p-4">
+          <CardHeader className="p-0" /> {/* Removido pb-2 */}
+          <CardContent className="space-y-4 p-4"> {/* Ajustado para p-4 */}
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  {/* <FormLabel>Descrição do Serviço *</FormLabel> */} {/* Removido o título */}
+                  <FormLabel>Descrição do Serviço *</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
                   </FormControl>
@@ -348,7 +348,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="scheduled_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  {/* <FormLabel>Data de Agendamento (Opcional)</FormLabel> */} {/* Removido o título */}
+                  <FormLabel>Data de Agendamento (Opcional)</FormLabel>
                   <div className="flex items-center gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
