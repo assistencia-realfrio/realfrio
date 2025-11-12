@@ -34,7 +34,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Importar Card e CardContent
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -190,14 +190,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6"> {/* Aumentado space-y para 6 para dar espaço entre os Cards */}
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
         {/* Card para Status e Loja */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Informações Básicas</CardTitle>
+          <CardHeader className="pb-2"> {/* Reduzido o padding-bottom */}
+            {/* <CardTitle className="text-lg">Informações Básicas</CardTitle> */} {/* Removido o título */}
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"> {/* Reduzido o padding-top */}
             <FormField
               control={form.control}
               name="status"
@@ -247,10 +247,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Cliente e Equipamento */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Cliente e Equipamento</CardTitle>
+          <CardHeader className="pb-2"> {/* Reduzido o padding-bottom */}
+            {/* <CardTitle className="text-lg">Cliente e Equipamento</CardTitle> */} {/* Removido o título */}
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-2"> {/* Reduzido o padding-top */}
             <FormField
               control={form.control}
               name="client_id"
@@ -331,10 +331,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Descrição do Serviço e Data de Agendamento */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Detalhes do Serviço</CardTitle>
+          <CardHeader className="pb-2"> {/* Reduzido o padding-bottom */}
+            {/* <CardTitle className="text-lg">Detalhes do Serviço</CardTitle> */} {/* Removido o título */}
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-2"> {/* Reduzido o padding-top */}
             <FormField
               control={form.control}
               name="description"
