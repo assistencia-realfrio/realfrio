@@ -1,15 +1,9 @@
 import React, { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
 import { showSuccess, showError } from "@/utils/toast";
-import { useClients, Client } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
+import { useClients } from "@/hooks/useClients";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
@@ -21,7 +15,6 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ClientSelectorProps {
@@ -33,7 +26,7 @@ interface ClientSelectorProps {
 const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { clients, isLoading: isLoadingClients, createClient } = useClients(); // Usando useClients
+  const { clients, isLoading: isLoadingClients, createClient } = useClients();
 
   // Mapeia o ID para o nome para exibir no SelectValue
   const selectedClient = clients.find(c => c.id === value);
@@ -82,10 +75,30 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-          <Command>
+          <Command
+            filter={(itemValue, search) => {
+              // Sempre mostrar "Adicionar Novo Cliente"
+              if (itemValue === "Adicionar Novo Cliente") return 1;
+              // Filtragem padrão para outros itens
+              return itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
+            }}
+          >
             <CommandInput placeholder="Buscar cliente..." />
             <CommandList>
               <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+              {/* "Adicionar Novo Cliente" sempre visível e primeiro */}
+              <CommandGroup>
+                <CommandItem
+                  key="NEW_CLIENT"
+                  value="Adicionar Novo Cliente"
+                  onSelect={() => handleSelectChange("NEW_CLIENT")}
+                  className="text-primary font-medium cursor-pointer"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Adicionar Novo Cliente
+                </CommandItem>
+              </CommandGroup>
+              {/* Clientes existentes */}
               <CommandGroup>
                 {clients.map((client) => (
                   <CommandItem
@@ -102,17 +115,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
                     {client.name}
                   </CommandItem>
                 ))}
-              </CommandGroup>
-              <CommandGroup>
-                <CommandItem
-                  key="NEW_CLIENT"
-                  value="Adicionar Novo Cliente"
-                  onSelect={() => handleSelectChange("NEW_CLIENT")}
-                  className="text-primary font-medium cursor-pointer"
-                >
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Adicionar Novo Cliente
-                </CommandItem>
               </CommandGroup>
             </CommandList>
           </Command>
