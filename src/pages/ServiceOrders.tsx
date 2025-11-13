@@ -14,7 +14,7 @@ import {
 import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
-import FloatingActionButton from "@/components/FloatingActionButton"; // Importar o novo componente FAB
+// import FloatingActionButton from "@/components/FloatingActionButton"; // Importar o novo componente FAB
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrderStatus | 'ALL';
@@ -113,9 +113,12 @@ const ServiceOrders: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex flex-row justify-between items-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Assistências</h2>
-          {/* O botão "NOVA OS" foi removido daqui e substituído pelo FAB */}
+          <Button className="w-full sm:w-auto" onClick={handleNewOrder}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Nova OS
+          </Button>
         </div>
 
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
@@ -162,12 +165,7 @@ const ServiceOrders: React.FC = () => {
         </div>
       </div>
       
-      {/* Floating Action Button */}
-      <FloatingActionButton 
-        onClick={handleNewOrder} 
-        label="Nova Ordem de Serviço" 
-        icon={PlusCircle} 
-      />
+      {/* O FloatingActionButton foi removido daqui */}
     </Layout>
   );
 };
