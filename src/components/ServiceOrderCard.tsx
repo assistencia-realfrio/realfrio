@@ -82,7 +82,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 </div>
                 <div className="flex items-center gap-2">
                     <Badge  
-                        className="whitespace-nowrap text-xs border-transparent text-white"
+                        className="whitespace-nowrap text-[10px] px-1.5 py-0.5 border-transparent text-white h-4" // MODIFICADO: Badge menor
                         style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                     >
                         {order.status}
@@ -90,8 +90,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
-                                variant="ghost"
-                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-white hover:bg-white/20"
+                                // Removido variant="ghost" e adicionado bg-transparent para garantir que text-white funcione e o ícone não fique preto
+                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-white bg-transparent hover:bg-white/20"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreHorizontal className="h-4 w-4" />
