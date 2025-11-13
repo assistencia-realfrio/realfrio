@@ -73,8 +73,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         >
             <div className="w-1.5 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
 
-            <div className="flex flex-col flex-grow p-3 sm:p-4"> {/* Reduzido padding para mobile */}
-                <div className="flex items-start justify-between mb-2 sm:mb-3"> {/* Reduzido margin-bottom para mobile */}
+            <div className="flex flex-col flex-grow p-4">
+                <div className="flex items-start justify-between mb-3">
                     <div className="font-semibold text-sm text-primary truncate pr-2">
                         {order.display_id}
                     </div>
@@ -113,23 +113,23 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                 </div>
                 
-                <div className="flex flex-col space-y-1 sm:space-y-2"> {/* Reduzido space-y para mobile */}
+                <div className="flex flex-col space-y-3">
                     <div>
                         <p className="text-xs text-muted-foreground">Cliente</p>
-                        <p className="font-semibold text-sm sm:text-base truncate">{order.client}</p> {/* Reduzido text-base para sm:text-base */}
+                        <p className="font-semibold text-base truncate">{order.client}</p>
                     </div>
                     <div>
                         <p className="text-xs text-muted-foreground">Equipamento</p>
-                        <p className="text-sm sm:text-base truncate">{order.equipment}</p> {/* Reduzido text-base para sm:text-base */}
+                        <p className="text-base truncate">{order.equipment}</p>
                     </div>
-                    <div>
+                    <div> {/* Novo div para a descrição */}
                         <p className="text-xs text-muted-foreground">Descrição</p>
-                        <p className="text-xs sm:text-sm line-clamp-2">{order.description}</p> {/* Reduzido text-sm para sm:text-sm */}
+                        <p className="text-sm line-clamp-2">{order.description}</p> {/* Adicionado line-clamp-2 */}
                     </div>
                 </div>
 
                 {order.scheduled_date && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2 pt-2 border-t"> {/* Reduzido mt e pt para mobile */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3 pt-3 border-t">
                         <CalendarIcon className="h-4 w-4" />
                         <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
                     </div>
