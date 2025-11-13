@@ -21,14 +21,14 @@ const RenderActivityDetails: React.FC<{ details: Record<string, { oldValue?: any
         
         if (oldValue === undefined && newValue !== undefined) {
           return (
-            <p key={key} className="truncate"> {/* Adicionado truncate */}
+            <p key={key}> {/* Removido truncate */}
               <span className="font-semibold">{formattedKey}:</span>{" "}
               <span className="text-green-500">{newValue || 'Vazio'}</span>
             </p>
           );
         } else if (oldValue !== undefined && newValue !== undefined && oldValue !== newValue) {
           return (
-            <p key={key} className="truncate"> {/* Adicionado truncate */}
+            <p key={key}> {/* Removido truncate */}
               <span className="font-semibold">{formattedKey}:</span>{" "}
               <span className="line-through text-red-500">{oldValue || 'Vazio'}</span>{" "}
               <span className="text-green-500">→ {newValue || 'Vazio'}</span>
