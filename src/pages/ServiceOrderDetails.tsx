@@ -1,128 +1,207 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders"; // Import useServiceOrders and ServiceOrder
-import ServiceOrderForm, { ServiceOrderFormData } from "@/components/ServiceOrderForm"; // Import ServiceOrderFormData
-import { Card, CardContent } from "@/components/ui/card";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import Layout from "@/components/Layout";
+import ServiceOrderForm from "@/components/ServiceOrderForm";
+import Attachments from "@/components/Attachments";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Trash2 } from "lucide-react"; // FileText removido
+import { Button } from "@/components/ui/button";
+import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { showSuccess, showError } from "@/utils/toast";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Layout from "@/components/Layout"; // Import Layout
-import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav"; // Import ServiceOrderBottomNav
-import Attachments from "@/components/Attachments"; // Import Attachments
-import ActivityLog from "@/components/ActivityLog"; // Import ActivityLog
-import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Import ServiceOrderNotes
-import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails"; // Import ServiceOrderEquipmentDetails
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-
-type View = 'details' | 'attachments' | 'equipment' | 'activity' | 'notes';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
+import ActivityLog from "@/components/ActivityLog";
+import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
+import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const isNew = id === "new";
+  const location = useLocation();
+  
+  const isNew = id === 'new';
+  
+  const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
+  
+  const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
 
-  const { singleOrder: serviceOrder, isLoading, error } = useServiceOrders(id || "");
+  const currentOrderId = newOrderId || id;
 
-  const [defaultValues, setDefaultValues] = useState<ServiceOrderFormData | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<View>("details");
+  const initialData = order ? {
+    id: order.id,
+    equipment_id: order.equipment_id || undefined, 
+    client_id: order.client_id,
+    description: order.description,
+    status: order.status,
+    store: order.store,
+    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // CORREÇÃO: Converter string para Date
+  } : undefined;
 
-  useEffect(() => {
-    if (!isNew && serviceOrder) {
-      setDefaultValues({
-        client_id: serviceOrder.client_id || "",
-        description: serviceOrder.description || "",
-        status: serviceOrder.status,
-        store: serviceOrder.store || "CALDAS DA RAINHA", // Default to a valid store
-        equipment_id: serviceOrder.equipment_id || "",
-        scheduled_date: serviceOrder.scheduled_date ? new Date(serviceOrder.scheduled_date) : null,
-        technician_id: serviceOrder.technician_id || "",
-      });
-    } else if (isNew) {
-      setDefaultValues({
-        client_id: "",
-        description: "",
-        status: "POR INICIAR", // Default to a valid status
-        store: "CALDAS DA RAINHA", // Default to a valid store
-        equipment_id: "",
-        scheduled_date: null,
-        technician_id: "",
-      });
-    }
-  }, [isNew, serviceOrder]);
-
-  const handleSubmit = (newOrderId?: string) => {
-    if (isNew && newOrderId) {
-      navigate(`/orders/${newOrderId}`);
+  const handleGoBack = () => {
+    if (location.key !== 'default') {
+      navigate(-1);
     } else {
-      // For updates, stay on the same page, form already handled success toast
+      navigate('/', { replace: true });
     }
   };
 
-  if (isLoading || defaultValues === undefined) {
+  const handleSubmit = (data: { id?: string }) => {
+    if (isNew && data.id) {
+        setNewOrderId(data.id);
+        navigate(`/orders/${data.id}`, { replace: true });
+    } else {
+        handleGoBack(); 
+    }
+  };
+  
+  const handleDelete = async () => {
+    if (!currentOrderId) return;
+
+    try {
+        await deleteOrder.mutateAsync(currentOrderId);
+        showSuccess(`Ordem de Serviço ${order?.display_id || currentOrderId} excluída com sucesso.`);
+        navigate('/', { replace: true });
+    } catch (error) {
+        console.error("Erro ao deletar OS:", error);
+        showError("Erro ao excluir Ordem de Serviço. Tente novamente.");
+    }
+  };
+
+  const displayTitleId = order?.display_id || currentOrderId;
+  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "OS:";
+
+  if (!isNew && isLoading) {
     return (
       <Layout>
-        <Skeleton className="h-[calc(100vh-100px)] w-full" />
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-96 w-full" />
+        </div>
       </Layout>
     );
   }
 
-  if (!isNew && error) {
+  if (!isNew && !order && !newOrderId) {
     return (
       <Layout>
-        <div className="text-red-500">Erro ao carregar ordem de serviço: {error.message}</div>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold">OS não encontrada</h2>
+          <p className="text-muted-foreground">A Ordem de Serviço com ID {id} não existe ou você não tem permissão para vê-la.</p>
+          <Button onClick={handleGoBack} className="mt-4">Voltar</Button>
+        </div>
       </Layout>
     );
   }
 
-  const orderTitle = isNew 
-    ? "Nova Ordem de Serviço" 
-    : serviceOrder?.display_id 
-      ? `OS ${serviceOrder.display_id}` 
-      : "Detalhes da Ordem de Serviço";
-
-  const canAccessTabs = !isNew && !!serviceOrder?.id;
+  const canAccessTabs = !isNew || !!newOrderId;
 
   return (
     <Layout>
-      <div className="space-y-6 pb-20"> {/* Adicionado padding-bottom para a navegação inferior */}
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => navigate("/orders")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-          </Button>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{orderTitle}</h2>
+      <div className="space-y-6 pb-20">
+        <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
+                <Button variant="outline" size="icon" onClick={handleGoBack}>
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight truncate">
+                  {isNew ? titlePrefix : (
+                    <>
+                      {titlePrefix} {displayTitleId}
+                    </>
+                  )}
+                </h2>
+            </div>
+            <div className="flex flex-shrink-0 space-x-2">
+                {/* Botão de Relatório Removido */}
+                {!isNew && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
+                                <Trash2 className="h-5 w-5 text-destructive" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
+                                    <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                    onClick={handleDelete} 
+                                    className="bg-destructive hover:bg-destructive/90"
+                                    disabled={deleteOrder.isPending}
+                                >
+                                    Excluir
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
+            </div>
         </div>
-
+          
         {selectedView === "details" && (
-          <Card>
-            <CardContent className="p-4">
-              <ServiceOrderForm
-                onSubmit={handleSubmit}
-                initialData={defaultValues}
-                isNew={isNew}
-                onCancel={() => navigate("/orders")}
+          <Card className="shadow-none border-none">
+            <CardHeader>
+              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ServiceOrderForm 
+                initialData={initialData} 
+                onSubmit={handleSubmit} 
+                onCancel={isNew ? handleGoBack : undefined}
               />
             </CardContent>
           </Card>
         )}
 
-        {selectedView === "attachments" && canAccessTabs && serviceOrder?.id && (
-          <Attachments orderId={serviceOrder.id} />
+        {selectedView === "attachments" && (
+          !canAccessTabs ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar anexos.</p>
+          ) : (
+            <Attachments orderId={currentOrderId!} />
+          )
         )}
 
-        {selectedView === "equipment" && canAccessTabs && serviceOrder?.equipment_id && (
-          <ServiceOrderEquipmentDetails equipmentId={serviceOrder.equipment_id} />
+        {selectedView === "equipment" && (
+          !canAccessTabs || !order?.equipment_id ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS e selecione um equipamento para ver seus detalhes.</p>
+          ) : (
+            <ServiceOrderEquipmentDetails equipmentId={order.equipment_id!} />
+          )
         )}
 
-        {selectedView === "activity" && canAccessTabs && serviceOrder?.id && (
-          <ActivityLog entityType="service_order" entityId={serviceOrder.id} />
+        {selectedView === "activity" && (
+          !canAccessTabs ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS para ver o histórico de atividades.</p>
+          ) : (
+            <ActivityLog entityType="service_order" entityId={currentOrderId!} />
+          )
         )}
 
-        {selectedView === "notes" && canAccessTabs && serviceOrder?.id && (
-          <ServiceOrderNotes orderId={serviceOrder.id} />
+        {selectedView === "notes" && ( // Nova aba para Notas
+          !canAccessTabs ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver as notas.</p>
+          ) : (
+            <ServiceOrderNotes orderId={currentOrderId!} />
+          )
         )}
       </div>
       <ServiceOrderBottomNav

@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, Clock } from "lucide-react";
-import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders"; // Use refactored hook
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
 import OrderListItem from "./OrderListItem"; // Importando o componente reutilizável
@@ -12,7 +12,7 @@ interface ClientOrdersTabProps {
 }
 
 const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
-  const { orders: allOrders, isLoading } = useServiceOrders(); // Use 'orders' and 'isLoading' from refactored hook
+  const { orders: allOrders, isLoading } = useServiceOrders();
   
   // Filtra as ordens pelo ID do cliente
   const clientOrders = allOrders.filter(order => order.client_id === clientId);
