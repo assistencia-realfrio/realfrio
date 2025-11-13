@@ -21,8 +21,8 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onClick, la
       )}
       aria-label={label}
     >
-      {/* Aumentado o tamanho do ícone para h-12 w-12 */}
-      {Icon ? <Icon className="h-12 w-12" /> : <PlusCircle className="h-12 w-12" />}
+      {/* Aumentado o tamanho do ícone para h-10 w-10 para ocupar a maior parte do botão */}
+      {Icon ? <Icon className="h-10 w-10" /> : <PlusCircle className="h-10 w-10" />}
       <span className="sr-only">{label}</span> {/* Apenas para acessibilidade */}
     </Button>
   );
