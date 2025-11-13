@@ -114,13 +114,16 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 </div>
                 
                 <div className="flex flex-col space-y-3">
-                    <div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-red-500 rounded-full flex-shrink-0" />
                         <p className="font-semibold text-base truncate">{order.client}</p>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-red-500 rounded-full flex-shrink-0" />
                         <p className="text-base truncate">{order.equipment}</p>
                     </div>
-                    <div>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-red-500 rounded-full flex-shrink-0" />
                         <p className="text-sm line-clamp-2">{order.description}</p>
                     </div>
                 </div>
