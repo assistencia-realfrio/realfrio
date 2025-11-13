@@ -90,10 +90,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-white hover:bg-white/20"
+                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground hover:bg-white/20" {/* Alterado text-white para text-foreground (preto) */}
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <MoreHorizontal className="h-4 w-4" />
+                                <MoreHorizontal className="h-6 w-6" /> {/* Aumentado de h-4 w-4 para h-6 w-6 */}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
