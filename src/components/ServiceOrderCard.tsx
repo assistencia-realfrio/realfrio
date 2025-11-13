@@ -90,11 +90,11 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
-                                // Removido text-white daqui, pois vamos aplicar diretamente no ícone
-                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent hover:bg-white/20"
+                                // Removido text-white e garantido que o botão use a cor de foreground (preto no tema claro)
+                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent hover:bg-white/20 text-foreground"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <MoreHorizontal className="h-4 w-4 text-white" /> {/* Adicionado text-white diretamente no ícone */}
+                                <MoreHorizontal className="h-4 w-4" /> {/* Removido text-white daqui */}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
