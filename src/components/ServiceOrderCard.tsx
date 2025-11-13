@@ -62,21 +62,20 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     };
     
     const statusBgColor = statusChartColors[order.status];
-    const storeHeaderColor = getStoreSidebarColor(order.store); // Renomeado para refletir o novo uso
+    const storeHeaderColor = getStoreSidebarColor(order.store);
 
     return (
         <div 
             onClick={handleNavigate}
             className={cn(
-                "hover:shadow-md transition-shadow flex flex-col relative rounded-lg border bg-card cursor-pointer" // Adicionado flex-col
+                "hover:shadow-md transition-shadow flex flex-col relative rounded-lg border bg-card cursor-pointer"
             )} 
         >
-            {/* Nova barra de cor no topo */}
             <div 
                 className="flex items-center justify-between p-3 rounded-t-lg" 
-                style={{ backgroundColor: storeHeaderColor }}
+                style={{ background: `linear-gradient(to right, ${storeHeaderColor}, white)` }}
             >
-                <div className="font-semibold text-sm text-white truncate pr-2"> {/* Texto branco para contraste */}
+                <div className="font-semibold text-sm text-white truncate pr-2">
                     {order.display_id}
                 </div>
                 <div className="flex items-center gap-2">
@@ -90,7 +89,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="ghost"
-                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-white hover:bg-white/20" // Botão branco para contraste
+                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-white hover:bg-white/20"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <MoreHorizontal className="h-4 w-4" />
@@ -114,7 +113,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col flex-grow p-4"> {/* Conteúdo principal abaixo da nova barra */}
+            <div className="flex flex-col flex-grow p-4">
                 <div className="flex flex-col space-y-2 flex-grow">
                     <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
