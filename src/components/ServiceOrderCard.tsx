@@ -63,7 +63,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     };
     
     const statusBgColor = statusChartColors[order.status];
-    const storeHeaderColor = getStoreSidebarColor(order.store);
+    
+    // Obtém a cor HEX e aplica 50% de transparência (alpha = 0.5)
+    const rawStoreColor = getStoreSidebarColor(order.store);
+    const storeHeaderColor = hexToRgba(rawStoreColor, 0.5);
 
     return (
         <div 
