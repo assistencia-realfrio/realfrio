@@ -113,11 +113,13 @@ const ServiceOrders: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* ALTERADO: Usando flex justify-between items-center para alinhar título e botão */}
+        <div className="flex justify-between items-center gap-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Assistências</h2>
-          <Button className="w-full sm:w-auto" onClick={handleNewOrder}>
+          <Button className="flex-shrink-0" onClick={handleNewOrder}> {/* Removido w-full sm:w-auto, adicionado flex-shrink-0 */}
             <PlusCircle className="mr-2 h-4 w-4" />
-            Nova OS
+            <span className="hidden sm:inline">Nova OS</span>
+            <span className="inline sm:hidden">Nova</span>
           </Button>
         </div>
 
@@ -164,8 +166,6 @@ const ServiceOrders: React.FC = () => {
           {renderOrderGrid(filteredOrders)}
         </div>
       </div>
-      
-      {/* O FloatingActionButton foi removido daqui */}
     </Layout>
   );
 };
