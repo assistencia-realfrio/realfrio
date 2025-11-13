@@ -67,7 +67,7 @@ const Clients: React.FC = () => {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
                 placeholder="Buscar por nome ou contato..." 
-                className="pl-10" 
+                className="pl-10 bg-white" {/* Adicionado bg-white aqui */}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -79,7 +79,7 @@ const Clients: React.FC = () => {
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
               defaultValue={selectedStore}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-white"> {/* Adicionado bg-white aqui */}
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>

@@ -50,7 +50,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
   }
 
   return (
-    <div className="rounded-md border overflow-x-auto">
+    <div className="rounded-md border overflow-x-auto bg-white"> {/* Adicionado bg-white aqui */}
       <Table>
         <TableHeader>
           <TableRow>
