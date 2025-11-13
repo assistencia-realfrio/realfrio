@@ -112,7 +112,7 @@ const ServiceOrders: React.FC = () => {
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
                 value={selectedStore}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white"> {/* Adicionado bg-white aqui */}
                   <SelectValue placeholder="LOJA" />
                 </SelectTrigger>
                 <SelectContent>
@@ -128,7 +128,7 @@ const ServiceOrders: React.FC = () => {
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
                 value={selectedStatus}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white"> {/* Adicionado bg-white aqui */}
                   <SelectValue placeholder="ESTADOS" />
                 </SelectTrigger>
                 <SelectContent>
