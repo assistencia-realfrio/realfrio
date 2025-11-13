@@ -113,13 +113,11 @@ const ServiceOrders: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* ALTERADO: Usando flex justify-between items-center para alinhar título e botão */}
         <div className="flex justify-between items-center gap-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Assistências</h2>
-          <Button className="flex-shrink-0" onClick={handleNewOrder}> {/* Removido w-full sm:w-auto, adicionado flex-shrink-0 */}
+          <Button className="flex-shrink-0" onClick={handleNewOrder}>
             <PlusCircle className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Nova OS</span>
-            <span className="inline sm:hidden">Nova</span>
+            Nova OS
           </Button>
         </div>
 
