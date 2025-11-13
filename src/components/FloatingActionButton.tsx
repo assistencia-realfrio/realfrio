@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { Plus } from 'lucide-react'; // Alterado de PlusCircle para Plus
 import { cn } from '@/lib/utils';
 
 interface FloatingActionButtonProps {
@@ -21,8 +21,8 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onClick, la
       )}
       aria-label={label}
     >
-      {/* Aumentado o tamanho do ícone para h-12 w-12 para preencher o botão */}
-      {Icon ? <Icon className="h-12 w-12" /> : <PlusCircle className="h-12 w-12" />}
+      {/* Usando o ícone Plus (sinal de adição) e definindo um tamanho grande */}
+      {Icon ? <Icon className="h-10 w-10" /> : <Plus className="h-10 w-10" />}
       <span className="sr-only">{label}</span> {/* Apenas para acessibilidade */}
     </Button>
   );
