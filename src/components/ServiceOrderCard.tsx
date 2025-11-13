@@ -17,6 +17,7 @@ import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileT
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { hexToRgba } from "@/lib/utils"; // Importar a nova função
 
 interface ServiceOrderCardProps {
     order: ServiceOrder;
@@ -81,7 +82,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 <div className="flex items-center gap-2">
                     <Badge  
                         className="whitespace-nowrap text-xs border-transparent text-white"
-                        style={{ backgroundColor: statusBgColor }}
+                        style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                     >
                         {order.status}
                     </Badge>
