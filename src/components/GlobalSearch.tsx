@@ -37,7 +37,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Pesquisar clientes, OS, equipamentos..." />
       <CommandList>
-        <CommandEmpty>{isLoading ? "A carregar..." : "Nenhum resultado encontrado."}</CommandEmpty>
+        <CommandEmpty>
+          {isLoading ? <span>A carregar...</span> : <span>Nenhum resultado encontrado.</span>}
+        </CommandEmpty>
         
         {!isLoadingClients && clients.length > 0 && (
           <CommandGroup heading="Clientes">
