@@ -22,7 +22,7 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
-import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders"; // Import ServiceOrder type
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle } from "lucide-react";
@@ -35,32 +35,36 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { serviceOrderStatuses } from "@/lib/serviceOrderStatus"; // Correct import for serviceOrderStatuses
+import { Profile } from "@/hooks/useProfiles"; // Import Profile type
 
-// Definição do Schema de Validação
+// Definição do Schema de Validação para os dados do formulário
 const formSchema = z.object({
-  equipment_id: z.string().uuid({ message: "Selecione um equipamento válido." }),
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
+  equipment_id: z.string().uuid({ message: "Selecione um equipamento válido." }).optional().or(z.literal("")),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
+  technician_id: z.string().uuid({ message: "Selecione um técnico válido." }).optional().or(z.literal("")),
 });
 
-export type ServiceOrderFormValues = z.infer<typeof formSchema>;
+export type ServiceOrderFormData = z.infer<typeof formSchema>; // Renamed to ServiceOrderFormData
 
-interface InitialData extends ServiceOrderFormValues {
+interface InitialData extends ServiceOrderFormData {
     id?: string;
 }
 
 interface ServiceOrderFormProps {
   initialData?: InitialData;
-  onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
+  onSubmit: (data: ServiceOrderFormData & { id?: string }) => void; // Updated to ServiceOrderFormData
   onCancel?: () => void;
+  isNew: boolean;
 }
 
-const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
+const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel, isNew }) => {
   const navigate = useNavigate();
-  const form = useForm<ServiceOrderFormValues>({
+  const form = useForm<ServiceOrderFormData>({ // Using ServiceOrderFormData
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
         ...initialData,
@@ -72,12 +76,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
       scheduled_date: null,
+      technician_id: "",
     },
   });
 
-  const { createOrder, updateOrder } = useServiceOrders();
-  const isEditing = !!initialData?.id;
-  
+  const { createOrder, updateOrder } = useServiceOrders(); // Corrected destructuring
+  const isEditing = !!initialData?.id; // Moved here
+
   const clientId = form.watch("client_id");
   const currentEquipmentId = form.watch("equipment_id");
 
@@ -85,6 +90,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const selectedClient = clients.find(c => c.id === clientId);
 
   const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
+  const { data: technicians = [] } = useProfiles(); // Fetch technicians here
 
   const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null }>({ name: '', brand: null, model: null, serial_number: null });
 
@@ -110,7 +116,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
   };
   
-  const handleSubmit = async (data: ServiceOrderFormValues) => {
+  const handleSubmit = async (data: ServiceOrderFormData) => { // Using ServiceOrderFormData
     if (!equipmentDetails.name) {
         showError("Selecione um equipamento válido.");
         return;
@@ -124,23 +130,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             ? `${equipmentName} / ${equipmentBrand}` 
             : equipmentName;
 
-        const mutationData: MutationServiceOrderFormValues = {
+        // Construct the mutation payload to match ServiceOrderFormValues in useServiceOrders.ts
+        const mutationPayload = {
             client_id: data.client_id,
             description: data.description,
             status: data.status,
             store: data.store,
-            equipment: formattedEquipment,
-            model: equipmentDetails.model || undefined, 
-            serial_number: equipmentDetails.serial_number || undefined,
-            equipment_id: data.equipment_id,
+            equipment: formattedEquipment, // This is the string representation
+            model: equipmentDetails.model || null, 
+            serial_number: equipmentDetails.serial_number || null,
+            equipment_id: data.equipment_id || null, // Ensure it's nullable
             scheduled_date: data.scheduled_date,
-        } as MutationServiceOrderFormValues; 
+            technician_id: data.technician_id || null, // Ensure it's nullable
+        }; 
 
-        if (isEditing && initialData.id) {
-            await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
+        if (isEditing && initialData?.id) {
+            await updateOrder.mutateAsync({ id: initialData.id, ...mutationPayload });
             showSuccess("Ordem de Serviço atualizada com sucesso!");
         } else {
-            const newOrder = await createOrder.mutateAsync(mutationData);
+            const newOrder = await createOrder.mutateAsync(mutationPayload);
             showSuccess("Ordem de Serviço criada com sucesso!");
             onSubmit({ ...data, id: newOrder.id });
             return;
@@ -313,7 +321,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         <FormControl>
                             <EquipmentSelector
                                 clientId={clientId}
-                                value={field.value}
+                                value={field.value || ""}
                                 onChange={handleEquipmentChange}
                                 disabled={isEditing}
                             />
@@ -391,6 +399,32 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       </Button>
                     )}
                   </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="technician_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Técnico Responsável (Opcional)</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um técnico" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="">Nenhum</SelectItem>
+                      {technicians.map((tech) => (
+                        <SelectItem key={tech.id} value={tech.id}>
+                          {tech.first_name} {tech.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

@@ -2,7 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { ServiceOrder, useServiceOrders, serviceOrderStatuses, ServiceOrderStatus } from "@/hooks/useServiceOrders";
+import { ServiceOrder, useServiceOrders, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders"; // Import from refactored hook
 import { statusChartColors } from "@/lib/serviceOrderStatus"; // Importando statusChartColors
 import {
   DropdownMenu,
@@ -46,7 +46,7 @@ const getStoreSidebarColor = (store: ServiceOrder['store'] | null): string => {
 
 const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const navigate = useNavigate();
-    const { updateOrder } = useServiceOrders();
+    const { updateOrder } = useServiceOrders(); // Corrected destructuring
 
     const handleNavigate = () => {
         navigate(`/orders/${order.id}`);
@@ -56,12 +56,18 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         const toastId = showLoading(`Alterando estado para ${newStatus}...`);
         try {
             await updateOrder.mutateAsync({
-                ...order,
+                id: order.id,
                 status: newStatus,
-                model: order.model || undefined,
-                serial_number: order.serial_number || undefined,
-                equipment_id: order.equipment_id || undefined,
-                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // Manter a data de agendamento
+                // Ensure all required fields are passed, even if unchanged
+                client_id: order.client_id,
+                description: order.description,
+                store: order.store,
+                equipment: order.equipment, // This is the string representation
+                model: order.model || null,
+                serial_number: order.serial_number || null,
+                equipment_id: order.equipment_id || null,
+                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+                technician_id: order.technician_id || null,
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -137,14 +143,14 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     <div className="flex items-center gap-1"> {/* Reduzido gap-2 para gap-1 */}
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
                         <div className={cn("text-base font-bold truncate text-foreground")}> {/* Reduzido text-lg para text-base */}
-                            {order.client}
+                            {order.client_name} {/* Use client_name */}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-1"> {/* Reduzido gap-2 para gap-1 */}
                         <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
                         <p className={cn("text-sm truncate text-foreground")}> {/* Reduzido text-base para text-sm */}
-                            {order.equipment}
+                            {order.equipment_name} {/* Use equipment_name */}
                         </p>
                     </div>
                     

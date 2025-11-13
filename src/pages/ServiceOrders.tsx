@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders"; // Import from refactored hook
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
 
@@ -29,7 +29,7 @@ const ServiceOrders: React.FC = () => {
     (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
   );
   
-  const { orders, isLoading } = useServiceOrders();
+  const { orders, isLoading } = useServiceOrders(undefined, selectedStore); // Pass selectedStore to hook
 
   const allOrders = orders;
 
@@ -49,11 +49,10 @@ const ServiceOrders: React.FC = () => {
   };
 
   const ordersFilteredByStore = useMemo(() => {
-    if (selectedStore === 'ALL') {
-      return allOrders;
-    }
-    return allOrders.filter(order => order.store === selectedStore);
-  }, [allOrders, selectedStore]);
+    // The useServiceOrders hook already filters by store, so 'allOrders' is already filtered.
+    // This memoization is now just for clarity, 'allOrders' is effectively 'ordersFilteredByStore'
+    return allOrders; 
+  }, [allOrders]);
 
   const statusCounts = useMemo(() => {
     return ordersFilteredByStore.reduce((acc, order) => {
@@ -92,9 +91,9 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  const allOrdersCount = allOrders.length;
-  const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+  const allOrdersCount = orders.length; // 'orders' is already filtered by store if selected
+  const caldasOrdersCount = orders.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = orders.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>

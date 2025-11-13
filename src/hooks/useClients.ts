@@ -117,7 +117,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
+      queryClient.invalidateQueries({ queryKey: ['service_orders'] }); // Invalidate service orders
     },
   });
 
@@ -162,7 +162,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
+      queryClient.invalidateQueries({ queryKey: ['service_orders'] }); // Invalidate service orders
     },
   });
 
@@ -187,7 +187,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       }
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['service_orders'] }); // Invalidate service orders
     },
   });
 

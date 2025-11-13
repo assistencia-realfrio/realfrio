@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { useServiceOrders, ServiceOrder } from "./useServiceOrders";
-import { statusChartColors, ServiceOrderStatus } from "@/lib/serviceOrderStatus";
+import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "./useServiceOrders"; // Import from refactored hook
+import { statusChartColors } from "@/lib/serviceOrderStatus";
 
 interface StatusData {
   name: string;
@@ -17,7 +17,7 @@ interface DashboardMetrics {
 }
 
 export const useDashboardMetrics = (storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): DashboardMetrics => {
-  const { orders, isLoading } = useServiceOrders(undefined, storeFilter); // Passando storeFilter para useServiceOrders
+  const { orders, isLoading } = useServiceOrders(undefined, storeFilter); // Pass storeFilter to useServiceOrders
 
   const metrics = useMemo(() => {
     if (isLoading) {
@@ -47,7 +47,7 @@ export const useDashboardMetrics = (storeFilter: ServiceOrder['store'] | 'ALL' =
       .filter(([, value]) => value > 0)
       .map(([status, value]) => ({
         name: status,
-        value: value,
+        value: value as number, // Cast to number as it's guaranteed by filter
         color: statusChartColors[status as ServiceOrderStatus],
       }));
   }, [metrics.statusCounts]);

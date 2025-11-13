@@ -9,7 +9,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { useClients } from '@/hooks/useClients';
-import { useServiceOrders } from '@/hooks/useServiceOrders';
+import { useServiceOrders } from '@/hooks/useServiceOrders'; // Use refactored hook
 import { useAllEquipments } from '@/hooks/useAllEquipments';
 import { Users, Wrench, HardDrive } from 'lucide-react';
 import { Badge } from '@/components/ui/badge'; // Importar Badge
@@ -23,7 +23,7 @@ interface GlobalSearchProps {
 export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }) => {
   const navigate = useNavigate();
   const { clients, isLoading: isLoadingClients } = useClients();
-  const { orders, isLoading: isLoadingOrders } = useServiceOrders();
+  const { orders, isLoading: isLoadingOrders } = useServiceOrders(); // Use 'orders' and 'isLoading' from refactored hook
   const { equipments, isLoading: isLoadingEquipments } = useAllEquipments();
 
   const runCommand = (command: () => unknown) => {
@@ -59,14 +59,14 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
             {orders.map((order) => (
               <CommandItem
                 key={`order-${order.id}`}
-                value={`OS ${order.display_id} ${order.client} ${order.equipment} ${order.status}`}
+                value={`OS ${order.display_id} ${order.client_name} ${order.equipment_name} ${order.status}`} // Use client_name and equipment_name
                 onSelect={() => runCommand(() => navigate(`/orders/${order.id}`))}
                 className="flex items-center justify-between" // Adicionado para alinhar badge à direita
               >
                 <div className="flex items-center min-w-0 flex-grow"> {/* Adicionado min-w-0 e flex-grow */}
                   <Wrench className="mr-2 h-4 w-4 flex-shrink-0" /> {/* flex-shrink-0 para evitar encolher */}
                   <span className="truncate"> {/* truncate para lidar com textos longos */}
-                    {order.display_id} - {order.client} ({order.equipment})
+                    {order.display_id} - {order.client_name} ({order.equipment_name})
                   </span>
                 </div>
                 <Badge variant={getStatusBadgeVariant(order.status)} className="ml-2 flex-shrink-0"> {/* flex-shrink-0 para evitar encolher */}

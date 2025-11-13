@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders"; // Use refactored hook
 import { format, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const CalendarView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const { orders, isLoading } = useServiceOrders();
+  const { orders, isLoading } = useServiceOrders(); // Use 'orders' and 'isLoading' from refactored hook
 
   const scheduledOrders = useMemo(() => {
     return orders.filter(order => order.scheduled_date);
