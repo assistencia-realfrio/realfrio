@@ -4,83 +4,83 @@
 
 @layer base {
   :root {
-    --background: 0 0% 97%; /* Very Light Grey for app background */
-    --foreground: 0 0% 15%; /* Darker Grey */
+    --background: 210 40% 98%; /* Very light blue-gray for app background */
+    --foreground: 222.2 47.4% 11.2%; /* Deep charcoal for text */
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
+    --card-foreground: 222.2 47.4% 11.2%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
+    --popover-foreground: 222.2 47.4% 11.2%;
 
-    --primary: 352 67% 38%; /* Dark Red from logo */
+    --primary: 352 70% 45%; /* Slightly brighter red from logo */
     --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 0 0% 95%; /* Light Grey */
-    --secondary-foreground: 0 0% 10%; /* Even Darker Grey */
+    --secondary: 210 40% 96.1%; /* Slightly more distinct light gray */
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 0 0% 90%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 0 0% 95%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%; /* Keep original destructive red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 85%;
-    --input: 0 0% 85%;
-    --ring: 352 67% 38%; /* Primary color for focus rings */
+    --border: 217.2 32.6% 88%; /* Subtle light gray border */
+    --input: 217.2 32.6% 88%; /* Subtle light gray input border */
+    --ring: 352 70% 45%; /* Primary color for focus rings */
 
-    --radius: 0.5rem;
+    --radius: 0.75rem; /* Slightly increased border radius */
 
     --sidebar-background: 0 0% 100%; /* White for sidebar background */
-    --sidebar-foreground: 0 0% 15%; /* Darker grey for text */
-    --sidebar-primary: 352 67% 38%; /* Dark Red, for icons/highlights */
+    --sidebar-foreground: 222.2 47.4% 11.2%; /* Darker grey for text */
+    --sidebar-primary: 352 70% 45%; /* Dark Red, for icons/highlights */
     --sidebar-primary-foreground: 0 0% 100%; /* White, for text on primary sidebar elements */
-    --sidebar-accent: 352 67% 90%; /* Light red for active background */
-    --sidebar-accent-foreground: 352 67% 20%; /* Darker red for text on active background */
-    --sidebar-border: 0 0% 85%;
-    --sidebar-ring: 352 67% 38%;
+    --sidebar-accent: 352 70% 90%; /* Light red for active background */
+    --sidebar-accent-foreground: 352 70% 20%; /* Darker red for text on active background */
+    --sidebar-border: 217.2 32.6% 88%;
+    --sidebar-ring: 352 70% 45%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%; /* Existing dark background */
-    --foreground: 0 0% 80%; /* Light Grey */
+    --background: 222.2 84% 8%; /* Slightly softer dark background */
+    --foreground: 210 40% 93.1%; /* Brighter light gray */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 0 0% 80%;
+    --card: 222.2 84% 8%;
+    --card-foreground: 210 40% 93.1%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 0 0% 80%;
+    --popover: 222.2 84% 8%;
+    --popover-foreground: 210 40% 93.1%;
 
-    --primary: 352 67% 60%; /* Lighter Red for dark mode */
-    --primary-foreground: 0 0% 10%; /* Very dark grey */
+    --primary: 352 70% 65%; /* More vibrant red for dark mode */
+    --primary-foreground: 222.2 47.4% 11.2%; /* Very dark grey */
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 0 0% 80%;
+    --secondary: 217.2 32.6% 15%; /* Slightly lighter dark gray */
+    --secondary-foreground: 210 40% 93.1%;
 
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 217.2 32.6% 15%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 0 0% 80%;
+    --accent: 217.2 32.6% 15%;
+    --accent-foreground: 210 40% 93.1%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 352 67% 60%; /* Primary color for focus rings */
+    --border: 217.2 32.6% 20%; /* Subtle dark gray border */
+    --input: 217.2 32.6% 20%; /* Subtle dark gray input border */
+    --ring: 352 70% 65%; /* Primary color for focus rings */
 
-    --sidebar-background: 217.2 32.6% 17.5%;
-    --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 352 67% 60%;
-    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-background: 217.2 32.6% 15%;
+    --sidebar-foreground: 210 40% 93.1%;
+    --sidebar-primary: 352 70% 65%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
     --sidebar-accent: 217.2 32.6% 25%;
-    --sidebar-accent-foreground: 0 0% 80%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 352 67% 60%;
+    --sidebar-accent-foreground: 210 40% 93.1%;
+    --sidebar-border: 217.2 32.6% 20%;
+    --sidebar-ring: 352 70% 65%;
   }
 }
 
