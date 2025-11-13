@@ -4,8 +4,6 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/contexts/SessionContext';
 import { Navigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-// import { Wrench } from 'lucide-react'; // Removido o ícone Wrench
 
 const Login: React.FC = () => {
   const { session, isLoading } = useSession();
@@ -18,40 +16,36 @@ const Login: React.FC = () => {
     );
   }
 
-  // Se o usuário estiver logado, redireciona para a página inicial
   if (session) {
     return <Navigate to="/" replace />;
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-2">
-          {/* Substituído o ícone Wrench pelo logo da empresa */}
-          <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-16 mx-auto mb-2" />
-          <CardTitle className="text-2xl font-bold">Assistência Técnica</CardTitle> {/* Título atualizado */}
-          <p className="text-sm text-muted-foreground">Fazer Login para entrar no Sistema.</p>
-        </CardHeader>
-        <CardContent>
-          <Auth
-            supabaseClient={supabase}
-            providers={[]}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: 'hsl(var(--primary))',
-                    brandAccent: 'hsl(var(--primary-foreground))',
-                  },
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="w-full max-w-sm space-y-8">
+        <div className="text-center">
+          <img src="/logo-REAL-FRIO.png" alt="Real Frio Logo" className="h-16 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold tracking-tight">Assistência Técnica</h1>
+          <p className="text-muted-foreground">Aceda à sua conta para continuar</p>
+        </div>
+        <Auth
+          supabaseClient={supabase}
+          providers={[]}
+          appearance={{
+            theme: ThemeSupa,
+            variables: {
+              default: {
+                colors: {
+                  brand: 'hsl(var(--primary))',
+                  brandAccent: 'hsl(var(--primary-foreground))',
                 },
               },
-            }}
-            theme="light" // Usando tema claro para consistência com o design atual
-            redirectTo={window.location.origin}
-          />
-        </CardContent>
-      </Card>
+            },
+          }}
+          theme="light"
+          redirectTo={window.location.origin}
+        />
+      </div>
     </div>
   );
 };

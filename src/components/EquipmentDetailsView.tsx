@@ -12,7 +12,7 @@ const EquipmentDetailsView: React.FC<EquipmentDetailsViewProps> = ({ equipment }
 
   return (
     <Card>
-      <CardContent className="space-y-4 text-sm pt-6">
+      <CardContent className="space-y-4 text-sm p-6">
         <div>
           <p className="text-muted-foreground">Nome</p>
           <p className="font-medium">{equipment.name}</p>

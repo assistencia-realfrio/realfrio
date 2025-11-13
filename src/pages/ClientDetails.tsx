@@ -96,8 +96,8 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     };
 
     return (
-        <Card> {/* Adicionado Card aqui */}
-            <CardContent className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
+        <Card>
+            <CardContent className="space-y-4 text-sm p-6">
                 <div>
                   <p className="text-muted-foreground">Nome</p>
                   <p className="font-medium">{client.name}</p>
