@@ -272,7 +272,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-white">
                           <DropdownMenuLabel>Ações da Nota</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => handleEditClick(note)}>

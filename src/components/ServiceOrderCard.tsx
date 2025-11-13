@@ -95,7 +95,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                                     <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()} className="bg-white dark:bg-white">
                                 <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {serviceOrderStatuses.map((status) => (
