@@ -115,16 +115,13 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 
                 <div className="flex flex-col space-y-3">
                     <div>
-                        <p className="text-xs text-muted-foreground">Cliente</p>
                         <p className="font-semibold text-base truncate">{order.client}</p>
                     </div>
                     <div>
-                        <p className="text-xs text-muted-foreground">Equipamento</p>
                         <p className="text-base truncate">{order.equipment}</p>
                     </div>
-                    <div> {/* Novo div para a descrição */}
-                        <p className="text-xs text-muted-foreground">Descrição</p>
-                        <p className="text-sm line-clamp-2">{order.description}</p> {/* Adicionado line-clamp-2 */}
+                    <div>
+                        <p className="text-sm line-clamp-2">{order.description}</p>
                     </div>
                 </div>
 
