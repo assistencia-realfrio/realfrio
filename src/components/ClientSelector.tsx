@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { UserPlus, Check } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ClientForm, { ClientFormValues } from "./ClientForm";
 import { showSuccess, showError } from "@/utils/toast";
-import { useClients, Client } from "@/hooks/useClients"; 
+import { useClients, Client } from "@/hooks/useClients"; // Usando useClients (o hook unificado)
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
@@ -14,8 +20,9 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import ClientForm, { ClientFormValues } from "./ClientForm"; 
 
 interface ClientSelectorProps {
   value: string; // Deve ser o ID do cliente
@@ -26,8 +33,7 @@ interface ClientSelectorProps {
 const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // NOVO: Estado para o termo de busca
-  const { clients, isLoading: isLoadingClients, createClient } = useClients(); 
+  const { clients, isLoading: isLoadingClients, createClient } = useClients(); // Usando useClients
 
   // Mapeia o ID para o nome para exibir no SelectValue
   const selectedClient = clients.find(c => c.id === value);
@@ -40,7 +46,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
         onChange(newClient.id);
         
         setIsModalOpen(false);
-        setSearchTerm(""); // Limpa o termo de busca após a criação
         showSuccess(`Novo cliente '${data.name}' criado com sucesso!`);
     } catch (error) {
         console.error("Erro ao criar cliente:", error);
@@ -49,34 +54,17 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
   };
 
   const handleSelectChange = (selectedValue: string) => {
-    if (selectedValue === "CREATE_NEW_CLIENT_DYNAMIC") { 
+    if (selectedValue === "NEW_CLIENT") {
       setIsModalOpen(true);
     } else {
-      const selectedClient = clients.find(c => c.id === selectedValue);
-      if (selectedClient) {
-        onChange(selectedClient.id);
-        setIsPopoverOpen(false); // Fecha o popover após a seleção
-        setSearchTerm(""); // Limpa o termo de busca
-      }
+      onChange(selectedValue);
+      setIsPopoverOpen(false); // Fecha o popover após a seleção
     }
   };
 
   if (isLoadingClients) {
     return <Skeleton className="h-10 w-full" />;
   }
-
-  const displayValue = selectedClientName || "Selecione ou adicione um cliente";
-
-  // Prepara os dados iniciais para o formulário de criação, se houver um termo de busca
-  const initialClientData: ClientFormValues | undefined = searchTerm.trim() ? {
-    name: searchTerm.trim(),
-    contact: "",
-    email: "",
-    store: "CALDAS DA RAINHA",
-    maps_link: "",
-    locality: "",
-    google_drive_link: "",
-  } : undefined;
 
   return (
     <>
@@ -87,36 +75,17 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
             role="combobox"
             aria-expanded={isPopoverOpen}
             className="w-full justify-between"
-            disabled={disabled} 
+            disabled={disabled} // Aplica a prop disabled aqui
           >
-            {displayValue}
+            {selectedClientName || "Selecione ou adicione um cliente"}
             <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command>
-            <CommandInput 
-              placeholder="Buscar cliente..." 
-              value={searchTerm}
-              onValueChange={setSearchTerm}
-            />
+            <CommandInput placeholder="Buscar cliente..." />
             <CommandList>
-              <CommandEmpty>
-                {searchTerm.trim() ? (
-                  <CommandItem
-                    key="CREATE_NEW_CLIENT_DYNAMIC"
-                    // Usamos um valor que não será filtrado pelo Command, mas que podemos usar para seleção
-                    value={`Criar Novo Cliente: ${searchTerm}`} 
-                    onSelect={() => handleSelectChange("CREATE_NEW_CLIENT_DYNAMIC")}
-                    className="text-primary font-medium cursor-pointer justify-center text-center py-3"
-                  >
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Criar Cliente: <span className="font-bold ml-1 truncate">{searchTerm}</span>
-                  </CommandItem>
-                ) : (
-                  <span>Nenhum cliente encontrado.</span> // ENVOLVIDO EM SPAN
-                )}
-              </CommandEmpty>
+              <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
               <CommandGroup>
                 {clients.map((client) => (
                   <CommandItem
@@ -134,6 +103,17 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
                   </CommandItem>
                 ))}
               </CommandGroup>
+              <CommandGroup>
+                <CommandItem
+                  key="NEW_CLIENT"
+                  value="Adicionar Novo Cliente"
+                  onSelect={() => handleSelectChange("NEW_CLIENT")}
+                  className="text-primary font-medium cursor-pointer"
+                >
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Adicionar Novo Cliente
+                </CommandItem>
+              </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
@@ -148,7 +128,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
           <ClientForm 
             onSubmit={handleNewClientSubmit} 
             onCancel={() => setIsModalOpen(false)}
-            initialData={initialClientData} // Passa o nome pesquisado
           />
         </DialogContent>
       </Dialog>
