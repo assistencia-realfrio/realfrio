@@ -262,7 +262,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       />
                     </div>
                     {/* Ajuste de layout para garantir que os botões não causem overflow */}
-                    <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end flex-shrink-0">
+                    <div className="flex flex-wrap gap-1 w-full sm:w-auto justify-start sm:justify-end flex-shrink-0"> {/* Reduzido gap-2 para gap-1 */}
                       <Button 
                         type="button" 
                         variant="outline" 
@@ -270,7 +270,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         onClick={handleViewClientDetails}
                         disabled={!field.value}
                         aria-label="Ver detalhes do cliente"
-                        className="flex-grow sm:flex-grow-0"
+                        className="flex-grow sm:flex-grow-0 h-9 w-9" // Ajustado tamanho do botão
                       >
                         <User className="h-4 w-4" />
                       </Button>
@@ -282,7 +282,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         aria-label="Ver no mapa"
                         disabled={!hasMapLink}
                         onClick={handleMapClick}
-                        className="flex-grow sm:flex-grow-0"
+                        className="flex-grow sm:flex-grow-0 h-9 w-9" // Ajustado tamanho do botão
                       >
                         <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
                       </Button>
@@ -294,7 +294,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         aria-label="Ligar para o cliente"
                         disabled={!hasContact}
                         onClick={handlePhoneClick}
-                        className="flex-grow sm:flex-grow-0"
+                        className="flex-grow sm:flex-grow-0 h-9 w-9" // Ajustado tamanho do botão
                       >
                         <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
                       </Button>

@@ -158,8 +158,7 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <Card className="shadow-none border-none">
-            {/* Removido CardHeader e CardTitle para novas OS */}
+          <Card> {/* Removido shadow-none border-none para bordas uniformes */}
             {!isNew && (
               <CardHeader>
                 <CardTitle>Editar Ordem de Serviço</CardTitle>
