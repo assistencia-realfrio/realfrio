@@ -44,9 +44,8 @@ const generateDisplayId = (store: ServiceOrder['store']): string => {
 };
 
 const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
-  if (!userId) {
-    return [];
-  }
+  // No longer checking for userId here, as RLS handles authentication.
+  // If userId is truly needed for some other logic, it should be handled differently.
   
   let query = supabase
     .from('service_orders')

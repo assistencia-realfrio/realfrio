@@ -22,7 +22,8 @@ export interface Client {
 
 // Função de fetch para buscar TODOS os clientes (para a lista)
 const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
-  if (!userId) return [];
+  // No longer checking for userId here, as RLS handles authentication.
+  // If userId is truly needed for some other logic, it should be handled differently.
   
   const { data, error } = await supabase
     .from('clients')

@@ -8,12 +8,13 @@ export interface EquipmentWithClient extends Equipment {
 }
 
 const fetchAllEquipments = async (userId: string | undefined): Promise<EquipmentWithClient[]> => {
-  if (!userId) return [];
+  // No longer checking for userId here, as RLS handles authentication.
+  // If userId is truly needed for some other logic, it should be handled differently.
   
   const { data, error } = await supabase
     .from('equipments')
     .select('*, clients (name)')
-    .eq('created_by', userId)
+    // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -30,7 +31,7 @@ export const useAllEquipments = (searchTerm: string = "") => {
     const { data: equipments = [], isLoading } = useQuery<EquipmentWithClient[], Error>({
         queryKey: ['allEquipments', user?.id],
         queryFn: () => fetchAllEquipments(user?.id),
-        enabled: !!user?.id,
+        enabled: !!user?.id, // Still enable only if user is logged in
     });
 
     const filteredEquipments = equipments.filter(equipment => {

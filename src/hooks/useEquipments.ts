@@ -25,7 +25,8 @@ export interface EquipmentFormValues {
 
 // Função de fetch para buscar equipamentos por cliente
 const fetchEquipmentsByClient = async (userId: string | undefined, clientId: string): Promise<Equipment[]> => {
-  if (!userId) return [];
+  // No longer checking for userId here, as RLS handles authentication.
+  // If userId is truly needed for some other logic, it should be handled differently.
   
   const { data, error } = await supabase
     .from('equipments')
@@ -41,7 +42,8 @@ const fetchEquipmentsByClient = async (userId: string | undefined, clientId: str
 
 // Função para buscar um único equipamento por ID
 const fetchEquipmentById = async (userId: string | undefined, equipmentId: string): Promise<Equipment | null> => {
-  if (!userId) return null;
+  // No longer checking for userId here, as RLS handles authentication.
+  // If userId is truly needed for some other logic, it should be handled differently.
 
   const { data, error } = await supabase
     .from('equipments')
@@ -108,6 +110,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       });
       queryClient.invalidateQueries({ queryKey: ['equipments', newEquipment.client_id] });
       queryClient.invalidateQueries({ queryKey: ['equipment', newEquipment.id] });
+      queryClient.invalidateQueries({ queryKey: ['allEquipments'] }); // Invalidate allEquipments to reflect new entry
     },
   });
 
@@ -156,6 +159,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       queryClient.invalidateQueries({ queryKey: ['equipments', updatedEquipment.client_id] });
       queryClient.invalidateQueries({ queryKey: ['equipment', updatedEquipment.id] });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['allEquipments'] }); // Invalidate allEquipments to reflect changes
     },
   });
 
@@ -182,6 +186,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       }
       queryClient.invalidateQueries({ queryKey: ['equipments', clientId] });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['allEquipments'] }); // Invalidate allEquipments to reflect deletion
     },
   });
 
