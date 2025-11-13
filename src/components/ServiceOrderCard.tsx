@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText } from "lucide-react"; // Importados os novos ícones
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -113,18 +113,18 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                 </div>
                 
-                <div className="flex flex-col space-y-3">
+                <div className="flex flex-col space-y-2 flex-grow">
                     <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone para Cliente */}
+                        <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <p className="font-semibold text-base truncate">{order.client}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone para Equipamento */}
+                        <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <p className="text-base truncate">{order.equipment}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone para Descrição */}
-                        <p className="text-sm line-clamp-2">{order.description}</p>
+                    <div className="flex items-start gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-muted-foreground line-clamp-2">{order.description}</p>
                     </div>
                 </div>
 
