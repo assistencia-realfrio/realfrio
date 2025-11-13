@@ -27,7 +27,7 @@ const ServiceOrders: React.FC = () => {
     (searchParams.get('store') as StoreFilter) || 'ALL'
   );
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-    (searchParams.get('status') as StatusFilter) || 'POR INICIAR' // Definido como 'POR INICIAR' por padrão
+    (searchParams.get('status') as StatusFilter) || 'ALL' // ALTERADO: Definido como 'ALL' por padrão
   );
   
   // NOVO: Passar selectedStatus diretamente para useServiceOrders
@@ -41,15 +41,19 @@ const ServiceOrders: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    // Apenas define o status na URL se não for 'ALL' ou se for diferente do padrão 'POR INICIAR'
-    if (selectedStatus && selectedStatus !== 'ALL' && selectedStatus !== 'POR INICIAR') params.set('status', selectedStatus);
-    // Se o status for 'POR INICIAR', mas não for o padrão inicial da URL, remove o parâmetro
-    if (selectedStatus === 'POR INICIAR' && searchParams.get('status') !== null && searchParams.get('status') !== 'POR INICIAR') {
-      params.delete('status');
+    
+    // Apenas define o status na URL se não for 'ALL'
+    if (selectedStatus && selectedStatus !== 'ALL') {
+      params.set('status', selectedStatus);
     }
-    if (selectedStore && selectedStore !== 'ALL') params.set('store', selectedStore);
+    
+    // Apenas define a loja na URL se não for 'ALL'
+    if (selectedStore && selectedStore !== 'ALL') {
+      params.set('store', selectedStore);
+    }
+    
     setSearchParams(params, { replace: true });
-  }, [selectedStatus, selectedStore, setSearchParams, searchParams]);
+  }, [selectedStatus, selectedStore, setSearchParams]);
 
   const handleNewOrder = () => {
     navigate("/orders/new");
