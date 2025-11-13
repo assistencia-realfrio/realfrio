@@ -64,6 +64,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     
     const statusBgColor = statusChartColors[order.status];
     const storeHeaderColor = getStoreSidebarColor(order.store);
+    const transparentStoreHeaderColor = hexToRgba(storeHeaderColor, 0.5); // Aplicar 50% de transparência
 
     return (
         <div 
@@ -74,7 +75,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         >
             <div 
                 className="flex items-center justify-between p-3 rounded-t-lg" 
-                style={{ background: `linear-gradient(to right, ${storeHeaderColor}, transparent)` }}
+                style={{ background: `linear-gradient(to right, ${transparentStoreHeaderColor}, transparent)` }}
             >
                 <div className="font-semibold text-sm text-white truncate pr-2">
                     {order.display_id}
