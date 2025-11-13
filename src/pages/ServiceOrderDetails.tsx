@@ -3,7 +3,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
-import { ArrowLeft, Trash2, Edit } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Trash2 } from "lucide-react"; // FileText removido
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,8 +23,7 @@ import {
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
-import ServiceOrderNotes from "@/components/ServiceOrderNotes";
-import ServiceOrderDetailsView from "@/components/ServiceOrderDetailsView";
+import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,8 +35,7 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details");
-  const [isEditing, setIsEditing] = useState(isNew);
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
 
   const currentOrderId = newOrderId || id;
 
@@ -47,7 +46,7 @@ const ServiceOrderDetails: React.FC = () => {
     description: order.description,
     status: order.status,
     store: order.store,
-    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // CORREÇÃO: Converter string para Date
   } : undefined;
 
   const handleGoBack = () => {
@@ -62,8 +61,9 @@ const ServiceOrderDetails: React.FC = () => {
     if (isNew && data.id) {
         setNewOrderId(data.id);
         navigate(`/orders/${data.id}`, { replace: true });
+    } else {
+        handleGoBack(); 
     }
-    setIsEditing(false);
   };
   
   const handleDelete = async () => {
@@ -125,12 +125,7 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {!isNew && !isEditing && selectedView === 'details' && (
-                  <Button variant="outline" onClick={() => setIsEditing(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                  </Button>
-                )}
+                {/* Botão de Relatório Removido */}
                 {!isNew && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -163,15 +158,18 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          isEditing ? (
-            <ServiceOrderForm 
-              initialData={initialData} 
-              onSubmit={handleSubmit} 
-              onCancel={isNew ? handleGoBack : () => setIsEditing(false)}
-            />
-          ) : (
-            order && <ServiceOrderDetailsView order={order} />
-          )
+          <Card className="shadow-none border-none">
+            <CardHeader>
+              <CardTitle>{isNew ? "" : "Editar Ordem de Serviço"}</CardTitle> {/* Alterado aqui */}
+            </CardHeader>
+            <CardContent>
+              <ServiceOrderForm 
+                initialData={initialData} 
+                onSubmit={handleSubmit} 
+                onCancel={isNew ? handleGoBack : undefined}
+              />
+            </CardContent>
+          </Card>
         )}
 
         {selectedView === "attachments" && (
@@ -198,7 +196,7 @@ const ServiceOrderDetails: React.FC = () => {
           )
         )}
 
-        {selectedView === "notes" && (
+        {selectedView === "notes" && ( // Nova aba para Notas
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver as notas.</p>
           ) : (

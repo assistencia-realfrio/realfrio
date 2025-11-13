@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ServiceOrder, useServiceOrders, serviceOrderStatuses, ServiceOrderStatus } from "@/hooks/useServiceOrders";
-import { statusChartColors } from "@/lib/serviceOrderStatus";
+import { statusChartColors } from "@/lib/serviceOrderStatus"; // Importando statusChartColors
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +13,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon } from "lucide-react"; // Importar CalendarIcon
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { format } from "date-fns"; // Importar format
+import { ptBR } from "date-fns/locale"; // Importar locale ptBR
 
 interface ServiceOrderCardProps {
     order: ServiceOrder;
 }
+
+const getStoreBackgroundColorClass = (store: ServiceOrder['store'] | null) => {
+  switch (store) {
+    case "CALDAS DA RAINHA":
+      return "bg-blue-50"; // Azul muito claro
+    case "PORTO DE MÓS":
+      return "bg-red-50"; // Vermelho muito claro
+    default:
+      return "bg-gray-50"; // Cinza muito claro como padrão
+  }
+};
 
 const getStoreSidebarColor = (store: ServiceOrder['store'] | null): string => {
   switch (store) {
@@ -50,7 +61,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 model: order.model || undefined,
                 serial_number: order.serial_number || undefined,
                 equipment_id: order.equipment_id || undefined,
-                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // Manter a data de agendamento
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -61,28 +72,37 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         }
     };
     
+    const storeTextColorClass = order.store === 'CALDAS DA RAINHA' 
+        ? 'text-blue-700 dark:text-blue-300' 
+        : 'text-red-700 dark:text-red-300';
+
     const statusBgColor = statusChartColors[order.status];
     const storeSidebarColor = getStoreSidebarColor(order.store);
 
     return (
         <div 
-            onClick={handleNavigate}
             className={cn(
-                "hover:shadow-md transition-shadow flex relative rounded-lg border bg-card cursor-pointer"
+                "hover:shadow-lg transition-shadow flex relative rounded-lg border", // Mantido 'border'
+                getStoreBackgroundColorClass(order.store), // Aplica a cor base da loja
+                "bg-opacity-75" // Aumentado para 75% de opacidade
             )} 
         >
-            <div className="w-1.5 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
+            {/* Barra esquerda para a loja */}
+            <div className="w-2 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
 
-            <div className="flex flex-col flex-grow p-4">
-                <div className="flex items-start justify-between mb-3">
-                    <div className="font-semibold text-sm text-primary truncate pr-2">
+            <div className="flex flex-col flex-grow p-2 rounded-r-md"> {/* Reduzido p-3 para p-2 */}
+                <div className="flex flex-row items-start justify-between space-y-0 pb-0.5"> {/* Reduzido pb-1 para pb-0.5 */}
+                    <div 
+                        className={cn("text-xs font-medium truncate cursor-pointer", storeTextColorClass)} // Aplicando a cor da loja ao texto do ID da OS
+                        onClick={handleNavigate}
+                    >
                         {order.display_id}
                     </div>
-                    <div className="flex items-center gap-2 -mt-1 -mr-1">
+                    <div className="flex items-center gap-1">
                         <Badge  
                             variant="outline" 
-                            className="whitespace-nowrap text-xs"
-                            style={{ borderColor: statusBgColor, color: statusBgColor }}
+                            className={cn("whitespace-nowrap text-xs px-2 py-0.5 bg-background/50 font-bold text-foreground")} // Removido border-border
+                            style={{ borderColor: statusBgColor }} // Aplicando a cor do status ao contorno
                         >
                             {order.status}
                         </Badge>
@@ -113,24 +133,34 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </DropdownMenu>
                     </div>
                 </div>
-                
-                <div className="flex flex-col space-y-3">
-                    <div>
-                        <p className="text-xs text-muted-foreground">Cliente</p>
-                        <p className="font-semibold text-base truncate">{order.client}</p>
+                <div onClick={handleNavigate} className="cursor-pointer pt-1 flex flex-col flex-grow space-y-1"> {/* Reduzido pt-2 para pt-1 e space-y-1.5 para space-y-1 */}
+                    <div className="flex items-center gap-1"> {/* Reduzido gap-2 para gap-1 */}
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
+                        <div className={cn("text-base font-bold truncate text-foreground")}> {/* Reduzido text-lg para text-base */}
+                            {order.client}
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-xs text-muted-foreground">Equipamento</p>
-                        <p className="text-base truncate">{order.equipment}</p>
-                    </div>
-                </div>
 
-                {order.scheduled_date && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <CalendarIcon className="h-4 w-4" />
-                        <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                    <div className="flex items-center gap-1"> {/* Reduzido gap-2 para gap-1 */}
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 bg-foreground")} />
+                        <p className={cn("text-sm truncate text-foreground")}> {/* Reduzido text-base para text-sm */}
+                            {order.equipment}
+                        </p>
                     </div>
-                )}
+                    
+                    <div className="flex items-start gap-1"> {/* Reduzido gap-2 para gap-1 */}
+                        <div className={cn("h-1 w-1 rounded-full flex-shrink-0 mt-1 bg-foreground")} /> {/* Reduzido mt-2 para mt-1 */}
+                        <p className={cn("text-xs line-clamp-2 flex-grow text-muted-foreground")}> {/* Reduzido text-sm para text-xs e line-clamp-3 para line-clamp-2 */}
+                            {order.description}
+                        </p>
+                    </div>
+                    {order.scheduled_date && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0"> {/* Reduzido gap-2 para gap-1 e mt-1 para mt-0 */}
+                            <CalendarIcon className="h-3 w-3 flex-shrink-0" />
+                            <span>Agendado para: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
