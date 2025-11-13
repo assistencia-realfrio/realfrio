@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText } from "lucide-react"; // Importados os novos ícones
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -115,15 +115,15 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 
                 <div className="flex flex-col space-y-3">
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 bg-red-500 rounded-full flex-shrink-0" />
+                        <User className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone para Cliente */}
                         <p className="font-semibold text-base truncate">{order.client}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 bg-red-500 rounded-full flex-shrink-0" />
+                        <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone para Equipamento */}
                         <p className="text-base truncate">{order.equipment}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 bg-red-500 rounded-full flex-shrink-0" />
+                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone para Descrição */}
                         <p className="text-sm line-clamp-2">{order.description}</p>
                     </div>
                 </div>
