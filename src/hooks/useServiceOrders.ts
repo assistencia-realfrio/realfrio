@@ -43,7 +43,7 @@ const generateDisplayId = (store: ServiceOrder['store']): string => {
     return `${prefix}-${dateTimePart}`;
 };
 
-const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
+const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL', statusFilter: ServiceOrderStatus | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
   // No longer checking for userId here, as RLS handles authentication.
   // If userId is truly needed for some other logic, it should be handled differently.
   
@@ -69,6 +69,10 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
 
   if (storeFilter !== 'ALL') {
     query = query.eq('store', storeFilter);
+  }
+
+  if (statusFilter !== 'ALL') { // NOVO: Aplicar filtro de status
+    query = query.eq('status', statusFilter);
   }
 
   const { data, error } = await query;
@@ -118,15 +122,15 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
   return mappedData;
 };
 
-export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL') => {
+export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL', statusFilter: ServiceOrderStatus | 'ALL' = 'ALL') => { // NOVO: statusFilter adicionado
   const { user, session } = useSession();
   const queryClient = useQueryClient();
 
-  const queryKey = id ? ['serviceOrders', id, storeFilter] : ['serviceOrders', storeFilter];
+  const queryKey = id ? ['serviceOrders', id, storeFilter, statusFilter] : ['serviceOrders', storeFilter, statusFilter]; // NOVO: statusFilter no queryKey
 
   const { data: orders, isLoading } = useQuery<ServiceOrder[], Error>({
     queryKey: queryKey,
-    queryFn: () => fetchServiceOrders(user?.id, storeFilter),
+    queryFn: () => fetchServiceOrders(user?.id, storeFilter, statusFilter), // NOVO: statusFilter passado para fetchServiceOrders
     enabled: !!user?.id,
     select: (data) => {
       if (id) {

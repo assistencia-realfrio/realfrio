@@ -27,10 +27,11 @@ const ServiceOrders: React.FC = () => {
     (searchParams.get('store') as StoreFilter) || 'ALL'
   );
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-    (searchParams.get('status') as StatusFilter) || 'POR INICIAR'
+    (searchParams.get('status') as StatusFilter) || 'POR INICIAR' // Definido como 'POR INICIAR' por padrão
   );
   
-  const { orders, isLoading } = useServiceOrders();
+  // NOVO: Passar selectedStatus diretamente para useServiceOrders
+  const { orders, isLoading } = useServiceOrders(undefined, selectedStore, selectedStatus);
 
   const allOrders = orders;
 
@@ -40,35 +41,32 @@ const ServiceOrders: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (selectedStatus && selectedStatus !== 'ALL') params.set('status', selectedStatus);
+    // Apenas define o status na URL se não for 'ALL' ou se for diferente do padrão 'POR INICIAR'
+    if (selectedStatus && selectedStatus !== 'ALL' && selectedStatus !== 'POR INICIAR') params.set('status', selectedStatus);
+    // Se o status for 'POR INICIAR', mas não for o padrão inicial da URL, remove o parâmetro
+    if (selectedStatus === 'POR INICIAR' && searchParams.get('status') !== null && searchParams.get('status') !== 'POR INICIAR') {
+      params.delete('status');
+    }
     if (selectedStore && selectedStore !== 'ALL') params.set('store', selectedStore);
     setSearchParams(params, { replace: true });
-  }, [selectedStatus, selectedStore, setSearchParams]);
+  }, [selectedStatus, selectedStore, setSearchParams, searchParams]);
 
   const handleNewOrder = () => {
     navigate("/orders/new");
   };
 
-  const ordersFilteredByStore = useMemo(() => {
-    if (selectedStore === 'ALL') {
-      return allOrders;
-    }
-    return allOrders.filter(order => order.store === selectedStore);
-  }, [allOrders, selectedStore]);
+  // A filtragem por loja agora é feita no hook useServiceOrders, então 'ordersFilteredByStore' não é mais necessário aqui.
+  // 'allOrders' já contém os pedidos filtrados por loja e status.
 
   const statusCounts = useMemo(() => {
-    return ordersFilteredByStore.reduce((acc, order) => {
+    return allOrders.reduce((acc, order) => { // Usar allOrders (já filtrado)
       acc[order.status] = (acc[order.status] || 0) + 1;
       return acc;
     }, {} as Record<ServiceOrderStatus, number>);
-  }, [ordersFilteredByStore]);
+  }, [allOrders]);
 
-  const filteredOrders = useMemo(() => {
-    if (selectedStatus === 'ALL') {
-      return ordersFilteredByStore;
-    }
-    return ordersFilteredByStore.filter(order => order.status === selectedStatus);
-  }, [ordersFilteredByStore, selectedStatus]);
+  // 'filteredOrders' agora é simplesmente 'allOrders' porque a filtragem já ocorreu no hook
+  const filteredOrders = allOrders;
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
     if (isLoading) {
@@ -93,9 +91,20 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  const allOrdersCount = allOrders.length;
-  const caldasOrdersCount = allOrders.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = allOrders.filter(o => o.store === 'PORTO DE MÓS').length;
+  // Para as contagens nos seletores, precisamos das ordens *sem* o filtro de status, mas *com* o filtro de loja.
+  // Para isso, vamos buscar as ordens novamente, mas apenas para as contagens.
+  // Isso pode ser otimizado se o useServiceOrders retornar também as contagens totais por status/loja.
+  // Por enquanto, para evitar uma nova chamada de API, vamos usar o `orders` que já vem filtrado por loja e status.
+  // Se o `selectedStatus` for 'ALL', `allOrders` já terá todas as ordens da loja selecionada.
+  // Se não for 'ALL', `allOrders` terá apenas as ordens da loja e status selecionados.
+  // Para as contagens de "TODOS", vamos precisar de um `useServiceOrders` separado sem filtro de status.
+  // Para simplificar, vou ajustar as contagens para refletir o que está sendo exibido.
+
+  const { orders: allOrdersWithoutStatusFilter } = useServiceOrders(undefined, selectedStore, 'ALL'); // Nova chamada para contagens
+
+  const allOrdersCount = allOrdersWithoutStatusFilter.length;
+  const caldasOrdersCount = allOrdersWithoutStatusFilter.filter(o => o.store === 'CALDAS DA RAINHA').length;
+  const portoOrdersCount = allOrdersWithoutStatusFilter.filter(o => o.store === 'PORTO DE MÓS').length;
 
   return (
     <Layout>
@@ -112,13 +121,13 @@ const ServiceOrders: React.FC = () => {
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
                 value={selectedStore}
               >
-                <SelectTrigger className="bg-white"> {/* Adicionado bg-white aqui */}
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="LOJA" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">TODAS AS LOJAS ({allOrdersCount})</SelectItem>
-                  <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA ({caldasOrdersCount})</SelectItem>
-                  <SelectItem value="PORTO DE MÓS">PORTO DE MÓS ({portoOrdersCount})</SelectItem>
+                  <SelectItem value="ALL">TODAS AS LOJAS ({allOrdersWithoutStatusFilter.length})</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA ({allOrdersWithoutStatusFilter.filter(o => o.store === 'CALDAS DA RAINHA').length})</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">PORTO DE MÓS ({allOrdersWithoutStatusFilter.filter(o => o.store === 'PORTO DE MÓS').length})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -128,14 +137,14 @@ const ServiceOrders: React.FC = () => {
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
                 value={selectedStatus}
               >
-                <SelectTrigger className="bg-white"> {/* Adicionado bg-white aqui */}
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="ESTADOS" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">TODOS ({ordersFilteredByStore.length})</SelectItem>
+                  <SelectItem value="ALL">TODOS ({allOrdersWithoutStatusFilter.filter(o => selectedStore === 'ALL' || o.store === selectedStore).length})</SelectItem>
                   {availableStatuses.map(status => (
                     <SelectItem key={status} value={status}>
-                      {status.toUpperCase()} ({statusCounts[status] || 0})
+                      {status.toUpperCase()} ({allOrdersWithoutStatusFilter.filter(o => (selectedStore === 'ALL' || o.store === selectedStore) && o.status === status).length})
                     </SelectItem>
                   ))}
                 </SelectContent>
