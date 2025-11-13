@@ -17,7 +17,7 @@ import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileT
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { hexToRgba } from "@/lib/utils"; // Importar a nova função
+import { hexToRgba } from "@/lib/utils";
 
 interface ServiceOrderCardProps {
     order: ServiceOrder;
@@ -74,7 +74,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         >
             <div 
                 className="flex items-center justify-between p-3 rounded-t-lg" 
-                style={{ background: `linear-gradient(to right, ${storeHeaderColor}, white)` }}
+                style={{ background: `linear-gradient(to right, ${storeHeaderColor}, transparent)` }} {/* Alterado 'white' para 'transparent' aqui */}
             >
                 <div className="font-semibold text-sm text-white truncate pr-2">
                     {order.display_id}
