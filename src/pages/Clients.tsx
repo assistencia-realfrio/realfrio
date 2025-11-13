@@ -49,7 +49,7 @@ const Clients: React.FC = () => {
                 Novo Cliente
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto"> {/* Adicionado max-h-[90vh] e overflow-y-auto */}
               <DialogHeader>
                 <DialogTitle>Criar Novo Cliente</DialogTitle>
               </DialogHeader>
