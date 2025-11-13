@@ -62,57 +62,59 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     };
     
     const statusBgColor = statusChartColors[order.status];
-    const storeSidebarColor = getStoreSidebarColor(order.store);
+    const storeHeaderColor = getStoreSidebarColor(order.store); // Renomeado para refletir o novo uso
 
     return (
         <div 
             onClick={handleNavigate}
             className={cn(
-                "hover:shadow-md transition-shadow flex relative rounded-lg border bg-card cursor-pointer"
+                "hover:shadow-md transition-shadow flex flex-col relative rounded-lg border bg-card cursor-pointer" // Adicionado flex-col
             )} 
         >
-            <div className="w-1.5 rounded-l-md" style={{ backgroundColor: storeSidebarColor }} />
-
-            <div className="flex flex-col flex-grow p-4">
-                <div className="flex items-start justify-between mb-3">
-                    <div className="font-semibold text-sm text-primary truncate pr-2">
-                        {order.display_id}
-                    </div>
-                    <div className="flex items-center gap-2 -mt-1 -mr-1">
-                        <Badge  
-                            className="whitespace-nowrap text-xs border-transparent text-white"
-                            style={{ backgroundColor: statusBgColor }}
-                        >
-                            {order.status}
-                        </Badge>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {serviceOrderStatuses.map((status) => (
-                                    <DropdownMenuItem 
-                                        key={status} 
-                                        onClick={() => handleStatusChange(status)}
-                                        disabled={updateOrder.isPending}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
-                                        {status}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+            {/* Nova barra de cor no topo */}
+            <div 
+                className="flex items-center justify-between p-3 rounded-t-lg" 
+                style={{ backgroundColor: storeHeaderColor }}
+            >
+                <div className="font-semibold text-sm text-white truncate pr-2"> {/* Texto branco para contraste */}
+                    {order.display_id}
                 </div>
-                
+                <div className="flex items-center gap-2">
+                    <Badge  
+                        className="whitespace-nowrap text-xs border-transparent text-white"
+                        style={{ backgroundColor: statusBgColor }}
+                    >
+                        {order.status}
+                    </Badge>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 text-white hover:bg-white/20" // Botão branco para contraste
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                            <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {serviceOrderStatuses.map((status) => (
+                                <DropdownMenuItem 
+                                    key={status} 
+                                    onClick={() => handleStatusChange(status)}
+                                    disabled={updateOrder.isPending}
+                                >
+                                    <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
+                                    {status}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
+
+            <div className="flex flex-col flex-grow p-4"> {/* Conteúdo principal abaixo da nova barra */}
                 <div className="flex flex-col space-y-2 flex-grow">
                     <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
