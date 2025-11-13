@@ -74,7 +74,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             )} 
         >
             <div 
-                className="flex items-center justify-between p-3 rounded-t-lg" 
+                className="flex items-center justify-between px-3 py-1.5 rounded-t-lg" 
                 style={{ background: `linear-gradient(to right, ${transparentStoreHeaderColor}, transparent)` }}
             >
                 <div className="font-semibold text-sm text-white truncate pr-2">
