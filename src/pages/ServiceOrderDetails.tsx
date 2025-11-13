@@ -159,9 +159,12 @@ const ServiceOrderDetails: React.FC = () => {
           
         {selectedView === "details" && (
           <Card className="shadow-none border-none">
-            <CardHeader>
-              <CardTitle>{isNew ? "Preencha os detalhes da nova OS" : "Editar Ordem de Serviço"}</CardTitle>
-            </CardHeader>
+            {/* Removido CardHeader e CardTitle para novas OS */}
+            {!isNew && (
+              <CardHeader>
+                <CardTitle>Editar Ordem de Serviço</CardTitle>
+              </CardHeader>
+            )}
             <CardContent>
               <ServiceOrderForm 
                 initialData={initialData} 
