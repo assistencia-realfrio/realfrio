@@ -11,7 +11,6 @@ interface FloatingActionButtonProps {
 }
 
 const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onClick, label, icon: Icon, className }) => {
-  const CurrentIcon = Icon || PlusCircle;
   return (
     <Button
       onClick={onClick}
@@ -22,8 +21,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onClick, la
       )}
       aria-label={label}
     >
-      {/* Reduzido o tamanho do ícone de h-6 w-6 para h-5 w-5 */}
-      <CurrentIcon className="h-5 w-5" /> 
+      {Icon ? <Icon className="h-6 w-6" /> : <PlusCircle className="h-6 w-6" />}
       <span className="sr-only">{label}</span> {/* Apenas para acessibilidade */}
     </Button>
   );
