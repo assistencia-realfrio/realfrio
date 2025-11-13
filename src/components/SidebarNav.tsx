@@ -46,12 +46,12 @@ const NavLink: React.FC<NavLinkProps> = ({ item, isMobile = false, onClick }) =>
   const isActive = location.pathname === item.href;
   const Icon = item.icon;
 
-  const baseClasses = "flex items-center gap-3 rounded-lg px-3 py-2 transition-all";
+  const baseClasses = "flex items-center gap-3 rounded-lg px-3 py-2 transition-all font-medium";
   
   const mobileActiveClasses = "bg-primary text-primary-foreground hover:bg-primary/90";
   const mobileInactiveClasses = "text-muted-foreground hover:text-foreground";
 
-  const desktopActiveClasses = "bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80";
+  const desktopActiveClasses = "text-sidebar-primary";
   const desktopInactiveClasses = "text-sidebar-foreground hover:text-sidebar-primary";
 
   const activeClasses = isMobile ? mobileActiveClasses : desktopActiveClasses;
