@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Menu, Users, HardDrive, Calendar as CalendarIcon } from "lucide-react"; // Importar CalendarIcon
+import { LayoutDashboard, Wrench, Menu, Users, Calendar as CalendarIcon } from "lucide-react"; // Removido HardDrive
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -23,15 +23,14 @@ const navItems = [
     href: "/clients",
     icon: Users,
   },
-  {
-    title: "Equipamentos", // Adicionado item para a página de Equipamentos
-    href: "/equipments",
-    icon: HardDrive,
-  },
+  // {
+  //   title: "Equipamentos", // Removido item para a página de Equipamentos
+  //   href: "/equipments",
+  //   icon: HardDrive,
+  // },
   {
     title: "Calendário", // NOVO: Item para a página de calendário
     href: "/calendar",
-    icon: CalendarIcon,
   },
 ];
 
