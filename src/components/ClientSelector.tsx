@@ -123,7 +123,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
 
       {/* Modal de Criação de Cliente */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Adicionar Novo Cliente</DialogTitle>
           </DialogHeader>
