@@ -122,6 +122,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         <p className="text-xs text-muted-foreground">Equipamento</p>
                         <p className="text-base truncate">{order.equipment}</p>
                     </div>
+                    <div> {/* Novo div para a descrição */}
+                        <p className="text-xs text-muted-foreground">Descrição</p>
+                        <p className="text-sm line-clamp-2">{order.description}</p> {/* Adicionado line-clamp-2 */}
+                    </div>
                 </div>
 
                 {order.scheduled_date && (
