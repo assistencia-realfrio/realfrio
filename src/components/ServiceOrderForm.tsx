@@ -190,12 +190,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Reduzido space-y de 6 para 4 */}
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         
         {/* Card para Status e Loja */}
         <Card>
-          <CardHeader className="p-0" /> {/* Removido pb-2 */}
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4"> {/* Ajustado para p-4 */}
+          <CardHeader className="p-0" />
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
             <FormField
               control={form.control}
               name="status"
@@ -245,8 +245,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Cliente e Equipamento */}
         <Card>
-          <CardHeader className="p-0" /> {/* Removido pb-2 */}
-          <CardContent className="space-y-4 p-4"> {/* Ajustado para p-4 */}
+          <CardHeader className="p-0" />
+          <CardContent className="space-y-4 p-4">
             <FormField
               control={form.control}
               name="client_id"
@@ -261,7 +261,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         disabled={isEditing}
                       />
                     </div>
-                    <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
+                    {/* Ajuste de layout para garantir que os botões não causem overflow */}
+                    <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end flex-shrink-0">
                       <Button 
                         type="button" 
                         variant="outline" 
@@ -327,8 +328,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* Card para Descrição do Serviço e Data de Agendamento */}
         <Card>
-          <CardHeader className="p-0" /> {/* Removido pb-2 */}
-          <CardContent className="space-y-4 p-4"> {/* Ajustado para p-4 */}
+          <CardHeader className="p-0" />
+          <CardContent className="space-y-4 p-4">
             <FormField
               control={form.control}
               name="description"
