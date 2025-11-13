@@ -114,7 +114,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
                     Criar Cliente: <span className="font-bold ml-1 truncate">{searchTerm}</span>
                   </CommandItem>
                 ) : (
-                  "Nenhum cliente encontrado."
+                  <span>Nenhum cliente encontrado.</span> // ENVOLVIDO EM SPAN
                 )}
               </CommandEmpty>
               <CommandGroup>

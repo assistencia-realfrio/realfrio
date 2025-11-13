@@ -113,7 +113,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
           <Command>
             <CommandInput placeholder="Buscar equipamento..." />
             <CommandList>
-              <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
+              <CommandEmpty><span>Nenhum equipamento encontrado.</span></CommandEmpty> {/* ENVOLVIDO EM SPAN */}
               <CommandGroup>
                 {equipments.map((equipment) => (
                   <CommandItem
