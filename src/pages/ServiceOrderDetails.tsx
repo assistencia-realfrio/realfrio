@@ -25,7 +25,7 @@ const ServiceOrderDetails: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === "new";
 
-  const { singleOrder: serviceOrder, isLoading, error, createOrder, updateOrder } = useServiceOrders(id || "");
+  const { singleOrder: serviceOrder, isLoading, error } = useServiceOrders(id || "");
 
   const [defaultValues, setDefaultValues] = useState<ServiceOrderFormData | undefined>(undefined);
   const [selectedView, setSelectedView] = useState<View>("details");
@@ -54,21 +54,11 @@ const ServiceOrderDetails: React.FC = () => {
     }
   }, [isNew, serviceOrder]);
 
-  const handleSubmit = async (data: ServiceOrderFormData & { id?: string }) => {
-    try {
-      // The mutation payload is constructed inside ServiceOrderForm, so we just pass data
-      if (isNew) {
-        const newOrder = await createOrder.mutateAsync(data); // Data is already ServiceOrderMutationPayload
-        showSuccess("Ordem de serviço criada com sucesso!");
-        navigate(`/orders/${newOrder.id}`);
-      } else if (id) {
-        await updateOrder.mutateAsync({ id, ...data }); // Data is already ServiceOrderMutationPayload
-        showSuccess("Ordem de serviço atualizada com sucesso!");
-        // No navigate needed, stay on the same page
-      }
-    } catch (error) {
-      console.error("Erro ao salvar ordem de serviço:", error);
-      showError("Erro ao salvar ordem de serviço. Tente novamente.");
+  const handleSubmit = (newOrderId?: string) => {
+    if (isNew && newOrderId) {
+      navigate(`/orders/${newOrderId}`);
+    } else {
+      // For updates, stay on the same page, form already handled success toast
     }
   };
 

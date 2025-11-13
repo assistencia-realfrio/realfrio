@@ -4,7 +4,8 @@ import { ServiceOrderFormData } from "@/components/ServiceOrderForm"; // Import 
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus"; // Import from lib
 
 // Re-export for convenience
-export { ServiceOrderStatus, serviceOrderStatuses };
+export type { ServiceOrderStatus }; // Use export type for ServiceOrderStatus
+export { serviceOrderStatuses }; // Export value normally
 
 export type ServiceOrder = {
   id: string;

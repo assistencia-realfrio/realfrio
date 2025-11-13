@@ -36,7 +36,7 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { serviceOrderStatuses } from "@/lib/serviceOrderStatus"; // Correct import for serviceOrderStatuses
-import { Profile } from "@/hooks/useProfiles"; // Import Profile type
+import { useProfiles } from "@/hooks/useProfiles"; // Import Profile type
 
 // Definição do Schema de Validação para os dados do formulário
 const formSchema = z.object({
@@ -57,7 +57,7 @@ interface InitialData extends ServiceOrderFormData {
 
 interface ServiceOrderFormProps {
   initialData?: InitialData;
-  onSubmit: (data: ServiceOrderFormData & { id?: string }) => void; // Updated to ServiceOrderFormData
+  onSubmit: (newOrderId?: string) => void; // Updated to return newOrderId or void
   onCancel?: () => void;
   isNew: boolean;
 }
@@ -147,13 +147,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         if (isEditing && initialData?.id) {
             await updateOrder.mutateAsync({ id: initialData.id, ...mutationPayload });
             showSuccess("Ordem de Serviço atualizada com sucesso!");
+            onSubmit(); // Call onSubmit without ID for update
         } else {
             const newOrder = await createOrder.mutateAsync(mutationPayload);
             showSuccess("Ordem de Serviço criada com sucesso!");
-            onSubmit({ ...data, id: newOrder.id });
+            onSubmit(newOrder.id); // Call onSubmit with new ID for creation
             return;
         }
-        onSubmit(data);
     } catch (error) {
         console.error("Erro ao salvar OS:", error);
         showError("Erro ao salvar Ordem de Serviço. Verifique os dados.");
