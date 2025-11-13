@@ -38,15 +38,15 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
 
   return (
     <Card className="shadow-none border-none">
-      <Tabs defaultValue="details">
+      <Tabs defaultValue="plate_photo"> {/* Alterado o defaultValue para 'plate_photo' */}
         <TabsList className="grid w-full grid-cols-4 px-4"> {/* Aumentado para 4 colunas */}
-          <TabsTrigger value="details">
-            <FileText className="h-4 w-4 mr-2" />
-            Detalhes
-          </TabsTrigger>
           <TabsTrigger value="plate_photo"> {/* Nova aba para Foto da Chapa */}
             <Camera className="h-4 w-4 mr-2" />
             Chapa
+          </TabsTrigger>
+          <TabsTrigger value="details">
+            <FileText className="h-4 w-4 mr-2" />
+            Detalhes
           </TabsTrigger>
           <TabsTrigger value="orders">
             <Wrench className="h-4 w-4 mr-2" />
@@ -58,13 +58,13 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
           </TabsTrigger>
         </TabsList>
 
+        <TabsContent value="plate_photo" className="mt-4"> {/* Conteúdo da Foto da Chapa */}
+          <EquipmentPlatePhoto equipmentId={equipment.id} />
+        </TabsContent>
+        
         <TabsContent value="details" className="mt-4">
           {/* Usando o componente EquipmentDetailsView para exibir os detalhes */}
           <EquipmentDetailsView equipment={equipment} />
-        </TabsContent>
-        
-        <TabsContent value="plate_photo" className="mt-4"> {/* Conteúdo da Foto da Chapa */}
-          <EquipmentPlatePhoto equipmentId={equipment.id} />
         </TabsContent>
 
         <TabsContent value="orders" className="mt-4">
