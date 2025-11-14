@@ -10,7 +10,7 @@ const fetchTechnicians = async (userId: string | undefined): Promise<Profile[]> 
   // Fetch all profiles. RLS is set to allow all authenticated users to view profiles.
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, first_name, last_name, store, avatar_url')
+    .select('id, first_name, last_name, store, avatar_url, updated_at') // Corrigido: adicionado updated_at
     .order('first_name', { ascending: true });
 
   if (error) throw error;
