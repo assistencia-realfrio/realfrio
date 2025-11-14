@@ -35,7 +35,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import TechnicianSelector from "./TechnicianSelector"; // NOVO: Importar TechnicianSelector
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -45,14 +44,12 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
-  technician_id: z.string().uuid({ message: "Selecione um técnico válido." }).nullable().optional(), // NOVO
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
-    technician_id?: string | null; // Adicionar technician_id
 }
 
 interface ServiceOrderFormProps {
@@ -68,7 +65,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     defaultValues: initialData ? {
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
-        technician_id: initialData.technician_id || null, // NOVO
     } : {
       equipment_id: "",
       client_id: "",
@@ -76,7 +72,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
       scheduled_date: null,
-      technician_id: null, // NOVO
     },
   });
 
@@ -139,7 +134,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
             scheduled_date: data.scheduled_date,
-            technician_id: data.technician_id, // NOVO
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -335,24 +329,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
         </div>
-
-        {/* Campo de Técnico Atribuído (NOVO) */}
-        <FormField
-            control={form.control}
-            name="technician_id"
-            render={({ field }) => (
-                <FormItem>
-                    <FormControl>
-                        <TechnicianSelector
-                            value={field.value || null}
-                            onChange={field.onChange}
-                            disabled={isEditing && updateOrder.isPending}
-                        />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-            )}
-        />
 
         {/* Campo de Data de Agendamento */}
         <div className="space-y-2">
