@@ -53,7 +53,6 @@ const ServiceOrderDetails: React.FC = () => {
     status: order.status,
     store: order.store,
     scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
-    technician_id: order.technician_id, // CORREÇÃO: Adicionando o technician_id
   } : undefined;
 
   const handleGoBack = () => {

@@ -22,7 +22,6 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
-import TechnicianSelector from "./TechnicianSelector"; // NOVO: Importando o seletor de técnico
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,14 +44,12 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
-  technician_id: z.string().uuid().nullable().optional(), // NOVO: Campo para o técnico
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
-    technician_id?: string | null; // Garantir que InitialData inclui technician_id
 }
 
 interface ServiceOrderFormProps {
@@ -68,7 +65,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     defaultValues: initialData ? {
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
-        technician_id: initialData.technician_id || null, // Definindo valor padrão para o técnico
     } : {
       equipment_id: "",
       client_id: "",
@@ -76,7 +72,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
       scheduled_date: null,
-      technician_id: null, // Valor padrão para o técnico
     },
   });
 
@@ -129,9 +124,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             ? `${equipmentName} / ${equipmentBrand}` 
             : equipmentName;
 
-        // Garante que technician_id seja null se for uma string vazia (embora o Zod deva evitar isso)
-        const technicianId = data.technician_id === "" ? null : data.technician_id;
-
         const mutationData: MutationServiceOrderFormValues = {
             client_id: data.client_id,
             description: data.description,
@@ -142,7 +134,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
             scheduled_date: data.scheduled_date,
-            technician_id: technicianId, // Usando o valor ajustado
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -201,7 +192,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         
-        {/* Campos de Cliente e Equipamento */}
+        {/* Campos de Cliente, Equipamento e Descrição */}
         <div className="space-y-4 pt-4"> {/* Aumentado space-y para melhor espaçamento */}
           <FormField
             control={form.control}
@@ -277,7 +268,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               )}
           />
 
-          {/* Campo de Descrição do Serviço */}
+          {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}
           <FormField
             control={form.control}
             name="description"
@@ -339,8 +330,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        {/* Campo de Data de Agendamento e Técnico */}
-        <div className="space-y-4"> {/* Alterado para space-y-4 para agrupar Data e Técnico */}
+        {/* Campo de Data de Agendamento */}
+        <div className="space-y-2">
           <FormField
             control={form.control}
             name="scheduled_date"
@@ -389,25 +380,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     </Button>
                   )}
                 </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          {/* Campo de Técnico Associado */}
-          <FormField
-            control={form.control}
-            name="technician_id"
-            render={({ field }) => (
-              <FormItem>
-                {/* Rótulo removido */}
-                <FormControl>
-                  <TechnicianSelector
-                    value={field.value || null}
-                    onChange={field.onChange}
-                    disabled={false}
-                  />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
