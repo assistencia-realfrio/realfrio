@@ -193,7 +193,7 @@ const ServiceOrderDetails: React.FC = () => {
               {!isNew && (
                 <div className="text-center pt-6 pb-4 border-b border-border/50">
                   <p className="text-sm text-muted-foreground font-medium">Ordem de Serviço</p>
-                  <h3 className="text-3xl font-extrabold tracking-tight text-primary mt-1">
+                  <h3 className="text-xl font-extrabold tracking-tight text-primary mt-1">
                     {displayTitleId}
                   </h3>
                 </div>
