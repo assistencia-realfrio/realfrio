@@ -193,7 +193,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Ajustado space-y de 6 para 4 */}
         
         {/* Campos de Cliente e Equipamento (MOVIDOS PARA CIMA) */}
-        <div className="space-y-2"> {/* Ajustado space-y de 4 para 2 */}
+        <div className="space-y-2 pt-4"> {/* Adicionado pt-4 aqui para o espaço */}
           <FormField
             control={form.control}
             name="client_id"
