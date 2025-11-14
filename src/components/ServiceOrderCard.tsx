@@ -136,12 +136,18 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3"> {/* Aumentado o gap */}
                             {order.scheduled_date && (
-                                <>
+                                <div className="flex items-center gap-1">
                                     <CalendarIcon className="h-4 w-4" />
-                                    <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
-                                </>
+                                    <span>{format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                                </div>
+                            )}
+                            {order.technician_name && (
+                                <div className="flex items-center gap-1">
+                                    <User className="h-4 w-4" />
+                                    <span className="truncate">{order.technician_name}</span>
+                                </div>
                             )}
                         </div>
                         
