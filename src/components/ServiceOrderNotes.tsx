@@ -228,7 +228,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
       <CardContent className="space-y-6">
         {/* Formulário para adicionar nova nota */}
         <div className="space-y-3 border p-4 rounded-md">
-          <h4 className="text-md font-semibold">Adicionar Nova Nota</h4>
+          {/* Removido: <h4 className="text-md font-semibold">Adicionar Nova Nota</h4> */}
           <Textarea
             placeholder="Escreva sua nota aqui..."
             value={newNoteContent}
