@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 350 20% 87%; /* Changed to #e8d3d6 */
+    --background: 0 0% 97%; /* Very Light Grey for app background */
     --foreground: 0 0% 15%; /* Darker Grey */
 
     --card: 0 0% 100%;
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    --primary: 350 61% 34%; /* Red #8b2231 */
+    --primary: 142 71% 45%; /* Green */
     --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 0 0% 95%; /* Light Grey */
@@ -25,27 +25,27 @@
     --accent: 0 0% 95%;
     --accent-foreground: 0 0% 10%;
 
-    --destructive: 350 61% 27%; /* Darker Red for destructive actions */
+    --destructive: 0 84.2% 60.2%; /* Keep original destructive red */
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 85%;
     --input: 0 0% 85%;
-    --ring: 350 61% 34%; /* Primary color for focus rings (Red) */
+    --ring: 142 71% 45%; /* Primary color for focus rings (Green) */
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%; /* White for sidebar background */
     --sidebar-foreground: 0 0% 15%; /* Darker grey for text */
-    --sidebar-primary: 350 61% 34%; /* Red, for icons/highlights */
+    --sidebar-primary: 142 71% 45%; /* Green, for icons/highlights */
     --sidebar-primary-foreground: 0 0% 100%; /* White, for text on primary sidebar elements */
-    --sidebar-accent: 350 61% 90%; /* Light red for active background */
-    --sidebar-accent-foreground: 350 61% 20%; /* Darker red for text on active background */
+    --sidebar-accent: 142 71% 90%; /* Light green for active background */
+    --sidebar-accent-foreground: 142 71% 20%; /* Darker green for text on active background */
     --sidebar-border: 0 0% 85%;
-    --sidebar-ring: 350 61% 34%;
+    --sidebar-ring: 142 71% 45%;
   }
 
   .dark {
-    --background: 350 20% 87%; /* Changed to #e8d3d6 */
+    --background: 222.2 84% 4.9%; /* Existing dark background */
     --foreground: 0 0% 80%; /* Light Grey */
 
     --card: 222.2 84% 4.9%;
@@ -54,8 +54,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 0 0% 80%;
 
-    --primary: 350 61% 40%; /* Slightly lighter red for dark mode */
-    --primary-foreground: 0 0% 100%; /* White */
+    --primary: 142 71% 60%; /* Lighter Green for dark mode */
+    --primary-foreground: 0 0% 10%; /* Very dark grey */
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 0 0% 80%;
@@ -66,21 +66,31 @@
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 0 0% 80%;
 
-    --destructive: 350 61% 27%; /* Darker Red for destructive actions */
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 350 61% 40%; /* Primary color for focus rings (Red) */
+    --ring: 142 71% 60%; /* Primary color for focus rings (Green) */
 
     --sidebar-background: 217.2 32.6% 17.5%;
     --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 350 61% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 350 61% 25%; /* Darker red for active background in dark mode */
+    --sidebar-primary: 142 71% 60%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 217.2 32.6% 25%;
     --sidebar-accent-foreground: 0 0% 80%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 350 61% 40%;
+    --sidebar-ring: 142 71% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
   }
 }
 
