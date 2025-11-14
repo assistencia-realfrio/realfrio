@@ -35,7 +35,7 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
   }
 
   return (
-    <Card className="shadow-none border-none">
+    <div className="shadow-none border-none"> {/* Removido Card e CardContent */}
       <Tabs defaultValue="details"> {/* Alterado o defaultValue para 'details' */}
         <TabsList className="grid w-full grid-cols-2 px-4"> {/* Ajustado para 2 colunas */}
           <TabsTrigger value="details">
@@ -62,7 +62,7 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
 
         {/* Removido TabsContent para 'Histórico' */}
       </Tabs>
-    </Card>
+    </div>
   );
 };
 
