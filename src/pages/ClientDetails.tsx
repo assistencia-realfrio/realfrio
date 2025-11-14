@@ -6,9 +6,9 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle } from "lucide-react"; // Adicionado FolderOpen e PlusCircle
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X } from "lucide-react"; // Adicionado X para o botão de cancelar edição
 import ClientOrdersTab from "@/components/ClientOrdersTab";
-import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Caminho corrigido
+import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,84 +22,29 @@ import {
 } from "@/components/ui/alert-dialog";
 import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
-import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
-import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // Importar Dialog para o novo equipamento
-import EquipmentForm from "@/components/EquipmentForm"; // Importar EquipmentForm
+import { Card, CardContent } from "@/components/ui/card";
+import { isLinkClickable } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import EquipmentForm from "@/components/EquipmentForm";
 
-const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
-    <div className="flex justify-end space-x-2 mb-4">
-        <Button variant="outline" size="icon" className="sm:hidden" onClick={onEdit} aria-label="Editar">
-            <Edit className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" className="hidden sm:flex" onClick={onEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
-        </Button>
-        
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <>
-                    <Button 
-                        variant="destructive" 
-                        size="icon" 
-                        className="sm:hidden"
-                        disabled={isDeleting}
-                        aria-label="Excluir"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                    <Button 
-                        variant="destructive" 
-                        className="hidden sm:flex"
-                        disabled={isDeleting}
-                    >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Excluir
-                    </Button>
-                </>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
-                        <span className="font-semibold"> {client.name}</span> e todos os dados associados.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction 
-                        onClick={onDelete} 
-                        className="bg-destructive hover:bg-destructive/90"
-                        disabled={isDeleting}
-                    >
-                        Excluir
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
-    </div>
-);
+// O componente ClientActions foi removido, sua lógica foi integrada abaixo.
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
 
-    // Função auxiliar para construir o href do mapa
     const getMapHref = (mapsLink: string) => {
       if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
         return mapsLink;
       }
-      // Se for coordenadas, formata para busca no Google Maps
       if (/^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink)) {
         return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsLink)}`;
       }
-      return "#"; // Fallback, embora isLinkClickable já devesse filtrar isso
+      return "#";
     };
 
     return (
-        <Card> {/* Adicionado Card aqui */}
-            <CardContent className="space-y-4 text-sm p-4"> {/* Adicionado p-4 aqui */}
+        <Card>
+            <CardContent className="space-y-4 text-sm p-4">
                 <div>
                   <p className="text-muted-foreground">Nome</p>
                   <p className="font-medium">{client.name}</p>
@@ -125,7 +70,7 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                       Ver no Mapa
                     </a>
                   ) : (
-                    <p className="text-muted-foreground">{client.maps_link || 'N/A'}</p>
+                    <p className="text-muted-foreground">N/A</p>
                   )}
                 </div>
                 <div>
@@ -176,8 +121,8 @@ const ClientDetails: React.FC = () => {
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details"); // 'history' removido do tipo
-  const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false); // NOVO: Estado para o modal de adicionar equipamento
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details");
+  const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -205,7 +150,6 @@ const ClientDetails: React.FC = () => {
     }
   };
 
-  // NOVO: Função para lidar com o sucesso da criação de equipamento
   const handleNewEquipmentSuccess = () => {
     setIsAddEquipmentModalOpen(false);
     showSuccess("Equipamento adicionado com sucesso!");
@@ -241,38 +185,101 @@ const ClientDetails: React.FC = () => {
     store: client.store || "CALDAS DA RAINHA",
     maps_link: client.maps_link || "",
     locality: client.locality || "",
-    google_drive_link: client.google_drive_link || "", // NOVO: Adicionando google_drive_link
+    google_drive_link: client.google_drive_link || "",
   };
 
   return (
     <Layout>
       <div className="space-y-6 pb-20">
-        <div className="flex items-center justify-between gap-2"> {/* Adicionado gap-2 */}
-          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0"> {/* Adicionado flex-1, min-w-0, sm:gap-4 */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> Título com o nome do cliente REMOVIDO */}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
           </div>
-          {selectedView === 'equipments' && ( // NOVO: Botão "Adicionar Equipamento" apenas na aba de equipamentos
-            <Button size="sm" onClick={() => setIsAddEquipmentModalOpen(true)} className="flex-shrink-0">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Adicionar Equipamento
-            </Button>
-          )}
+          
+          <div className="flex flex-shrink-0 space-x-2">
+            {selectedView === 'equipments' && (
+              <Button size="sm" onClick={() => setIsAddEquipmentModalOpen(true)} className="flex-shrink-0">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Adicionar Equipamento
+              </Button>
+            )}
+
+            {selectedView === 'details' && (
+              <>
+                {isEditing ? (
+                    <Button variant="outline" onClick={() => setIsEditing(false)} size="icon" className="sm:hidden" aria-label="Cancelar Edição">
+                        <X className="h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button variant="outline" onClick={() => setIsEditing(true)} size="icon" className="sm:hidden" aria-label="Editar">
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                )}
+                
+                {isEditing ? (
+                    <Button variant="outline" onClick={() => setIsEditing(false)} className="hidden sm:flex">
+                        <X className="h-4 w-4 mr-2" />
+                        Cancelar
+                    </Button>
+                ) : (
+                    <Button variant="outline" onClick={() => setIsEditing(true)} className="hidden sm:flex">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar
+                    </Button>
+                )}
+                
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <>
+                            <Button 
+                                variant="destructive" 
+                                size="icon" 
+                                className="sm:hidden"
+                                disabled={deleteClient.isPending}
+                                aria-label="Excluir"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                                variant="destructive" 
+                                className="hidden sm:flex"
+                                disabled={deleteClient.isPending}
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                            </Button>
+                        </>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
+                                <span className="font-semibold"> {client.name}</span> e todos os dados associados.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                                onClick={handleDeleteClient} 
+                                className="bg-destructive hover:bg-destructive/90"
+                                disabled={deleteClient.isPending}
+                            >
+                                Excluir
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+              </>
+            )}
+          </div>
         </div>
 
         {selectedView === 'details' && (
           <>
-            {!isEditing && (
-              <ClientActions 
-                client={client} 
-                onEdit={() => setIsEditing(true)} 
-                onDelete={handleDeleteClient}
-                isDeleting={deleteClient.isPending}
-              />
-            )}
-            
             {isEditing ? (
               <ClientForm 
                 initialData={initialFormData} 
@@ -292,15 +299,12 @@ const ClientDetails: React.FC = () => {
         {selectedView === 'equipments' && (
           <ClientEquipmentTab clientId={client.id} />
         )}
-
-        {/* Removido: selectedView === 'history' */}
       </div>
       <ClientDetailsBottomNav
         selectedView={selectedView}
         onSelectView={setSelectedView}
       />
 
-      {/* NOVO: Modal de Adição de Equipamento */}
       <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
