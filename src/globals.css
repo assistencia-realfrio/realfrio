@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 351 31% 87%; 
+    --background: 0 0% 90%; 
     --foreground: 0 0% 15%; /* Darker Grey */
 
     --card: 0 0% 100%;
