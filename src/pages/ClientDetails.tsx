@@ -252,7 +252,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Título com o nome do cliente */}
+            {/* <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> Título com o nome do cliente REMOVIDO */}
           </div>
           {selectedView === 'equipments' && ( // NOVO: Botão "Adicionar Equipamento" apenas na aba de equipamentos
             <Button size="sm" onClick={() => setIsAddEquipmentModalOpen(true)} className="flex-shrink-0">
