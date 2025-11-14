@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 97%; /* Very Light Grey for app background */
+    --background: 350 30% 87%; /* Light Reddish Grey #e8d3d6 for app background */
     --foreground: 0 0% 15%; /* Darker Grey */
 
     --card: 0 0% 100%;
@@ -45,7 +45,7 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%; /* Existing dark background */
+    --background: 350 30% 87%; /* Light Reddish Grey #e8d3d6 for app background */
     --foreground: 0 0% 80%; /* Light Grey */
 
     --card: 222.2 84% 4.9%;
