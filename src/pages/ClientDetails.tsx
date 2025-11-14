@@ -194,7 +194,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* REMOVIDO: h2 com o nome do cliente */}
+            {/* O nome do cliente é exibido abaixo, se não estiver editando */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -284,11 +284,15 @@ const ClientDetails: React.FC = () => {
             )}
             
             {isEditing ? (
-              <ClientForm 
-                initialData={initialFormData} 
-                onSubmit={handleFormSubmit} 
-                onCancel={() => setIsEditing(false)} 
-              />
+              <Card> {/* NOVO: Envolvendo o formulário em um Card */}
+                <CardContent className="pt-6"> {/* Adicionado pt-6 para espaçamento interno */}
+                  <ClientForm 
+                    initialData={initialFormData} 
+                    onSubmit={handleFormSubmit} 
+                    onCancel={() => setIsEditing(false)} 
+                  />
+                </CardContent>
+              </Card>
             ) : (
               <ClientDetailsView client={client} />
             )}
