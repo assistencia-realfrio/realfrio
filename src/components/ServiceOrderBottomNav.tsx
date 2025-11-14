@@ -1,9 +1,9 @@
 import React from 'react';
-import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from 'lucide-react'; // MessageSquareText adicionado novamente
+import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'attachments' | 'equipment' | 'activity' | 'notes'; // 'notes' adicionado novamente
+type View = 'details' | 'attachments' | 'equipment' | 'activity' | 'notes';
 
 interface ServiceOrderBottomNavProps {
   selectedView: View;
@@ -13,10 +13,10 @@ interface ServiceOrderBottomNavProps {
 
 const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
+  { id: 'notes', icon: MessageSquareText, label: 'Notas' }, // Movido para cá
   { id: 'attachments', icon: Paperclip, label: 'Anexos' },
   { id: 'equipment', icon: HardDrive, label: 'Equipamento' },
   { id: 'activity', icon: List, label: 'Atividade' },
-  { id: 'notes', icon: MessageSquareText, label: 'Notas' }, // Item para Notas adicionado novamente
 ];
 
 const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedView, onSelectView, canAccessTabs }) => {
