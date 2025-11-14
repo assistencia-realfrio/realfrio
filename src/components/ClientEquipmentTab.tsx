@@ -47,7 +47,7 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
   return (
     <div className="shadow-none border-none"> {/* Removido Card e CardContent */}
       <div className="p-0 pb-4 flex flex-row items-center justify-between"> {/* Substituído CardHeader por div */}
-        <CardTitle className="text-lg">Equipamentos Associados</CardTitle>
+        {/* CardTitle removido */}
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={() => setIsAddModalOpen(true)}>
