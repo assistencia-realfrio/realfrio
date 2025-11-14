@@ -25,7 +25,13 @@
     --accent: 0 0% 95%;
     --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 84.2% 60.2%; /* Keep original destructive red */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+
+    --destructive: 350 61% 34%; /* Custom red #8b2231 */
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 85%;
@@ -66,7 +72,7 @@
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 0 0% 80%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 350 61% 34%; /* Custom red #8b2231 */
     --destructive-foreground: 0 0% 100%;
 
     --border: 217.2 32.6% 17.5%;
@@ -81,16 +87,6 @@
     --sidebar-accent-foreground: 0 0% 80%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 142 71% 60%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
   }
 }
 
