@@ -159,6 +159,9 @@ const ServiceOrderDetails: React.FC = () => {
           
         {selectedView === "details" && (
           <>
+            {canAccessTabs && currentOrderId && (
+              <ServiceOrderNotes orderId={currentOrderId} />
+            )}
             <Card className="shadow-none border-none">
               <CardHeader>
                 <CardTitle>{isNew ? "" : "Editar Ordem de Serviço"}</CardTitle>
@@ -171,9 +174,6 @@ const ServiceOrderDetails: React.FC = () => {
                 />
               </CardContent>
             </Card>
-            {canAccessTabs && currentOrderId && (
-              <ServiceOrderNotes orderId={currentOrderId} />
-            )}
           </>
         )}
 
