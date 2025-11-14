@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2 } from "lucide-react"; // FileText removido
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +23,9 @@ import {
 import ServiceOrderBottomNav from "@/components/ServiceOrderBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import ServiceOrderEquipmentDetails from "@/components/ServiceOrderEquipmentDetails";
-import ServiceOrderNotes from "@/components/ServiceOrderNotes"; // Importar o novo componente de notas
+import ServiceOrderNotes from "@/components/ServiceOrderNotes";
+import { useServiceOrderNotesCount } from "@/hooks/useServiceOrderNotesCount"; // NOVO: Importar hook de contagem de notas
+import { useServiceOrderAttachmentsCount } from "@/hooks/useServiceOrderAttachmentsCount"; // NOVO: Importar hook de contagem de anexos
 
 const ServiceOrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,9 +37,13 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details");
 
   const currentOrderId = newOrderId || id;
+
+  // NOVO: Buscar contagem de notas e anexos
+  const { data: notesCount = 0, isLoading: isLoadingNotesCount } = useServiceOrderNotesCount(currentOrderId || '');
+  const { data: attachmentsCount = 0, isLoading: isLoadingAttachmentsCount } = useServiceOrderAttachmentsCount(currentOrderId || '');
 
   const initialData = order ? {
     id: order.id,
@@ -46,7 +52,7 @@ const ServiceOrderDetails: React.FC = () => {
     description: order.description,
     status: order.status,
     store: order.store,
-    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null, // CORREÇÃO: Converter string para Date
+    scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
   } : undefined;
 
   const handleGoBack = () => {
@@ -125,7 +131,6 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {/* Botão de Relatório Removido */}
                 {!isNew && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -174,7 +179,7 @@ const ServiceOrderDetails: React.FC = () => {
           </>
         )}
 
-        {selectedView === "notes" && ( // Nova aba para notas
+        {selectedView === "notes" && (
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar notas.</p>
           ) : (
@@ -210,6 +215,8 @@ const ServiceOrderDetails: React.FC = () => {
         selectedView={selectedView}
         onSelectView={setSelectedView}
         canAccessTabs={canAccessTabs}
+        notesCount={notesCount} // NOVO: Passar contagem de notas
+        attachmentsCount={attachmentsCount} // NOVO: Passar contagem de anexos
       />
     </Layout>
   );
