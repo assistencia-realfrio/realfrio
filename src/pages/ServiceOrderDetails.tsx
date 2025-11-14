@@ -35,7 +35,7 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity">("details"); // 'notes' removido do tipo
 
   const currentOrderId = newOrderId || id;
 
@@ -158,18 +158,23 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <Card className="shadow-none border-none">
-            <CardHeader>
-              <CardTitle>{isNew ? "" : "Editar Ordem de Serviço"}</CardTitle> {/* Alterado aqui */}
-            </CardHeader>
-            <CardContent>
-              <ServiceOrderForm 
-                initialData={initialData} 
-                onSubmit={handleSubmit} 
-                onCancel={isNew ? handleGoBack : undefined}
-              />
-            </CardContent>
-          </Card>
+          <>
+            <Card className="shadow-none border-none">
+              <CardHeader>
+                <CardTitle>{isNew ? "" : "Editar Ordem de Serviço"}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ServiceOrderForm 
+                  initialData={initialData} 
+                  onSubmit={handleSubmit} 
+                  onCancel={isNew ? handleGoBack : undefined}
+                />
+              </CardContent>
+            </Card>
+            {canAccessTabs && currentOrderId && (
+              <ServiceOrderNotes orderId={currentOrderId} />
+            )}
+          </>
         )}
 
         {selectedView === "attachments" && (
@@ -193,14 +198,6 @@ const ServiceOrderDetails: React.FC = () => {
             <p className="text-center text-muted-foreground py-8">Salve a OS para ver o histórico de atividades.</p>
           ) : (
             <ActivityLog entityType="service_order" entityId={currentOrderId!} />
-          )
-        )}
-
-        {selectedView === "notes" && ( // Nova aba para Notas
-          !canAccessTabs ? (
-            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar e ver as notas.</p>
-          ) : (
-            <ServiceOrderNotes orderId={currentOrderId!} />
           )
         )}
       </div>
