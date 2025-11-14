@@ -37,7 +37,7 @@ const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) 
   );
 
   return (
-    <Card className="shadow-none border-none">
+    <div className="shadow-none border-none"> {/* Removido o Card externo */}
       <CardHeader className="p-0 pb-4">
         <CardTitle className="text-lg">Ordens de Serviço do Equipamento</CardTitle>
       </CardHeader>
@@ -63,7 +63,7 @@ const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) 
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
+    </div>
   );
 };
 
