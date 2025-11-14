@@ -190,16 +190,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6"> {/* Aumentado space-y de 4 para 6 para espaçamento geral */}
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Ajustado space-y de 6 para 4 */}
         
         {/* Campos de Status e Loja */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2"> {/* Ajustado gap de 4 para 2 */}
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Estado *</FormLabel>
+                {/* <FormLabel>Estado *</FormLabel> REMOVIDO */}
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -222,7 +222,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="store"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Loja *</FormLabel>
+                {/* <FormLabel>Loja *</FormLabel> REMOVIDO */}
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -241,13 +241,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         </div>
 
         {/* Campos de Cliente e Equipamento */}
-        <div className="space-y-4">
+        <div className="space-y-2"> {/* Ajustado space-y de 4 para 2 */}
           <FormField
             control={form.control}
             name="client_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cliente *</FormLabel>
+                {/* <FormLabel>Cliente *</FormLabel> REMOVIDO */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <div className="flex-grow w-full min-w-0">
                     <ClientSelector 
@@ -304,7 +304,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="equipment_id"
               render={({ field }) => (
                   <FormItem>
-                      <FormLabel>Equipamento *</FormLabel>
+                      {/* <FormLabel>Equipamento *</FormLabel> REMOVIDO */}
                       <FormControl>
                           <EquipmentSelector
                               clientId={clientId}
@@ -320,7 +320,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         </div>
 
         {/* Campos de Descrição do Serviço e Data de Agendamento */}
-        <div className="space-y-4">
+        <div className="space-y-2"> {/* Ajustado space-y de 4 para 2 */}
           <FormField
             control={form.control}
             name="description"
