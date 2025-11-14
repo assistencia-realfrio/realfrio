@@ -68,7 +68,8 @@ const TechnicianSelector: React.FC<TechnicianSelectorProps> = ({ value, onChange
         >
           <span className={cn(
               "truncate",
-              isSelected ? "font-bold text-foreground" : "text-muted-foreground"
+              // Removido 'font-bold' daqui para que o texto selecionado não fique em negrito
+              isSelected ? "text-foreground" : "text-muted-foreground"
           )}>
               {displayValue}
           </span>
