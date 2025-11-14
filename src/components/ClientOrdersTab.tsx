@@ -38,14 +38,14 @@ const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
   );
 
   return (
-    <Card className="shadow-none border-none">
-      <CardHeader className="p-0 pb-4">
+    <div className="shadow-none border-none"> {/* Mantido o div externo com shadow-none e border-none */}
+      <div className="p-0 pb-4"> {/* Substituído CardHeader por div */}
         <CardTitle className="text-lg">Ordens de Serviço do Cliente ({combinedOrders.length})</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
+      </div>
+      <div className="p-0"> {/* Substituído CardContent por div */}
         {renderOrderList(combinedOrders, "Nenhuma Ordem de Serviço encontrada para este cliente.")}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
