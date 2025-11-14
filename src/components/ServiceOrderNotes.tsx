@@ -113,6 +113,8 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
     onSuccess: (newNote) => {
       setNewNoteContent("");
       queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['orderNotesCount', orderId] }); // Invalida a contagem
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida a lista de OS
       logActivity(user, {
         entity_type: 'service_order',
         entity_id: orderId,
@@ -178,6 +180,8 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
     },
     onSuccess: (deletedNoteId) => {
       queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['orderNotesCount', orderId] }); // Invalida a contagem
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida a lista de OS
       logActivity(user, {
         entity_type: 'service_order',
         entity_id: orderId,
@@ -219,16 +223,10 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageSquareText className="h-5 w-5" />
-          Notas
-        </CardTitle>
-      </CardHeader>
+      {/* CardHeader removido conforme solicitado */}
       <CardContent className="space-y-6">
         {/* Formulário para adicionar nova nota */}
         <div className="space-y-3 border p-4 rounded-md">
-          {/* Removido: <h4 className="text-md font-semibold">Adicionar Nova Nota</h4> */}
           <Textarea
             placeholder="Escreva sua nota aqui..."
             value={newNoteContent}
