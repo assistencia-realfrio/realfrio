@@ -31,7 +31,7 @@ const TechnicianSelector: React.FC<TechnicianSelectorProps> = ({ value, onChange
 
   const displayValue = selectedTechnician 
     ? getFullName(selectedTechnician)
-    : "Selecione um técnico (Opcional)";
+    : "Selecione um técnico"; // Removido '(Opcional)'
     
   const isSelected = !!selectedTechnician;
 
@@ -48,7 +48,7 @@ const TechnicianSelector: React.FC<TechnicianSelectorProps> = ({ value, onChange
             variant="outline"
             role="combobox"
             disabled
-            className="w-full justify-between text-muted-foreground"
+            className="w-full justify-between text-muted-foreground font-normal" // Adicionado font-normal
         >
             Carregando técnicos...
             <User className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -63,12 +63,11 @@ const TechnicianSelector: React.FC<TechnicianSelectorProps> = ({ value, onChange
           variant="outline"
           role="combobox"
           aria-expanded={isPopoverOpen}
-          className="w-full justify-between"
+          className="w-full justify-between font-normal" // Adicionado font-normal ao Button
           disabled={disabled}
         >
           <span className={cn(
               "truncate",
-              // Removido 'font-bold' daqui para que o texto selecionado não fique em negrito
               isSelected ? "text-foreground" : "text-muted-foreground"
           )}>
               {displayValue}
