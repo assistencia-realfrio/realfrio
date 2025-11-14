@@ -22,6 +22,7 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
+import TechnicianSelector from "./TechnicianSelector"; // NOVO: Importando o seletor de técnico
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,12 +45,14 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
+  technician_id: z.string().uuid().nullable().optional(), // NOVO: Campo para o técnico
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
+    technician_id?: string | null; // Garantir que InitialData inclui technician_id
 }
 
 interface ServiceOrderFormProps {
@@ -65,6 +68,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     defaultValues: initialData ? {
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
+        technician_id: initialData.technician_id || null, // Definindo valor padrão para o técnico
     } : {
       equipment_id: "",
       client_id: "",
@@ -72,6 +76,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
       scheduled_date: null,
+      technician_id: null, // Valor padrão para o técnico
     },
   });
 
@@ -134,6 +139,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
             scheduled_date: data.scheduled_date,
+            technician_id: data.technician_id, // NOVO: Adicionando technician_id
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -266,6 +272,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       <FormMessage />
                   </FormItem>
               )}
+          />
+
+          {/* Campo de Técnico Associado (NOVO) */}
+          <FormField
+            control={form.control}
+            name="technician_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Técnico Associado (Opcional)</FormLabel>
+                <FormControl>
+                  <TechnicianSelector
+                    value={field.value || null}
+                    onChange={field.onChange}
+                    disabled={false}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}

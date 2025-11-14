@@ -24,16 +24,18 @@ export interface ServiceOrder {
   created_at: string;
   updated_at: string | null;
   scheduled_date: string | null;
+  technician_id: string | null; // NOVO: ID do técnico associado
   // NOVO: Contagens para badges
   notes_count: number;
   attachments_count: number;
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'notes_count' | 'attachments_count'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'notes_count' | 'attachments_count' | 'technician_id'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
     scheduled_date?: Date | null;
+    technician_id?: string | null; // NOVO: ID do técnico
 };
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'notes_count' | 'attachments_count'> & {
@@ -67,6 +69,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       client_id,
       equipment_id,
       scheduled_date,
+      technician_id,
       clients (name),
       service_order_notes(count),
       order_attachments_metadata(count)
@@ -111,6 +114,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         model: order.model,
         equipment_id: order.equipment_id,
         scheduled_date: order.scheduled_date,
+        technician_id: order.technician_id, // Mapeando technician_id
         notes_count: notesCount,
         attachments_count: attachmentsCount,
     };
@@ -176,6 +180,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           display_id: displayId,
           created_by: user.id,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
+          technician_id: orderData.technician_id || null, // NOVO: Adicionando technician_id
         })
         .select()
         .single();
@@ -195,6 +200,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           store: { newValue: newOrder.store },
           equipment: { newValue: newOrder.equipment },
           scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' },
+          technician_id: { newValue: newOrder.technician_id || 'N/A' }, // NOVO: Log technician_id
         }
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -205,7 +211,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, scheduled_date')
+        .select('status, description, equipment, model, serial_number, store, scheduled_date, technician_id') // technician_id adicionado
         .eq('id', id)
         .single();
 
@@ -226,6 +232,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
+          technician_id: orderData.technician_id || null, // NOVO: Atualizando technician_id
         })
         .eq('id', id)
         .select()
@@ -274,6 +281,11 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         if (newScheduledDate !== oldScheduledDate) {
             changesSummary.push('a data de agendamento');
             activityDetails.scheduled_date = { oldValue: oldScheduledDate, newValue: newScheduledDate };
+        }
+        
+        if (updatedOrder.technician_id !== oldOrder.technician_id) {
+            changesSummary.push('o técnico associado');
+            activityDetails.technician_id = { oldValue: oldOrder.technician_id || 'N/A', newValue: updatedOrder.technician_id || 'N/A' };
         }
         
         if (changesSummary.length > 0) {
