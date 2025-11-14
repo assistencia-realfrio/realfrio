@@ -35,7 +35,7 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity">("details"); // 'notes' removido do tipo
+  const [selectedView, setSelectedView] = useState<"details" | "attachments" | "equipment" | "activity" | "notes">("details"); // 'notes' adicionado ao tipo
 
   const currentOrderId = newOrderId || id;
 
@@ -159,9 +159,6 @@ const ServiceOrderDetails: React.FC = () => {
           
         {selectedView === "details" && (
           <>
-            {canAccessTabs && currentOrderId && (
-              <ServiceOrderNotes orderId={currentOrderId} />
-            )}
             <Card className="shadow-none border-none">
               <CardHeader>
                 <CardTitle>{isNew ? "" : "Editar Ordem de Serviço"}</CardTitle>
@@ -175,6 +172,14 @@ const ServiceOrderDetails: React.FC = () => {
               </CardContent>
             </Card>
           </>
+        )}
+
+        {selectedView === "notes" && ( // Nova aba para notas
+          !canAccessTabs ? (
+            <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar notas.</p>
+          ) : (
+            <ServiceOrderNotes orderId={currentOrderId!} />
+          )
         )}
 
         {selectedView === "attachments" && (
