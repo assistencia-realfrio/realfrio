@@ -10,7 +10,7 @@ export interface Equipment {
   brand: string | null; // Novo campo
   model: string | null;
   serial_number: string | null;
-  google_drive_link: string | null; // NOVO: Campo para o link do Google Drive
+  // google_drive_link: string | null; // REMOVIDO: Campo para o link do Google Drive
   created_at: string;
 }
 
@@ -20,7 +20,7 @@ export interface EquipmentFormValues {
   brand?: string; // Novo campo
   model?: string;
   serial_number?: string;
-  google_drive_link?: string; // NOVO: Campo para o link do Google Drive
+  // google_drive_link?: string; // REMOVIDO: Campo para o link do Google Drive
 }
 
 // Função de fetch para buscar equipamentos por cliente
@@ -30,7 +30,7 @@ const fetchEquipmentsByClient = async (userId: string | undefined, clientId: str
   
   const { data, error } = await supabase
     .from('equipments')
-    .select('*, google_drive_link') // Adicionando google_drive_link
+    .select('id, client_id, name, brand, model, serial_number, created_at') // REMOVIDO: google_drive_link
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .eq('client_id', clientId)
     .order('created_at', { ascending: false });
@@ -47,7 +47,7 @@ const fetchEquipmentById = async (userId: string | undefined, equipmentId: strin
 
   const { data, error } = await supabase
     .from('equipments')
-    .select('*, google_drive_link') // Adicionando google_drive_link
+    .select('id, client_id, name, brand, model, serial_number, created_at') // REMOVIDO: google_drive_link
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .eq('id', equipmentId)
     .single(); // Usa .single() para obter um único registro
@@ -92,7 +92,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
           brand: equipmentData.brand || null, // Salvando a marca
           model: equipmentData.model || null,
           serial_number: equipmentData.serial_number || null,
-          google_drive_link: equipmentData.google_drive_link || null, // NOVO: Salvando google_drive_link
+          // google_drive_link: equipmentData.google_drive_link || null, // REMOVIDO: Salvando google_drive_link
           created_by: user.id,
         })
         .select()
@@ -126,7 +126,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
           brand: equipmentData.brand || null,
           model: equipmentData.model || null,
           serial_number: equipmentData.serial_number || null,
-          google_drive_link: equipmentData.google_drive_link || null, // NOVO: Atualizando google_drive_link
+          // google_drive_link: equipmentData.google_drive_link || null, // REMOVIDO: Atualizando google_drive_link
           updated_at: new Date().toISOString(), // Adiciona updated_at
         })
         .eq('id', id)

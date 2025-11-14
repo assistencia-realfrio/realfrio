@@ -13,7 +13,7 @@ const fetchAllEquipments = async (userId: string | undefined): Promise<Equipment
   
   const { data, error } = await supabase
     .from('equipments')
-    .select('*, clients (name)')
+    .select('id, client_id, name, brand, model, serial_number, created_at, clients (name)') // REMOVIDO: google_drive_link
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .order('created_at', { ascending: false });
 

@@ -52,7 +52,7 @@ const EquipmentDetails: React.FC = () => {
             brand: data.brand || undefined,
             model: data.model || undefined,
             serial_number: data.serial_number || undefined,
-            google_drive_link: data.google_drive_link || undefined,
+            // google_drive_link: data.google_drive_link || undefined, // REMOVIDO
         });
         handleEditSuccess();
     } catch (error) {
