@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
               defaultValue={selectedStore}
             >
-              <SelectTrigger>
+              <SelectTrigger> {/* Removido className="bg-white" */}
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
