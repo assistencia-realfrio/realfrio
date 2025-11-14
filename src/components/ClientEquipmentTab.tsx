@@ -45,8 +45,8 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
   }
 
   return (
-    <Card className="shadow-none border-none">
-      <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
+    <div className="shadow-none border-none"> {/* Removido Card e CardContent */}
+      <div className="p-0 pb-4 flex flex-row items-center justify-between"> {/* Substituído CardHeader por div */}
         <CardTitle className="text-lg">Equipamentos Associados</CardTitle>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
@@ -66,8 +66,8 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
             />
           </DialogContent>
         </Dialog>
-      </CardHeader>
-      <CardContent className="p-0">
+      </div>
+      <div className="p-0"> {/* Substituído CardContent por div */}
         {equipments.length > 0 ? (
           <div className="rounded-md border overflow-x-auto">
             <Table>
@@ -100,8 +100,8 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
             Nenhum equipamento associado a este cliente.
           </p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 
