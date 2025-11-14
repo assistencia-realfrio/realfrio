@@ -1,112 +1,112 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ServiceOrders from "./pages/ServiceOrders"; // A nova página de Ordens de Serviço
-import Clients from "./pages/Clients"; // A nova página de Clientes
-import NotFound from "./pages/NotFound";
-import ServiceOrderDetails from "./pages/ServiceOrderDetails";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Dashboard from "./pages/Dashboard";
-import ClientDetails from "./pages/ClientDetails";
-import Equipments from "./pages/Equipments";
-import EquipmentDetails from "./pages/EquipmentDetails";
-import Profile from "./pages/Profile"; // Importando a nova página de perfil
-import CalendarView from "./pages/CalendarView"; // NOVO: Importando a página de calendário
+"use client";
 
-const queryClient = new QueryClient();
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import Index from './pages/Index';
+import ServiceOrders from './pages/ServiceOrders';
+import Clients from './pages/Clients';
+import Activities from './pages/Activities';
+import TimeEntries from './pages/TimeEntries';
+import Equipments from './pages/Equipments';
+import Settings from './pages/Settings';
+import Login from './pages/Login';
+import { useAuth } from './hooks/useAuth';
+import SessionContextProvider from './components/SessionContextProvider';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          
-          {/* Rotas Protegidas */}
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <ServiceOrders /> {/* Página inicial agora é Ordens de Serviço */}
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/clients" 
-            element={
-              <ProtectedRoute>
-                <Clients /> {/* Nova rota para a página de Clientes */}
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/clients/:id" 
-            element={
-              <ProtectedRoute>
-                <ClientDetails /> {/* Rota para detalhes do cliente */}
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/equipments" 
-            element={
-              <ProtectedRoute>
-                <Equipments />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/equipments/:id" 
-            element={
-              <ProtectedRoute>
-                <EquipmentDetails /> {/* Nova rota para detalhes do equipamento */}
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/orders/:id" 
-            element={
-              <ProtectedRoute>
-                <ServiceOrderDetails />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile /> {/* Nova rota para a página de perfil */}
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/calendar" 
-            element={
-              <ProtectedRoute>
-                <CalendarView /> {/* NOVO: Rota para o calendário */}
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+};
+
+function App() {
+  return (
+    <Router>
+      <SessionContextProvider>
+        <AppRoutes />
+      </SessionContextProvider>
+    </Router>
+  );
+}
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Index />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/service-orders"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <ServiceOrders />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/clients"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Clients />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/activities"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Activities />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/time-entries"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <TimeEntries />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/equipments"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Equipments />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <Settings />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
+  );
+}
 
 export default App;
