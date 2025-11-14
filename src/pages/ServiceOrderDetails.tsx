@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, Printer, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -85,6 +85,21 @@ const ServiceOrderDetails: React.FC = () => {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      showSuccess("Link da OS copiado para a área de transferência!");
+    } catch (err) {
+      console.error('Falha ao copiar o link:', err);
+      showError("Falha ao copiar o link. Tente novamente.");
+    }
+  };
+
   const displayTitleId = order?.display_id || currentOrderId;
   const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "OS:";
 
@@ -131,7 +146,19 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {/* Botão de Relatório Removido */}
+                {/* Botão de Partilhar/Copiar Link */}
+                {!isNew && (
+                    <Button variant="ghost" size="icon" onClick={handleShare} aria-label="Partilhar OS">
+                        <Share2 className="h-5 w-5 text-primary" />
+                    </Button>
+                )}
+                {/* Botão de Imprimir */}
+                {!isNew && (
+                    <Button variant="ghost" size="icon" onClick={handlePrint} aria-label="Imprimir OS">
+                        <Printer className="h-5 w-5 text-primary" />
+                    </Button>
+                )}
+                {/* Botão de Excluir */}
                 {!isNew && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
