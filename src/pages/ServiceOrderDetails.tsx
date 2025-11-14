@@ -166,9 +166,7 @@ const ServiceOrderDetails: React.FC = () => {
         {selectedView === "details" && (
           <>
             <Card className="shadow-none border-none">
-              <CardHeader>
-                <CardTitle>{isNew ? "" : "Editar Ordem de Serviço"}</CardTitle>
-              </CardHeader>
+              {/* CardHeader removido para eliminar o título "Editar Ordem de Serviço" */}
               <CardContent>
                 <ServiceOrderForm 
                   initialData={initialData} 
