@@ -81,20 +81,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     {order.display_id}
                 </div>
                 <div className="flex items-center gap-2">
-                    {/* Badges de Notas e Anexos */}
-                    {order.notes_count > 0 && (
-                        <div className="flex items-center text-white text-xs gap-1 bg-black/20 px-1.5 py-0.5 rounded-full">
-                            <MessageSquareText className="h-3 w-3" />
-                            <span>{order.notes_count}</span>
-                        </div>
-                    )}
-                    {order.attachments_count > 0 && (
-                        <div className="flex items-center text-white text-xs gap-1 bg-black/20 px-1.5 py-0.5 rounded-full">
-                            <Paperclip className="h-3 w-3" />
-                            <span>{order.attachments_count}</span>
-                        </div>
-                    )}
-
+                    {/* Removidos Badges de Notas e Anexos daqui */}
                     <Badge  
                         className="whitespace-nowrap text-[10px] px-1.5 py-0.5 border-transparent text-white h-4" // MODIFICADO: Badge menor
                         style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
@@ -145,12 +132,33 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                 </div>
 
-                {order.scheduled_date && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <CalendarIcon className="h-4 w-4" />
-                        <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                {/* NOVO: Seção inferior para data de agendamento e badges */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
+                    <div className="flex items-center gap-2">
+                        {order.scheduled_date && (
+                            <>
+                                <CalendarIcon className="h-4 w-4" />
+                                <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                            </>
+                        )}
                     </div>
-                )}
+                    
+                    <div className="flex items-center gap-2">
+                        {/* Badges de Notas e Anexos movidos para aqui */}
+                        {order.notes_count > 0 && (
+                            <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                                <MessageSquareText className="h-4 w-4" />
+                                <span>{order.notes_count}</span>
+                            </div>
+                        )}
+                        {order.attachments_count > 0 && (
+                            <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                                <Paperclip className="h-4 w-4" />
+                                <span>{order.attachments_count}</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
