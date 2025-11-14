@@ -23,7 +23,7 @@ interface ServiceOrderCardProps {
     order: ServiceOrder;
 }
 
-const getStoreSidebarColor = (store: ServiceOrder['store'] | null): string => {
+const getStoreColor = (store: ServiceOrder['store'] | null): string => {
   switch (store) {
     case "CALDAS DA RAINHA":
       return "#3b82f6"; // blue-500
@@ -63,100 +63,102 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     };
     
     const statusBgColor = statusChartColors[order.status];
-    const storeHeaderColor = getStoreSidebarColor(order.store);
-    const transparentStoreHeaderColor = hexToRgba(storeHeaderColor, 0.75); // Ajustado para 75% de transparência
+    const storeColor = getStoreColor(order.store);
 
     return (
         <div 
             onClick={handleNavigate}
             className={cn(
-                "hover:shadow-md transition-shadow flex flex-col relative rounded-lg border bg-card cursor-pointer"
+                "hover:shadow-md transition-shadow flex relative rounded-lg border bg-card cursor-pointer overflow-hidden" // Adicionado overflow-hidden
             )} 
         >
+            {/* Barra lateral esquerda com a cor da loja */}
             <div 
-                className="flex items-center justify-between px-3 py-1.5 rounded-t-lg" 
-                style={{ background: `linear-gradient(to right, ${transparentStoreHeaderColor}, transparent)` }}
-            >
-                <div className="font-semibold text-sm text-white truncate pr-2">
-                    {order.display_id}
-                </div>
-                <div className="flex items-center gap-2">
-                    {/* Removidos Badges de Notas e Anexos daqui */}
-                    <Badge  
-                        className="whitespace-nowrap text-[10px] px-1.5 py-0.5 border-transparent text-white h-4" // MODIFICADO: Badge menor
-                        style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
-                    >
-                        {order.status}
-                    </Badge>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                // Removido text-white e garantido que o botão use a cor de foreground (preto no tema claro)
-                                className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent hover:bg-white/20 text-foreground"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <MoreHorizontal className="h-4 w-4" /> {/* Removido text-white daqui */}
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                            <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            {serviceOrderStatuses.map((status) => (
-                                <DropdownMenuItem 
-                                    key={status} 
-                                    onClick={() => handleStatusChange(status)}
-                                    disabled={updateOrder.isPending}
+                className="w-2 flex-shrink-0 rounded-l-lg" 
+                style={{ backgroundColor: storeColor }}
+            ></div>
+
+            <div className="flex flex-col flex-grow">
+                <div 
+                    className="flex items-center justify-between px-3 py-1.5" // Removido background e rounded-t-lg
+                >
+                    <div className="font-semibold text-sm text-foreground truncate pr-2"> {/* Alterado para text-foreground */}
+                        {order.display_id}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Badge  
+                            className="whitespace-nowrap text-[10px] px-1.5 py-0.5 border-transparent text-white h-4"
+                            style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
+                        >
+                            {order.status}
+                        </Badge>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent hover:bg-muted text-muted-foreground" // Alterado para text-muted-foreground
+                                    onClick={(e) => e.stopPropagation()}
                                 >
-                                    <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
-                                    {status}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </div>
-
-            <div className="flex flex-col flex-grow p-4">
-                <div className="flex flex-col space-y-2 flex-grow">
-                    <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <p className="font-semibold text-base truncate">{order.client}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <p className="text-base truncate">{order.equipment}</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                        <p className="text-sm text-muted-foreground line-clamp-2">{order.description}</p>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {serviceOrderStatuses.map((status) => (
+                                    <DropdownMenuItem 
+                                        key={status} 
+                                        onClick={() => handleStatusChange(status)}
+                                        disabled={updateOrder.isPending}
+                                    >
+                                        <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
+                                        {status}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
 
-                {/* NOVO: Seção inferior para data de agendamento e badges */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
-                    <div className="flex items-center gap-2">
-                        {order.scheduled_date && (
-                            <>
-                                <CalendarIcon className="h-4 w-4" />
-                                <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
-                            </>
-                        )}
+                <div className="flex flex-col flex-grow p-4 pt-2"> {/* Ajustado padding-top */}
+                    <div className="flex flex-col space-y-2 flex-grow">
+                        <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <p className="font-semibold text-base truncate">{order.client}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <p className="text-base truncate">{order.equipment}</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-muted-foreground line-clamp-2">{order.description}</p>
+                        </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                        {/* Badges de Notas e Anexos movidos para aqui */}
-                        {order.notes_count > 0 && (
-                            <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                                <MessageSquareText className="h-4 w-4" />
-                                <span>{order.notes_count}</span>
-                            </div>
-                        )}
-                        {order.attachments_count > 0 && (
-                            <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                                <Paperclip className="h-4 w-4" />
-                                <span>{order.attachments_count}</span>
-                            </div>
-                        )}
+
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
+                        <div className="flex items-center gap-2">
+                            {order.scheduled_date && (
+                                <>
+                                    <CalendarIcon className="h-4 w-4" />
+                                    <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                                </>
+                            )}
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            {order.notes_count > 0 && (
+                                <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                                    <MessageSquareText className="h-4 w-4" />
+                                    <span>{order.notes_count}</span>
+                                </div>
+                            )}
+                            {order.attachments_count > 0 && (
+                                <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                                    <Paperclip className="h-4 w-4" />
+                                    <span>{order.attachments_count}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
