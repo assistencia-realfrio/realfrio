@@ -15,6 +15,7 @@ import { useEquipments, Equipment } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import EquipmentForm from "./EquipmentForm";
 import { useNavigate } from "react-router-dom";
+import EquipmentCard from "./EquipmentCard"; // Importar o novo componente EquipmentCard
 
 interface ClientEquipmentTabProps {
   clientId: string;
@@ -30,24 +31,20 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
     // A query será invalidada automaticamente pelo hook useEquipments
   };
 
-  const handleRowClick = (equipmentId: string) => {
-    navigate(`/equipments/${equipmentId}`);
-  };
-
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-40 w-full" />
       </div>
     );
   }
 
   return (
-    <div className="shadow-none border-none"> {/* Removido Card e CardContent */}
-      <div className="p-0 pb-4 flex flex-row items-center justify-between"> {/* Substituído CardHeader por div */}
-        {/* CardTitle removido */}
+    <div className="shadow-none border-none">
+      <div className="p-0 pb-4 flex flex-row items-center justify-between">
+        <CardTitle className="text-lg">Equipamentos Associados</CardTitle>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={() => setIsAddModalOpen(true)}>
@@ -67,33 +64,12 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
           </DialogContent>
         </Dialog>
       </div>
-      <div className="p-0"> {/* Substituído CardContent por div */}
+      <div className="p-0">
         {equipments.length > 0 ? (
-          <div className="rounded-md border overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Marca</TableHead>
-                  <TableHead>Modelo</TableHead>
-                  <TableHead className="hidden sm:table-cell">Nº Série</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {equipments.map((equipment) => (
-                  <TableRow 
-                    key={equipment.id} 
-                    onClick={() => handleRowClick(equipment.id)}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell className="font-medium">{equipment.name}</TableCell>
-                    <TableCell>{equipment.brand || 'N/A'}</TableCell>
-                    <TableCell>{equipment.model || 'N/A'}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"> {/* Layout de grade para os cartões */}
+            {equipments.map((equipment) => (
+              <EquipmentCard key={equipment.id} equipment={equipment} />
+            ))}
           </div>
         ) : (
           <p className="text-center text-muted-foreground py-8 text-sm">
