@@ -39,12 +39,12 @@ const Clients: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-3xl font-bold tracking-tight">Gestão de Clientes</h2>
+        <div className="flex justify-between items-center gap-4"> {/* Ajustado para flex justify-between items-center */}
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">CLIENTES</h2> {/* Título atualizado */}
           
           <Dialog open={isNewClientModalOpen} onOpenChange={setIsNewClientModalOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto" onClick={() => setIsNewClientModalOpen(true)}>
+              <Button className="flex-shrink-0" onClick={() => setIsNewClientModalOpen(true)}> {/* Removido w-full sm:w-auto */}
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Novo Cliente
               </Button>
