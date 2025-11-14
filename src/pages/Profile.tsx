@@ -38,6 +38,7 @@ const Profile: React.FC = () => {
   }
 
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+  const displayStore = profile.store ? profile.store.replace('_', ' ') : 'Não definida';
 
   return (
     <Layout>
@@ -74,9 +75,12 @@ const Profile: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Email</p>
-                  <p className="font-medium">{profile.id}</p> {/* O ID do perfil é o email do utilizador */}
+                  <p className="font-medium">{profile.id}</p>
                 </div>
-                {/* Adicionar mais campos do perfil aqui se existirem */}
+                <div>
+                  <p className="text-muted-foreground">Loja Padrão</p>
+                  <p className="font-medium">{displayStore}</p>
+                </div>
               </div>
             )}
           </CardContent>

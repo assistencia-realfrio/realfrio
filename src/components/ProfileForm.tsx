@@ -12,12 +12,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { showSuccess, showError } from "@/utils/toast";
 import { useProfile, Profile } from "@/hooks/useProfile";
 
 const profileFormSchema = z.object({
   first_name: z.string().min(1, { message: "O primeiro nome é obrigatório." }).nullable(),
   last_name: z.string().min(1, { message: "O último nome é obrigatório." }).nullable(),
+  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]).nullable(), // NOVO: Campo de loja
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -36,6 +44,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
     defaultValues: {
       first_name: initialData.first_name || "",
       last_name: initialData.last_name || "",
+      store: initialData.store || null, // Definindo valor padrão para a loja
     },
   });
 
@@ -44,6 +53,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
       await updateProfile.mutateAsync({
         first_name: data.first_name || undefined,
         last_name: data.last_name || undefined,
+        store: data.store, // Enviando a loja
       });
       showSuccess("Perfil atualizado com sucesso!");
       onSuccess();
@@ -82,7 +92,35 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
             </FormItem>
           )}
         />
-        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4"> {/* Ajustado para empilhar em mobile */}
+        
+        {/* NOVO: Campo de Seleção de Loja Padrão */}
+        <FormField
+          control={form.control}
+          name="store"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Loja Padrão</FormLabel>
+              <Select 
+                onValueChange={(value) => field.onChange(value === "" ? null : value)} 
+                value={field.value || ""}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a loja padrão" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="">Nenhuma (Ver todas)</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel} disabled={updateProfile.isPending} className="w-full sm:w-auto">
             Cancelar
           </Button>

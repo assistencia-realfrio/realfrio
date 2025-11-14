@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Layout from "@/components/Layout";
 import MetricCard from "@/components/MetricCard";
 import StatusChart from "@/components/StatusChart";
@@ -12,23 +12,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ServiceOrder } from "@/hooks/useServiceOrders"; // Importar ServiceOrder para o tipo
+import { ServiceOrder } from "@/hooks/useServiceOrders";
+import { useProfile } from "@/hooks/useProfile"; // NOVO: Importar useProfile
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 
 const Dashboard: React.FC = () => {
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
+  const { profile, isLoading: isLoadingProfile } = useProfile(); // NOVO: Obter perfil
+  
+  // Determinar o valor inicial do filtro de loja
+  const initialStoreFilter: StoreFilter = useMemo(() => {
+    return profile?.store || 'ALL';
+  }, [profile?.store]);
+
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>(initialStoreFilter);
+  
+  // Atualiza o estado se o perfil carregar depois
+  useEffect(() => {
+    if (!isLoadingProfile && profile?.store && selectedStore === 'ALL') {
+        setSelectedStore(profile.store);
+    }
+  }, [isLoadingProfile, profile?.store, selectedStore]);
+
   const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
 
   // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.
   const totalTimeRegistered = "0h"; 
 
-  if (isLoading) {
+  if (isLoading || isLoadingProfile) {
     return (
       <Layout>
         <div className="space-y-8">
           <Skeleton className="h-10 w-1/3" />
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
           </div>
           <Skeleton className="h-[350px] w-full" />
@@ -45,9 +61,9 @@ const Dashboard: React.FC = () => {
           <div className="w-full sm:w-48">
             <Select 
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
-              defaultValue={selectedStore}
+              value={selectedStore}
             >
-              <SelectTrigger className="bg-white"> {/* Alterado de volta para className="bg-white" */}
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
@@ -60,7 +76,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Seção de Métricas */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> {/* Ajustado para grid-cols-1 em telas muito pequenas */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total de OS"
             value={totalOrders}

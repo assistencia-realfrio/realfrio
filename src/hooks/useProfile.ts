@@ -9,12 +9,14 @@ export interface Profile {
   last_name: string | null;
   avatar_url: string | null;
   updated_at: string | null;
+  store: 'CALDAS DA RAINHA' | 'PORTO DE MÓS' | null; // NOVO: Loja associada ao perfil
 }
 
 interface UpdateProfilePayload {
   first_name?: string;
   last_name?: string;
   avatar_url?: string;
+  store?: 'CALDAS DA RAINHA' | 'PORTO DE MÓS' | null; // NOVO: Permitir atualização da loja
 }
 
 const fetchProfile = async (userId: string | undefined): Promise<Profile | null> => {

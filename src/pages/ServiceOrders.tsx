@@ -14,7 +14,7 @@ import {
 import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
-// import FloatingActionButton from "@/components/FloatingActionButton"; // Importar o novo componente FAB
+import { useProfile } from "@/hooks/useProfile"; // NOVO: Importar useProfile
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrderStatus | 'ALL';
@@ -22,15 +22,32 @@ type StatusFilter = ServiceOrderStatus | 'ALL';
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { profile, isLoading: isLoadingProfile } = useProfile(); // NOVO: Obter perfil
 
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>(
-    (searchParams.get('store') as StoreFilter) || 'ALL'
-  );
+  // Determinar o valor inicial do filtro de loja
+  const initialStoreFilter: StoreFilter = useMemo(() => {
+    const urlStore = searchParams.get('store') as StoreFilter;
+    if (urlStore && (urlStore === 'CALDAS DA RAINHA' || urlStore === 'PORTO DE MÓS' || urlStore === 'ALL')) {
+      return urlStore;
+    }
+    // Se não houver na URL, usa a loja do perfil ou 'ALL'
+    return profile?.store || 'ALL';
+  }, [searchParams, profile?.store]);
+
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>(initialStoreFilter);
+  
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-    (searchParams.get('status') as StatusFilter) || 'ALL' // ALTERADO: Definido como 'ALL' por padrão
+    (searchParams.get('status') as StatusFilter) || 'ALL'
   );
   
-  // NOVO: Passar selectedStatus diretamente para useServiceOrders
+  // Se o perfil carregar depois, atualiza o filtro se ele ainda estiver no valor padrão 'ALL'
+  useEffect(() => {
+    if (!isLoadingProfile && profile?.store && selectedStore === 'ALL' && !searchParams.get('store')) {
+        setSelectedStore(profile.store);
+    }
+  }, [isLoadingProfile, profile?.store, selectedStore, searchParams]);
+
+  // Hook principal de dados
   const { orders, isLoading } = useServiceOrders(undefined, selectedStore, selectedStatus);
 
   const allOrders = orders;
@@ -42,12 +59,10 @@ const ServiceOrders: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams();
     
-    // Apenas define o status na URL se não for 'ALL'
     if (selectedStatus && selectedStatus !== 'ALL') {
       params.set('status', selectedStatus);
     }
     
-    // Apenas define a loja na URL se não for 'ALL'
     if (selectedStore && selectedStore !== 'ALL') {
       params.set('store', selectedStore);
     }
@@ -59,21 +74,10 @@ const ServiceOrders: React.FC = () => {
     navigate("/orders/new");
   };
 
-  // A filtragem por loja agora é feita no hook useServiceOrders, então 'ordersFilteredByStore' não é mais necessário aqui.
-  // 'allOrders' já contém os pedidos filtrados por loja e status.
-
-  const statusCounts = useMemo(() => {
-    return allOrders.reduce((acc, order) => { // Usar allOrders (já filtrado)
-      acc[order.status] = (acc[order.status] || 0) + 1;
-      return acc;
-    }, {} as Record<ServiceOrderStatus, number>);
-  }, [allOrders]);
-
-  // 'filteredOrders' agora é simplesmente 'allOrders' porque a filtragem já ocorreu no hook
-  const filteredOrders = allOrders;
+  const { orders: allOrdersWithoutStatusFilter } = useServiceOrders(undefined, selectedStore, 'ALL');
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
-    if (isLoading) {
+    if (isLoading || isLoadingProfile) {
         return (
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-40 w-full" />)}
@@ -95,21 +99,6 @@ const ServiceOrders: React.FC = () => {
     );
   };
 
-  // Para as contagens nos seletores, precisamos das ordens *sem* o filtro de status, mas *com* o filtro de loja.
-  // Para isso, vamos buscar as ordens novamente, mas apenas para as contagens.
-  // Isso pode ser otimizado se o useServiceOrders retornar também as contagens totais por status/loja.
-  // Por enquanto, para evitar uma nova chamada de API, vamos usar o `orders` que já vem filtrado por loja e status.
-  // Se o `selectedStatus` for 'ALL', `allOrders` já terá todas as ordens da loja selecionada.
-  // Se não for 'ALL', `allOrders` terá apenas as ordens da loja e status selecionados.
-  // Para as contagens de "TODOS", vamos precisar de um `useServiceOrders` separado sem filtro de status.
-  // Para simplificar, vou ajustar as contagens para refletir o que está sendo exibido.
-
-  const { orders: allOrdersWithoutStatusFilter } = useServiceOrders(undefined, selectedStore, 'ALL'); // Nova chamada para contagens
-
-  const allOrdersCount = allOrdersWithoutStatusFilter.length;
-  const caldasOrdersCount = allOrdersWithoutStatusFilter.filter(o => o.store === 'CALDAS DA RAINHA').length;
-  const portoOrdersCount = allOrdersWithoutStatusFilter.filter(o => o.store === 'PORTO DE MÓS').length;
-
   return (
     <Layout>
       <div className="space-y-6">
@@ -127,6 +116,7 @@ const ServiceOrders: React.FC = () => {
               <Select 
                 onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
                 value={selectedStore}
+                disabled={isLoadingProfile}
               >
                 <SelectTrigger className="bg-white">
                   <SelectValue placeholder="LOJA" />
@@ -143,6 +133,7 @@ const ServiceOrders: React.FC = () => {
               <Select 
                 onValueChange={(value: StatusFilter) => setSelectedStatus(value)} 
                 value={selectedStatus}
+                disabled={isLoadingProfile}
               >
                 <SelectTrigger className="bg-white">
                   <SelectValue placeholder="ESTADOS" />
@@ -161,7 +152,7 @@ const ServiceOrders: React.FC = () => {
         </div>
 
         <div className="mt-6">
-          {renderOrderGrid(filteredOrders)}
+          {renderOrderGrid(allOrders)}
         </div>
       </div>
     </Layout>
