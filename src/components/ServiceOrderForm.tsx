@@ -336,7 +336,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        {/* Campo de Data de Agendamento */}
+        {/* Campo de Data de Agendamento e Técnico */}
         <div className="space-y-4"> {/* Alterado para space-y-4 para agrupar Data e Técnico */}
           <FormField
             control={form.control}
@@ -391,13 +391,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
           
-          {/* Campo de Técnico Associado (MOVIDO PARA AQUI) */}
+          {/* Campo de Técnico Associado */}
           <FormField
             control={form.control}
             name="technician_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Técnico Associado (Opcional)</FormLabel>
+                <FormLabel>Técnico Associado</FormLabel>
                 <FormControl>
                   <TechnicianSelector
                     value={field.value || null}
