@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import MetricCard from "@/components/MetricCard";
 import StatusChart from "@/components/StatusChart";
@@ -13,27 +13,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ServiceOrder } from "@/hooks/useServiceOrders";
-import { useProfile } from "@/hooks/useProfile"; // NOVO: Importar useProfile
+import { useProfile } from "@/hooks/useProfile";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 
 const Dashboard: React.FC = () => {
-  const { profile, isLoading: isLoadingProfile } = useProfile(); // NOVO: Obter perfil
+  const { isLoading: isLoadingProfile } = useProfile();
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
-  // Determinar o valor inicial do filtro de loja
-  const initialStoreFilter: StoreFilter = useMemo(() => {
-    return profile?.store || 'ALL';
-  }, [profile?.store]);
-
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>(initialStoreFilter);
-  
-  // Atualiza o estado se o perfil carregar depois
-  useEffect(() => {
-    if (!isLoadingProfile && profile?.store && selectedStore === 'ALL') {
-        setSelectedStore(profile.store);
-    }
-  }, [isLoadingProfile, profile?.store, selectedStore]);
-
   const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
 
   // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.

@@ -13,8 +13,7 @@ import {
 } from "@/components/ui/select";
 import { useServiceOrders, ServiceOrder, ServiceOrderStatus, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isActiveStatus } from "@/lib/serviceOrderStatus";
-import { useProfile } from "@/hooks/useProfile"; // NOVO: Importar useProfile
+import { useProfile } from "@/hooks/useProfile";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 type StatusFilter = ServiceOrderStatus | 'ALL';
@@ -22,17 +21,16 @@ type StatusFilter = ServiceOrderStatus | 'ALL';
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { profile, isLoading: isLoadingProfile } = useProfile(); // NOVO: Obter perfil
+  const { isLoading: isLoadingProfile } = useProfile();
 
-  // Determinar o valor inicial do filtro de loja
+  // Determinar o valor inicial do filtro de loja a partir da URL, ou 'ALL' como padrão.
   const initialStoreFilter: StoreFilter = useMemo(() => {
     const urlStore = searchParams.get('store') as StoreFilter;
     if (urlStore && (urlStore === 'CALDAS DA RAINHA' || urlStore === 'PORTO DE MÓS' || urlStore === 'ALL')) {
       return urlStore;
     }
-    // Se não houver na URL, usa a loja do perfil ou 'ALL'
-    return profile?.store || 'ALL';
-  }, [searchParams, profile?.store]);
+    return 'ALL';
+  }, [searchParams]);
 
   const [selectedStore, setSelectedStore] = useState<StoreFilter>(initialStoreFilter);
   
@@ -40,13 +38,6 @@ const ServiceOrders: React.FC = () => {
     (searchParams.get('status') as StatusFilter) || 'ALL'
   );
   
-  // Se o perfil carregar depois, atualiza o filtro se ele ainda estiver no valor padrão 'ALL'
-  useEffect(() => {
-    if (!isLoadingProfile && profile?.store && selectedStore === 'ALL' && !searchParams.get('store')) {
-        setSelectedStore(profile.store);
-    }
-  }, [isLoadingProfile, profile?.store, selectedStore, searchParams]);
-
   // Hook principal de dados
   const { orders, isLoading } = useServiceOrders(undefined, selectedStore, selectedStatus);
 
