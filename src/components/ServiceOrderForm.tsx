@@ -397,7 +397,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="technician_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Técnico Associado</FormLabel>
+                {/* Rótulo removido */}
                 <FormControl>
                   <TechnicianSelector
                     value={field.value || null}
