@@ -21,28 +21,22 @@ type StatusFilter = ServiceOrderStatus | 'ALL';
 const ServiceOrders: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { profile, isLoading: isLoadingProfile } = useProfile();
+  const { isLoading: isLoadingProfile } = useProfile();
 
-  // O estado agora é inicializado lendo a URL, ou 'ALL' como fallback temporário.
-  const [selectedStore, setSelectedStore] = useState<StoreFilter>(
-    () => (searchParams.get('store') as StoreFilter) || 'ALL'
-  );
+  // Determinar o valor inicial do filtro de loja a partir da URL, ou 'ALL' como padrão.
+  const initialStoreFilter: StoreFilter = useMemo(() => {
+    const urlStore = searchParams.get('store') as StoreFilter;
+    if (urlStore && (urlStore === 'CALDAS DA RAINHA' || urlStore === 'PORTO DE MÓS' || urlStore === 'ALL')) {
+      return urlStore;
+    }
+    return 'ALL';
+  }, [searchParams]);
+
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>(initialStoreFilter);
   
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>(
-    () => (searchParams.get('status') as StatusFilter) || 'ALL'
+    (searchParams.get('status') as StatusFilter) || 'ALL'
   );
-
-  // Efeito para definir o filtro de loja padrão com base no perfil do utilizador
-  useEffect(() => {
-    // Executa apenas depois que o perfil for carregado e se não houver filtro de loja na URL
-    if (!isLoadingProfile && !searchParams.has('store')) {
-      if (profile?.store) {
-        setSelectedStore(profile.store);
-      } else {
-        setSelectedStore('ALL');
-      }
-    }
-  }, [profile, isLoadingProfile, searchParams]);
   
   // Hook principal de dados
   const { orders, isLoading } = useServiceOrders(undefined, selectedStore, selectedStatus);
@@ -53,20 +47,15 @@ const ServiceOrders: React.FC = () => {
     return serviceOrderStatuses;
   }, []);
 
-  // Efeito para sincronizar o estado dos filtros com a URL
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams();
+    
+    if (selectedStatus && selectedStatus !== 'ALL') {
+      params.set('status', selectedStatus);
+    }
     
     if (selectedStore && selectedStore !== 'ALL') {
       params.set('store', selectedStore);
-    } else {
-      params.delete('store');
-    }
-
-    if (selectedStatus && selectedStatus !== 'ALL') {
-      params.set('status', selectedStatus);
-    } else {
-      params.delete('status');
     }
     
     setSearchParams(params, { replace: true });

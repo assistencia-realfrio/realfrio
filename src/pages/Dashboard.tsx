@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Layout from "@/components/Layout";
 import MetricCard from "@/components/MetricCard";
 import StatusChart from "@/components/StatusChart";
@@ -18,19 +18,8 @@ import { useProfile } from "@/hooks/useProfile";
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 
 const Dashboard: React.FC = () => {
-  const { profile, isLoading: isLoadingProfile } = useProfile();
+  const { isLoading: isLoadingProfile } = useProfile();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
-
-  // Efeito para definir o filtro de loja padrão com base no perfil do utilizador
-  useEffect(() => {
-    if (!isLoadingProfile) {
-      if (profile?.store) {
-        setSelectedStore(profile.store);
-      } else {
-        setSelectedStore('ALL');
-      }
-    }
-  }, [profile, isLoadingProfile]);
   
   const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
 
