@@ -192,55 +192,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Ajustado space-y de 6 para 4 */}
         
-        {/* Campos de Status e Loja */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2"> {/* Ajustado gap de 4 para 2 */}
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                {/* <FormLabel>Estado *</FormLabel> REMOVIDO */}
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Estado *" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {serviceOrderStatuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        
-          <FormField
-            control={form.control}
-            name="store"
-            render={({ field }) => (
-              <FormItem>
-                {/* <FormLabel>Loja *</FormLabel> REMOVIDO */}
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Loja *" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Campos de Cliente e Equipamento */}
+        {/* Campos de Cliente e Equipamento (MOVIDOS PARA CIMA) */}
         <div className="space-y-2"> {/* Ajustado space-y de 4 para 2 */}
           <FormField
             control={form.control}
@@ -316,6 +268,54 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       <FormMessage />
                   </FormItem>
               )}
+          />
+        </div>
+
+        {/* Campos de Status e Loja (MOVIDOS PARA BAIXO) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2"> {/* Ajustado gap de 4 para 2 */}
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                {/* <FormLabel>Estado *</FormLabel> REMOVIDO */}
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Estado *" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {serviceOrderStatuses.map(status => (
+                      <SelectItem key={status} value={status}>{status}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        
+          <FormField
+            control={form.control}
+            name="store"
+            render={({ field }) => (
+              <FormItem>
+                {/* <FormLabel>Loja *</FormLabel> REMOVIDO */}
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Loja *" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                    <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
 
