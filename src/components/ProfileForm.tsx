@@ -101,8 +101,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
             <FormItem>
               <FormLabel>Loja Padrão</FormLabel>
               <Select 
-                onValueChange={(value) => field.onChange(value === "" ? null : value)} 
-                value={field.value || ""}
+                // Se o valor for 'NONE_SELECTED', define como null. Caso contrário, usa o valor.
+                onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
+                // Se o valor for null, usa 'NONE_SELECTED' para o Select, evitando string vazia.
+                value={field.value || "NONE_SELECTED"}
               >
                 <FormControl>
                   <SelectTrigger>
@@ -110,7 +112,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">Nenhuma (Ver todas)</SelectItem>
+                  {/* Usando um valor não vazio para representar o estado nulo */}
+                  <SelectItem value="NONE_SELECTED">Nenhuma (Ver todas)</SelectItem>
                   <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
                   <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                 </SelectContent>
