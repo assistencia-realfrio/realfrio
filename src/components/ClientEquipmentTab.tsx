@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
@@ -22,14 +22,7 @@ interface ClientEquipmentTabProps {
 }
 
 const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => {
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { equipments, isLoading } = useEquipments(clientId);
-  const navigate = useNavigate();
-
-  const handleNewEquipmentSuccess = () => {
-    setIsAddModalOpen(false);
-    // A query será invalidada automaticamente pelo hook useEquipments
-  };
 
   if (isLoading) {
     return (
@@ -44,25 +37,8 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
   return (
     <div className="shadow-none border-none">
       <div className="p-0 pb-4 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Equipamentos Associados</CardTitle>
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm" onClick={() => setIsAddModalOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Adicionar Equipamento
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
-            </DialogHeader>
-            <EquipmentForm 
-              clientId={clientId} 
-              onSubmit={handleNewEquipmentSuccess} 
-              onCancel={() => setIsAddModalOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
+        {/* Título "Equipamentos Associados" removido */}
+        {/* Botão "Adicionar Equipamento" movido para ClientDetails.tsx */}
       </div>
       <div className="p-0">
         {equipments.length > 0 ? (

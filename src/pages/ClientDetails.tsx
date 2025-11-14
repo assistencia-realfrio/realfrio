@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen } from "lucide-react"; // Adicionado FolderOpen
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle } from "lucide-react"; // Adicionado FolderOpen e PlusCircle
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab"; // Caminho corrigido
 import {
@@ -24,6 +24,8 @@ import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import { Card, CardContent } from "@/components/ui/card"; // Importar Card e CardContent
 import { isLinkClickable } from "@/lib/utils"; // Importar a nova função utilitária
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // Importar Dialog para o novo equipamento
+import EquipmentForm from "@/components/EquipmentForm"; // Importar EquipmentForm
 
 const ClientActions: React.FC<{ client: Client, onEdit: () => void, onDelete: () => void, isDeleting: boolean }> = ({ client, onEdit, onDelete, isDeleting }) => (
     <div className="flex justify-end space-x-2 mb-4">
@@ -175,6 +177,7 @@ const ClientDetails: React.FC = () => {
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
   const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details"); // 'history' removido do tipo
+  const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false); // NOVO: Estado para o modal de adicionar equipamento
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -200,6 +203,12 @@ const ClientDetails: React.FC = () => {
         console.error("Erro ao deletar cliente:", error);
         showError("Erro ao deletar cliente. Tente novamente.");
     }
+  };
+
+  // NOVO: Função para lidar com o sucesso da criação de equipamento
+  const handleNewEquipmentSuccess = () => {
+    setIsAddEquipmentModalOpen(false);
+    showSuccess("Equipamento adicionado com sucesso!");
   };
 
   if (isLoading) {
@@ -243,8 +252,14 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* REMOVIDO: Título com o nome do cliente */}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Título com o nome do cliente */}
           </div>
+          {selectedView === 'equipments' && ( // NOVO: Botão "Adicionar Equipamento" apenas na aba de equipamentos
+            <Button size="sm" onClick={() => setIsAddEquipmentModalOpen(true)} className="flex-shrink-0">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Adicionar Equipamento
+            </Button>
+          )}
         </div>
 
         {selectedView === 'details' && (
@@ -284,6 +299,20 @@ const ClientDetails: React.FC = () => {
         selectedView={selectedView}
         onSelectView={setSelectedView}
       />
+
+      {/* NOVO: Modal de Adição de Equipamento */}
+      <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
+          </DialogHeader>
+          <EquipmentForm 
+            clientId={client.id} 
+            onSubmit={handleNewEquipmentSuccess} 
+            onCancel={() => setIsAddEquipmentModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
