@@ -52,6 +52,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 serial_number: order.serial_number || undefined,
                 equipment_id: order.equipment_id || undefined,
                 scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+                technician_id: order.technician_id, // Incluir technician_id
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -135,30 +136,40 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <div className="flex items-center gap-2">
-                            {order.scheduled_date && (
-                                <>
-                                    <CalendarIcon className="h-4 w-4" />
-                                    <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
-                                </>
-                            )}
+                    <div className="flex flex-col text-xs text-muted-foreground mt-3 pt-3 border-t">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                {order.scheduled_date && (
+                                    <>
+                                        <CalendarIcon className="h-4 w-4" />
+                                        <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                                    </>
+                                )}
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                                {order.notes_count > 0 && (
+                                    <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                                        <MessageSquareText className="h-4 w-4" />
+                                        <span>{order.notes_count}</span>
+                                    </div>
+                                )}
+                                {order.attachments_count > 0 && (
+                                    <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                                        <Paperclip className="h-4 w-4" />
+                                        <span>{order.attachments_count}</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         
-                        <div className="flex items-center gap-2">
-                            {order.notes_count > 0 && (
-                                <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                                    <MessageSquareText className="h-4 w-4" />
-                                    <span>{order.notes_count}</span>
-                                </div>
-                            )}
-                            {order.attachments_count > 0 && (
-                                <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                                    <Paperclip className="h-4 w-4" />
-                                    <span>{order.attachments_count}</span>
-                                </div>
-                            )}
-                        </div>
+                        {/* NOVO: Exibir Técnico Atribuído */}
+                        {order.technician_name && (
+                            <div className="flex items-center gap-2 mt-1">
+                                <User className="h-4 w-4" />
+                                <span>Técnico: {order.technician_name}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
