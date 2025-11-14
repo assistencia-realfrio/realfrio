@@ -101,7 +101,7 @@ const ServiceOrderDetails: React.FC = () => {
   };
 
   const displayTitleId = order?.display_id || currentOrderId;
-  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "Detalhes da OS"; // Título simplificado para o cabeçalho
+  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "OS"; // Título simplificado
 
   if (!isNew && isLoading) {
     return (
@@ -138,7 +138,11 @@ const ServiceOrderDetails: React.FC = () => {
                     <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <h2 className="text-lg sm:text-xl font-bold tracking-tight truncate">
-                  {titlePrefix}
+                  {isNew ? titlePrefix : (
+                    <>
+                      {titlePrefix}
+                    </>
+                  )}
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
@@ -193,7 +197,7 @@ const ServiceOrderDetails: React.FC = () => {
               {!isNew && (
                 <div className="text-center pt-6 pb-4 border-b border-border/50">
                   <p className="text-sm text-muted-foreground font-medium">Ordem de Serviço</p>
-                  <h3 className="text-3xl font-extrabold tracking-tight text-primary mt-1">
+                  <h3 className="text-2xl font-extrabold tracking-tight text-primary mt-1">
                     {displayTitleId}
                   </h3>
                 </div>
