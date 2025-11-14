@@ -27,8 +27,6 @@ import { isLinkClickable } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
 
-// O componente ClientActions foi removido, sua lógica foi integrada abaixo.
-
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
 
@@ -196,7 +194,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
+            {/* REMOVIDO: h2 com o nome do cliente */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -280,6 +278,11 @@ const ClientDetails: React.FC = () => {
 
         {selectedView === 'details' && (
           <>
+            {/* Se estiver em modo de visualização, exibe o nome do cliente como um título secundário */}
+            {!isEditing && (
+                <h2 className="text-2xl font-bold tracking-tight truncate">{client.name}</h2>
+            )}
+            
             {isEditing ? (
               <ClientForm 
                 initialData={initialFormData} 
