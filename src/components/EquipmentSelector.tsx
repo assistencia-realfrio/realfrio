@@ -93,6 +93,8 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   const displayValue = selectedEquipment 
     ? selectedEquipment.name
     : "Selecione ou adicione um equipamento";
+    
+  const isSelected = !!selectedEquipment;
 
   return (
     <>
@@ -105,7 +107,12 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             className="w-full justify-between"
             disabled={disabled} // Aplica a prop disabled aqui
           >
-            {displayValue}
+            <span className={cn(
+                "truncate",
+                isSelected ? "font-bold text-foreground" : "text-muted-foreground"
+            )}>
+                {displayValue}
+            </span>
             <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

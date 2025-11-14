@@ -70,7 +70,12 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
             className="w-full justify-between"
             disabled={disabled} // Aplica a prop disabled aqui
           >
-            {selectedClientName || "Selecione ou adicione um cliente"}
+            <span className={cn(
+                "truncate",
+                selectedClientName ? "font-bold text-foreground" : "text-muted-foreground"
+            )}>
+                {selectedClientName || "Selecione ou adicione um cliente"}
+            </span>
             <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
