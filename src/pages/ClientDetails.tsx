@@ -194,7 +194,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* O nome do cliente é exibido abaixo, se não estiver editando */}
+            {/* O nome do cliente será exibido dentro do ClientDetailsView ou no modo de edição */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -278,10 +278,7 @@ const ClientDetails: React.FC = () => {
 
         {selectedView === 'details' && (
           <>
-            {/* Se estiver em modo de visualização, exibe o nome do cliente como um título secundário */}
-            {!isEditing && (
-                <h2 className="text-2xl font-bold tracking-tight truncate">{client.name}</h2>
-            )}
+            {/* REMOVIDO: h2 com o nome do cliente */}
             
             {isEditing ? (
               <Card> {/* NOVO: Envolvendo o formulário em um Card */}
