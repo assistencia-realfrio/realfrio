@@ -182,7 +182,9 @@ const ServiceOrderDetails: React.FC = () => {
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar notas.</p>
           ) : (
-            <ServiceOrderNotes orderId={currentOrderId!} />
+            <div className="mt-6"> {/* Adicionado margem superior aqui */}
+              <ServiceOrderNotes orderId={currentOrderId!} />
+            </div>
           )
         )}
 
