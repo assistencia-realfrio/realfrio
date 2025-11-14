@@ -2,12 +2,15 @@ import React, { useState, useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
+import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { format, isSameDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import OrderListItem from "@/components/OrderListItem";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const CalendarView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -24,6 +27,9 @@ const CalendarView: React.FC = () => {
     );
   }, [selectedDate, scheduledOrders]);
 
+  // Modifiers (para marcar datas com OS) são mantidos, mas não serão usados no calendário compacto.
+  // Removendo o cálculo de modifiers, pois não são mais necessários para o calendário mensal.
+  /*
   const modifiers = useMemo(() => {
     const datesWithOrders = scheduledOrders.map(order => parseISO(order.scheduled_date!));
     return {
@@ -34,6 +40,7 @@ const CalendarView: React.FC = () => {
   const modifiersClassNames = {
     scheduled: "bg-primary text-primary-foreground rounded-full",
   };
+  */
 
   return (
     <Layout>
@@ -44,24 +51,45 @@ const CalendarView: React.FC = () => {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-0">
+          
+          {/* Card de Seleção de Data Compacto */}
+          <Card className="lg:col-span-1">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg">Selecione uma Data</CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center p-0">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                locale={ptBR}
-                modifiers={modifiers}
-                modifiersClassNames={modifiersClassNames}
-                className="rounded-md border shadow"
-              />
+            <CardContent className="p-4 pt-0">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !selectedDate && "text-muted-foreground"
+                            )}
+                        >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate ? (
+                                format(selectedDate, "PPP", { locale: ptBR })
+                            ) : (
+                                <span>Selecione uma data</span>
+                            )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            locale={ptBR}
+                            initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
             </CardContent>
           </Card>
+          {/* Fim do Card de Seleção de Data Compacto */}
 
-          <Card>
+          <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="text-lg">
                 OS Agendadas para {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : "Nenhuma Data Selecionada"}
