@@ -198,7 +198,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         
-        {/* Campos de Cliente, Equipamento e Descrição */}
+        {/* Campos de Cliente e Equipamento */}
         <div className="space-y-4 pt-4"> {/* Aumentado space-y para melhor espaçamento */}
           <FormField
             control={form.control}
@@ -274,26 +274,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               )}
           />
 
-          {/* Campo de Técnico Associado (NOVO) */}
-          <FormField
-            control={form.control}
-            name="technician_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Técnico Associado (Opcional)</FormLabel>
-                <FormControl>
-                  <TechnicianSelector
-                    value={field.value || null}
-                    onChange={field.onChange}
-                    disabled={false}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}
+          {/* Campo de Descrição do Serviço */}
           <FormField
             control={form.control}
             name="description"
@@ -356,7 +337,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         </div>
 
         {/* Campo de Data de Agendamento */}
-        <div className="space-y-2">
+        <div className="space-y-4"> {/* Alterado para space-y-4 para agrupar Data e Técnico */}
           <FormField
             control={form.control}
             name="scheduled_date"
@@ -405,6 +386,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     </Button>
                   )}
                 </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          {/* Campo de Técnico Associado (MOVIDO PARA AQUI) */}
+          <FormField
+            control={form.control}
+            name="technician_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Técnico Associado (Opcional)</FormLabel>
+                <FormControl>
+                  <TechnicianSelector
+                    value={field.value || null}
+                    onChange={field.onChange}
+                    disabled={false}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
