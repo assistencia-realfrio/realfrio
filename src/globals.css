@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    --primary: 142 71% 45%; /* Green */
+    --primary: 350 61% 34%; /* Red #8b2231 */
     --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 0 0% 95%; /* Light Grey */
@@ -25,29 +25,23 @@
     --accent: 0 0% 95%;
     --accent-foreground: 0 0% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
-
-    --destructive: 350 61% 34%; /* Custom red #8b2231 */
+    --destructive: 350 61% 27%; /* Darker Red for destructive actions */
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 85%;
     --input: 0 0% 85%;
-    --ring: 142 71% 45%; /* Primary color for focus rings (Green) */
+    --ring: 350 61% 34%; /* Primary color for focus rings (Red) */
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%; /* White for sidebar background */
     --sidebar-foreground: 0 0% 15%; /* Darker grey for text */
-    --sidebar-primary: 142 71% 45%; /* Green, for icons/highlights */
+    --sidebar-primary: 350 61% 34%; /* Red, for icons/highlights */
     --sidebar-primary-foreground: 0 0% 100%; /* White, for text on primary sidebar elements */
-    --sidebar-accent: 142 71% 90%; /* Light green for active background */
-    --sidebar-accent-foreground: 142 71% 20%; /* Darker green for text on active background */
+    --sidebar-accent: 350 61% 90%; /* Light red for active background */
+    --sidebar-accent-foreground: 350 61% 20%; /* Darker red for text on active background */
     --sidebar-border: 0 0% 85%;
-    --sidebar-ring: 142 71% 45%;
+    --sidebar-ring: 350 61% 34%;
   }
 
   .dark {
@@ -60,8 +54,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 0 0% 80%;
 
-    --primary: 142 71% 60%; /* Lighter Green for dark mode */
-    --primary-foreground: 0 0% 10%; /* Very dark grey */
+    --primary: 350 61% 40%; /* Slightly lighter red for dark mode */
+    --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 0 0% 80%;
@@ -72,21 +66,21 @@
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 0 0% 80%;
 
-    --destructive: 350 61% 34%; /* Custom red #8b2231 */
+    --destructive: 350 61% 27%; /* Darker Red for destructive actions */
     --destructive-foreground: 0 0% 100%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 142 71% 60%; /* Primary color for focus rings (Green) */
+    --ring: 350 61% 40%; /* Primary color for focus rings (Red) */
 
     --sidebar-background: 217.2 32.6% 17.5%;
     --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 142 71% 60%;
-    --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 217.2 32.6% 25%;
+    --sidebar-primary: 350 61% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 350 61% 25%; /* Darker red for active background in dark mode */
     --sidebar-accent-foreground: 0 0% 80%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 142 71% 60%;
+    --sidebar-ring: 350 61% 40%;
   }
 }
 
