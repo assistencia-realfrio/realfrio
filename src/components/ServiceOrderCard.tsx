@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -81,6 +81,20 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     {order.display_id}
                 </div>
                 <div className="flex items-center gap-2">
+                    {/* Badges de Notas e Anexos */}
+                    {order.notes_count > 0 && (
+                        <div className="flex items-center text-white text-xs gap-1 bg-black/20 px-1.5 py-0.5 rounded-full">
+                            <MessageSquareText className="h-3 w-3" />
+                            <span>{order.notes_count}</span>
+                        </div>
+                    )}
+                    {order.attachments_count > 0 && (
+                        <div className="flex items-center text-white text-xs gap-1 bg-black/20 px-1.5 py-0.5 rounded-full">
+                            <Paperclip className="h-3 w-3" />
+                            <span>{order.attachments_count}</span>
+                        </div>
+                    )}
+
                     <Badge  
                         className="whitespace-nowrap text-[10px] px-1.5 py-0.5 border-transparent text-white h-4" // MODIFICADO: Badge menor
                         style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}

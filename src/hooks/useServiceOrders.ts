@@ -24,17 +24,22 @@ export interface ServiceOrder {
   created_at: string;
   updated_at: string | null;
   scheduled_date: string | null;
+  // NOVO: Contagens para badges
+  notes_count: number;
+  attachments_count: number;
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'notes_count' | 'attachments_count'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
     scheduled_date?: Date | null;
 };
 
-type ServiceOrderRaw = Omit<ServiceOrder, 'client'> & {
+type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'notes_count' | 'attachments_count'> & {
     clients: { name: string } | { name: string }[] | null;
+    service_order_notes: { count: number }[];
+    order_attachments_metadata: { count: number }[];
 };
 
 const generateDisplayId = (store: ServiceOrder['store']): string => {
@@ -45,7 +50,6 @@ const generateDisplayId = (store: ServiceOrder['store']): string => {
 
 const fetchServiceOrders = async (userId: string | undefined, storeFilter: ServiceOrder['store'] | 'ALL' = 'ALL', statusFilter: ServiceOrderStatus | 'ALL' = 'ALL'): Promise<ServiceOrder[]> => {
   // No longer checking for userId here, as RLS handles authentication.
-  // If userId is truly needed for some other logic, it should be handled differently.
   
   let query = supabase
     .from('service_orders')
@@ -63,7 +67,9 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       client_id,
       equipment_id,
       scheduled_date,
-      clients (name)
+      clients (name),
+      service_order_notes(count),
+      order_attachments_metadata(count)
     `);
     // .eq('created_by', userId); // REMOVIDO: Filtro por created_by
 
@@ -74,6 +80,8 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
   if (statusFilter !== 'ALL') { // NOVO: Aplicar filtro de status
     query = query.eq('status', statusFilter);
   }
+  
+  query = query.order('updated_at', { ascending: false, nullsFirst: false }); // Ordenar por updated_at
 
   const { data, error } = await query;
 
@@ -86,6 +94,9 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
     const clientName = Array.isArray(order.clients) 
         ? order.clients[0]?.name || 'Cliente Desconhecido'
         : order.clients?.name || 'Cliente Desconhecido';
+
+    const notesCount = order.service_order_notes?.[0]?.count || 0;
+    const attachmentsCount = order.order_attachments_metadata?.[0]?.count || 0;
 
     return {
         ...order,
@@ -100,6 +111,8 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         model: order.model,
         equipment_id: order.equipment_id,
         scheduled_date: order.scheduled_date,
+        notes_count: notesCount,
+        attachments_count: attachmentsCount,
     };
   }) as ServiceOrder[];
 

@@ -12,10 +12,12 @@ import { useSession } from "@/contexts/SessionContext";
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from "@/components/ui/skeleton";
 import { stripUuidFromFile } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query"; // Importar useQueryClient
 
 interface Attachment {
-  id: string;
-  name: string;
+  id: string; // ID do metadado
+  name: string; // Nome original do arquivo
+  file_path: string; // Caminho completo no storage
   type: 'image' | 'document' | 'other';
   size: string;
   uploadedBy: string;
@@ -62,6 +64,7 @@ const AttachmentPreviewDialog: React.FC<{
 
 const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
   const { user } = useSession();
+  const queryClient = useQueryClient();
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -90,37 +93,49 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
 
     setIsLoadingAttachments(true);
     try {
-      const { data, error } = await supabase.storage.from(bucketName).list(folderPath, {
-        limit: 100,
-        offset: 0,
-        sortBy: { column: 'created_at', order: 'desc' },
-      });
+      // 1. Buscar metadados da tabela
+      const { data: metadata, error: metadataError } = await supabase
+        .from('order_attachments_metadata')
+        .select(`
+          id, 
+          file_path, 
+          file_name, 
+          created_at, 
+          user_id,
+          profiles (first_name, last_name)
+        `)
+        .eq('service_order_id', orderId)
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (metadataError) throw metadataError;
 
-      const fetched: Attachment[] = await Promise.all(data.map(async (file) => {
-        const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(`${folderPath}/${file.name}`);
+      const fetched: Attachment[] = metadata.map((meta: any) => {
+        const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(meta.file_path);
         
-        const { data: fileData } = await supabase.storage.from(bucketName).download(`${folderPath}/${file.name}`);
+        // Tentativa de inferir o tipo pelo nome do arquivo, já que o mimeType não está no metadado
         let fileType: 'image' | 'document' | 'other' = 'other';
-        if (fileData && fileData.type) {
-          fileType = getFileType(fileData.type);
-        } else if (file.name.match(/\.(jpeg|jpg|png)$/i)) {
+        if (meta.file_name.match(/\.(jpeg|jpg|png|gif)$/i)) {
           fileType = 'image';
-        } else if (file.name.match(/\.pdf$/i)) {
+        } else if (meta.file_name.match(/\.pdf$/i)) {
           fileType = 'document';
         }
 
+        const firstName = meta.profiles?.first_name || '';
+        const lastName = meta.profiles?.last_name || '';
+        const userFullName = `${firstName} ${lastName}`.trim() || 'Usuário Desconhecido';
+
         return {
-          id: `${folderPath}/${file.name}`,
-          name: file.name,
+          id: meta.id,
+          name: meta.file_name,
+          file_path: meta.file_path,
           type: fileType,
-          size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB",
-          uploadedBy: user.email || "Desconhecido",
-          date: new Date(file.created_at).toLocaleDateString('pt-BR'),
+          size: "N/A", // Tamanho não está no metadado, mantemos N/A por enquanto
+          uploadedBy: userFullName,
+          date: new Date(meta.created_at).toLocaleDateString('pt-BR'),
           fileUrl: publicUrlData.publicUrl,
         };
-      }));
+      });
+      
       setAttachments(fetched);
     } catch (error) {
       console.error("Erro ao buscar anexos:", error);
@@ -153,10 +168,12 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
     }
 
     setIsUploading(true);
+    let filePath = '';
     try {
       const uniqueFileName = `${uuidv4()}-${selectedFile.name}`;
-      const filePath = `${folderPath}/${uniqueFileName}`;
+      filePath = `${folderPath}/${uniqueFileName}`;
 
+      // 1. Upload para o Storage
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(filePath, selectedFile, {
@@ -166,20 +183,45 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
 
       if (uploadError) throw uploadError;
 
-      const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+      // 2. Inserir metadados na tabela
+      const { data: metadata, error: metadataError } = await supabase
+        .from('order_attachments_metadata')
+        .insert({
+          service_order_id: orderId,
+          user_id: user.id,
+          file_path: filePath,
+          file_name: selectedFile.name,
+        })
+        .select()
+        .single();
 
+      if (metadataError) {
+        // Se falhar a inserção do metadado, tentamos remover o arquivo do storage para evitar órfãos
+        await supabase.storage.from(bucketName).remove([filePath]);
+        throw metadataError;
+      }
+
+      // 3. Atualizar UI e cache
+      const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+      
       const newAttachment: Attachment = {
-        id: filePath,
+        id: metadata.id,
         name: selectedFile.name,
+        file_path: filePath,
         type: getFileType(selectedFile.type),
         size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-        uploadedBy: user.email || "Desconhecido",
+        uploadedBy: user.email || "Desconhecido", // O nome completo será carregado no próximo fetch
         date: new Date().toLocaleDateString('pt-BR'),
         fileUrl: publicUrlData.publicUrl,
       };
 
       setAttachments((prev) => [newAttachment, ...prev]);
       setSelectedFile(null);
+      
+      // Invalida as queries de contagem e lista de OS para atualizar os badges
+      queryClient.invalidateQueries({ queryKey: ['orderAttachmentsCount', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      
       showSuccess(`Arquivo '${stripUuidFromFile(newAttachment.name)}' anexado com sucesso!`);
     } catch (error) {
       console.error("Erro ao fazer upload:", error);
@@ -189,18 +231,36 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
     }
   };
 
-  const handleDelete = async (attachmentId: string, attachmentName: string) => {
+  const handleDelete = async (attachmentId: string, filePath: string, attachmentName: string) => {
     if (!user?.id) {
       showError("Você precisa estar logado para excluir arquivos.");
       return;
     }
 
     try {
-      const { error } = await supabase.storage.from(bucketName).remove([attachmentId]);
+      // 1. Remover metadado da tabela
+      const { error: metadataError } = await supabase
+        .from('order_attachments_metadata')
+        .delete()
+        .eq('id', attachmentId)
+        .eq('user_id', user.id); // RLS já deve garantir isso, mas é bom ter um filtro extra
 
-      if (error) throw error;
+      if (metadataError) throw metadataError;
 
+      // 2. Remover arquivo do Storage
+      const { error: storageError } = await supabase.storage.from(bucketName).remove([filePath]);
+
+      if (storageError) {
+        // Se o storage falhar, logamos, mas a UI já foi atualizada pelo metadado
+        console.warn("Aviso: Falha ao remover arquivo do storage, mas metadado removido.", storageError);
+      }
+
+      // 3. Atualizar UI e cache
       setAttachments(attachments.filter(att => att.id !== attachmentId));
+      
+      queryClient.invalidateQueries({ queryKey: ['orderAttachmentsCount', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      
       showSuccess(`Anexo '${stripUuidFromFile(attachmentName)}' removido.`);
     } catch (error) {
       console.error("Erro ao excluir anexo:", error);
@@ -284,7 +344,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                             <Download className="h-4 w-4" />
                         </Button>
                     </a>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(att.id, att.name)} aria-label="Remover">
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(att.id, att.file_path, att.name)} aria-label="Remover">
                         <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
