@@ -180,7 +180,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           display_id: displayId,
           created_by: user.id,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
-          technician_id: orderData.technician_id || null, // NOVO: Adicionando technician_id
+          technician_id: orderData.technician_id, // Usando o valor direto
         })
         .select()
         .single();
