@@ -129,6 +129,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             ? `${equipmentName} / ${equipmentBrand}` 
             : equipmentName;
 
+        // Garante que technician_id seja null se for uma string vazia (embora o Zod deva evitar isso)
+        const technicianId = data.technician_id === "" ? null : data.technician_id;
+
         const mutationData: MutationServiceOrderFormValues = {
             client_id: data.client_id,
             description: data.description,
@@ -139,7 +142,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
             scheduled_date: data.scheduled_date,
-            technician_id: data.technician_id, // NOVO: Adicionando technician_id
+            technician_id: technicianId, // Usando o valor ajustado
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
