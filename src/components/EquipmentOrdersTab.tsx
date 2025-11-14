@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Clock } from "lucide-react";
+import { CheckCircle, Clock } from "lucide-react"; // Manter ícones se forem usados para indicar status
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
@@ -20,6 +19,9 @@ const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) 
   const activeOrders = equipmentOrders.filter(o => isActiveStatus(o.status));
   const completedOrders = equipmentOrders.filter(o => !isActiveStatus(o.status));
 
+  // Combina as ordens, colocando as ativas primeiro
+  const combinedOrders = [...activeOrders, ...completedOrders];
+
   const renderOrderList = (orders: ServiceOrder[], emptyMessage: string) => (
     <div className="space-y-2 max-h-[400px] overflow-y-auto">
       {isLoading ? (
@@ -37,31 +39,12 @@ const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) 
   );
 
   return (
-    <div className="shadow-none border-none"> {/* Removido o Card externo */}
+    <div className="shadow-none border-none">
       <CardHeader className="p-0 pb-4">
-        <CardTitle className="text-lg">Ordens de Serviço do Equipamento</CardTitle>
+        <CardTitle className="text-lg">Ordens de Serviço do Equipamento ({combinedOrders.length})</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <Tabs defaultValue="active">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="active">
-                <Clock className="h-4 w-4 mr-2" />
-                Ativas ({activeOrders.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Concluídas ({completedOrders.length})
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="active" className="mt-4">
-            {renderOrderList(activeOrders, "Nenhuma OS ativa para este equipamento.")}
-          </TabsContent>
-          
-          <TabsContent value="completed" className="mt-4">
-            {renderOrderList(completedOrders, "Nenhuma OS concluída para este equipamento.")}
-          </TabsContent>
-        </Tabs>
+        {renderOrderList(combinedOrders, "Nenhuma Ordem de Serviço encontrada para este equipamento.")}
       </CardContent>
     </div>
   );
