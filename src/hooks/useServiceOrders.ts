@@ -180,7 +180,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           display_id: displayId,
           created_by: user.id,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
-          technician_id: orderData.technician_id || null, // Garantindo que seja null se for undefined ou ""
+          technician_id: orderData.technician_id || null, // NOVO: Adicionando technician_id
         })
         .select()
         .single();
@@ -232,7 +232,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
-          technician_id: orderData.technician_id || null, // Garantindo que seja null se for undefined ou ""
+          technician_id: orderData.technician_id, // USANDO O VALOR DIRETO (pode ser string UUID ou null)
         })
         .eq('id', id)
         .select()
