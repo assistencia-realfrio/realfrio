@@ -174,7 +174,7 @@ const ClientDetails: React.FC = () => {
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'history'>("details");
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details"); // 'history' removido do tipo
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -278,9 +278,7 @@ const ClientDetails: React.FC = () => {
           <ClientEquipmentTab clientId={client.id} />
         )}
 
-        {selectedView === 'history' && (
-          <ActivityLog entityType="client" entityId={client.id} />
-        )}
+        {/* Removido: selectedView === 'history' */}
       </div>
       <ClientDetailsBottomNav
         selectedView={selectedView}
