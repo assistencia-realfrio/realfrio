@@ -190,16 +190,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4"> {/* Ajustado space-y de 6 para 4 */}
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         
-        {/* Campos de Cliente e Equipamento (MOVIDOS PARA CIMA) */}
-        <div className="space-y-2 pt-4"> {/* Adicionado pt-4 aqui para o espaço */}
+        {/* Campos de Cliente, Equipamento e Descrição */}
+        <div className="space-y-4 pt-4"> {/* Aumentado space-y para melhor espaçamento */}
           <FormField
             control={form.control}
             name="client_id"
             render={({ field }) => (
               <FormItem>
-                {/* <FormLabel>Cliente *</FormLabel> REMOVIDO */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <div className="flex-grow w-full min-w-0">
                     <ClientSelector 
@@ -256,7 +255,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="equipment_id"
               render={({ field }) => (
                   <FormItem>
-                      {/* <FormLabel>Equipamento *</FormLabel> REMOVIDO */}
                       <FormControl>
                           <EquipmentSelector
                               clientId={clientId}
@@ -269,16 +267,30 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   </FormItem>
               )}
           />
+
+          {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Descrição do Serviço *</FormLabel>
+                <FormControl>
+                  <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        {/* Campos de Status e Loja (MOVIDOS PARA BAIXO) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2"> {/* Ajustado gap de 4 para 2 */}
+        {/* Campos de Status e Loja */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
-                {/* <FormLabel>Estado *</FormLabel> REMOVIDO */}
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -301,7 +313,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="store"
             render={({ field }) => (
               <FormItem>
-                {/* <FormLabel>Loja *</FormLabel> REMOVIDO */}
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -319,22 +330,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        {/* Campos de Descrição do Serviço e Data de Agendamento */}
-        <div className="space-y-2"> {/* Ajustado space-y de 4 para 2 */}
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição do Serviço *</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+        {/* Campo de Data de Agendamento */}
+        <div className="space-y-2">
           <FormField
             control={form.control}
             name="scheduled_date"
