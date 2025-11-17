@@ -30,7 +30,7 @@ export const statusChartColors: Record<ServiceOrderStatus, string> = {
     'AGUARDA PEÇAS': '#e91e63',
     'PEÇAS RECEBIDAS': '#9c27b0',
     'CONCLUIDA': #2ecc71',
-    'CANCELADA': '#475569',
+    'CANCELADA': '#95a5a6',
 };
 
 export const getStatusBadgeVariant = (status: ServiceOrderStatus): "default" | "secondary" | "destructive" | "outline" => {
