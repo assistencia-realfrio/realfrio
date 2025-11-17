@@ -398,7 +398,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
               {attachments.map((att) => (
                 <div key={att.id} className="py-3">
                   <div 
-                    className="flex items-center space-x-3 min-w-0 cursor-pointer hover:bg-muted/50 p-1 -m-1 rounded-md transition-colors"
+                    className="flex items-center space-x-3 min-w-0 cursor-pointer hover:bg-muted/50 p-1 -m-1 rounded-md transition-colors group"
                     onClick={() => handlePreview(att)}
                   >
                     {att.type === 'image' ? (
@@ -408,20 +408,27 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                     ) : (
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{stripUuidFromFile(att.name)}</p>
-                      {/* REMOVIDO: Linha de metadados (tamanho, usuário, data) */}
+                    <div className="min-w-0 flex-1 flex items-center justify-between">
+                      <p className="text-sm font-medium truncate pr-2">{stripUuidFromFile(att.name)}</p>
+                      
+                      {/* Botão de Excluir movido para dentro do bloco clicável */}
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={(e) => {
+                          e.stopPropagation(); // Previne que o clique abra a visualização
+                          handleDelete(att.id, att.name);
+                        }} 
+                        aria-label="Remover"
+                        className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
+                  {/* Botões de ação removidos da linha de baixo */}
                   <div className="flex justify-start space-x-2 mt-1 pl-1">
-                    <a href={att.fileUrl} download={att.name} target="_blank" rel="noopener noreferrer">
-                        <Button variant="ghost" size="icon" aria-label="Download">
-                            <Download className="h-4 w-4" />
-                        </Button>
-                    </a>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(att.id, att.name)} aria-label="Remover">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    {/* Download removido */}
                   </div>
                 </div>
               ))}
