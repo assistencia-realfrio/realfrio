@@ -64,7 +64,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     
     const statusBgColor = statusChartColors[order.status];
     const storeColor = getStoreColor(order.store);
-    const cardBackgroundColor = hexToRgba(statusBgColor, 0.8); // Alterado para 80% de opacidade
+    const cardBackgroundColor = hexToRgba(statusBgColor, 0.05); // Alterado para 5% de opacidade
 
     return (
         <div 
