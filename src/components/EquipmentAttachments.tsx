@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, Trash2, Download, Eye } from "lucide-react";
+import { Upload, FileText, Trash2, Download, Eye, ZoomIn, ZoomOut } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -34,16 +34,42 @@ const AttachmentPreviewDialog: React.FC<{
   fileType: 'image' | 'document' | 'other';
   fileName: string;
 }> = ({ isOpen, onOpenChange, fileUrl, fileType, fileName }) => {
+  const [zoom, setZoom] = useState(1);
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.5));
+
+  useEffect(() => {
+    if (!isOpen) {
+      setZoom(1);
+    }
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0">
-        <DialogHeader className="p-6 pb-4 border-b">
+        <DialogHeader className="p-6 pb-4 border-b flex flex-row items-center justify-between">
           <DialogTitle>{fileName}</DialogTitle>
+          {fileType === 'image' && (
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={handleZoomOut} disabled={zoom <= 0.5}>
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </DialogHeader>
         <div className="flex-grow overflow-auto">
           {fileType === 'image' ? (
-            <div className="w-full h-full flex items-center justify-center p-4 bg-muted/20">
-              <img src={fileUrl} alt={fileName} className="rounded-md object-contain max-w-full max-h-full" />
+            <div className="w-full h-full flex items-center justify-center p-4 bg-muted/20 overflow-auto">
+              <img 
+                src={fileUrl} 
+                alt={fileName} 
+                className="rounded-md object-contain transition-transform duration-200"
+                style={{ transform: `scale(${zoom})`, maxWidth: '100%', maxHeight: '100%' }}
+              />
             </div>
           ) : fileType === 'document' ? (
             <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>

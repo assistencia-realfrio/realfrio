@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Camera, Trash2, Eye, FileText } from "lucide-react";
+import { Upload, Camera, Trash2, Eye, FileText, ZoomIn, ZoomOut } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -30,14 +30,34 @@ const AttachmentPreviewDialog: React.FC<{
   fileUrl: string;
   fileName: string;
 }> = ({ isOpen, onOpenChange, fileUrl, fileName }) => {
+  const [zoom, setZoom] = useState(1);
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.5));
+
+  useEffect(() => {
+    if (!isOpen) {
+      setZoom(1);
+    }
+  }, [isOpen]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen max-w-none p-4 bg-black/80 flex items-center justify-center border-none">
-        <div className="w-full h-full flex items-center justify-center">
+      <DialogContent className="w-screen h-screen max-w-none p-0 bg-black/80 flex flex-col items-center justify-center border-none">
+        <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={handleZoomOut} disabled={zoom <= 0.5}>
+            <ZoomOut className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="w-full h-full flex items-center justify-center overflow-auto">
           <img 
             src={fileUrl} 
             alt={fileName} 
-            className="object-contain max-w-full max-h-full" 
+            className="object-contain transition-transform duration-200"
+            style={{ transform: `scale(${zoom})`, maxWidth: '100%', maxHeight: '100%' }}
           />
         </div>
       </DialogContent>
