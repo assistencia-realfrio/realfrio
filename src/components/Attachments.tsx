@@ -147,14 +147,7 @@ const AttachmentPreviewDialog: React.FC<{
                 </Button>
               </>
             )}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              aria-label="Fechar"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            {/* Botão de fechar removido */}
           </div>
         </DialogHeader>
         <div 
@@ -480,7 +473,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                           handleDelete(att.id, att.file_path, att.name);
                         }} 
                         aria-label="Remover"
-                        className="h-8 w-8 text-destructive flex-shrink-0" // Removido opacity-0 group-hover:opacity-100
+                        className="h-8 w-8 text-destructive flex-shrink-0" 
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

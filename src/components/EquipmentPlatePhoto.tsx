@@ -135,9 +135,7 @@ const AttachmentPreviewDialog: React.FC<{
           <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
             <ZoomIn className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={() => onOpenChange(false)} aria-label="Fechar">
-            <X className="h-4 w-4" />
-          </Button>
+          {/* Botão de fechar removido */}
         </div>
         <div 
           className="w-full h-full flex items-center justify-center overflow-hidden"
