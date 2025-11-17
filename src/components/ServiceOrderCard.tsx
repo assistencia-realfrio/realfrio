@@ -64,15 +64,15 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     
     const statusBgColor = statusChartColors[order.status];
     const storeColor = getStoreColor(order.store);
-    const cardBackgroundColor = hexToRgba(statusBgColor, 0.1); // 10% de opacidade para o fundo do cartão
+    const cardBackgroundColor = hexToRgba(statusBgColor, 0.8); // Alterado para 80% de opacidade
 
     return (
         <div 
             onClick={handleNavigate}
             className={cn(
-                "hover:shadow-md transition-shadow flex relative rounded-lg border cursor-pointer overflow-hidden" // Removido bg-card
+                "hover:shadow-md transition-shadow flex relative rounded-lg border cursor-pointer overflow-hidden"
             )} 
-            style={{ backgroundColor: cardBackgroundColor }} // Aplicando a cor de fundo com transparência
+            style={{ backgroundColor: cardBackgroundColor }}
         >
             {/* Barra lateral esquerda com a cor da loja */}
             <div 
