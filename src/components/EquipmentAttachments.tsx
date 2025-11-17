@@ -38,6 +38,15 @@ const AttachmentPreviewDialog: React.FC<{
   const [isPanning, setIsPanning] = useState(false);
   const [startPanPosition, setStartPanPosition] = useState({ x: 0, y: 0 });
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const initialPinchDistanceRef = useRef(0);
+  const initialZoomRef = useRef(1);
+
+  const getDistance = (touches: React.TouchList) => {
+    return Math.sqrt(
+      Math.pow(touches[0].clientX - touches[1].clientX, 2) +
+      Math.pow(touches[0].clientY - touches[1].clientY, 2)
+    );
+  };
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
   const handleZoomOut = () => {
@@ -82,22 +91,42 @@ const AttachmentPreviewDialog: React.FC<{
   };
 
   const handleTouchStart = (e: React.TouchEvent<HTMLImageElement>) => {
-    if (zoom <= 1) return;
-    const touch = e.touches[0];
-    setIsPanning(true);
-    setStartPanPosition({
-      x: touch.clientX - imagePosition.x,
-      y: touch.clientY - imagePosition.y,
-    });
+    if (e.touches.length === 2) {
+      initialPinchDistanceRef.current = getDistance(e.touches);
+      initialZoomRef.current = zoom;
+      setIsPanning(false);
+    } else if (e.touches.length === 1 && zoom > 1) {
+      const touch = e.touches[0];
+      setIsPanning(true);
+      setStartPanPosition({
+        x: touch.clientX - imagePosition.x,
+        y: touch.clientY - imagePosition.y,
+      });
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isPanning || zoom <= 1) return;
-    const touch = e.touches[0];
-    setImagePosition({
-      x: touch.clientX - startPanPosition.x,
-      y: touch.clientY - startPanPosition.y,
-    });
+    if (e.touches.length === 2) {
+      if (initialPinchDistanceRef.current <= 0) return;
+      const newDistance = getDistance(e.touches);
+      const scale = newDistance / initialPinchDistanceRef.current;
+      const newZoom = Math.max(0.5, Math.min(initialZoomRef.current * scale, 3));
+      setZoom(newZoom);
+      if (newZoom <= 1) {
+        setImagePosition({ x: 0, y: 0 });
+      }
+    } else if (e.touches.length === 1 && isPanning && zoom > 1) {
+      const touch = e.touches[0];
+      setImagePosition({
+        x: touch.clientX - startPanPosition.x,
+        y: touch.clientY - startPanPosition.y,
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsPanning(false);
+    initialPinchDistanceRef.current = 0;
   };
 
   return (
@@ -122,7 +151,7 @@ const AttachmentPreviewDialog: React.FC<{
           onMouseUp={handleMouseUpOrLeave}
           onMouseLeave={handleMouseUpOrLeave}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleMouseUpOrLeave}
+          onTouchEnd={handleTouchEnd}
         >
           {fileType === 'image' ? (
             <div className="w-full h-full flex items-center justify-center p-4 bg-muted/20">
