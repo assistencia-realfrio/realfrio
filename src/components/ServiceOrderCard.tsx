@@ -64,13 +64,15 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     
     const statusBgColor = statusChartColors[order.status];
     const storeColor = getStoreColor(order.store);
+    const cardBackgroundColor = hexToRgba(statusBgColor, 0.1); // 10% de opacidade para o fundo do cartão
 
     return (
         <div 
             onClick={handleNavigate}
             className={cn(
-                "hover:shadow-md transition-shadow flex relative rounded-lg border bg-card cursor-pointer overflow-hidden" // Adicionado overflow-hidden
+                "hover:shadow-md transition-shadow flex relative rounded-lg border cursor-pointer overflow-hidden" // Removido bg-card
             )} 
+            style={{ backgroundColor: cardBackgroundColor }} // Aplicando a cor de fundo com transparência
         >
             {/* Barra lateral esquerda com a cor da loja */}
             <div 
@@ -80,9 +82,9 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
 
             <div className="flex flex-col flex-grow">
                 <div 
-                    className="flex items-center justify-between px-3 py-1.5" // Removido background e rounded-t-lg
+                    className="flex items-center justify-between px-3 py-1.5" 
                 >
-                    <div className="font-semibold text-sm text-foreground truncate pr-2"> {/* Alterado para text-foreground */}
+                    <div className="font-semibold text-sm text-foreground truncate pr-2">
                         {order.display_id}
                     </div>
                     <div className="flex items-center gap-2">
@@ -95,7 +97,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button
-                                    className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent hover:bg-muted text-muted-foreground" // Alterado para text-muted-foreground
+                                    className="p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent hover:bg-muted text-muted-foreground"
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     <MoreHorizontal className="h-4 w-4" />
@@ -119,7 +121,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                 </div>
 
-                <div className="flex flex-col flex-grow p-4 pt-2"> {/* Ajustado padding-top */}
+                <div className="flex flex-col flex-grow p-4 pt-2">
                     <div className="flex flex-col space-y-2 flex-grow">
                         <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
