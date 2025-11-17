@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, Trash2, Download, Eye, ZoomIn, ZoomOut } from "lucide-react";
+import { Upload, FileText, Trash2, Download, Eye, ZoomIn, ZoomOut, X } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -145,6 +145,15 @@ const AttachmentPreviewDialog: React.FC<{
             </div>
           )}
         </DialogHeader>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onOpenChange(false)}
+          className="absolute top-2 right-2 z-50 rounded-full"
+          aria-label="Fechar"
+        >
+          <X className="h-5 w-5" />
+        </Button>
         <div 
           className="flex-grow overflow-hidden"
           onMouseMove={handleMouseMove}

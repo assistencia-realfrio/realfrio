@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Camera, Trash2, Eye, FileText, ZoomIn, ZoomOut } from "lucide-react";
+import { Upload, Camera, Trash2, Eye, FileText, ZoomIn, ZoomOut, X } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -134,6 +134,9 @@ const AttachmentPreviewDialog: React.FC<{
           </Button>
           <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
             <ZoomIn className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={() => onOpenChange(false)} aria-label="Fechar">
+            <X className="h-4 w-4" />
           </Button>
         </div>
         <div 
