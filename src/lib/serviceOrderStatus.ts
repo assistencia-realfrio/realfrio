@@ -29,7 +29,7 @@ export const statusChartColors: Record<ServiceOrderStatus, string> = {
     'ORÇAMENTO ENVIADO': '#cddc39',
     'AGUARDA PEÇAS': '#e91e63',
     'PEÇAS RECEBIDAS': '#9c27b0',
-    'CONCLUIDA': '#4CAF50',
+    'CONCLUIDA': #2ecc71',
     'CANCELADA': '#475569',
 };
 
