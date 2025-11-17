@@ -411,7 +411,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                     <div className="min-w-0 flex-1 flex items-center justify-between">
                       <p className="text-sm font-medium truncate pr-2">{stripUuidFromFile(att.name)}</p>
                       
-                      {/* Botão de Excluir movido para dentro do bloco clicável */}
+                      {/* Botão de Excluir agora sempre visível */}
                       <Button 
                         variant="ghost" 
                         size="icon" 
@@ -420,15 +420,11 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                           handleDelete(att.id, att.name);
                         }} 
                         aria-label="Remover"
-                        className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                        className="h-8 w-8 text-destructive flex-shrink-0" // Removido opacity-0 group-hover:opacity-100
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                  {/* Botões de ação removidos da linha de baixo */}
-                  <div className="flex justify-start space-x-2 mt-1 pl-1">
-                    {/* Download removido */}
                   </div>
                 </div>
               ))}
