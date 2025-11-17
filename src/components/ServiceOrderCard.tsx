@@ -74,7 +74,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         >
             {/* Barra lateral esquerda com a cor da loja */}
             <div 
-                className="w-2 flex-shrink-0 rounded-l-lg" 
+                className="w-4 flex-shrink-0 rounded-l-lg" 
                 style={{ backgroundColor: storeColor }}
             ></div>
 
