@@ -147,7 +147,14 @@ const AttachmentPreviewDialog: React.FC<{
                 </Button>
               </>
             )}
-            {/* Botão de fechar removido */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              aria-label="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         </DialogHeader>
         <div 
