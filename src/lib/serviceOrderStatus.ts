@@ -33,6 +33,8 @@ export const statusChartColors: Record<ServiceOrderStatus, string> = {
     'CANCELADA': '#95a5a6',
 };
 
+
+
 export const getStatusBadgeVariant = (status: ServiceOrderStatus): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
     case "CONCLUIDA":
