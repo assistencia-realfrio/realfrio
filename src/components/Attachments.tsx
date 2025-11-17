@@ -37,15 +37,70 @@ const AttachmentPreviewDialog: React.FC<{
   fileName: string;
 }> = ({ isOpen, onOpenChange, fileUrl, fileType, fileName }) => {
   const [zoom, setZoom] = useState(1);
+  const [isPanning, setIsPanning] = useState(false);
+  const [startPanPosition, setStartPanPosition] = useState({ x: 0, y: 0 });
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
-  const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.2, 0.5));
+  const handleZoomOut = () => {
+    const newZoom = Math.max(zoom - 0.2, 0.5);
+    if (newZoom <= 1) {
+      setImagePosition({ x: 0, y: 0 });
+    }
+    setZoom(newZoom);
+  };
 
   useEffect(() => {
     if (!isOpen) {
-      setZoom(1);
+      setTimeout(() => {
+        setZoom(1);
+        setImagePosition({ x: 0, y: 0 });
+        setIsPanning(false);
+      }, 150);
     }
   }, [isOpen]);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (zoom <= 1) return;
+    e.preventDefault();
+    setIsPanning(true);
+    setStartPanPosition({
+      x: e.clientX - imagePosition.x,
+      y: e.clientY - imagePosition.y,
+    });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isPanning || zoom <= 1) return;
+    e.preventDefault();
+    setImagePosition({
+      x: e.clientX - startPanPosition.x,
+      y: e.clientY - startPanPosition.y,
+    });
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsPanning(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLImageElement>) => {
+    if (zoom <= 1) return;
+    const touch = e.touches[0];
+    setIsPanning(true);
+    setStartPanPosition({
+      x: touch.clientX - imagePosition.x,
+      y: touch.clientY - imagePosition.y,
+    });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isPanning || zoom <= 1) return;
+    const touch = e.touches[0];
+    setImagePosition({
+      x: touch.clientX - startPanPosition.x,
+      y: touch.clientY - startPanPosition.y,
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -63,14 +118,30 @@ const AttachmentPreviewDialog: React.FC<{
             </div>
           )}
         </DialogHeader>
-        <div className="flex-grow overflow-auto">
+        <div 
+          className="flex-grow overflow-hidden"
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUpOrLeave}
+        >
           {fileType === 'image' ? (
-            <div className="w-full h-full flex items-center justify-center p-4 bg-muted/20 overflow-auto">
+            <div className="w-full h-full flex items-center justify-center p-4 bg-muted/20">
               <img 
                 src={fileUrl} 
                 alt={fileName} 
                 className="rounded-md object-contain transition-transform duration-200"
-                style={{ transform: `scale(${zoom})`, maxWidth: '100%', maxHeight: '100%' }}
+                style={{ 
+                  transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${zoom})`,
+                  cursor: zoom > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default',
+                  touchAction: 'none',
+                  maxWidth: '100%', 
+                  maxHeight: '100%'
+                }}
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
+                draggable="false"
               />
             </div>
           ) : fileType === 'document' ? (
