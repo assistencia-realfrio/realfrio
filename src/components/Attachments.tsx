@@ -457,7 +457,10 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
             <div className="divide-y">
               {attachments.map((att) => (
                 <div key={att.id} className="py-3">
-                  <div className="flex items-center space-x-3 min-w-0">
+                  <div 
+                    className="flex items-center space-x-3 min-w-0 cursor-pointer hover:bg-muted/50 p-1 -m-1 rounded-md transition-colors"
+                    onClick={() => handlePreview(att)} // Adicionado onClick aqui
+                  >
                     {att.type === 'image' ? (
                       <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
                         <img src={att.fileUrl} alt={att.name} className="object-cover w-full h-full" />
@@ -465,16 +468,16 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                     ) : (
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{stripUuidFromFile(att.name)}</p>
                       <p className="text-xs text-muted-foreground truncate">
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
                     </div>
+                    <Eye className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone de visualização como indicador */}
                   </div>
-                  <div className="flex justify-start space-x-2 mt-1">
-                    <Button variant="ghost" size="icon" onClick={() => handlePreview(att)} aria-label="Visualizar">
-                        <Eye className="h-4 w-4" />
-                    </Button>
+                  <div className="flex justify-start space-x-2 mt-1 pl-1">
+                    {/* Botão de visualização removido daqui, pois o clique é no bloco acima */}
                     <a href={att.fileUrl} download={att.name} target="_blank" rel="noopener noreferrer">
                         <Button variant="ghost" size="icon" aria-label="Download">
                             <Download className="h-4 w-4" />
