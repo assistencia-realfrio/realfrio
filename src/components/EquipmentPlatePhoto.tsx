@@ -32,15 +32,12 @@ const AttachmentPreviewDialog: React.FC<{
 }> = ({ isOpen, onOpenChange, fileUrl, fileName }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      {/* Removido max-w-[90vw] e max-h-[90vh] para permitir ajuste ao conteúdo */}
-      <DialogContent className="flex flex-col p-0 border-none bg-transparent shadow-none w-auto max-w-[90vw] h-auto">
-        {/* Removido DialogHeader para eliminar o título */}
-        <div className="flex-grow overflow-auto p-0">
-          {/* Removido AspectRatio para permitir que a imagem defina a proporção */}
+      <DialogContent className="w-screen h-screen max-w-none p-4 bg-black/80 flex items-center justify-center border-none">
+        <div className="w-full h-full flex items-center justify-center">
           <img 
             src={fileUrl} 
             alt={fileName} 
-            className="rounded-lg object-contain max-w-full max-h-[90vh] block mx-auto" 
+            className="object-contain max-w-full max-h-full" 
           />
         </div>
       </DialogContent>

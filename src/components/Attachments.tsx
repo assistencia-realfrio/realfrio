@@ -38,21 +38,21 @@ const AttachmentPreviewDialog: React.FC<{
 }> = ({ isOpen, onOpenChange, fileUrl, fileType, fileName }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0">
+        <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle>{fileName}</DialogTitle>
         </DialogHeader>
-        <div className="flex-grow overflow-auto p-2">
+        <div className="flex-grow overflow-auto">
           {fileType === 'image' ? (
-            <AspectRatio ratio={16 / 9} className="bg-muted">
-              <img src={fileUrl} alt={fileName} className="rounded-md object-contain w-full h-full" />
-            </AspectRatio>
+            <div className="w-full h-full flex items-center justify-center p-4 bg-muted/20">
+              <img src={fileUrl} alt={fileName} className="rounded-md object-contain max-w-full max-h-full" />
+            </div>
           ) : fileType === 'document' ? (
             <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>
               Seu navegador não suporta iframes. Você pode <a href={fileUrl} target="_blank" rel="noopener noreferrer">baixar o arquivo</a>.
             </iframe>
           ) : (
-            <div className="flex items-center justify-center h-full text-muted-foreground">
+            <div className="flex items-center justify-center h-full text-muted-foreground p-4">
               <p>Este tipo de arquivo não pode ser visualizado diretamente.</p>
             </div>
           )}
