@@ -237,11 +237,9 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
       const fetched: Attachment[] = await Promise.all(data.map(async (file) => {
         const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(`${folderPath}/${file.name}`);
         
-        const { data: fileData } = await supabase.storage.from(bucketName).download(`${folderPath}/${file.name}`);
+        // Não é necessário fazer download para obter o tipo, podemos inferir pelo nome
         let fileType: 'image' | 'document' | 'other' = 'other';
-        if (fileData && fileData.type) {
-          fileType = getFileType(fileData.type);
-        } else if (file.name.match(/\.(jpeg|jpg|png)$/i)) {
+        if (file.name.match(/\.(jpeg|jpg|png)$/i)) {
           fileType = 'image';
         } else if (file.name.match(/\.pdf$/i)) {
           fileType = 'document';
@@ -252,7 +250,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
           name: file.name,
           type: fileType,
           size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB",
-          uploadedBy: user.email || "Desconhecido",
+          uploadedBy: 'N/A', // Removido o email do usuário
           date: new Date(file.created_at).toLocaleDateString('pt-BR'),
           fileUrl: publicUrlData.publicUrl,
         };
@@ -309,7 +307,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
         name: selectedFile.name,
         type: getFileType(selectedFile.type),
         size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-        uploadedBy: user.email || "Desconhecido",
+        uploadedBy: 'N/A', // Removido o email do usuário
         date: new Date().toLocaleDateString('pt-BR'),
         fileUrl: publicUrlData.publicUrl,
       };
@@ -411,10 +409,9 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{stripUuidFromFile(att.name)}</p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {att.size} | Por {att.uploadedBy} em {att.date}
+                        {att.size} | {att.date} {/* Removido 'Por {att.uploadedBy}' */}
                       </p>
                     </div>
-                    {/* Ícone de visualização removido */}
                   </div>
                   <div className="flex justify-start space-x-2 mt-1 pl-1">
                     <a href={att.fileUrl} download={att.name} target="_blank" rel="noopener noreferrer">

@@ -20,7 +20,7 @@ interface Attachment {
   file_path: string; // Caminho completo no storage
   type: 'image' | 'document' | 'other';
   size: string;
-  uploadedBy: string;
+  uploadedBy: string; // Mantido no tipo, mas será 'N/A' ou removido da exibição
   date: string;
   fileUrl: string;
 }
@@ -237,9 +237,8 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
           file_path, 
           file_name, 
           created_at, 
-          user_id,
-          profiles (first_name, last_name)
-        `)
+          user_id
+        `) // Removido profiles (first_name, last_name)
         .eq('service_order_id', orderId)
         .order('created_at', { ascending: false });
 
@@ -256,9 +255,8 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
           fileType = 'document';
         }
 
-        const firstName = meta.profiles?.first_name || '';
-        const lastName = meta.profiles?.last_name || '';
-        const userFullName = `${firstName} ${lastName}`.trim() || 'Usuário Desconhecido';
+        // Removido a busca de nome completo, usando 'N/A' ou ID do usuário
+        const uploadedBy = 'N/A'; 
 
         return {
           id: meta.id,
@@ -266,7 +264,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
           file_path: meta.file_path,
           type: fileType,
           size: "N/A", // Tamanho não está no metadado, mantemos N/A por enquanto
-          uploadedBy: userFullName,
+          uploadedBy: uploadedBy,
           date: new Date(meta.created_at).toLocaleDateString('pt-BR'),
           fileUrl: publicUrlData.publicUrl,
         };
@@ -346,7 +344,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
         file_path: filePath,
         type: getFileType(selectedFile.type),
         size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-        uploadedBy: user.email || "Desconhecido", // O nome completo será carregado no próximo fetch
+        uploadedBy: 'N/A', // Removido o email do usuário
         date: new Date().toLocaleDateString('pt-BR'),
         fileUrl: publicUrlData.publicUrl,
       };
@@ -471,10 +469,9 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{stripUuidFromFile(att.name)}</p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {att.size} | Por {att.uploadedBy} em {att.date}
+                        {att.size} | {att.date} {/* Removido 'Por {att.uploadedBy}' */}
                       </p>
                     </div>
-                    {/* Ícone de visualização removido */}
                   </div>
                   <div className="flex justify-start space-x-2 mt-1 pl-1">
                     <a href={att.fileUrl} download={att.name} target="_blank" rel="noopener noreferrer">
