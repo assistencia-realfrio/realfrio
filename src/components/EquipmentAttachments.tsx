@@ -410,11 +410,8 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{stripUuidFromFile(att.name)}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {att.size} | Por {att.uploadedBy} em {att.date}
-                      </p>
+                      {/* REMOVIDO: Linha de metadados (tamanho, usuário, data) */}
                     </div>
-                    {/* Ícone de visualização removido */}
                   </div>
                   <div className="flex justify-start space-x-2 mt-1 pl-1">
                     <a href={att.fileUrl} download={att.name} target="_blank" rel="noopener noreferrer">
