@@ -131,7 +131,7 @@ const AttachmentPreviewDialog: React.FC<{
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0 [&>button]:hidden">
+      <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-4 border-b flex flex-row items-center justify-between">
           <DialogTitle>{fileName}</DialogTitle>
           <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                           handleDelete(att.id, att.name);
                         }} 
                         aria-label="Remover"
-                        className="h-8 w-8 text-destructive flex-shrink-0"
+                        className="h-8 w-8 text-destructive flex-shrink-0" // Removido opacity-0 group-hover:opacity-100
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

@@ -10,45 +10,6 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { v4 as uuidv4 } from 'uuid';
-<dyad-problem-report summary="2 problems">
-<problem file="src/components/Attachments.tsx" line="136" column="92" code="2322">Type '{ children: Element[]; className: string; hideCloseButton: true; }' is not assignable to type 'IntrinsicAttributes &amp; Omit&lt;DialogContentProps &amp; RefAttributes&lt;HTMLDivElement&gt;, &quot;ref&quot;&gt; &amp; RefAttributes&lt;...&gt;'.
-  Property 'hideCloseButton' does not exist on type 'IntrinsicAttributes &amp; Omit&lt;DialogContentProps &amp; RefAttributes&lt;HTMLDivElement&gt;, &quot;ref&quot;&gt; &amp; RefAttributes&lt;...&gt;'.</problem>
-<problem file="src/components/EquipmentAttachments.tsx" line="134" column="92" code="2322">Type '{ children: Element[]; className: string; hideCloseButton: true; }' is not assignable to type 'IntrinsicAttributes &amp; Omit&lt;DialogContentProps &amp; RefAttributes&lt;HTMLDivElement&gt;, &quot;ref&quot;&gt; &amp; RefAttributes&lt;...&gt;'.
-  Property 'hideCloseButton' does not exist on type 'IntrinsicAttributes &amp; Omit&lt;DialogContentProps &amp; RefAttributes&lt;HTMLDivElement&gt;, &quot;ref&quot;&gt; &amp; RefAttributes&lt;...&gt;'.</problem>
-</dyad-problem-report><think>**Analyzing the Error**
-
-I'm currently focused on two TypeScript errors I've encountered with the `hideCloseButton` prop in `Dialog Content`.  It seems the prop isn't recognized by the type definition. The error points to an issue with the underlying type, specifically the `IntrinsicAttributes` and `Omit` types used in the component's definition. Need to understand how these types interact.
-
-
-**Fixing the Component**
-
-I've zeroed in on the core of the problem: the `DialogContent` from `shadcn/ui` includes a default close button, which the `hideCloseButton` prop doesn't actually control. My plan is to utilize the `className="[&>button]:hidden"` to effectively conceal this unwanted default button. This fix will be applied across both `Attachments.tsx` and `EquipmentAttachments.tsx`. This avoids the TypeScript error entirely.
-
-
-**Refining the Solution**
-
-The TypeScript error stems from the fact that `DialogContent` in `shadcn/ui` doesn't natively support a `hideCloseButton` prop. My focus has shifted from trying to force a nonexistent prop to embracing the component's default behavior. I've confirmed that the core problem is the automatically rendered close button. Therefore, the most efficient and correct solution is to directly target and hide that default button. My plan is now to implement this fix in the `Attachments.tsx` and `EquipmentAttachments.tsx` files. I am confident this resolves the issue.
-
-
-</think>You're right, my apologies! The `hideCloseButton` prop is not a standard prop for `shadcn/ui`'s `DialogContent`. The default close button is usually rendered by the `DialogClose` component or is part of the `DialogContent`'s internal structure.
-
-To fix this, I will remove the non-existent `hideCloseButton` prop and instead add a Tailwind CSS class to the `DialogContent` that specifically hides the default close button element. This will resolve the TypeScript errors and achieve the desired visual outcome of only having your custom close button.
-
-### Alterações em `src/components/Attachments.tsx`
-
-<dyad-write path="src/components/Attachments.tsx" description="Removendo a propriedade 'hideCloseButton' e adicionando uma classe Tailwind para ocultar o botão de fechar padrão do DialogContent.">
-import React, { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Upload, FileText, Trash2, Download, Eye, ZoomIn, ZoomOut, X } from "lucide-react";
-import { showSuccess, showError } from "@/utils/toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/contexts/SessionContext";
-import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from "@/components/ui/skeleton";
 import { stripUuidFromFile } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query"; // Importar useQueryClient
@@ -172,7 +133,7 @@ const AttachmentPreviewDialog: React.FC<{
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0 [&>button]:hidden">
+      <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-4 border-b flex flex-row items-center justify-between">
           <DialogTitle>{fileName}</DialogTitle>
           <div className="flex items-center gap-2">
@@ -519,7 +480,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                           handleDelete(att.id, att.file_path, att.name);
                         }} 
                         aria-label="Remover"
-                        className="h-8 w-8 text-destructive flex-shrink-0"
+                        className="h-8 w-8 text-destructive flex-shrink-0" // Removido opacity-0 group-hover:opacity-100
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
