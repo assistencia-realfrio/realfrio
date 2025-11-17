@@ -459,7 +459,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                 <div key={att.id} className="py-3">
                   <div 
                     className="flex items-center space-x-3 min-w-0 cursor-pointer hover:bg-muted/50 p-1 -m-1 rounded-md transition-colors"
-                    onClick={() => handlePreview(att)} // Adicionado onClick aqui
+                    onClick={() => handlePreview(att)}
                   >
                     {att.type === 'image' ? (
                       <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
@@ -474,10 +474,9 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                         {att.size} | Por {att.uploadedBy} em {att.date}
                       </p>
                     </div>
-                    <Eye className="h-4 w-4 text-muted-foreground flex-shrink-0" /> {/* Ícone de visualização como indicador */}
+                    {/* Ícone de visualização removido */}
                   </div>
                   <div className="flex justify-start space-x-2 mt-1 pl-1">
-                    {/* Botão de visualização removido daqui, pois o clique é no bloco acima */}
                     <a href={att.fileUrl} download={att.name} target="_blank" rel="noopener noreferrer">
                         <Button variant="ghost" size="icon" aria-label="Download">
                             <Download className="h-4 w-4" />
