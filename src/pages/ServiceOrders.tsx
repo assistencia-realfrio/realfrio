@@ -41,7 +41,13 @@ const ServiceOrders: React.FC = () => {
   // Hook principal de dados
   const { orders, isLoading } = useServiceOrders(undefined, selectedStore, selectedStatus);
 
-  const allOrders = orders;
+  // NOVO: Filtrar ordens para não exibir 'Concluida' e 'Cancelada' quando o status é 'ALL'
+  const filteredOrdersForDisplay = useMemo(() => {
+    if (selectedStatus === 'ALL') {
+      return orders.filter(order => order.status !== 'CONCLUIDA' && order.status !== 'CANCELADA');
+    }
+    return orders;
+  }, [orders, selectedStatus]);
 
   const availableStatuses = useMemo(() => {
     return serviceOrderStatuses;
@@ -65,6 +71,7 @@ const ServiceOrders: React.FC = () => {
     navigate("/orders/new");
   };
 
+  // Usar um hook separado para obter a contagem total sem filtro de status para os SelectItems
   const { orders: allOrdersWithoutStatusFilter } = useServiceOrders(undefined, selectedStore, 'ALL');
 
   const renderOrderGrid = (ordersToRender: ServiceOrder[]) => {
@@ -130,7 +137,7 @@ const ServiceOrders: React.FC = () => {
                   <SelectValue placeholder="ESTADOS" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">TODOS ({allOrdersWithoutStatusFilter.filter(o => selectedStore === 'ALL' || o.store === selectedStore).length})</SelectItem>
+                  <SelectItem value="ALL">TODOS ({allOrdersWithoutStatusFilter.filter(o => (selectedStore === 'ALL' || o.store === selectedStore) && o.status !== 'CONCLUIDA' && o.status !== 'CANCELADA').length})</SelectItem> {/* NOVO: Contagem ajustada para 'TODOS' */}
                   {availableStatuses.map(status => (
                     <SelectItem key={status} value={status}>
                       {status.toUpperCase()} ({allOrdersWithoutStatusFilter.filter(o => (selectedStore === 'ALL' || o.store === selectedStore) && o.status === status).length})
@@ -143,7 +150,7 @@ const ServiceOrders: React.FC = () => {
         </div>
 
         <div className="mt-6">
-          {renderOrderGrid(allOrders)}
+          {renderOrderGrid(filteredOrdersForDisplay)}
         </div>
       </div>
     </Layout>
