@@ -134,26 +134,27 @@ const AttachmentPreviewDialog: React.FC<{
       <DialogContent className="w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-4 border-b flex flex-row items-center justify-between">
           <DialogTitle>{fileName}</DialogTitle>
-          {fileType === 'image' && (
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={handleZoomOut} disabled={zoom <= 0.5}>
-                <ZoomOut className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
-                <ZoomIn className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {fileType === 'image' && (
+              <>
+                <Button variant="outline" size="icon" onClick={handleZoomOut} disabled={zoom <= 0.5}>
+                  <ZoomOut className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
+                  <ZoomIn className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              aria-label="Fechar"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </DialogHeader>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onOpenChange(false)}
-          className="absolute top-2 right-2 z-50 rounded-full"
-          aria-label="Fechar"
-        >
-          <X className="h-5 w-5" />
-        </Button>
         <div 
           className="flex-grow overflow-hidden"
           onMouseMove={handleMouseMove}
