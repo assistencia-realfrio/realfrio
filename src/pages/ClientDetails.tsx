@@ -231,25 +231,15 @@ const ClientDetails: React.FC = () => {
                 
                 <AlertDialog>
                     <AlertDialogTrigger asChild>
-                        <>
-                            <Button 
-                                variant="destructive" 
-                                size="icon" 
-                                className="sm:hidden"
-                                disabled={deleteClient.isPending}
-                                aria-label="Excluir"
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                                variant="destructive" 
-                                className="hidden sm:flex"
-                                disabled={deleteClient.isPending}
-                            >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Excluir
-                            </Button>
-                        </>
+                        <Button 
+                            variant="destructive" 
+                            disabled={deleteClient.isPending}
+                            aria-label="Excluir Cliente"
+                            className="flex items-center justify-center w-10 h-10 sm:w-auto sm:h-10 sm:px-4"
+                        >
+                            <Trash2 className="h-4 w-4 mr-0 sm:mr-2" />
+                            <span className="hidden sm:inline">Excluir</span>
+                        </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
