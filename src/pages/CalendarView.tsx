@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
-import { format, parseISO, isPast } from "date-fns";
+import { format, parseISO, isPast, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import OrderListItem from "@/components/OrderListItem";
@@ -24,7 +24,7 @@ const CalendarView: React.FC = () => {
       return dateA.getTime() - dateB.getTime();
     });
 
-    // 3. Agrupar por data
+    // 3. Agrupar por data (apenas o dia, ignorando a hora para o agrupamento)
     const grouped = filtered.reduce((acc, order) => {
       const dateKey = format(parseISO(order.scheduled_date!), 'yyyy-MM-dd');
       if (!acc[dateKey]) {
@@ -71,7 +71,9 @@ const CalendarView: React.FC = () => {
               <div className="space-y-6">
                 {sortedDates.map((dateKey) => {
                   const date = parseISO(dateKey);
-                  const isOverdue = isPast(date) && !orders.some(o => o.scheduled_date === dateKey && (o.status === 'CONCLUIDA' || o.status === 'CANCELADA'));
+                  
+                  // Verifica se o dia inteiro está no passado
+                  const isOverdue = isPast(startOfDay(date)) && !scheduledOrders[dateKey].some(o => o.status === 'CONCLUIDA' || o.status === 'CANCELADA');
                   
                   return (
                     <div key={dateKey}>
@@ -86,9 +88,16 @@ const CalendarView: React.FC = () => {
                         </h3>
                       </div>
                       <div className="mt-4 space-y-2">
-                        {scheduledOrders[dateKey].map(order => (
-                          <OrderListItem key={order.id} order={order} />
-                        ))}
+                        {/* Ordena as ordens dentro do grupo pela hora agendada */}
+                        {scheduledOrders[dateKey]
+                            .sort((a, b) => {
+                                const timeA = parseISO(a.scheduled_date!).getTime();
+                                const timeB = parseISO(b.scheduled_date!).getTime();
+                                return timeA - timeB;
+                            })
+                            .map(order => (
+                                <OrderListItem key={order.id} order={order} />
+                            ))}
                       </div>
                       <Separator className="mt-6" />
                     </div>

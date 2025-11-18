@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ServiceOrder } from "@/hooks/useServiceOrders";
 import { getStatusBadgeVariant } from "@/lib/serviceOrderStatus";
-import { Calendar as CalendarIcon, User } from "lucide-react";
+import { Calendar as CalendarIcon, User, Clock } from "lucide-react"; // Adicionado Clock
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,8 +19,7 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
         navigate(`/orders/${order.id}`);
     };
     
-    // A data de criação não será mais exibida no cartão, mas mantida para referência se necessário em outros lugares.
-    // const createdAtDate = new Date(order.created_at).toLocaleDateString('pt-BR');
+    const scheduledDate = order.scheduled_date ? new Date(order.scheduled_date) : null;
 
     return (
         <Card 
@@ -42,7 +41,20 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                     <p className="text-xs text-muted-foreground mt-2 font-semibold">
                         {order.display_id}
                     </p>
-                    {/* As datas de criação e agendamento foram removidas daqui */}
+                    
+                    {/* NOVO: Exibir data e hora do agendamento */}
+                    {scheduledDate && (
+                        <div className="flex items-center gap-1 text-xs text-primary mt-2">
+                            <CalendarIcon className="h-4 w-4" />
+                            <span className="font-medium">
+                                {format(scheduledDate, 'dd/MM/yyyy')}
+                            </span>
+                            <Clock className="h-4 w-4 ml-2" />
+                            <span className="font-medium">
+                                {format(scheduledDate, 'HH:mm')}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
