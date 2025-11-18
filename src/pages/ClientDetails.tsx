@@ -26,7 +26,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { isLinkClickable } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
-import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab"; // Importar a nova aba
+import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab";
+import EstablishmentForm from "@/components/EstablishmentForm";
+import { useClientEstablishments } from "@/hooks/useClientEstablishments";
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
@@ -119,10 +121,11 @@ const ClientDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
+  const { createEstablishment } = useClientEstablishments(id || "");
   const [isEditing, setIsEditing] = useState(false);
   const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'establishments'>("details");
   const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
-  const [isAddEstablishmentModalOpen, setIsAddEstablishmentModalOpen] = useState(false); // Novo estado
+  const [isAddEstablishmentModalOpen, setIsAddEstablishmentModalOpen] = useState(false);
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -153,6 +156,16 @@ const ClientDetails: React.FC = () => {
   const handleNewEquipmentSuccess = () => {
     setIsAddEquipmentModalOpen(false);
     showSuccess("Equipamento adicionado com sucesso!");
+  };
+
+  const handleNewEstablishmentSubmit = async (data: any) => {
+    try {
+      await createEstablishment.mutateAsync(data);
+      showSuccess("Estabelecimento criado com sucesso!");
+      setIsAddEstablishmentModalOpen(false);
+    } catch (error) {
+      showError("Erro ao criar estabelecimento.");
+    }
   };
 
   if (isLoading) {
@@ -328,7 +341,12 @@ const ClientDetails: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
           </DialogHeader>
-          {/* O formulário será adicionado aqui em breve */}
+          <EstablishmentForm
+            clientId={client.id}
+            onSubmit={handleNewEstablishmentSubmit}
+            onCancel={() => setIsAddEstablishmentModalOpen(false)}
+            isPending={createEstablishment.isPending}
+          />
         </DialogContent>
       </Dialog>
     </Layout>
