@@ -28,8 +28,7 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
     <Card>
       <CardContent className="p-4 space-y-3">
         <div className="flex justify-between items-start">
-          <div className="flex items-center gap-3">
-            <Building className="h-5 w-5 text-primary flex-shrink-0" />
+          <div className="flex items-center"> {/* Removido gap-3 e o ícone Building */}
             <h3 className="font-semibold text-lg">{establishment.name}</h3>
           </div>
           <div className="flex space-x-1">
@@ -41,7 +40,7 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
             </Button>
           </div>
         </div>
-        <div className="space-y-2 text-sm text-muted-foreground pl-8">
+        <div className="space-y-2 text-sm text-muted-foreground"> {/* Removido pl-8 */}
           {establishment.locality && (
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 flex-shrink-0" />
