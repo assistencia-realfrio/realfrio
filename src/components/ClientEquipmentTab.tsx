@@ -36,10 +36,7 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
 
   return (
     <div className="shadow-none border-none">
-      <div className="p-0 pb-4 flex flex-row items-center justify-between">
-        {/* Título "Equipamentos Associados" removido */}
-        {/* Botão "Adicionar Equipamento" movido para ClientDetails.tsx */}
-      </div>
+      {/* Removido o div que continha o título e o botão de adicionar equipamento */}
       <div className="p-0">
         {equipments.length > 0 ? (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"> {/* Layout de grade para os cartões */}

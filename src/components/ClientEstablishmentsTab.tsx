@@ -22,7 +22,7 @@ interface ClientEstablishmentsTabProps {
 }
 
 const ClientEstablishmentsTab: React.FC<ClientEstablishmentsTabProps> = ({ clientId }) => {
-  const { establishments, isLoading, createEstablishment, updateEstablishment, deleteEstablishment } = useClientEstablishments(clientId);
+  const { establishments, isLoading, updateEstablishment, deleteEstablishment, createEstablishment } = useClientEstablishments(clientId);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingEstablishment, setEditingEstablishment] = useState<Establishment | undefined>(undefined);
 
@@ -42,8 +42,15 @@ const ClientEstablishmentsTab: React.FC<ClientEstablishmentsTabProps> = ({ clien
         await updateEstablishment.mutateAsync({ ...data, id: editingEstablishment.id });
         showSuccess("Estabelecimento atualizado com sucesso!");
       } else {
-        await createEstablishment.mutateAsync(data);
-        showSuccess("Estabelecimento criado com sucesso!");
+        // Se estiver criando, o botão de adicionar está em ClientDetails.tsx, mas o hook de criação
+        // precisa ser chamado de lá. Aqui, só tratamos a edição e exclusão.
+        // Se este componente for usado apenas para listar, podemos remover a lógica de criação/edição daqui.
+        // No entanto, como o EstablishmentCard chama onEdit/onDelete, precisamos manter a lógica de edição/exclusão.
+        // A criação é tratada no ClientDetails.tsx.
+        // Se o formulário for submetido aqui sem initialData, é um erro, mas vamos manter a estrutura para edição.
+        // Para simplificar, vamos assumir que o handleSubmit só é chamado para edição dentro deste componente.
+        await updateEstablishment.mutateAsync({ ...data, id: editingEstablishment!.id });
+        showSuccess("Estabelecimento atualizado com sucesso!");
       }
       handleCloseForm();
     } catch (error) {
@@ -87,18 +94,21 @@ const ClientEstablishmentsTab: React.FC<ClientEstablishmentsTabProps> = ({ clien
         </p>
       )}
 
+      {/* Modal de Edição (Criação removida, pois é feita em ClientDetails.tsx) */}
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{editingEstablishment ? "Editar" : "Adicionar"} Estabelecimento</DialogTitle>
           </DialogHeader>
-          <EstablishmentForm
-            clientId={clientId}
-            initialData={editingEstablishment}
-            onSubmit={handleSubmit}
-            onCancel={handleCloseForm}
-            isPending={createEstablishment.isPending || updateEstablishment.isPending}
-          />
+          {editingEstablishment && (
+            <EstablishmentForm
+              clientId={clientId}
+              initialData={editingEstablishment}
+              onSubmit={handleSubmit}
+              onCancel={handleCloseForm}
+              isPending={updateEstablishment.isPending}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
