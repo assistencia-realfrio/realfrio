@@ -59,7 +59,7 @@ const CalendarView: React.FC = () => {
       <div className="space-y-6">
         <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <CalendarIcon className="h-7 w-7" />
-          Próximos Agendamentos
+          Agendamentos
         </h2>
 
         <Card>
