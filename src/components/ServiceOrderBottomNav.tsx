@@ -3,7 +3,7 @@ import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'attachments' | 'equipment' | 'activity' | 'notes';
+type View = 'details' | 'attachments' | 'activity' | 'notes'; // 'equipment' removido
 
 interface ServiceOrderBottomNavProps {
   selectedView: View;
@@ -17,7 +17,7 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'notes', icon: MessageSquareText, label: 'Notas' },
   { id: 'attachments', icon: Paperclip, label: 'Anexos' },
-  { id: 'equipment', icon: HardDrive, label: 'Equipamento' },
+  // { id: 'equipment', icon: HardDrive, label: 'Equipamento' }, // Removido
   { id: 'activity', icon: List, label: 'Atividade' },
 ];
 
