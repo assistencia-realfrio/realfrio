@@ -1,11 +1,10 @@
 import React, { useMemo } from "react";
 import Layout from "@/components/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { parseISO } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import OrderListItem from "@/components/OrderListItem";
 import { Skeleton } from "@/components/ui/skeleton";
+import ServiceOrderCard from "@/components/ServiceOrderCard";
 
 const CalendarView: React.FC = () => {
   const { orders, isLoading } = useServiceOrders();
@@ -43,17 +42,17 @@ const CalendarView: React.FC = () => {
           Agendamentos
         </h2>
 
-        <div className="space-y-4"> {/* Substituindo Card por div e ajustando espaçamento */}
+        <div className="space-y-4">
           <h3 className="text-lg font-semibold">Ordens de Serviço Agendadas ({scheduledOrders.length})</h3>
-          <div className="space-y-2">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {scheduledOrders.length > 0 ? (
               scheduledOrders.map(order => (
-                <OrderListItem key={order.id} order={order} />
+                <ServiceOrderCard key={order.id} order={order} />
               ))
             ) : (
-              <p className="text-center text-muted-foreground text-sm py-8">
+              <div className="col-span-full text-center py-8 text-muted-foreground">
                 Nenhuma Ordem de Serviço agendada encontrada.
-              </p>
+              </div>
             )}
           </div>
         </div>
