@@ -24,16 +24,18 @@ export interface ServiceOrder {
   created_at: string;
   updated_at: string | null;
   scheduled_date: string | null;
+  establishment_name: string | null; // NOVO: Nome do estabelecimento
   // NOVO: Contagens para badges
   notes_count: number;
   attachments_count: number;
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'notes_count' | 'attachments_count'> & {
+export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'notes_count' | 'attachments_count' | 'establishment_name'> & {
     serial_number: string | undefined;
     model: string | undefined;
     equipment_id?: string;
     scheduled_date?: Date | null;
+    establishment_name?: string | null; // NOVO: establishment_name opcional
 };
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'notes_count' | 'attachments_count'> & {
@@ -67,6 +69,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       client_id,
       equipment_id,
       scheduled_date,
+      establishment_name, -- NOVO: Selecionar establishment_name
       clients (name),
       service_order_notes(count),
       order_attachments_metadata(count)
@@ -111,6 +114,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         model: order.model,
         equipment_id: order.equipment_id,
         scheduled_date: order.scheduled_date,
+        establishment_name: order.establishment_name, // NOVO: Mapear establishment_name
         notes_count: notesCount,
         attachments_count: attachmentsCount,
     };
@@ -176,6 +180,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           display_id: displayId,
           created_by: user.id,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
+          establishment_name: orderData.establishment_name || null, // NOVO: Inserir establishment_name
         })
         .select()
         .single();
@@ -195,6 +200,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           store: { newValue: newOrder.store },
           equipment: { newValue: newOrder.equipment },
           scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' },
+          establishment_name: { newValue: newOrder.establishment_name || 'N/A' }, // NOVO: Log establishment_name
         }
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
@@ -205,7 +211,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, scheduled_date')
+        .select('status, description, equipment, model, serial_number, store, scheduled_date, establishment_name') // NOVO: Selecionar establishment_name antigo
         .eq('id', id)
         .single();
 
@@ -226,6 +232,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
+          establishment_name: orderData.establishment_name || null, // NOVO: Atualizar establishment_name
         })
         .eq('id', id)
         .select()
@@ -274,6 +281,10 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         if (newScheduledDate !== oldScheduledDate) {
             changesSummary.push('a data de agendamento');
             activityDetails.scheduled_date = { oldValue: oldScheduledDate, newValue: newScheduledDate };
+        }
+        if (updatedOrder.establishment_name !== oldOrder.establishment_name) { // NOVO: Log establishment_name
+            changesSummary.push('o nome do estabelecimento');
+            activityDetails.establishment_name = { oldValue: oldOrder.establishment_name || 'N/A', newValue: updatedOrder.establishment_name || 'N/A' };
         }
         
         if (changesSummary.length > 0) {

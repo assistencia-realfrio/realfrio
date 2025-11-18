@@ -53,6 +53,7 @@ const ServiceOrderDetails: React.FC = () => {
     status: order.status,
     store: order.store,
     scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+    establishment_name: order.establishment_name || null, // NOVO: Passar establishment_name
   } : undefined;
 
   const handleGoBack = () => {

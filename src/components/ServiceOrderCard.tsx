@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, MapPin } from "lucide-react"; // Adicionado MapPin
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -52,6 +52,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 serial_number: order.serial_number || undefined,
                 equipment_id: order.equipment_id || undefined,
                 scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+                establishment_name: order.establishment_name || undefined, // NOVO: Incluir establishment_name
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -127,6 +128,12 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <p className="font-semibold text-base truncate">{order.client}</p>
                         </div>
+                        {order.establishment_name && ( // NOVO: Exibir nome do estabelecimento
+                            <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                <p className="text-sm truncate">{order.establishment_name}</p>
+                            </div>
+                        )}
                         <div className="flex items-center gap-2">
                             <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <p className="text-base truncate">{order.equipment}</p>

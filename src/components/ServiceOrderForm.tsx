@@ -35,6 +35,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input"; // Importar Input
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -44,6 +45,7 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
+  establishment_name: z.string().nullable().optional(), // NOVO: Campo para o nome do estabelecimento
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
@@ -65,6 +67,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     defaultValues: initialData ? {
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
+        establishment_name: initialData.establishment_name || "", // Definir valor padrão
     } : {
       equipment_id: "",
       client_id: "",
@@ -72,6 +75,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
       scheduled_date: null,
+      establishment_name: "", // Definir valor padrão
     },
   });
 
@@ -134,6 +138,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             serial_number: equipmentDetails.serial_number || undefined,
             equipment_id: data.equipment_id,
             scheduled_date: data.scheduled_date,
+            establishment_name: data.establishment_name || undefined, // NOVO: Incluir establishment_name
         } as MutationServiceOrderFormValues; 
 
         if (isEditing && initialData.id) {
@@ -266,6 +271,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       <FormMessage />
                   </FormItem>
               )}
+          />
+
+          {/* NOVO: Campo para o nome do estabelecimento */}
+          <FormField
+            control={form.control}
+            name="establishment_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome do Estabelecimento (Opcional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Ex: Loja 1, Escritório Central" 
+                    {...field} 
+                    value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}
