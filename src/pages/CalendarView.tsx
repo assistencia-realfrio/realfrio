@@ -43,11 +43,9 @@ const CalendarView: React.FC = () => {
           Agendamentos
         </h2>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Ordens de Serviço Agendadas ({scheduledOrders.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <div className="space-y-4"> {/* Substituindo Card por div e ajustando espaçamento */}
+          <h3 className="text-lg font-semibold">Ordens de Serviço Agendadas ({scheduledOrders.length})</h3>
+          <div className="space-y-2">
             {scheduledOrders.length > 0 ? (
               scheduledOrders.map(order => (
                 <OrderListItem key={order.id} order={order} />
@@ -57,8 +55,8 @@ const CalendarView: React.FC = () => {
                 Nenhuma Ordem de Serviço agendada encontrada.
               </p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </Layout>
   );
