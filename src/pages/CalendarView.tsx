@@ -80,7 +80,7 @@ const CalendarView: React.FC = () => {
                         isOverdue ? "bg-destructive/10 border-l-4 border-destructive" : "bg-muted/50 border-l-4 border-primary"
                       )}>
                         <CalendarIcon className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-primary")} />
-                        <h3 className={cn("font-semibold text-lg", isOverdue ? "text-destructive" : "text-foreground")}>
+                        <h3 className={cn("font-semibold text-base", isOverdue ? "text-destructive" : "text-foreground")}>
                           {format(date, "EEEE, dd 'de' MMMM", { locale: ptBR })}
                           {isOverdue && <span className="ml-2 text-sm font-normal text-destructive">(Vencido)</span>}
                         </h3>
