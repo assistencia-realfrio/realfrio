@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building } from "lucide-react";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -167,6 +167,15 @@ const ClientDetails: React.FC = () => {
       showError("Erro ao criar estabelecimento.");
     }
   };
+  
+  // Função para navegar para a criação de nova OS, pré-selecionando o cliente
+  const handleNewOrder = () => {
+    if (client?.id) {
+      // Poderíamos passar o ID do cliente via state ou query params, mas por enquanto,
+      // apenas navegamos para a página de criação. O seletor de cliente será o primeiro campo.
+      navigate(`/orders/new?clientId=${client.id}`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -309,6 +318,18 @@ const ClientDetails: React.FC = () => {
         onSelectView={setSelectedView}
       />
 
+      {/* Botão Flutuante para Nova OS (Aba Ordens) */}
+      {selectedView === 'orders' && (
+        <Button
+          onClick={handleNewOrder}
+          className="fixed bottom-24 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+          aria-label="Nova Ordem de Serviço"
+        >
+          <Wrench className="h-8 w-8" />
+        </Button>
+      )}
+
+      {/* Botão Flutuante para Adicionar Equipamento (Aba Equipamentos) */}
       {selectedView === 'equipments' && (
         <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
           <DialogTrigger asChild>
@@ -332,6 +353,7 @@ const ClientDetails: React.FC = () => {
         </Dialog>
       )}
 
+      {/* Botão Flutuante para Adicionar Estabelecimento (Aba Estabelecimentos) */}
       {selectedView === 'establishments' && (
         <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
           <DialogTrigger asChild>

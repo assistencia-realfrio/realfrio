@@ -27,7 +27,7 @@ import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormVal
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -61,13 +61,15 @@ interface ServiceOrderFormProps {
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
   const form = useForm<ServiceOrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData ? {
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
     } : {
-      client_id: "",
+      client_id: searchParams.get('clientId') || "", // Pré-seleciona o cliente se o ID estiver na URL
       equipment_id: "",
       establishment_id: null,
       description: "",
@@ -86,6 +88,20 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   const { clients } = useClients();
   const selectedClient = clients.find(c => c.id === clientId);
+
+  // Efeito para carregar os detalhes do equipamento se estiver editando
+  const { singleEquipment } = useEquipments(undefined, initialData?.equipment_id);
+  useEffect(() => {
+    if (isEditing && singleEquipment) {
+        setEquipmentDetails({
+            name: singleEquipment.name,
+            brand: singleEquipment.brand,
+            model: singleEquipment.model,
+            serial_number: singleEquipment.serial_number,
+        });
+    }
+  }, [isEditing, singleEquipment]);
+
 
   const handleEquipmentChange = (equipmentId: string, details: any) => {
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
