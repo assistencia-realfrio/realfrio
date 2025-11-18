@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building, Clock } from "lucide-react"; // Importando Clock
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -65,6 +65,8 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const statusBgColor = statusChartColors[order.status];
     const storeColor = getStoreColor(order.store);
     const cardBackgroundColor = hexToRgba(statusBgColor, 0.05);
+    
+    const scheduledDate = order.scheduled_date ? new Date(order.scheduled_date) : null;
 
     return (
         <div 
@@ -141,16 +143,22 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <div className="flex items-center gap-2">
-                            {order.scheduled_date && (
+                        <div className="flex items-center gap-2 flex-wrap"> {/* Adicionado flex-wrap */}
+                            {scheduledDate && (
                                 <>
-                                    <CalendarIcon className="h-4 w-4" />
-                                    <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
+                                    <div className="flex items-center gap-1 text-primary">
+                                        <CalendarIcon className="h-4 w-4" />
+                                        <span>{format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR })}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-primary">
+                                        <Clock className="h-4 w-4" />
+                                        <span>{format(scheduledDate, 'HH:mm', { locale: ptBR })}</span>
+                                    </div>
                                 </>
                             )}
                         </div>
                         
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                             {order.notes_count > 0 && (
                                 <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
                                     <MessageSquareText className="h-4 w-4" />
