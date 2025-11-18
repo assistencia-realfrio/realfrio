@@ -26,7 +26,7 @@ import EstablishmentSelector from "./EstablishmentSelector"; // Importar o novo 
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone, CalendarIcon, XCircle } from "lucide-react";
+import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive } from "lucide-react"; // Importado HardDrive
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
@@ -83,6 +83,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const isEditing = !!initialData?.id;
   
   const clientId = form.watch("client_id");
+  const equipmentId = form.watch("equipment_id"); // Observar o ID do equipamento
   const [equipmentDetails, setEquipmentDetails] = useState({ name: '', brand: null, model: null, serial_number: null });
   const [establishmentName, setEstablishmentName] = useState<string | null>(initialData?.establishment_name || null);
 
@@ -114,6 +115,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   };
 
   const handleViewClientDetails = () => clientId && navigate(`/clients/${clientId}`);
+  const handleViewEquipmentDetails = () => equipmentId && navigate(`/equipments/${equipmentId}`); // Nova função
   
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     const mutationData = {
@@ -172,9 +174,21 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="equipment_id"
             render={({ field }) => (
               <FormItem>
-                <FormControl>
-                  <EquipmentSelector clientId={clientId} value={field.value} onChange={handleEquipmentChange} disabled={isEditing} />
-                </FormControl>
+                <div className="flex items-center gap-2">
+                    <div className="flex-grow">
+                        <EquipmentSelector clientId={clientId} value={field.value} onChange={handleEquipmentChange} disabled={isEditing} />
+                    </div>
+                    <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={handleViewEquipmentDetails} 
+                        disabled={!equipmentId}
+                        aria-label="Ver Detalhes do Equipamento"
+                    >
+                        <HardDrive className="h-4 w-4" />
+                    </Button>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
