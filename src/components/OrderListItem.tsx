@@ -19,18 +19,18 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
         navigate(`/orders/${order.id}`);
     };
     
-    const createdAtDate = new Date(order.created_at).toLocaleDateString('pt-BR');
+    // A data de criação não será mais exibida no cartão, mas mantida para referência se necessário em outros lugares.
+    // const createdAtDate = new Date(order.created_at).toLocaleDateString('pt-BR');
 
     return (
         <Card 
             className="mb-2 cursor-pointer hover:bg-muted/50 transition-colors"
             onClick={handleViewDetails}
         >
-            <CardContent className="flex flex-col p-3"> {/* Alterado para flex-col */}
-                {/* BADGE MOVIDO PARA CIMA E À ESQUERDA */}
+            <CardContent className="flex flex-col p-3">
                 <Badge variant={getStatusBadgeVariant(order.status)} className="mb-2 self-start">{order.status}</Badge>
                 
-                <div className="flex flex-col flex-grow min-w-0"> {/* Removido max-w */}
+                <div className="flex flex-col flex-grow min-w-0">
                     <div className="flex items-center gap-1 mb-1">
                         <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <span className="font-semibold text-base truncate">{order.client}</span>
@@ -42,16 +42,7 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                     <p className="text-xs text-muted-foreground mt-2 font-semibold">
                         {order.display_id}
                     </p>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                        <span>{createdAtDate}</span>
-                        {order.scheduled_date && (
-                            <>
-                                <span>|</span>
-                                <CalendarIcon className="h-3 w-3" />
-                                <span>{format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
-                            </>
-                        )}
-                    </div>
+                    {/* As datas de criação e agendamento foram removidas daqui */}
                 </div>
             </CardContent>
         </Card>
