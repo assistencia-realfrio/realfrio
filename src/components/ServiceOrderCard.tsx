@@ -89,7 +89,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                     <div className="flex items-center gap-2">
                         <Badge  
-                            className="whitespace-nowrap text-[10px] px-1.5 py-0.5 border-transparent text-white h-4"
+                            className="whitespace-nowrap text-sm px-2 py-0.5 border-transparent text-white h-6 flex items-center"
                             style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                         >
                             {order.status}
