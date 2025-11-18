@@ -37,11 +37,14 @@ import { format, setHours, setMinutes, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-// Função para gerar intervalos de tempo de 30 minutos
+// Função para gerar intervalos de tempo de 30 minutos, das 08:00 às 18:00
 const generateTimeSlots = (): string[] => {
   const slots: string[] = [];
-  for (let h = 0; h < 24; h++) {
+  // Começa às 8h (h=8) e vai até 18h (h=18)
+  for (let h = 8; h <= 18; h++) {
     for (let m = 0; m < 60; m += 30) {
+      // Se for 18:30, não adiciona, pois o limite é 18:00
+      if (h === 18 && m > 0) continue;
       slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     }
   }
@@ -147,13 +150,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         const [hours, minutes] = data.scheduled_time.split(':').map(Number);
         scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, hours), minutes);
     } else if (scheduledDateWithTime) {
-        // Se houver data, mas não hora, define para 09:00 por padrão (se a hora não for selecionada)
-        // Se o campo de hora for nulo, o valor padrão será null, mas se a data for selecionada,
-        // precisamos garantir que a hora seja definida para evitar problemas de fuso horário.
-        // No entanto, como o campo agora é um Select, se a data for selecionada, o campo de hora
-        // deve ser preenchido ou ser tratado como nulo se o usuário não quiser hora.
-        // Vamos manter a lógica de que se a data existe, mas a hora não, a hora é nula no banco.
-        // O Supabase irá lidar com o fuso horário.
+        // Se houver data, mas não hora, define para 09:00 por padrão
+        scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, 9), 0);
     }
 
     const mutationData = {
@@ -162,9 +160,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
       establishment_name: establishmentName,
-      // Se scheduled_date for null, scheduled_dateWithTime será null.
-      // Se scheduled_date for Date e scheduled_time for string (HH:MM), ele será combinado.
-      // Se scheduled_date for Date e scheduled_time for null, ele será apenas a data (sem hora definida explicitamente).
       scheduled_date: scheduledDateWithTime, 
     } as MutationServiceOrderFormValues;
 
