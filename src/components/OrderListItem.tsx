@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ServiceOrder } from "@/hooks/useServiceOrders";
 import { getStatusBadgeVariant } from "@/lib/serviceOrderStatus";
-import { Calendar as CalendarIcon, User } from "lucide-react"; // Importado o ícone User
+import { Calendar as CalendarIcon, User } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,9 +26,11 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
             className="mb-2 cursor-pointer hover:bg-muted/50 transition-colors"
             onClick={handleViewDetails}
         >
-            <CardContent className="flex justify-between items-start p-3">
-                <div className="flex flex-col flex-grow min-w-0 max-w-[calc(100%-5rem)]"> {/* Adicionado max-w para garantir espaço para o badge */}
-                    {/* NOVO: Nome do Cliente */}
+            <CardContent className="flex flex-col p-3"> {/* Alterado para flex-col */}
+                {/* BADGE MOVIDO PARA CIMA E À ESQUERDA */}
+                <Badge variant={getStatusBadgeVariant(order.status)} className="mb-2 self-start">{order.status}</Badge>
+                
+                <div className="flex flex-col flex-grow min-w-0"> {/* Removido max-w */}
                     <div className="flex items-center gap-1 mb-1">
                         <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <span className="font-semibold text-base truncate">{order.client}</span>
@@ -37,10 +39,10 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                     <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                         {order.description}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-2 font-semibold"> {/* Display ID em linha própria, com mais espaçamento */}
+                    <p className="text-xs text-muted-foreground mt-2 font-semibold">
                         {order.display_id}
                     </p>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1"> {/* Datas em nova linha */}
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
                         <span>{createdAtDate}</span>
                         {order.scheduled_date && (
                             <>
@@ -50,9 +52,6 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                             </>
                         )}
                     </div>
-                </div>
-                <div className="flex-shrink-0 ml-4">
-                    <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                 </div>
             </CardContent>
         </Card>
