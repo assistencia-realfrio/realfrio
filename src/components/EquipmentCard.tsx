@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { HardDrive, Tag, Box, Hash, Building } from "lucide-react"; // Adicionado Building
+import { HardDrive, Tag, Box, Hash } from "lucide-react";
 import { Equipment } from "@/hooks/useEquipments";
 import { cn } from "@/lib/utils";
 
@@ -30,12 +30,6 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({ equipment }) => {
         </div>
 
         <div className="space-y-1 text-sm text-muted-foreground">
-          {equipment.establishment_name && ( // NOVO: Exibir Estabelecimento
-            <div className="flex items-center gap-2">
-              <Building className="h-4 w-4 flex-shrink-0" />
-              <p className="truncate">Local: {equipment.establishment_name}</p>
-            </div>
-          )}
           {equipment.brand && (
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 flex-shrink-0" />

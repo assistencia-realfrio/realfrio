@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/form";
 import { showSuccess, showError } from "@/utils/toast";
 import { useEquipments, Equipment, EquipmentFormValues } from "@/hooks/useEquipments";
-import EstablishmentSelector from "./EstablishmentSelector"; // Importar EstablishmentSelector
 
 // Schema de validação para o formulário de novo equipamento
 const equipmentFormSchema = z.object({
@@ -23,7 +22,7 @@ const equipmentFormSchema = z.object({
   brand: z.string().optional().or(z.literal('')),
   model: z.string().optional().or(z.literal('')),
   serial_number: z.string().optional().or(z.literal('')),
-  establishment_id: z.string().uuid().nullable().optional(), // NOVO: ID do estabelecimento
+  // google_drive_link: z.string().optional().or(z.literal('')), // REMOVIDO: Campo para o link do Google Drive
 });
 
 export type EquipmentFormData = z.infer<typeof equipmentFormSchema>;
@@ -43,42 +42,43 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
             brand: initialData.brand || "",
             model: initialData.model || "",
             serial_number: initialData.serial_number || "",
-            establishment_id: initialData.establishment_id || null, // NOVO: Definindo valor padrão
+            // google_drive_link: initialData.google_drive_link || "", // REMOVIDO: Definindo valor padrão
         } : { 
             name: "", 
             brand: "", 
             model: "", 
             serial_number: "",
-            establishment_id: null, // NOVO: Definindo valor padrão
+            // google_drive_link: "", // REMOVIDO: Definindo valor padrão
         },
     });
     const { createEquipment, updateEquipment } = useEquipments(clientId);
     const isEditing = !!initialData?.id;
 
-    // Removida a função handleEstablishmentChange, usaremos field.onChange diretamente
-
     const handleSubmit = async (data: EquipmentFormData) => {
         try {
             let resultEquipment: Equipment;
-            const payload = {
-                client_id: clientId,
-                name: data.name,
-                brand: data.brand || undefined,
-                model: data.model || undefined,
-                serial_number: data.serial_number || undefined,
-                establishment_id: data.establishment_id, // NOVO: Enviando establishment_id
-            };
-
             if (isEditing && initialData?.id) {
                 // Atualizar equipamento existente
                 resultEquipment = await updateEquipment.mutateAsync({
                     id: initialData.id,
-                    ...payload,
+                    client_id: clientId, // client_id é necessário para a mutação, mas não é alterado no form
+                    name: data.name,
+                    brand: data.brand || undefined,
+                    model: data.model || undefined,
+                    serial_number: data.serial_number || undefined,
+                    // google_drive_link: data.google_drive_link || undefined, // REMOVIDO: Enviando google_drive_link
                 });
                 showSuccess(`Equipamento '${data.name}' atualizado com sucesso!`);
             } else {
                 // Criar novo equipamento
-                resultEquipment = await createEquipment.mutateAsync(payload);
+                resultEquipment = await createEquipment.mutateAsync({
+                    client_id: clientId,
+                    name: data.name,
+                    brand: data.brand || undefined,
+                    model: data.model || undefined,
+                    serial_number: data.serial_number || undefined,
+                    // google_drive_link: data.google_drive_link || undefined, // REMOVIDO: Enviando google_drive_link
+                });
                 showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
             }
             onSubmit(resultEquipment);
@@ -107,25 +107,6 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     )}
                 />
                 
-                {/* NOVO: Seletor de Estabelecimento */}
-                <FormField
-                    control={form.control}
-                    name="establishment_id"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Estabelecimento (Opcional)</FormLabel>
-                            <FormControl>
-                                <EstablishmentSelector 
-                                    clientId={clientId} 
-                                    value={field.value} 
-                                    onChange={field.onChange} // Usando field.onChange diretamente
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
                 <FormField
                     control={form.control}
                     name="brand"
@@ -166,7 +147,8 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         </FormItem>
                     )}
                 />
-                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-2">
+                {/* REMOVIDO: Campo para o link do Google Drive */}
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-2"> {/* Ajustado para empilhar em mobile */}
                     <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} className="w-full sm:w-auto">
                         Cancelar
                     </Button>
