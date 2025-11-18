@@ -158,38 +158,38 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <div className="flex-grow w-full min-w-0">
                     <ClientSelector value={field.value} onChange={field.onChange} disabled={isEditing} />
                   </div>
-                  {/* Ajustado o layout para que os botões ocupem a largura total em mobile */}
+                  {/* Botões de ação do cliente: apenas ícones, expandindo em mobile */}
                   <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
                     <Button 
                         type="button" 
                         variant="outline" 
-                        size="default" // Usar default size para permitir expansão
+                        size="icon" // Usar size="icon" para manter o tamanho pequeno em desktop
                         onClick={handleViewClientDetails} 
                         disabled={!field.value}
-                        className="flex-1 sm:flex-none sm:w-10" // flex-1 para expandir em mobile
+                        className="flex-1 sm:flex-none" // flex-1 para expandir em mobile
+                        aria-label="Detalhes do Cliente"
                     >
-                        <User className="h-4 w-4 sm:mr-0 mr-2" />
-                        <span className="sm:hidden">Detalhes</span>
+                        <User className="h-4 w-4" />
                     </Button>
                     <Button 
                         type="button" 
                         variant="outline" 
-                        size="default"
+                        size="icon"
                         disabled={!hasMapLink}
-                        className="flex-1 sm:flex-none sm:w-10"
+                        className="flex-1 sm:flex-none"
+                        aria-label="Ver no Mapa"
                     >
-                        <MapPin className={cn("h-4 w-4 sm:mr-0 mr-2", hasMapLink ? 'text-blue-600' : '')} />
-                        <span className="sm:hidden">Mapa</span>
+                        <MapPin className={cn("h-4 w-4", hasMapLink ? 'text-blue-600' : '')} />
                     </Button>
                     <Button 
                         type="button" 
                         variant="outline" 
-                        size="default"
+                        size="icon"
                         disabled={!hasContact}
-                        className="flex-1 sm:flex-none sm:w-10"
+                        className="flex-1 sm:flex-none"
+                        aria-label="Ligar para o Cliente"
                     >
-                        <Phone className={cn("h-4 w-4 sm:mr-0 mr-2", hasContact ? 'text-green-600' : '')} />
-                        <span className="sm:hidden">Telefone</span>
+                        <Phone className={cn("h-4 w-4", hasContact ? 'text-green-600' : '')} />
                     </Button>
                   </div>
                 </div>
