@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { FolderOpen } from "lucide-react"; // Manter se usado em outro lugar, caso contrário remover
+import { FolderOpen, Building } from "lucide-react"; // Adicionado Building
 import { Equipment } from "@/hooks/useEquipments";
 
 interface EquipmentDetailsViewProps {
@@ -16,6 +16,11 @@ const EquipmentDetailsView: React.FC<EquipmentDetailsViewProps> = ({ equipment }
         <div>
           <p className="text-muted-foreground">Nome</p>
           <p className="font-medium">{equipment.name}</p>
+        </div>
+        {/* NOVO: Exibir Estabelecimento */}
+        <div>
+          <p className="text-muted-foreground">Estabelecimento</p>
+          <p className="font-medium">{equipment.establishment_name || 'N/A'}</p>
         </div>
         <div>
           <p className="text-muted-foreground">Marca</p>
