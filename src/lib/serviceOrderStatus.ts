@@ -23,14 +23,14 @@ export const statusCardClasses: Record<ServiceOrderStatus, string> = {
 };
 
 export const statusChartColors: Record<ServiceOrderStatus, string> = {
-    'POR INICIAR': '#039BE5',
-    'INICIADA': '#00ACC1',
-    'PARA ORÇAMENTO': '#9C27B0',
-    'ORÇAMENTO ENVIADO': '#F57C00',
-    'AGUARDA PEÇAS': '#FF5722',
-    'PEÇAS RECEBIDAS': '#E91E63',
-    'CONCLUIDA': '#4CAF50',
-    'CANCELADA': '#475569',
+    'POR INICIAR': '#F1C40F',
+    'INICIADA': '#FF5722',
+    'PARA ORÇAMENTO': '#00E5FF',
+    'ORÇAMENTO ENVIADO': '#CDDC39',
+    'AGUARDA PEÇAS': '#E91E63',
+    'PEÇAS RECEBIDAS': '#9C27B0',
+    'CONCLUIDA': '#2ECC71',
+    'CANCELADA': '#95A5A6',
 };
 
 
