@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -13,12 +12,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Establishment, EstablishmentFormValues } from "@/hooks/useClientEstablishments";
+import { Establishment } from "@/hooks/useClientEstablishments";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
-  address: z.string().optional(),
-  contact_person: z.string().optional(),
+  locality: z.string().optional(),
+  google_maps_link: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -36,8 +35,8 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: "",
-      address: "",
-      contact_person: "",
+      locality: "",
+      google_maps_link: "",
     },
   });
 
@@ -47,7 +46,6 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
       client_id: clientId,
       ...data,
     };
-    // A mutação real é tratada no componente pai, aqui apenas passamos os dados
     onSubmit(submissionData as any);
   };
 
@@ -69,12 +67,12 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
         />
         <FormField
           control={form.control}
-          name="address"
+          name="locality"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Endereço (Opcional)</FormLabel>
+              <FormLabel>Localidade (Opcional)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Rua, número, cidade..." {...field} />
+                <Input placeholder="Ex: Caldas da Rainha, Leiria" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,12 +80,12 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
         />
         <FormField
           control={form.control}
-          name="contact_person"
+          name="google_maps_link"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Pessoa de Contato (Opcional)</FormLabel>
+              <FormLabel>Google Maps (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Gerente João" {...field} />
+                <Input placeholder="Link do Google Maps ou coordenadas" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -6,22 +6,22 @@ export interface Establishment {
   id: string;
   client_id: string;
   name: string;
-  address: string | null;
-  contact_person: string | null;
+  locality: string | null;
+  google_maps_link: string | null;
   created_at: string;
 }
 
 export interface EstablishmentFormValues {
   client_id: string;
   name: string;
-  address?: string;
-  contact_person?: string;
+  locality?: string;
+  google_maps_link?: string;
 }
 
 const fetchEstablishments = async (clientId: string): Promise<Establishment[]> => {
   const { data, error } = await supabase
     .from('client_establishments')
-    .select('*')
+    .select('id, client_id, name, locality, google_maps_link, created_at')
     .eq('client_id', clientId)
     .order('name', { ascending: true });
 
@@ -66,8 +66,8 @@ export const useClientEstablishments = (clientId: string) => {
         .from('client_establishments')
         .update({
           name: establishmentData.name,
-          address: establishmentData.address,
-          contact_person: establishmentData.contact_person,
+          locality: establishmentData.locality,
+          google_maps_link: establishmentData.google_maps_link,
         })
         .eq('id', id)
         .select()

@@ -1,8 +1,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building, MapPin, User, Edit, Trash2 } from "lucide-react";
+import { Building, MapPin, Edit, Trash2 } from "lucide-react";
 import { Establishment } from "@/hooks/useClientEstablishments";
+import { isLinkClickable } from "@/lib/utils";
 
 interface EstablishmentCardProps {
   establishment: Establishment;
@@ -12,6 +13,17 @@ interface EstablishmentCardProps {
 }
 
 const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, onEdit, onDelete, isPending }) => {
+  const getMapHref = (mapsLink: string | null) => {
+    if (!mapsLink) return "#";
+    if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
+      return mapsLink;
+    }
+    if (/^-?\d+\.\d+,\s*-?\d+\.\d+/.test(mapsLink)) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsLink)}`;
+    }
+    return "#";
+  };
+
   return (
     <Card>
       <CardContent className="p-4 space-y-3">
@@ -30,17 +42,23 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
           </div>
         </div>
         <div className="space-y-2 text-sm text-muted-foreground pl-8">
-          {establishment.address && (
+          {establishment.locality && (
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 flex-shrink-0" />
-              <p className="whitespace-pre-wrap">{establishment.address}</p>
+              <p className="whitespace-pre-wrap">{establishment.locality}</p>
             </div>
           )}
-          {establishment.contact_person && (
-            <div className="flex items-center gap-3">
-              <User className="h-4 w-4 flex-shrink-0" />
-              <p>{establishment.contact_person}</p>
-            </div>
+          {establishment.google_maps_link && isLinkClickable(establishment.google_maps_link) && (
+             <a 
+                href={getMapHref(establishment.google_maps_link)}
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-3 text-blue-600 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MapPin className="h-4 w-4" />
+                Ver no Mapa
+              </a>
           )}
         </div>
       </CardContent>
