@@ -18,6 +18,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   locality: z.string().optional(),
   google_maps_link: z.string().optional(),
+  phone: z.string().optional(), // Novo campo
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -37,6 +38,7 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
       name: "",
       locality: "",
       google_maps_link: "",
+      phone: "",
     },
   });
 
@@ -86,6 +88,19 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
               <FormLabel>Google Maps (Opcional)</FormLabel>
               <FormControl>
                 <Input placeholder="Link do Google Maps ou coordenadas" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefone (Opcional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Ex: 912 345 678" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Building, MapPin, Edit, Trash2 } from "lucide-react";
+import { Building, MapPin, Edit, Trash2, Phone } from "lucide-react";
 import { Establishment } from "@/hooks/useClientEstablishments";
 import { isLinkClickable } from "@/lib/utils";
 
@@ -59,6 +59,18 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
                 <MapPin className="h-4 w-4" />
                 Ver no Mapa
               </a>
+          )}
+          {establishment.phone && (
+            <div className="flex items-center gap-3">
+              <Phone className="h-4 w-4 flex-shrink-0" />
+              <a 
+                href={`tel:${establishment.phone}`}
+                className="text-blue-600 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {establishment.phone}
+              </a>
+            </div>
           )}
         </div>
       </CardContent>
