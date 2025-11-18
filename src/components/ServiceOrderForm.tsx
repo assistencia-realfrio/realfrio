@@ -22,6 +22,7 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
+import EstablishmentSelector from "./EstablishmentSelector"; // Importar o novo seletor
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,12 +35,11 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Definição do Schema de Validação
 const formSchema = z.object({
-  equipment_id: z.string().uuid({ message: "Selecione um equipamento válido." }),
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
+  equipment_id: z.string().uuid({ message: "Selecione um equipamento válido." }),
+  establishment_id: z.string().uuid().nullable().optional(),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
@@ -50,6 +50,7 @@ export type ServiceOrderFormValues = z.infer<typeof formSchema>;
 
 interface InitialData extends ServiceOrderFormValues {
     id?: string;
+    establishment_name?: string | null;
 }
 
 interface ServiceOrderFormProps {
@@ -66,8 +67,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
     } : {
-      equipment_id: "",
       client_id: "",
+      equipment_id: "",
+      establishment_id: null,
       description: "",
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
@@ -79,121 +81,56 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const isEditing = !!initialData?.id;
   
   const clientId = form.watch("client_id");
-  const currentEquipmentId = form.watch("equipment_id");
+  const [equipmentDetails, setEquipmentDetails] = useState({ name: '', brand: null, model: null, serial_number: null });
+  const [establishmentName, setEstablishmentName] = useState<string | null>(initialData?.establishment_name || null);
 
   const { clients } = useClients();
   const selectedClient = clients.find(c => c.id === clientId);
 
-  const { singleEquipment, isLoading: isLoadingSingleEquipment } = useEquipments(undefined, isEditing ? currentEquipmentId : undefined);
-
-  const [equipmentDetails, setEquipmentDetails] = useState<{ name: string, brand: string | null, model: string | null, serial_number: string | null }>({ name: '', brand: null, model: null, serial_number: null });
-
-  useEffect(() => {
-    if (isEditing && singleEquipment && !equipmentDetails.name) {
-      setEquipmentDetails({
-        name: singleEquipment.name,
-        brand: singleEquipment.brand,
-        model: singleEquipment.model,
-        serial_number: singleEquipment.serial_number,
-      });
-    }
-  }, [isEditing, singleEquipment, equipmentDetails.name]);
-
-  const handleEquipmentChange = (equipmentId: string, details: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => {
+  const handleEquipmentChange = (equipmentId: string, details: any) => {
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
     setEquipmentDetails(details);
   };
 
-  const handleViewClientDetails = () => {
-    if (clientId) {
-      navigate(`/clients/${clientId}`);
-    }
+  const handleEstablishmentChange = (id: string | null, name: string | null) => {
+    form.setValue("establishment_id", id, { shouldValidate: true });
+    setEstablishmentName(name);
   };
+
+  const handleViewClientDetails = () => clientId && navigate(`/clients/${clientId}`);
   
   const handleSubmit = async (data: ServiceOrderFormValues) => {
-    if (!equipmentDetails.name) {
-        showError("Selecione um equipamento válido.");
-        return;
-    }
-    
+    const mutationData = {
+      ...data,
+      equipment: equipmentDetails.name,
+      model: equipmentDetails.model,
+      serial_number: equipmentDetails.serial_number,
+      establishment_name: establishmentName,
+    } as MutationServiceOrderFormValues;
+
     try {
-        const equipmentName = equipmentDetails.name;
-        const equipmentBrand = equipmentDetails.brand;
-        
-        const formattedEquipment = equipmentBrand 
-            ? `${equipmentName} / ${equipmentBrand}` 
-            : equipmentName;
-
-        const mutationData: MutationServiceOrderFormValues = {
-            client_id: data.client_id,
-            description: data.description,
-            status: data.status,
-            store: data.store,
-            equipment: formattedEquipment,
-            model: equipmentDetails.model || undefined, 
-            serial_number: equipmentDetails.serial_number || undefined,
-            equipment_id: data.equipment_id,
-            scheduled_date: data.scheduled_date,
-        } as MutationServiceOrderFormValues; 
-
-        if (isEditing && initialData.id) {
-            await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
-            showSuccess("Ordem de Serviço atualizada com sucesso!");
-        } else {
-            const newOrder = await createOrder.mutateAsync(mutationData);
-            showSuccess("Ordem de Serviço criada com sucesso!");
-            onSubmit({ ...data, id: newOrder.id });
-            return;
-        }
-        onSubmit(data);
+      if (isEditing && initialData.id) {
+        await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
+        showSuccess("Ordem de Serviço atualizada!");
+      } else {
+        const newOrder = await createOrder.mutateAsync(mutationData);
+        showSuccess("Ordem de Serviço criada!");
+        onSubmit({ ...data, id: newOrder.id });
+        return;
+      }
+      onSubmit(data);
     } catch (error) {
-        console.error("Erro ao salvar OS:", error);
-        showError("Erro ao salvar Ordem de Serviço. Verifique os dados.");
+      showError("Erro ao salvar Ordem de Serviço.");
     }
   };
 
-  if (isEditing && isLoadingSingleEquipment) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-32 w-full" />
-        <div className="grid grid-cols-2 gap-6">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-        </div>
-        <div className="flex justify-end space-x-2 pt-4">
-          <Skeleton className="h-10 w-24" />
-          <Skeleton className="h-10 w-32" />
-        </div>
-      </div>
-    );
-  }
-  
-  // Lógica para os botões de mapa e telefone
-  const hasMapLink = selectedClient && selectedClient.maps_link && isLinkClickable(selectedClient.maps_link);
-  const handleMapClick = () => {
-    if (hasMapLink && selectedClient?.maps_link) {
-      const mapHref = selectedClient.maps_link.startsWith("http") 
-        ? selectedClient.maps_link 
-        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedClient.maps_link)}`;
-      window.open(mapHref, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  const hasContact = selectedClient && selectedClient.contact;
-  const handlePhoneClick = () => {
-    if (hasContact) {
-      window.location.href = `tel:${selectedClient.contact}`;
-    }
-  };
+  const hasMapLink = selectedClient?.maps_link && isLinkClickable(selectedClient.maps_link);
+  const hasContact = selectedClient?.contact;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        
-        {/* Campos de Cliente, Equipamento e Descrição */}
-        <div className="space-y-4 pt-4"> {/* Aumentado space-y para melhor espaçamento */}
+        <div className="space-y-4 pt-4">
           <FormField
             control={form.control}
             name="client_id"
@@ -201,48 +138,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               <FormItem>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <div className="flex-grow w-full min-w-0">
-                    <ClientSelector 
-                      value={field.value} 
-                      onChange={field.onChange} 
-                      disabled={isEditing}
-                    />
+                    <ClientSelector value={field.value} onChange={field.onChange} disabled={isEditing} />
                   </div>
                   <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={handleViewClientDetails}
-                      disabled={!field.value}
-                      aria-label="Ver detalhes do cliente"
-                      className="flex-grow sm:flex-grow-0"
-                    >
-                      <User className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      aria-label="Ver no mapa"
-                      disabled={!hasMapLink}
-                      onClick={handleMapClick}
-                      className="flex-grow sm:flex-grow-0"
-                    >
-                      <MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} />
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      aria-label="Ligar para o cliente"
-                      disabled={!hasContact}
-                      onClick={handlePhoneClick}
-                      className="flex-grow sm:flex-grow-0"
-                    >
-                      <Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} />
-                    </Button>
+                    <Button type="button" variant="outline" size="icon" onClick={handleViewClientDetails} disabled={!field.value}><User className="h-4 w-4" /></Button>
+                    <Button type="button" variant="outline" size="icon" disabled={!hasMapLink}><MapPin className={`h-4 w-4 ${hasMapLink ? 'text-blue-600' : ''}`} /></Button>
+                    <Button type="button" variant="outline" size="icon" disabled={!hasContact}><Phone className={`h-4 w-4 ${hasContact ? 'text-green-600' : ''}`} /></Button>
                   </div>
                 </div>
                 <FormMessage />
@@ -251,24 +152,31 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
 
           <FormField
-              control={form.control}
-              name="equipment_id"
-              render={({ field }) => (
-                  <FormItem>
-                      <FormControl>
-                          <EquipmentSelector
-                              clientId={clientId}
-                              value={field.value}
-                              onChange={handleEquipmentChange}
-                              disabled={isEditing}
-                          />
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-              )}
+            control={form.control}
+            name="equipment_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <EquipmentSelector clientId={clientId} value={field.value} onChange={handleEquipmentChange} disabled={isEditing} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
-          {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}
+          <FormField
+            control={form.control}
+            name="establishment_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="description"
@@ -276,7 +184,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               <FormItem>
                 <FormLabel>Descrição do Serviço *</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Detalhes do serviço a ser executado..." {...field} rows={5} />
+                  <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -284,7 +192,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        {/* Campos de Status e Loja */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <FormField
             control={form.control}
@@ -292,33 +199,20 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             render={({ field }) => (
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Estado *" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {serviceOrderStatuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
+                  <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
+                  <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
-        
           <FormField
             control={form.control}
             name="store"
             render={({ field }) => (
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Loja *" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
                   <SelectContent>
                     <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
                     <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
@@ -330,72 +224,36 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           />
         </div>
 
-        {/* Campo de Data de Agendamento */}
-        <div className="space-y-2">
-          <FormField
-            control={form.control}
-            name="scheduled_date"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Data de Agendamento (Opcional)</FormLabel>
-                <div className="flex items-center gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP", { locale: ptBR })
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value || undefined}
-                        onSelect={field.onChange}
-                        initialFocus
-                        locale={ptBR}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  {field.value && (
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => field.onChange(null)}
-                      aria-label="Limpar Data"
-                    >
-                      <XCircle className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        {/* Botões de ação centralizados */}
-        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
-          {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
-              Cancelar
-            </Button>
+        <FormField
+          control={form.control}
+          name="scheduled_date"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Data de Agendamento (Opcional)</FormLabel>
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                        {field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={field.value || undefined} onSelect={field.onChange} initialFocus locale={ptBR} />
+                  </PopoverContent>
+                </Popover>
+                {field.value && <Button type="button" variant="outline" size="icon" onClick={() => field.onChange(null)}><XCircle className="h-4 w-4 text-destructive" /></Button>}
+              </div>
+              <FormMessage />
+            </FormItem>
           )}
-          <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">
-            {isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}
-          </Button>
+        />
+        
+        <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+          {onCancel && <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">Cancelar</Button>}
+          <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">{isEditing ? "Salvar Alterações" : "Criar Ordem de Serviço"}</Button>
         </div>
       </form>
     </Form>

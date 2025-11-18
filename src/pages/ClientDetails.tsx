@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X } from "lucide-react"; // Adicionado X para o botão de cancelar edição
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -26,6 +26,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { isLinkClickable } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
+import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab"; // Importar a nova aba
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
@@ -119,8 +120,9 @@ const ClientDetails: React.FC = () => {
   const navigate = useNavigate();
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments'>("details");
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'establishments'>("details");
   const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
+  const [isAddEstablishmentModalOpen, setIsAddEstablishmentModalOpen] = useState(false); // Novo estado
 
   const client = id ? clients.find(c => c.id === id) : undefined;
 
@@ -194,7 +196,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* O nome do cliente será exibido dentro do ClientDetailsView ou no modo de edição */}
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2>
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -202,6 +204,13 @@ const ClientDetails: React.FC = () => {
               <Button size="sm" onClick={() => setIsAddEquipmentModalOpen(true)} className="flex-shrink-0">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Adicionar Equipamento
+              </Button>
+            )}
+            
+            {selectedView === 'establishments' && (
+              <Button size="sm" onClick={() => setIsAddEstablishmentModalOpen(true)} className="flex-shrink-0">
+                <Building className="mr-2 h-4 w-4" />
+                Adicionar Estabelecimento
               </Button>
             )}
 
@@ -268,11 +277,9 @@ const ClientDetails: React.FC = () => {
 
         {selectedView === 'details' && (
           <>
-            {/* REMOVIDO: h2 com o nome do cliente */}
-            
             {isEditing ? (
-              <Card> {/* NOVO: Envolvendo o formulário em um Card */}
-                <CardContent className="pt-6"> {/* Adicionado pt-6 para espaçamento interno */}
+              <Card>
+                <CardContent className="pt-6">
                   <ClientForm 
                     initialData={initialFormData} 
                     onSubmit={handleFormSubmit} 
@@ -293,6 +300,10 @@ const ClientDetails: React.FC = () => {
         {selectedView === 'equipments' && (
           <ClientEquipmentTab clientId={client.id} />
         )}
+
+        {selectedView === 'establishments' && (
+          <ClientEstablishmentsTab clientId={client.id} />
+        )}
       </div>
       <ClientDetailsBottomNav
         selectedView={selectedView}
@@ -309,6 +320,15 @@ const ClientDetails: React.FC = () => {
             onSubmit={handleNewEquipmentSuccess} 
             onCancel={() => setIsAddEquipmentModalOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
+          </DialogHeader>
+          {/* O formulário será adicionado aqui em breve */}
         </DialogContent>
       </Dialog>
     </Layout>

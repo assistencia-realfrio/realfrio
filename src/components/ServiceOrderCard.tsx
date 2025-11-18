@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -64,7 +64,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     
     const statusBgColor = statusChartColors[order.status];
     const storeColor = getStoreColor(order.store);
-    const cardBackgroundColor = hexToRgba(statusBgColor, 0.05); // Alterado para 5% de opacidade
+    const cardBackgroundColor = hexToRgba(statusBgColor, 0.05);
 
     return (
         <div 
@@ -74,16 +74,13 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
             )} 
             style={{ backgroundColor: cardBackgroundColor }}
         >
-            {/* Barra lateral esquerda com a cor da loja */}
             <div 
                 className="w-4 flex-shrink-0 rounded-l-lg" 
                 style={{ backgroundColor: storeColor }}
             ></div>
 
             <div className="flex flex-col flex-grow">
-                <div 
-                    className="flex items-center justify-between px-3 py-1.5" 
-                >
+                <div className="flex items-center justify-between px-3 py-1.5">
                     <div className="font-semibold text-sm text-foreground truncate pr-2">
                         {order.display_id}
                     </div>
@@ -127,6 +124,12 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <p className="font-semibold text-base truncate">{order.client}</p>
                         </div>
+                        {order.establishment_name && (
+                            <div className="flex items-center gap-2">
+                                <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                <p className="text-sm font-medium truncate">{order.establishment_name}</p>
+                            </div>
+                        )}
                         <div className="flex items-center gap-2">
                             <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <p className="text-base truncate">{order.equipment}</p>
