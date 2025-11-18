@@ -29,7 +29,8 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { equipments, isLoading } = useEquipments(clientId);
 
-  // Efeito para pré-selecionar o equipamento se houver apenas um, ou se o valor atual for inválido
+  // Efeito removido: Não pré-selecionar o equipamento automaticamente.
+  /*
   useEffect(() => {
     if (equipments.length > 0 && !value) {
         const firstEquipment = equipments[0];
@@ -41,6 +42,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
         });
     }
   }, [equipments, value, onChange]);
+  */
 
   const handleSelectChange = (selectedValue: string) => {
     if (selectedValue === "NEW_EQUIPMENT") {
@@ -92,7 +94,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   const selectedEquipment = equipments.find(e => e.id === value);
   const displayValue = selectedEquipment 
     ? selectedEquipment.name
-    : "Selecione ou adicione um equipamento";
+    : "Selecione um equipamento"; // Texto padrão atualizado
     
   const isSelected = !!selectedEquipment;
 
