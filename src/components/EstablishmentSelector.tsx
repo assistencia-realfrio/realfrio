@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 interface EstablishmentSelectorProps {
   clientId: string;
   value: string | null; // establishment_id
-  onChange: (establishmentId: string | null, establishmentName: string | null) => void;
+  onChange: (establishmentId: string | null) => void; // Simplificado: agora só passa o ID
   disabled?: boolean;
 }
 
@@ -26,8 +26,7 @@ const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId,
   const { establishments, isLoading } = useClientEstablishments(clientId);
 
   const handleSelectChange = (establishmentId: string | null) => {
-    const selected = establishments.find(e => e.id === establishmentId);
-    onChange(selected ? selected.id : null, selected ? selected.name : null);
+    onChange(establishmentId); // Passa apenas o ID
     setIsPopoverOpen(false);
   };
 

@@ -55,10 +55,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
     const { createEquipment, updateEquipment } = useEquipments(clientId);
     const isEditing = !!initialData?.id;
 
-    const handleEstablishmentChange = (id: string | null) => {
-        // O EstablishmentSelector retorna o ID e o Nome, mas o EquipmentForm só precisa do ID
-        form.setValue("establishment_id", id, { shouldValidate: true });
-    };
+    // Removida a função handleEstablishmentChange, usaremos field.onChange diretamente
 
     const handleSubmit = async (data: EquipmentFormData) => {
         try {
@@ -121,7 +118,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                                 <EstablishmentSelector 
                                     clientId={clientId} 
                                     value={field.value} 
-                                    onChange={(id) => handleEstablishmentChange(id)} 
+                                    onChange={field.onChange} // Usando field.onChange diretamente
                                 />
                             </FormControl>
                             <FormMessage />
