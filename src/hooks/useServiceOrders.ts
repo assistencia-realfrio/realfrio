@@ -159,9 +159,9 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
-      const { data, error } = await supabase
-        .from('service_orders')
-        .update({
+      
+      // Prepara os dados para a atualização, garantindo que os campos opcionais sejam null se vazios
+      const updatePayload = {
           ...orderData,
           updated_at: new Date().toISOString(),
           model: orderData.model || null,
@@ -170,12 +170,19 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           establishment_id: orderData.establishment_id || null,
           establishment_name: orderData.establishment_name || null,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
-        })
+      };
+
+      const { data, error } = await supabase
+        .from('service_orders')
+        .update(updatePayload)
         .eq('id', id)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("[Supabase Error] Failed to update service order:", error);
+        throw error;
+      }
       return { updatedOrder: data as ServiceOrder, oldOrder: null }; // Simplificado para evitar fetch extra
     },
     onSuccess: ({ updatedOrder }) => {
