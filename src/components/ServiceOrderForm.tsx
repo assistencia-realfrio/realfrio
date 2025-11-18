@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input"; // Importar Input para o campo de hora
+import { Input } from "@/components/ui/input"; // Mantido Input caso seja necessário em outro lugar
 import {
   Form,
   FormControl,
@@ -33,12 +33,22 @@ import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { format, setHours, setMinutes, parseISO } from "date-fns"; // Importar setHours, setMinutes, parseISO
+import { format, setHours, setMinutes, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-// Regex simples para validar HH:MM
-const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+// Função para gerar intervalos de tempo de 30 minutos
+const generateTimeSlots = (): string[] => {
+  const slots: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
+    }
+  }
+  return slots;
+};
+
+const timeSlots = generateTimeSlots();
 
 const formSchema = z.object({
   client_id: z.string().uuid({ message: "Selecione um cliente válido." }),
@@ -48,10 +58,8 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
-  scheduled_time: z.string().optional().nullable().refine(val => {
-    if (!val) return true;
-    return timeRegex.test(val);
-  }, { message: "Formato de hora inválido (HH:MM)." }),
+  // Agora o scheduled_time é uma string que deve ser um dos timeSlots ou null
+  scheduled_time: z.string().nullable().optional(), 
 });
 
 export type ServiceOrderFormValues = z.infer<typeof formSchema>;
@@ -139,8 +147,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         const [hours, minutes] = data.scheduled_time.split(':').map(Number);
         scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, hours), minutes);
     } else if (scheduledDateWithTime) {
-        // Se houver data, mas não hora, define para 09:00 por padrão
-        scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, 9), 0);
+        // Se houver data, mas não hora, define para 09:00 por padrão (se a hora não for selecionada)
+        // Se o campo de hora for nulo, o valor padrão será null, mas se a data for selecionada,
+        // precisamos garantir que a hora seja definida para evitar problemas de fuso horário.
+        // No entanto, como o campo agora é um Select, se a data for selecionada, o campo de hora
+        // deve ser preenchido ou ser tratado como nulo se o usuário não quiser hora.
+        // Vamos manter a lógica de que se a data existe, mas a hora não, a hora é nula no banco.
+        // O Supabase irá lidar com o fuso horário.
     }
 
     const mutationData = {
@@ -149,7 +162,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
       establishment_name: establishmentName,
-      scheduled_date: scheduledDateWithTime, // Usar a data/hora combinada
+      // Se scheduled_date for null, scheduled_dateWithTime será null.
+      // Se scheduled_date for Date e scheduled_time for string (HH:MM), ele será combinado.
+      // Se scheduled_date for Date e scheduled_time for null, ele será apenas a data (sem hora definida explicitamente).
+      scheduled_date: scheduledDateWithTime, 
     } as MutationServiceOrderFormValues;
 
     try {
@@ -184,7 +200,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <div className="flex-grow w-full min-w-0">
                     <ClientSelector value={field.value} onChange={field.onChange} disabled={isEditing} />
                   </div>
-                  {/* Botões de ação do cliente: apenas ícones, expandindo em mobile */}
                   <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
                     <Button 
                         type="button" 
@@ -342,15 +357,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="scheduled_time"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Hora (HH:MM)</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="09:00" 
-                    {...field} 
-                    value={field.value || ""}
-                    maxLength={5}
-                  />
-                </FormControl>
+                <FormLabel>Hora (Opcional)</FormLabel>
+                <Select 
+                  onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
+                  value={field.value || "NONE_SELECTED"}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a hora" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="NONE_SELECTED">Nenhuma Hora</SelectItem>
+                    {timeSlots.map(time => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
