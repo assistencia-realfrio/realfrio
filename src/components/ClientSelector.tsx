@@ -1,145 +1,108 @@
-import React, { useState } from "react";
-import { UserPlus, Check } from "lucide-react";
+"use client";
+
+import React, { useState, useMemo } from 'react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import ClientForm, { ClientFormValues } from "./ClientForm";
-import { showSuccess, showError } from "@/utils/toast";
-import { useClients } from "@/hooks/useClients";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import ClientForm, { ClientFormData, Client } from "./ClientForm";
+import { showSuccess, showError } from '@/utils/toast';
+import { useClients, useCreateClient } from '@/hooks/useClients';
 
 interface ClientSelectorProps {
-  value: string; // Deve ser o ID do cliente
-  onChange: (clientId: string) => void;
-  disabled?: boolean; // Adicionando a prop disabled
+  selectedClientId: string | null;
+  onClientSelect: (clientId: string) => void;
 }
 
-const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
+export const ClientSelector: React.FC<ClientSelectorProps> = ({ selectedClientId, onClientSelect }) => {
+  const [open, setOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { clients, isLoading: isLoadingClients, createClient } = useClients();
+  const { data: clients, isLoading } = useClients();
+  const createClientMutation = useCreateClient();
 
-  // Mapeia o ID para o nome para exibir no SelectValue
-  const selectedClient = clients.find(c => c.id === value);
-  const selectedClientName = selectedClient?.name || "";
+  const selectedClient = useMemo(() => {
+    return clients?.find(client => client.id === selectedClientId);
+  }, [clients, selectedClientId]);
 
-  const handleNewClientSubmit = async (data: ClientFormValues) => {
+  const handleNewClientSubmit = async (data: ClientFormData) => {
     try {
-        const newClient = await createClient.mutateAsync(data);
-        
-        onChange(newClient.id);
-        
-        setIsModalOpen(false);
-        showSuccess(`Novo cliente '${data.name}' criado com sucesso!`);
-    } catch (error) {
-        console.error("Erro ao criar cliente:", error);
-        showError("Erro ao criar novo cliente. Tente novamente.");
+      const newClient = await createClientMutation.mutateAsync(data);
+      showSuccess('Client created successfully!');
+      onClientSelect(newClient.id);
+      setIsModalOpen(false);
+      setOpen(false);
+    } catch (e) {
+      console.error('Error creating client:', e);
+      showError('Failed to create client.');
     }
   };
 
-  const handleSelectChange = (selectedValue: string) => {
-    if (selectedValue === "NEW_CLIENT") {
-      setIsModalOpen(true);
-    } else {
-      onChange(selectedValue);
-      setIsPopoverOpen(false); // Fecha o popover após a seleção
-    }
-  };
-
-  if (isLoadingClients) {
-    return <Skeleton className="h-10 w-full" />;
+  if (isLoading) {
+    return <Button variant="outline" disabled>Loading clients...</Button>;
   }
 
   return (
-    <>
-      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+    <div className="flex items-center space-x-2">
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
-            aria-expanded={isPopoverOpen}
-            className="w-full justify-between"
-            disabled={disabled} // Aplica a prop disabled aqui
+            aria-expanded={open}
+            className="w-[200px] justify-between"
           >
-            <span className={cn(
-                "truncate",
-                selectedClientName ? "font-bold text-foreground" : "text-muted-foreground"
-            )}>
-                {selectedClientName || "Selecione ou adicione um cliente"}
-            </span>
-            <UserPlus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {selectedClient ? selectedClient.name : "Select client..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-          <Command
-            filter={(itemValue, search) => {
-              // Sempre mostrar "Adicionar Novo Cliente"
-              if (itemValue === "Adicionar Novo Cliente") return 1;
-              // Filtragem padrão para outros itens
-              return itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
-            }}
-          >
-            <CommandInput placeholder="Buscar cliente..." />
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder="Search client..." />
             <CommandList>
-              <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
-              {/* "Adicionar Novo Cliente" sempre visível e primeiro */}
+              <CommandEmpty>No client found.</CommandEmpty>
               <CommandGroup>
-                <CommandItem
-                  key="NEW_CLIENT"
-                  value="Adicionar Novo Cliente"
-                  onSelect={() => handleSelectChange("NEW_CLIENT")}
-                  className="text-primary font-medium cursor-pointer"
-                >
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Adicionar Novo Cliente
-                </CommandItem>
-              </CommandGroup>
-              {/* Clientes existentes */}
-              <CommandGroup>
-                {clients.map((client) => (
+                {clients?.map((client) => (
                   <CommandItem
                     key={client.id}
                     value={client.name}
-                    onSelect={() => handleSelectChange(client.id)}
+                    onSelect={() => {
+                      onClientSelect(client.id);
+                      setOpen(false);
+                    }}
                   >
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === client.id ? "opacity-100" : "opacity-0"
+                        selectedClientId === client.id ? "opacity-100" : "opacity-0"
                       )}
                     />
                     {client.name}
                   </CommandItem>
                 ))}
               </CommandGroup>
+              <CommandGroup>
+                <CommandItem onSelect={() => setIsModalOpen(true)} className="text-blue-600">
+                  <Plus className="mr-2 h-4 w-4" /> Create New Client
+                </CommandItem>
+              </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
 
-      {/* Modal de Criação de Cliente */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Adicionar Novo Cliente</DialogTitle>
+            <DialogTitle>Create New Client</DialogTitle>
           </DialogHeader>
           <ClientForm 
-            onSubmit={handleNewClientSubmit} 
+            onSubmit={handleNewClientSubmit}
             onCancel={() => setIsModalOpen(false)}
           />
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
-
-export default ClientSelector;
