@@ -10,9 +10,8 @@ export interface Equipment {
   brand: string | null; // Novo campo
   model: string | null;
   serial_number: string | null;
+  // google_drive_link: string | null; // REMOVIDO: Campo para o link do Google Drive
   created_at: string;
-  establishment_id: string | null; // NOVO
-  establishment_name: string | null; // NOVO (do join)
 }
 
 export interface EquipmentFormValues {
@@ -21,7 +20,7 @@ export interface EquipmentFormValues {
   brand?: string; // Novo campo
   model?: string;
   serial_number?: string;
-  establishment_id?: string | null; // NOVO
+  // google_drive_link?: string; // REMOVIDO: Campo para o link do Google Drive
 }
 
 // Função de fetch para buscar equipamentos por cliente
@@ -31,20 +30,14 @@ const fetchEquipmentsByClient = async (userId: string | undefined, clientId: str
   
   const { data, error } = await supabase
     .from('equipments')
-    .select(`
-      id, client_id, name, brand, model, serial_number, created_at, establishment_id,
-      client_establishments (name)
-    `) // Adicionado establishment_id e join
+    .select('id, client_id, name, brand, model, serial_number, created_at') // REMOVIDO: google_drive_link
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .eq('client_id', clientId)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
 
-  return data.map((eq: any) => ({
-    ...eq,
-    establishment_name: eq.client_establishments?.name || null,
-  })) as Equipment[];
+  return data as Equipment[];
 };
 
 // Função para buscar um único equipamento por ID
@@ -54,10 +47,7 @@ const fetchEquipmentById = async (userId: string | undefined, equipmentId: strin
 
   const { data, error } = await supabase
     .from('equipments')
-    .select(`
-      id, client_id, name, brand, model, serial_number, created_at, establishment_id,
-      client_establishments (name)
-    `) // Adicionado establishment_id e join
+    .select('id, client_id, name, brand, model, serial_number, created_at') // REMOVIDO: google_drive_link
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .eq('id', equipmentId)
     .single(); // Usa .single() para obter um único registro
@@ -69,10 +59,7 @@ const fetchEquipmentById = async (userId: string | undefined, equipmentId: strin
     throw error;
   }
 
-  return {
-    ...(data as any),
-    establishment_name: (data as any).client_establishments?.name || null,
-  } as Equipment;
+  return data as Equipment;
 };
 
 export const useEquipments = (clientId?: string, equipmentId?: string) => { // clientId agora é opcional, equipmentId adicionado
@@ -105,7 +92,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
           brand: equipmentData.brand || null, // Salvando a marca
           model: equipmentData.model || null,
           serial_number: equipmentData.serial_number || null,
-          establishment_id: equipmentData.establishment_id || null, // NOVO: Salvando establishment_id
+          // google_drive_link: equipmentData.google_drive_link || null, // REMOVIDO: Salvando google_drive_link
           created_by: user.id,
         })
         .select()
@@ -129,8 +116,9 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
 
   const updateEquipmentMutation = useMutation({
     mutationFn: async ({ id, ...equipmentData }: EquipmentFormValues & { id: string }) => {
-      console.log("[updateEquipmentMutation] Payload enviado:", { id, ...equipmentData }); // LOG DE DEBUG
-      
+      // Busca o nome antigo para o log
+      const oldEquipment = queryClient.getQueryData<Equipment | null>(['equipment', id, user?.id]);
+
       const { data, error } = await supabase
         .from('equipments')
         .update({
@@ -138,23 +126,28 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
           brand: equipmentData.brand || null,
           model: equipmentData.model || null,
           serial_number: equipmentData.serial_number || null,
-          establishment_id: equipmentData.establishment_id || null, // NOVO: Atualizando establishment_id
+          // google_drive_link: equipmentData.google_drive_link || null, // REMOVIDO: Atualizando google_drive_link
           updated_at: new Date().toISOString(), // Adiciona updated_at
         })
         .eq('id', id)
         .select()
         .single();
 
-      if (error) {
-        console.error("[updateEquipmentMutation] Erro do Supabase:", error); // LOG DE ERRO
-        throw error;
-      }
+      if (error) throw error;
       
-      console.log("[updateEquipmentMutation] Resposta do Supabase:", data); // LOG DE SUCESSO
+      // Retorna o objeto Equipment diretamente, que é o que o EquipmentForm espera.
       return data as Equipment;
     },
     onSuccess: (updatedEquipment) => {
+      // Para o log, precisamos do nome antigo. Vamos tentar obtê-lo novamente ou usar o nome atual.
+      // Nota: O nome antigo é difícil de obter de forma síncrona aqui sem o objeto de contexto.
+      // Para simplificar, vamos usar o nome atual para o log, assumindo que a invalidação de cache
+      // irá corrigir o estado.
       const equipmentName = updatedEquipment.name;
+      
+      // Se precisarmos do nome antigo para o log, teríamos que buscá-lo antes da mutação
+      // ou passar o nome antigo como parte do contexto da mutação.
+      // Por enquanto, mantemos o log simples para evitar complexidade desnecessária.
       
       logActivity(user, {
         entity_type: 'equipment',
