@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building } from "lucide-react";
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building, Clock } from "lucide-react"; // Adicionado Clock
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -28,7 +28,7 @@ const getStoreColor = (store: ServiceOrder['store'] | null): string => {
     case "CALDAS DA RAINHA":
       return "#3b82f6"; // blue-500
     case "PORTO DE MÓS":
-      return "#ef4444"; // red-500
+    return "#ef4444"; // red-500
     default:
       return "#9ca3af"; // gray-400
   }
@@ -37,6 +37,7 @@ const getStoreColor = (store: ServiceOrder['store'] | null): string => {
 const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const navigate = useNavigate();
     const { updateOrder } = useServiceOrders();
+    const scheduledDate = order.scheduled_date ? new Date(order.scheduled_date) : null;
 
     const handleNavigate = () => {
         navigate(`/orders/${order.id}`);
@@ -119,6 +120,20 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 </div>
 
                 <div className="flex flex-col flex-grow p-4 pt-2">
+                    {/* NOVO: Destaque para Data e Hora Agendadas */}
+                    {scheduledDate && (
+                        <div className="flex items-center gap-3 text-sm text-primary font-semibold mb-3 p-2 bg-primary/10 rounded-md border border-primary/20">
+                            <CalendarIcon className="h-5 w-5 flex-shrink-0" />
+                            <span className="whitespace-nowrap">
+                                {format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR })}
+                            </span>
+                            <Clock className="h-5 w-5 ml-auto flex-shrink-0" />
+                            <span className="whitespace-nowrap">
+                                {format(scheduledDate, 'HH:mm', { locale: ptBR })}
+                            </span>
+                        </div>
+                    )}
+
                     <div className="flex flex-col space-y-2 flex-grow">
                         <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -140,16 +155,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <div className="flex items-center gap-2">
-                            {order.scheduled_date && (
-                                <>
-                                    <CalendarIcon className="h-4 w-4" />
-                                    <span>Agendado: {format(new Date(order.scheduled_date), 'dd/MM/yyyy', { locale: ptBR })}</span>
-                                </>
-                            )}
-                        </div>
-                        
+                    <div className="flex items-center justify-end text-xs text-muted-foreground mt-3 pt-3 border-t">
                         <div className="flex items-center gap-2">
                             {order.notes_count > 0 && (
                                 <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
