@@ -1,120 +1,107 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import Layout from "@/components/Layout";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
-import { format, isSameDay, parseISO } from "date-fns";
+import { format, parseISO, isPast } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 import OrderListItem from "@/components/OrderListItem";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 const CalendarView: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { orders, isLoading } = useServiceOrders();
 
   const scheduledOrders = useMemo(() => {
-    return orders.filter(order => order.scheduled_date);
+    // 1. Filtrar apenas ordens com data agendada
+    const filtered = orders.filter(order => order.scheduled_date);
+
+    // 2. Ordenar pela data de agendamento mais próxima (ascendente)
+    filtered.sort((a, b) => {
+      const dateA = parseISO(a.scheduled_date!);
+      const dateB = parseISO(b.scheduled_date!);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    // 3. Agrupar por data
+    const grouped = filtered.reduce((acc, order) => {
+      const dateKey = format(parseISO(order.scheduled_date!), 'yyyy-MM-dd');
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(order);
+      return acc;
+    }, {} as Record<string, typeof orders>);
+
+    return grouped;
   }, [orders]);
 
-  const ordersForSelectedDate = useMemo(() => {
-    if (!selectedDate) return [];
-    return scheduledOrders.filter(order => 
-      order.scheduled_date && isSameDay(parseISO(order.scheduled_date), selectedDate)
-    );
-  }, [selectedDate, scheduledOrders]);
-
-  // Modifiers (para marcar datas com OS) são mantidos, mas não serão usados no calendário compacto.
-  // Removendo o cálculo de modifiers, pois não são mais necessários para o calendário mensal.
-  /*
-  const modifiers = useMemo(() => {
-    const datesWithOrders = scheduledOrders.map(order => parseISO(order.scheduled_date!));
-    return {
-      scheduled: datesWithOrders,
-    };
+  const sortedDates = useMemo(() => {
+    return Object.keys(scheduledOrders).sort((a, b) => {
+      return parseISO(a).getTime() - parseISO(b).getTime();
+    });
   }, [scheduledOrders]);
 
-  const modifiersClassNames = {
-    scheduled: "bg-primary text-primary-foreground rounded-full",
-  };
-  */
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-1/3" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="space-y-6">
         <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
           <CalendarIcon className="h-7 w-7" />
-          Calendário de Agendamentos
+          Próximos Agendamentos
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          {/* Card de Seleção de Data Compacto */}
-          <Card className="lg:col-span-1">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Selecione uma Data</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !selectedDate && "text-muted-foreground"
-                            )}
-                        >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? (
-                                format(selectedDate, "PPP", { locale: ptBR })
-                            ) : (
-                                <span>Selecione uma data</span>
-                            )}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            locale={ptBR}
-                            initialFocus
-                        />
-                    </PopoverContent>
-                </Popover>
-            </CardContent>
-          </Card>
-          {/* Fim do Card de Seleção de Data Compacto */}
-
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="text-lg">
-                OS Agendadas para {selectedDate ? format(selectedDate, "PPP", { locale: ptBR }) : "Nenhuma Data Selecionada"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {isLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
-                </div>
-              ) : ordersForSelectedDate.length > 0 ? (
-                <div className="max-h-[400px] overflow-y-auto pr-2">
-                  {ordersForSelectedDate.map(order => (
-                    <OrderListItem key={order.id} order={order} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground text-sm py-4">
-                  Nenhuma Ordem de Serviço agendada para esta data.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Ordens de Serviço Agendadas ({orders.filter(o => o.scheduled_date).length})</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {sortedDates.length > 0 ? (
+              <div className="space-y-6">
+                {sortedDates.map((dateKey) => {
+                  const date = parseISO(dateKey);
+                  const isOverdue = isPast(date) && !orders.some(o => o.scheduled_date === dateKey && (o.status === 'CONCLUIDA' || o.status === 'CANCELADA'));
+                  
+                  return (
+                    <div key={dateKey}>
+                      <div className={cn(
+                        "flex items-center gap-3 py-2 px-3 rounded-md",
+                        isOverdue ? "bg-destructive/10 border-l-4 border-destructive" : "bg-muted/50 border-l-4 border-primary"
+                      )}>
+                        <CalendarIcon className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-primary")} />
+                        <h3 className={cn("font-semibold text-lg", isOverdue ? "text-destructive" : "text-foreground")}>
+                          {format(date, "EEEE, dd 'de' MMMM", { locale: ptBR })}
+                          {isOverdue && <span className="ml-2 text-sm font-normal text-destructive">(Vencido)</span>}
+                        </h3>
+                      </div>
+                      <div className="mt-4 space-y-2">
+                        {scheduledOrders[dateKey].map(order => (
+                          <OrderListItem key={order.id} order={order} />
+                        ))}
+                      </div>
+                      <Separator className="mt-6" />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground text-sm py-8">
+                Nenhuma Ordem de Serviço agendada encontrada.
+              </p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
