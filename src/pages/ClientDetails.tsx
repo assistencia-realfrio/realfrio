@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench, HardDrive } from "lucide-react";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -22,14 +22,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { isLinkClickable } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
 import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab";
 import EstablishmentForm from "@/components/EstablishmentForm";
 import { useClientEstablishments } from "@/hooks/useClientEstablishments";
-import { Separator } from "@/components/ui/separator"; // Importar Separator
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
@@ -124,7 +123,7 @@ const ClientDetails: React.FC = () => {
   const { clients, isLoading, updateClient, deleteClient } = useClients(); 
   const { createEstablishment } = useClientEstablishments(id || "");
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedView, setSelectedView] = useState<'details' | 'orders'>("details"); // Alterado para apenas 'details' e 'orders'
+  const [selectedView, setSelectedView] = useState<'details' | 'orders' | 'equipments' | 'establishments'>("details");
   const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] = useState(false);
   const [isAddEstablishmentModalOpen, setIsAddEstablishmentModalOpen] = useState(false);
 
@@ -172,6 +171,8 @@ const ClientDetails: React.FC = () => {
   // Função para navegar para a criação de nova OS, pré-selecionando o cliente
   const handleNewOrder = () => {
     if (client?.id) {
+      // Poderíamos passar o ID do cliente via state ou query params, mas por enquanto,
+      // apenas navegamos para a página de criação. O seletor de cliente será o primeiro campo.
       navigate(`/orders/new?clientId=${client.id}`);
     }
   };
@@ -217,7 +218,7 @@ const ClientDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{client.name}</h2> {/* Mantendo o nome do cliente aqui */}
+            {/* Título do cliente removido conforme solicitado */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -283,7 +284,7 @@ const ClientDetails: React.FC = () => {
         </div>
 
         {selectedView === 'details' && (
-          <div className="space-y-6">
+          <>
             {isEditing ? (
               <Card>
                 <CardContent className="pt-6">
@@ -297,77 +298,19 @@ const ClientDetails: React.FC = () => {
             ) : (
               <ClientDetailsView client={client} />
             )}
-            
-            {/* Seção de Equipamentos */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <HardDrive className="h-5 w-5" />
-                  Equipamentos Associados
-                </CardTitle>
-                <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <PlusCircle className="h-4 w-4 mr-2" />
-                      Adicionar
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
-                    </DialogHeader>
-                    <EquipmentForm 
-                      clientId={client.id} 
-                      onSubmit={handleNewEquipmentSuccess} 
-                      onCancel={() => setIsAddEquipmentModalOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                <ClientEquipmentTab clientId={client.id} />
-              </CardContent>
-            </Card>
-
-            {/* Seção de Estabelecimentos */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Building className="h-5 w-5" />
-                  Estabelecimentos
-                </CardTitle>
-                <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <PlusCircle className="h-4 w-4 mr-2" />
-                      Adicionar
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
-                    </DialogHeader>
-                    <EstablishmentForm
-                      clientId={client.id}
-                      onSubmit={handleNewEstablishmentSubmit}
-                      onCancel={() => setIsAddEstablishmentModalOpen(false)}
-                      isPending={createEstablishment.isPending}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                <ClientEstablishmentsTab clientId={client.id} />
-              </CardContent>
-            </Card>
-            
-            {/* Seção de Atividade */}
-            <ActivityLog entityType="client" entityId={client.id} />
-          </div>
+          </>
         )}
 
         {selectedView === 'orders' && (
           <ClientOrdersTab clientId={client.id} />
+        )}
+
+        {selectedView === 'equipments' && (
+          <ClientEquipmentTab clientId={client.id} />
+        )}
+
+        {selectedView === 'establishments' && (
+          <ClientEstablishmentsTab clientId={client.id} />
         )}
       </div>
       <ClientDetailsBottomNav
@@ -385,8 +328,55 @@ const ClientDetails: React.FC = () => {
           <Wrench className="h-8 w-8" />
         </Button>
       )}
-      
-      {/* Removidos botões flutuantes de Equipamento e Estabelecimento */}
+
+      {/* Botão Flutuante para Adicionar Equipamento (Aba Equipamentos) */}
+      {selectedView === 'equipments' && (
+        <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="fixed bottom-24 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+              aria-label="Adicionar Equipamento"
+            >
+              <PlusCircle className="h-8 w-8" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
+            </DialogHeader>
+            <EquipmentForm 
+              clientId={client.id} 
+              onSubmit={handleNewEquipmentSuccess} 
+              onCancel={() => setIsAddEquipmentModalOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Botão Flutuante para Adicionar Estabelecimento (Aba Estabelecimentos) */}
+      {selectedView === 'establishments' && (
+        <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="fixed bottom-24 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+              aria-label="Adicionar Estabelecimento"
+            >
+              <Building className="h-8 w-8" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
+            </DialogHeader>
+            <EstablishmentForm
+              clientId={client.id}
+              onSubmit={handleNewEstablishmentSubmit}
+              onCancel={() => setIsAddEstablishmentModalOpen(false)}
+              isPending={createEstablishment.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </Layout>
   );
 };
