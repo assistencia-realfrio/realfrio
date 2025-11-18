@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Adicionado useEffect
 import { Button } from "@/components/ui/button";
 import { Building, Check } from "lucide-react";
 import { useClientEstablishments } from "@/hooks/useClientEstablishments";
@@ -24,6 +24,14 @@ interface EstablishmentSelectorProps {
 const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId, value, onChange, disabled = false }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { establishments, isLoading } = useClientEstablishments(clientId);
+
+  // Adicionar logs para depuração
+  useEffect(() => {
+    console.log("[EstablishmentSelector] clientId:", clientId);
+    console.log("[EstablishmentSelector] isLoading establishments:", isLoading);
+    console.log("[EstablishmentSelector] establishments:", establishments);
+    console.log("[EstablishmentSelector] current value:", value);
+  }, [clientId, isLoading, establishments, value]);
 
   const handleSelectChange = (establishmentId: string | null) => {
     const selected = establishments.find(e => e.id === establishmentId);
