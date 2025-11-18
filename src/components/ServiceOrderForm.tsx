@@ -35,6 +35,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input"; // Importar Input
 
 // Definição do Schema de Validação
 const formSchema = z.object({
@@ -43,6 +44,7 @@ const formSchema = z.object({
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
+  establishment_name: z.string().nullable().optional(), // NOVO: Campo para o nome do estabelecimento
   scheduled_date: z.date().nullable().optional(),
 });
 
@@ -71,6 +73,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       description: "",
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
+      establishment_name: "", // Valor padrão para o novo campo
       scheduled_date: null,
     },
   });
@@ -129,6 +132,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             description: data.description,
             status: data.status,
             store: data.store,
+            establishment_name: data.establishment_name || null, // NOVO: Incluir establishment_name
             equipment: formattedEquipment,
             model: equipmentDetails.model || undefined, 
             serial_number: equipmentDetails.serial_number || undefined,
@@ -266,6 +270,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       <FormMessage />
                   </FormItem>
               )}
+          />
+
+          {/* NOVO: Campo para o nome do estabelecimento */}
+          <FormField
+            control={form.control}
+            name="establishment_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Estabelecimento (Opcional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Ex: Loja 1, Escritório Principal" 
+                    {...field} 
+                    value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
 
           {/* Campo de Descrição do Serviço (MOVIDO PARA AQUI) */}

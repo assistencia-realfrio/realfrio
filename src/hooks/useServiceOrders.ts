@@ -21,6 +21,7 @@ export interface ServiceOrder {
   description: string;
   status: ServiceOrderStatus;
   store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
+  establishment_name: string | null; // NOVO: Campo para o nome do estabelecimento
   created_at: string;
   updated_at: string | null;
   scheduled_date: string | null;
@@ -62,6 +63,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
       description, 
       status, 
       store, 
+      establishment_name, -- NOVO: Selecionar o campo establishment_name
       created_at,
       updated_at,
       client_id,
@@ -105,6 +107,7 @@ const fetchServiceOrders = async (userId: string | undefined, storeFilter: Servi
         client: clientName, 
         status: order.status as ServiceOrder['status'],
         store: order.store as ServiceOrder['store'],
+        establishment_name: order.establishment_name, // Mapear o campo establishment_name
         created_at: order.created_at,
         updated_at: order.updated_at,
         serial_number: order.serial_number,
@@ -171,6 +174,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           description: orderData.description,
           status: orderData.status,
           store: orderData.store,
+          establishment_name: orderData.establishment_name || null, // NOVO: Inserir establishment_name
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null,
           display_id: displayId,
@@ -193,6 +197,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           status: { newValue: newOrder.status },
           description: { newValue: newOrder.description },
           store: { newValue: newOrder.store },
+          establishment_name: { newValue: newOrder.establishment_name || 'N/A' }, // Log do novo campo
           equipment: { newValue: newOrder.equipment },
           scheduled_date: { newValue: newOrder.scheduled_date ? format(new Date(newOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A' },
         }
@@ -205,7 +210,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       const { data: oldOrder, error: fetchError } = await supabase
         .from('service_orders')
-        .select('status, description, equipment, model, serial_number, store, scheduled_date')
+        .select('status, description, equipment, model, serial_number, store, establishment_name, scheduled_date') // NOVO: Selecionar establishment_name
         .eq('id', id)
         .single();
 
@@ -222,6 +227,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           description: orderData.description,
           status: orderData.status,
           store: orderData.store,
+          establishment_name: orderData.establishment_name || null, // NOVO: Atualizar establishment_name
           client_id: orderData.client_id,
           equipment_id: orderData.equipment_id || null,
           updated_at: new Date().toISOString(),
@@ -268,6 +274,10 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         if (updatedOrder.store !== oldOrder.store) {
           changesSummary.push('a loja');
           activityDetails.store = { oldValue: oldOrder.store, newValue: updatedOrder.store };
+        }
+        if (updatedOrder.establishment_name !== oldOrder.establishment_name) { // NOVO: Log para establishment_name
+          changesSummary.push('o estabelecimento');
+          activityDetails.establishment_name = { oldValue: oldOrder.establishment_name || 'N/A', newValue: updatedOrder.establishment_name || 'N/A' };
         }
         const oldScheduledDate = oldOrder.scheduled_date ? format(new Date(oldOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A';
         const newScheduledDate = updatedOrder.scheduled_date ? format(new Date(updatedOrder.scheduled_date), 'dd/MM/yyyy') : 'N/A';
