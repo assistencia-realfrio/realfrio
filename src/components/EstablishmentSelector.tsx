@@ -49,8 +49,10 @@ const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId,
     return <Skeleton className="h-10 w-full" />;
   }
 
+  // Alterado o texto padrão
+  const defaultPlaceholder = "Escolher Estabelecimento";
   const selectedEstablishment = establishments.find(e => e.id === value);
-  const displayValue = selectedEstablishment?.name || "Nenhum (Serviço na Sede)";
+  const displayValue = selectedEstablishment?.name || defaultPlaceholder;
 
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>

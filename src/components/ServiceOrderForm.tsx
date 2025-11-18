@@ -237,6 +237,20 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             )}
           />
 
+          {/* MOVIDO: EstablishmentSelector para cima do EquipmentSelector */}
+          <FormField
+            control={form.control}
+            name="establishment_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="equipment_id"
@@ -257,19 +271,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         <HardDrive className="h-4 w-4" />
                     </Button>
                 </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="establishment_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
