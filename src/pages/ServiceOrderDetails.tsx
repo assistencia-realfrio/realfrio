@@ -89,16 +89,7 @@ const ServiceOrderDetails: React.FC = () => {
     window.print();
   };
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    try {
-      await navigator.clipboard.writeText(url);
-      showSuccess("Link da OS copiado para a área de transferência!");
-    } catch (err) {
-      console.error('Falha ao copiar o link:', err);
-      showError("Falha ao copiar o link. Tente novamente.");
-    }
-  };
+  // Função handleShare removida
 
   const displayTitleId = order?.display_id || currentOrderId;
   const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "Detalhes da OS"; // Título simplificado para o cabeçalho
@@ -142,12 +133,7 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {/* Botão de Partilhar/Copiar Link */}
-                {!isNew && (
-                    <Button variant="ghost" size="icon" onClick={handleShare} aria-label="Partilhar OS">
-                        <Share2 className="h-5 w-5 text-primary" />
-                    </Button>
-                )}
+                {/* Botão de Partilhar/Copiar Link REMOVIDO */}
                 {/* Botão de Imprimir */}
                 {!isNew && (
                     <Button variant="ghost" size="icon" onClick={handlePrint} aria-label="Imprimir OS">
