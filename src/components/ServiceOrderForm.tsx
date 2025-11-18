@@ -61,7 +61,7 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
-  // Agora o scheduled_time é uma string que deve ser um dos timeSlots ou null
+  // Este campo é apenas para uso no formulário (frontend)
   scheduled_time: z.string().nullable().optional(), 
 });
 
@@ -143,11 +143,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const handleViewEquipmentDetails = () => equipmentId && navigate(`/equipments/${equipmentId}`);
   
   const handleSubmit = async (data: ServiceOrderFormValues) => {
-    let scheduledDateWithTime: Date | null = data.scheduled_date || null;
+    // 1. Extrair scheduled_time e scheduled_date
+    const { scheduled_time, scheduled_date, ...restOfData } = data;
     
-    // Se houver data e hora, combiná-las
-    if (scheduledDateWithTime && data.scheduled_time) {
-        const [hours, minutes] = data.scheduled_time.split(':').map(Number);
+    let scheduledDateWithTime: Date | null = scheduled_date || null;
+    
+    // 2. Se houver data e hora, combiná-las
+    if (scheduledDateWithTime && scheduled_time) {
+        const [hours, minutes] = scheduled_time.split(':').map(Number);
         scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, hours), minutes);
     } else if (scheduledDateWithTime) {
         // Se houver data, mas não hora, define para 09:00 por padrão
@@ -155,7 +158,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
 
     const mutationData = {
-      ...data,
+      ...restOfData, // Dados sem scheduled_time
       equipment: equipmentDetails.name,
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
