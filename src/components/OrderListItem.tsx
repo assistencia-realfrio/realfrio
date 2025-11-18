@@ -27,10 +27,10 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
             onClick={handleViewDetails}
         >
             <CardContent className="flex justify-between items-start p-3">
-                <div className="flex flex-col flex-grow min-w-0">
+                <div className="flex flex-col flex-grow min-w-0 max-w-[calc(100%-5rem)]"> {/* Adicionado max-w para garantir espaço para o badge */}
                     {/* NOVO: Nome do Cliente */}
                     <div className="flex items-center gap-1 mb-1">
-                        <User className="h-4 w-4 text-muted-foreground" />
+                        <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <span className="font-semibold text-base truncate">{order.client}</span>
                     </div>
                     <span className="font-medium text-sm truncate">{order.equipment} - {order.model}</span>
