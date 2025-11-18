@@ -2,13 +2,10 @@ import React, { useMemo } from "react";
 import Layout from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
-import { format, parseISO, isPast, startOfDay } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { parseISO } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import OrderListItem from "@/components/OrderListItem";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 const CalendarView: React.FC = () => {
   const { orders, isLoading } = useServiceOrders();
@@ -24,24 +21,8 @@ const CalendarView: React.FC = () => {
       return dateA.getTime() - dateB.getTime();
     });
 
-    // 3. Agrupar por data (apenas o dia, ignorando a hora para o agrupamento)
-    const grouped = filtered.reduce((acc, order) => {
-      const dateKey = format(parseISO(order.scheduled_date!), 'yyyy-MM-dd');
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(order);
-      return acc;
-    }, {} as Record<string, typeof orders>);
-
-    return grouped;
+    return filtered;
   }, [orders]);
-
-  const sortedDates = useMemo(() => {
-    return Object.keys(scheduledOrders).sort((a, b) => {
-      return parseISO(a).getTime() - parseISO(b).getTime();
-    });
-  }, [scheduledOrders]);
 
   if (isLoading) {
     return (
@@ -64,46 +45,13 @@ const CalendarView: React.FC = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Ordens de Serviço Agendadas ({orders.filter(o => o.scheduled_date).length})</CardTitle>
+            <CardTitle className="text-lg">Ordens de Serviço Agendadas ({scheduledOrders.length})</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {sortedDates.length > 0 ? (
-              <div className="space-y-6">
-                {sortedDates.map((dateKey) => {
-                  const date = parseISO(dateKey);
-                  
-                  // Verifica se o dia inteiro está no passado
-                  const isOverdue = isPast(startOfDay(date)) && !scheduledOrders[dateKey].some(o => o.status === 'CONCLUIDA' || o.status === 'CANCELADA');
-                  
-                  return (
-                    <div key={dateKey}>
-                      <div className={cn(
-                        "flex items-center gap-3 py-2 px-3 rounded-md",
-                        isOverdue ? "bg-destructive/10 border-l-4 border-destructive" : "bg-muted/50 border-l-4 border-primary"
-                      )}>
-                        <CalendarIcon className={cn("h-5 w-5", isOverdue ? "text-destructive" : "text-primary")} />
-                        <h3 className={cn("font-semibold text-base", isOverdue ? "text-destructive" : "text-foreground")}>
-                          {format(date, "EEEE, dd 'de' MMMM", { locale: ptBR })}
-                          {isOverdue && <span className="ml-2 text-sm font-normal text-destructive">(Vencido)</span>}
-                        </h3>
-                      </div>
-                      <div className="mt-4 space-y-2">
-                        {/* Ordena as ordens dentro do grupo pela hora agendada */}
-                        {scheduledOrders[dateKey]
-                            .sort((a, b) => {
-                                const timeA = parseISO(a.scheduled_date!).getTime();
-                                const timeB = parseISO(b.scheduled_date!).getTime();
-                                return timeA - timeB;
-                            })
-                            .map(order => (
-                                <OrderListItem key={order.id} order={order} />
-                            ))}
-                      </div>
-                      <Separator className="mt-6" />
-                    </div>
-                  );
-                })}
-              </div>
+          <CardContent className="space-y-2">
+            {scheduledOrders.length > 0 ? (
+              scheduledOrders.map(order => (
+                <OrderListItem key={order.id} order={order} />
+              ))
             ) : (
               <p className="text-center text-muted-foreground text-sm py-8">
                 Nenhuma Ordem de Serviço agendada encontrada.
