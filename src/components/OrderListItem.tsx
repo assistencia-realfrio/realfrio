@@ -82,7 +82,7 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                         
                         {/* Exibir data e hora do agendamento */}
                         {scheduledDate && (
-                            <div className="flex items-center gap-1 text-xs text-primary mt-2 flex-wrap"> {/* Adicionado flex-wrap para evitar overflow em telas muito pequenas */}
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 flex-wrap">
                                 <CalendarIcon className="h-4 w-4" />
                                 <span className="font-medium">
                                     {format(scheduledDate, 'dd/MM/yyyy')}

@@ -146,11 +146,11 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         <div className="flex items-center gap-2 flex-wrap"> {/* Adicionado flex-wrap */}
                             {scheduledDate && (
                                 <>
-                                    <div className="flex items-center gap-1 text-primary">
+                                    <div className="flex items-center gap-1 text-muted-foreground">
                                         <CalendarIcon className="h-4 w-4" />
                                         <span>{format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR })}</span>
                                     </div>
-                                    <div className="flex items-center gap-1 text-primary">
+                                    <div className="flex items-center gap-1 text-muted-foreground">
                                         <Clock className="h-4 w-4" />
                                         <span>{format(scheduledDate, 'HH:mm', { locale: ptBR })}</span>
                                     </div>
