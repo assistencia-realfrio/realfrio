@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { ServiceOrder } from "@/hooks/useServiceOrders";
 import { getStatusBadgeVariant } from "@/lib/serviceOrderStatus";
-import { Calendar as CalendarIcon, User, Clock } from "lucide-react"; // Adicionado Clock
+import { Calendar as CalendarIcon, User, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils"; // Importar cn
-import { hexToRgba } from "@/lib/utils"; // Importar hexToRgba
-import { statusChartColors } from "@/lib/serviceOrderStatus"; // Importar statusChartColors
+import { cn } from "@/lib/utils";
+import { hexToRgba } from "@/lib/utils";
+import { statusChartColors } from "@/lib/serviceOrderStatus";
 
 interface OrderListItemProps {
   order: ServiceOrder;
@@ -55,19 +55,26 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
             
             <Card className="flex-1 border-none shadow-none m-0 p-0 bg-transparent">
                 <CardContent className="flex flex-col p-3">
-                    <Badge 
-                        className="mb-2 self-start text-sm px-2 py-0.5 border-transparent text-white h-6 flex items-center"
-                        style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
-                    >
-                        {order.status}
-                    </Badge>
+                    
+                    {/* NOVO: Container para o cabeçalho e badge */}
+                    <div className="flex justify-between items-start w-full mb-2">
+                        <span className="font-medium text-sm truncate">{order.equipment} - {order.model}</span>
+                        <Badge 
+                            className="self-start text-sm px-2 py-0.5 border-transparent text-white h-6 flex items-center flex-shrink-0"
+                            style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
+                        >
+                            {order.status}
+                        </Badge>
+                    </div>
                     
                     <div className="flex flex-col flex-grow min-w-0">
                         <div className="flex items-center gap-1 mb-1">
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="font-semibold text-base truncate">{order.client}</span>
                         </div>
-                        <span className="font-medium text-sm truncate">{order.equipment} - {order.model}</span>
+                        
+                        {/* Removido o equipamento daqui, pois já está no cabeçalho */}
+                        
                         <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                             {order.description}
                         </p>
