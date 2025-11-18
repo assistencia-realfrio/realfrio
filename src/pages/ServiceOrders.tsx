@@ -102,10 +102,6 @@ const ServiceOrders: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center gap-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ASSISTÊNCIAS</h2>
-          <Button className="flex-shrink-0" onClick={handleNewOrder}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Nova OS
-          </Button>
         </div>
 
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
@@ -153,6 +149,13 @@ const ServiceOrders: React.FC = () => {
           {renderOrderGrid(filteredOrdersForDisplay)}
         </div>
       </div>
+      <Button
+        onClick={handleNewOrder}
+        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+        aria-label="Nova Ordem de Serviço"
+      >
+        <PlusCircle className="h-8 w-8" />
+      </Button>
     </Layout>
   );
 };

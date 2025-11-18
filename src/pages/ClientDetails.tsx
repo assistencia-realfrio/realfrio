@@ -24,7 +24,7 @@ import ClientDetailsBottomNav from "@/components/ClientDetailsBottomNav";
 import ActivityLog from "@/components/ActivityLog";
 import { Card, CardContent } from "@/components/ui/card";
 import { isLinkClickable } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import EquipmentForm from "@/components/EquipmentForm";
 import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab";
 import EstablishmentForm from "@/components/EstablishmentForm";
@@ -213,20 +213,6 @@ const ClientDetails: React.FC = () => {
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
-            {selectedView === 'equipments' && (
-              <Button size="sm" onClick={() => setIsAddEquipmentModalOpen(true)} className="flex-shrink-0">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Adicionar Equipamento
-              </Button>
-            )}
-            
-            {selectedView === 'establishments' && (
-              <Button size="sm" onClick={() => setIsAddEstablishmentModalOpen(true)} className="flex-shrink-0">
-                <Building className="mr-2 h-4 w-4" />
-                Adicionar Estabelecimento
-              </Button>
-            )}
-
             {selectedView === 'details' && (
               <>
                 {isEditing ? (
@@ -323,32 +309,52 @@ const ClientDetails: React.FC = () => {
         onSelectView={setSelectedView}
       />
 
-      <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
-          </DialogHeader>
-          <EquipmentForm 
-            clientId={client.id} 
-            onSubmit={handleNewEquipmentSuccess} 
-            onCancel={() => setIsAddEquipmentModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {selectedView === 'equipments' && (
+        <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="fixed bottom-24 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+              aria-label="Adicionar Equipamento"
+            >
+              <PlusCircle className="h-8 w-8" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
+            </DialogHeader>
+            <EquipmentForm 
+              clientId={client.id} 
+              onSubmit={handleNewEquipmentSuccess} 
+              onCancel={() => setIsAddEquipmentModalOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
 
-      <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
-          </DialogHeader>
-          <EstablishmentForm
-            clientId={client.id}
-            onSubmit={handleNewEstablishmentSubmit}
-            onCancel={() => setIsAddEstablishmentModalOpen(false)}
-            isPending={createEstablishment.isPending}
-          />
-        </DialogContent>
-      </Dialog>
+      {selectedView === 'establishments' && (
+        <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="fixed bottom-24 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+              aria-label="Adicionar Estabelecimento"
+            >
+              <Building className="h-8 w-8" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
+            </DialogHeader>
+            <EstablishmentForm
+              clientId={client.id}
+              onSubmit={handleNewEstablishmentSubmit}
+              onCancel={() => setIsAddEstablishmentModalOpen(false)}
+              isPending={createEstablishment.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </Layout>
   );
 };
