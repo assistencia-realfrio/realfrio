@@ -1,13 +1,27 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Layout from "@/components/Layout";
-import { useServiceOrders } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { parseISO } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ServiceOrderCard from "@/components/ServiceOrderCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useProfile } from "@/hooks/useProfile"; // Importar useProfile para desabilitar durante o carregamento
+
+type StoreFilter = ServiceOrder['store'] | 'ALL';
 
 const CalendarView: React.FC = () => {
-  const { orders, isLoading } = useServiceOrders();
+  const { isLoading: isLoadingProfile } = useProfile();
+  const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
+  
+  // Passar o filtro de loja para useServiceOrders
+  const { orders, isLoading } = useServiceOrders(undefined, selectedStore);
 
   const scheduledOrders = useMemo(() => {
     // 1. Filtrar apenas ordens com data agendada
@@ -23,7 +37,7 @@ const CalendarView: React.FC = () => {
     return filtered;
   }, [orders]);
 
-  if (isLoading) {
+  if (isLoading || isLoadingProfile) {
     return (
       <Layout>
         <div className="space-y-6">
@@ -37,10 +51,28 @@ const CalendarView: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-          <CalendarIcon className="h-7 w-7" />
-          Agendamentos
-        </h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+            <CalendarIcon className="h-7 w-7" />
+            Agendamentos
+          </h2>
+          <div className="w-full sm:w-48">
+            <Select 
+              onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
+              value={selectedStore}
+              disabled={isLoadingProfile}
+            >
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Filtrar por Loja" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Ordens de Serviço Agendadas ({scheduledOrders.length})</h3>
