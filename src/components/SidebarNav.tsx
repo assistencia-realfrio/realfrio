@@ -29,7 +29,7 @@ const navItems = [
   //   icon: HardDrive,
   // },
   {
-    title: "Calendário", // NOVO: Item para a página de calendário
+    title: "Agendamentos", // NOVO: Item para a página de calendário
     href: "/calendar",
     icon: CalendarIcon, // Adicionado o ícone aqui
   },
