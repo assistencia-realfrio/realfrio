@@ -280,7 +280,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormItem>
                   <FormLabel>Estabelecimento</FormLabel>
                   <FormControl>
-                    {/* REMOVIDO disabled={isEditing} */}
                     <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
                   </FormControl>
                   <FormMessage />
@@ -377,7 +376,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Estado *</FormLabel>
+                    {/* <FormLabel>Estado *</FormLabel> */}
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -391,7 +390,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="store"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Loja *</FormLabel>
+                    {/* <FormLabel>Loja *</FormLabel> */}
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
                       <SelectContent>
