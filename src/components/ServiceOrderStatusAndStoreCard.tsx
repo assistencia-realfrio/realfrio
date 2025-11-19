@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormMessage, FormControl } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { ServiceOrderFormValues } from "./ServiceOrderForm"; // Importar o tipo do formulário
