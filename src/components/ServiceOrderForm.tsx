@@ -280,13 +280,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormItem>
                   <FormLabel>Estabelecimento</FormLabel>
                   <FormControl>
-                    <EstablishmentSelector 
-                      clientId={clientId} 
-                      value={field.value} 
-                      onChange={handleEstablishmentChange} 
-                      disabled={isEditing} 
-                      initialName={initialData?.establishment_name}
-                    />
+                    {/* REMOVIDO disabled={isEditing} */}
+                    <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
