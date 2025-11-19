@@ -300,7 +300,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
   }
 
   return (
-    <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Camera className="h-5 w-5" />

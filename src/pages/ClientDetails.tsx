@@ -44,7 +44,7 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     };
 
     return (
-        <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+        <Card>
             <CardContent className="space-y-4 text-sm p-4">
                 <div>
                   <p className="text-muted-foreground">Nome</p>
@@ -286,7 +286,7 @@ const ClientDetails: React.FC = () => {
         {selectedView === 'details' && (
           <>
             {isEditing ? (
-              <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+              <Card>
                 <CardContent className="pt-6">
                   <ClientForm 
                     initialData={initialFormData} 

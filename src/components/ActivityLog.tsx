@@ -46,7 +46,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
 
   if (isLoading) {
     return (
-      <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+      <Card>
         <CardHeader>
           <CardTitle>Histórico de Atividades</CardTitle>
         </CardHeader>
@@ -60,7 +60,7 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
   }
 
   return (
-    <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <List className="h-5 w-5" />

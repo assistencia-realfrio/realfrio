@@ -352,7 +352,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
   };
 
   return (
-    <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+    <Card>
       <CardHeader>
         <CardTitle>Anexos</CardTitle>
       </CardHeader>

@@ -175,7 +175,7 @@ const ServiceOrderDetails: React.FC = () => {
           
         {selectedView === "details" && (
           <>
-            <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+            <Card className="shadow-none border-none">
               {/* NOVO: Exibição do ID da OS dentro do Card, centralizado e destacado */}
               {!isNew && (
                 <div className="text-center pt-6 pb-4 border-b border-border/50">

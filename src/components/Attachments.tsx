@@ -412,7 +412,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
   };
 
   return (
-    <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
+    <Card>
       <CardHeader>
         <CardTitle>Anexos</CardTitle>
       </CardHeader>
