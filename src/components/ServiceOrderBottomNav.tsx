@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'; // Importar ReactDOM
 import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -29,7 +30,8 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
     return 0;
   };
 
-  return (
+  // Renderiza o componente usando um portal
+  return ReactDOM.createPortal(
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64">
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => {
@@ -61,7 +63,8 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
           );
         })}
       </div>
-    </div>
+    </div>,
+    document.getElementById('bottom-nav-root') as HTMLElement // Onde o portal será renderizado
   );
 };
 

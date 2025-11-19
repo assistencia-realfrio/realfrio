@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'; // Importar ReactDOM
 import { FileText, Wrench, Paperclip } from 'lucide-react'; // Removido History
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,7 +19,8 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
 ];
 
 const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {
-  return (
+  // Renderiza o componente usando um portal
+  return ReactDOM.createPortal(
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64"> {/* Alterado aqui */}
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
@@ -37,7 +39,8 @@ const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ s
           </Button>
         ))}
       </div>
-    </div>
+    </div>,
+    document.getElementById('bottom-nav-root') as HTMLElement // Onde o portal será renderizado
   );
 };
 
