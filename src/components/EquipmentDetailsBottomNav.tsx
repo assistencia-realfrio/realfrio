@@ -21,7 +21,7 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
 const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {
   // Renderiza o componente usando um portal
   return ReactDOM.createPortal(
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64"> {/* Alterado aqui */}
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto"> {/* Adicionado top-auto */}
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
           <Button
