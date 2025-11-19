@@ -38,6 +38,17 @@ import { format, setHours, setMinutes, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Establishment, useClientEstablishments } from "@/hooks/useClientEstablishments"; // Importar Establishment e useClientEstablishments
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Função para gerar intervalos de tempo de 30 minutos, das 08:00 às 18:00
 const generateTimeSlots = (): string[] => {
@@ -113,6 +124,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const clientId = form.watch("client_id");
   const equipmentId = form.watch("equipment_id");
   const establishmentId = form.watch("establishment_id"); // Observar o ID do estabelecimento
+  const scheduledDate = form.watch("scheduled_date"); // Observar a data agendada
+  const scheduledTime = form.watch("scheduled_time"); // Observar a hora agendada
   
   const [equipmentDetails, setEquipmentDetails] = useState({ name: '', brand: null, model: null, serial_number: null });
   const [establishmentName, setEstablishmentName] = useState<string | null>(initialData?.establishment_name || null);
@@ -241,6 +254,37 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         window.location.href = `tel:${selectedClient.contact}`;
     }
   };
+
+  const handleCancelAppointment = async () => {
+    if (!initialData?.id) {
+      showError("Não é possível cancelar um agendamento de uma OS não salva.");
+      return;
+    }
+
+    try {
+      const currentFormValues = form.getValues();
+      // Destructure para omitir 'scheduled_time' do payload enviado à mutação
+      const { scheduled_time, ...restOfFormValues } = currentFormValues; 
+
+      await updateOrder.mutateAsync({
+        id: initialData.id,
+        ...restOfFormValues, // Passa os valores sem 'scheduled_time'
+        scheduled_date: null, // Define a data como nula
+        equipment: equipmentDetails.name, // Garante que os detalhes do equipamento sejam passados
+        model: equipmentDetails.model,
+        serial_number: equipmentDetails.serial_number,
+        establishment_name: establishmentName,
+      });
+      form.setValue("scheduled_date", null);
+      form.setValue("scheduled_time", null);
+      showSuccess("Agendamento cancelado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao cancelar agendamento:", error);
+      showError("Erro ao cancelar agendamento. Tente novamente.");
+    }
+  };
+
+  const hasAppointment = scheduledDate !== null || scheduledTime !== null;
 
   return (
     <Form {...form}>
@@ -473,8 +517,41 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* NOVO: Card de Agendamento */}
         <Card>
-          <CardHeader className="p-4 pb-0">
+          <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Agendamento</CardTitle>
+            {hasAppointment && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-destructive hover:text-destructive"
+                    disabled={updateOrder.isPending}
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Cancelar Agendamento
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Tem certeza que deseja cancelar?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação removerá a data e hora agendadas para esta Ordem de Serviço.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Não</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleCancelAppointment} 
+                      className="bg-destructive hover:bg-destructive/90"
+                      disabled={updateOrder.isPending}
+                    >
+                      Sim, Cancelar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-4 p-4 pt-2">
             <FormField
