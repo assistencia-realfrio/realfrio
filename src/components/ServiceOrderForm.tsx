@@ -218,10 +218,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         
         {/* 1. Cliente e Localização */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Cliente e Localização</CardTitle>
+          <CardHeader className="p-4 pb-0">
+            {/* <CardTitle className="text-lg">Cliente e Localização</CardTitle> */}
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 pt-2">
             <FormField
               control={form.control}
               name="client_id"
@@ -291,10 +291,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* 2. Equipamento */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Equipamento</CardTitle>
+          <CardHeader className="p-4 pb-0">
+            {/* <CardTitle className="text-lg">Equipamento</CardTitle> */}
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 pt-2">
             <FormField
               control={form.control}
               name="equipment_id"
@@ -352,10 +352,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
         {/* 3. Detalhes do Serviço e Agendamento */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Detalhes do Serviço e Agendamento</CardTitle>
+          <CardHeader className="p-4 pb-0">
+            {/* <CardTitle className="text-lg">Detalhes do Serviço e Agendamento</CardTitle> */}
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 p-4 pt-2">
             <FormField
               control={form.control}
               name="description"
