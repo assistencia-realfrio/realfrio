@@ -219,11 +219,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="client_id"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center gap-2"> {/* Alterado para flex items-center gap-2 */}
+                <div className="flex items-center gap-1"> {/* Reduzido gap para 1 */}
                   <div className="flex-grow w-full min-w-0">
                     <ClientSelector value={field.value} onChange={field.onChange} disabled={isEditing} />
                   </div>
-                  <div className="flex gap-1 flex-shrink-0"> {/* Ajustado gap para 1 */}
+                  <div className="flex gap-1"> {/* Reduzido gap para 1 e removido flex-shrink-0 */}
                     <Button 
                         type="button" 
                         variant="ghost" 
@@ -277,11 +277,21 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="establishment_id"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1"> {/* Reduzido gap para 1 */}
                   <div className="flex-grow w-full min-w-0">
                     <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
                   </div>
-                  <div className="flex gap-1 flex-shrink-0"> {/* Ajustado gap para 1 */}
+                  <div className="flex gap-1"> {/* Reduzido gap para 1 e removido flex-shrink-0 */}
+                    <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => clientId && navigate(`/clients/${clientId}?view=establishments`)} 
+                        disabled={!clientId}
+                        aria-label="Ver Estabelecimentos"
+                    >
+                        <Building className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+                    </Button>
                     <a 
                         href={establishmentHasMapLink ? getMapHref(establishmentDetails!.google_maps_link!) : "#"}
                         target="_blank" 
@@ -324,7 +334,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="equipment_id"
             render={({ field }) => (
               <FormItem>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1"> {/* Reduzido gap para 1 */}
                     <div className="flex-grow">
                         <EquipmentSelector clientId={clientId} value={field.value} onChange={handleEquipmentChange} disabled={isEditing} />
                     </div>
