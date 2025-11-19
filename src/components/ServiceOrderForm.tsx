@@ -356,7 +356,61 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
 
-        {/* 2. Equipamento */}
+        {/* 3. Detalhes do Serviço */}
+        <Card>
+          <CardHeader className="p-4 pb-0">
+            {/* <CardTitle className="text-lg">Detalhes do Serviço e Agendamento</CardTitle> */}
+          </CardHeader>
+          <CardContent className="space-y-4 p-4 pt-2">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição do Serviço *</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
+                      <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="store"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                        <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 2. Equipamento */} {/* MOVIDO PARA CIMA */}
         <Card>
           <CardHeader className="p-4 pb-0">
             {/* <CardTitle className="text-lg">Equipamento</CardTitle> */}
@@ -414,60 +468,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     </div>
                 </div>
             )}
-          </CardContent>
-        </Card>
-
-        {/* 3. Detalhes do Serviço */}
-        <Card>
-          <CardHeader className="p-4 pb-0">
-            {/* <CardTitle className="text-lg">Detalhes do Serviço e Agendamento</CardTitle> */}
-          </CardHeader>
-          <CardContent className="space-y-4 p-4 pt-2">
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição do Serviço *</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
-                      <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="store"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                        <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
           </CardContent>
         </Card>
 
