@@ -54,7 +54,8 @@ const ServiceOrderDetails: React.FC = () => {
     status: order.status,
     store: order.store,
     scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
-    establishment_name: order.establishment_name, // Adicionado para preencher o estado no form
+    establishment_id: order.establishment_id, // Adicionado para preencher o estado no form
+    establishment_name: order.establishment_name, // Mantido para consistência, embora o selector use o ID
   } : undefined;
 
   const handleGoBack = () => {
