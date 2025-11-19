@@ -28,7 +28,7 @@ import EstablishmentSelector from "./EstablishmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash } from "lucide-react";
+import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock } from "lucide-react"; // Adicionado Clock
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
@@ -350,7 +350,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
 
-        {/* 3. Detalhes do Serviço e Agendamento */}
+        {/* 3. Detalhes do Serviço */}
         <Card>
           <CardHeader className="p-4 pb-0">
             {/* <CardTitle className="text-lg">Detalhes do Serviço e Agendamento</CardTitle> */}
@@ -376,7 +376,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    {/* <FormLabel>Estado *</FormLabel> */}
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -390,7 +389,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="store"
                 render={({ field }) => (
                   <FormItem>
-                    {/* <FormLabel>Loja *</FormLabel> */}
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
                       <SelectContent>
@@ -403,64 +401,80 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 )}
               />
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="scheduled_date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col col-span-2">
-                    <FormLabel>Data de Agendamento (Opcional)</FormLabel>
-                    <div className="flex items-center gap-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button variant={"outline"} className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                              {field.value ? format(field.value, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={field.value || undefined} onSelect={field.onChange} initialFocus locale={ptBR} />
-                        </PopoverContent>
-                      </Popover>
-                      {field.value && <Button type="button" variant="outline" size="icon" onClick={() => field.onChange(null)}><XCircle className="h-4 w-4 text-destructive" /></Button>}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="scheduled_time"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Hora (Opcional)</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
-                      value={field.value || "NONE_SELECTED"}
-                    >
+        {/* NOVO: Card de Agendamento */}
+        <Card>
+          <CardHeader className="p-4 pb-0">
+            <CardTitle className="text-lg">Agendamento</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4 p-4 pt-2">
+            <FormField
+              control={form.control}
+              name="scheduled_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a hora" />
-                        </SelectTrigger>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-between text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : "Selecione uma data"}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="NONE_SELECTED">Nenhuma Hora</SelectItem>
-                        {timeSlots.map(time => (
-                          <SelectItem key={time} value={time}>
-                            {time}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value || undefined}
+                        onSelect={field.onChange}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="scheduled_time"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Hora</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
+                    value={field.value || "NONE_SELECTED"}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full justify-between text-left font-normal">
+                        <SelectValue placeholder="Selecione a hora" />
+                        <Clock className="ml-auto h-4 w-4 opacity-50" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="NONE_SELECTED">Nenhuma Hora</SelectItem>
+                      {timeSlots.map(time => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
         
