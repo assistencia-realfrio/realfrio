@@ -285,17 +285,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                    <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="icon"
-                        onClick={() => clientId && navigate(`/clients/${clientId}?view=establishments`)} 
-                        disabled={!clientId}
-                        className="flex-1 sm:flex-none"
-                        aria-label="Ver Estabelecimentos"
-                    >
-                        <Building className="h-4 w-4" />
-                    </Button>
+                    {/* REMOVIDO: Botão 'Ver Estabelecimentos' */}
                     <a 
                         href={establishmentHasMapLink ? getMapHref(establishmentDetails!.google_maps_link!) : "#"}
                         target="_blank" 
