@@ -222,7 +222,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
   };
 
   return (
-    <Card>
+    <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
       {/* CardHeader removido conforme solicitado */}
       <CardContent className="space-y-6 pt-6"> {/* Adicionado pt-6 aqui para padding superior */}
         {/* Formulário para adicionar nova nota */}

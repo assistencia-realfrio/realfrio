@@ -11,7 +11,7 @@ const EquipmentDetailsView: React.FC<EquipmentDetailsViewProps> = ({ equipment }
   // const hasGoogleDriveLink = equipment.google_drive_link && equipment.google_drive_link.trim() !== ''; // REMOVIDO
 
   return (
-    <Card>
+    <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
       <CardContent className="space-y-4 text-sm pt-6">
         <div>
           <p className="text-muted-foreground">Nome</p>

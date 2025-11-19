@@ -163,7 +163,7 @@ const EquipmentDetails: React.FC = () => {
         {selectedView === "details" && (
           <div className="space-y-6">
             {isEditing ? (
-                <Card>
+                <Card className="shadow-md"> {/* Adicionado shadow-md aqui */}
                     <CardHeader>
                         <CardTitle>Editar Detalhes do Equipamento</CardTitle>
                     </CardHeader>
