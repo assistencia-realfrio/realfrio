@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench } from "lucide-react";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench, ArrowRight } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -29,11 +29,13 @@ import EquipmentForm from "@/components/EquipmentForm";
 import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab";
 import EstablishmentForm from "@/components/EstablishmentForm";
 import { useClientEstablishments } from "@/hooks/useClientEstablishments";
+import ClientHeader from "@/components/ClientHeader"; // Importar o novo componente
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
 
     const getMapHref = (mapsLink: string) => {
+      if (!mapsLink) return "#";
       if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
         return mapsLink;
       }
@@ -44,76 +46,96 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     };
 
     return (
-        <Card>
-            <CardContent className="space-y-4 text-sm p-4">
-                <div>
-                  <p className="text-muted-foreground">Nome</p>
-                  <p className="font-medium">{client.name}</p>
+        <Card className="shadow-sm">
+            <CardContent className="p-0">
+                {/* Item: Localização */}
+                <div className="flex items-center gap-4 py-3 px-4 border-b">
+                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <MapPin className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{client.locality || 'Localidade não definida'}</p>
+                        {client.maps_link && isLinkClickable(client.maps_link) && (
+                            <a 
+                                href={getMapHref(client.maps_link)}
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-blue-600 hover:underline text-xs"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Ver no Mapa
+                            </a>
+                        )}
+                    </div>
+                    {client.maps_link && isLinkClickable(client.maps_link) && (
+                        <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )}
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Loja</p>
-                  <p className="font-medium">{client.store || 'N/A'}</p>
+
+                {/* Item: Contato (Telefone) */}
+                <div className="flex items-center gap-4 py-3 px-4 border-b">
+                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <Phone className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        {client.contact ? (
+                            <a href={`tel:${client.contact}`} className="font-medium text-sm text-foreground hover:underline" onClick={(e) => e.stopPropagation()}>
+                                {client.contact}
+                            </a>
+                        ) : (
+                            <p className="font-medium text-sm text-muted-foreground">N/A</p>
+                        )}
+                    </div>
+                    {client.contact && (
+                        <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )}
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Localidade</p>
-                  <p className="font-medium">{client.locality || 'N/A'}</p>
+
+                {/* Item: E-mail */}
+                <div className="flex items-center gap-4 py-3 px-4 border-b">
+                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <Mail className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        {client.email ? (
+                            <a href={`mailto:${client.email}`} className="font-medium text-sm text-foreground hover:underline" onClick={(e) => e.stopPropagation()}>
+                                {client.email}
+                            </a>
+                        ) : (
+                            <p className="font-medium text-sm text-muted-foreground">N/A</p>
+                        )}
+                    </div>
+                    {client.email && (
+                        <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )}
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Maps</p>
-                  {client.maps_link && isLinkClickable(client.maps_link) ? (
-                    <a 
-                      href={getMapHref(client.maps_link)}
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-1 text-blue-600 hover:underline"
-                    >
-                      <MapPin className="h-4 w-4" />
-                      Ver no Mapa
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
+
+                {/* Item: Google Drive */}
+                <div className="flex items-center gap-4 py-3 px-4">
+                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <FolderOpen className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        {hasGoogleDriveLink ? (
+                            <a 
+                                href={client.google_drive_link!} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="font-medium text-sm text-foreground hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Documentos no Google Drive
+                            </a>
+                        ) : (
+                            <p className="font-medium text-sm text-muted-foreground">Nenhum documento no Google Drive</p>
+                        )}
+                    </div>
+                    {hasGoogleDriveLink && (
+                        <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    )}
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Google Drive</p>
-                  {hasGoogleDriveLink ? (
-                    <a 
-                      href={client.google_drive_link!} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="flex items-center gap-1 text-blue-600 hover:underline"
-                    >
-                      <FolderOpen className="h-4 w-4" />
-                      Abrir Pasta
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Contato</p>
-                  {client.contact ? (
-                    <a href={`tel:${client.contact}`} className="flex items-center gap-1 text-blue-600 hover:underline">
-                      <Phone className="h-4 w-4" />
-                      {client.contact}
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-muted-foreground">E-mail</p>
-                  {client.email ? (
-                    <a href={`mailto:${client.email}`} className="flex items-center gap-1 text-blue-600 hover:underline">
-                      <Mail className="h-4 w-4" />
-                      {client.email}
-                    </a>
-                  ) : (
-                    <p className="text-muted-foreground">N/A</p>
-                  )}
-                </div>
-              </CardContent>
-          </Card>
+            </CardContent>
+        </Card>
     );
 };
 
@@ -212,7 +234,7 @@ const ClientDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 pb-20">
+      <div className="space-y-6"> {/* Removido pb-20 */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
@@ -282,6 +304,9 @@ const ClientDetails: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Novo ClientHeader */}
+        <ClientHeader client={client} />
 
         {selectedView === 'details' && (
           <>
