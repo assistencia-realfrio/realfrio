@@ -30,16 +30,21 @@ export interface ServiceOrder {
   attachments_count: number;
 }
 
-export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'client' | 'display_id' | 'equipment_id' | 'updated_at' | 'scheduled_date' | 'notes_count' | 'attachments_count' | 'establishment_id'> & {
-    serial_number: string | undefined;
-    model: string | undefined;
-    equipment_id?: string;
-    scheduled_date?: Date | null;
-    establishment_id?: string | null;
-    // Adicionando campos que são usados no ServiceOrderCard mas não estão no Omit
-    equipment: string;
-    establishment_name: string | null;
-};
+// NOVO: Tipo para o payload da mutação (insert/update)
+export interface ServiceOrderMutationPayload {
+  client_id: string;
+  description: string;
+  status: ServiceOrderStatus;
+  store: "CALDAS DA RAINHA" | "PORTO DE MÓS";
+  equipment: string;
+  model: string | null;
+  serial_number: string | null;
+  equipment_id: string | null;
+  establishment_id: string | null;
+  establishment_name: string | null;
+  scheduled_date: string | null; // Supabase espera ISO string
+  updated_at?: string; // Apenas para update, não insert
+}
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'notes_count' | 'attachments_count'> & {
     clients: { name: string } | { name: string }[] | null;
@@ -125,7 +130,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
   const order = id ? orders?.[0] : undefined;
 
   const createOrderMutation = useMutation({
-    mutationFn: async (orderData: ServiceOrderFormValues) => {
+    mutationFn: async (orderData: ServiceOrderMutationPayload) => { // Usando o novo tipo
       if (!user?.id) throw new Error("Usuário não autenticado.");
       
       const displayId = generateDisplayId(orderData.store);
@@ -136,12 +141,6 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
           ...orderData,
           display_id: displayId,
           created_by: user.id,
-          model: orderData.model || null,
-          serial_number: orderData.serial_number || null,
-          equipment_id: orderData.equipment_id || null,
-          establishment_id: orderData.establishment_id || null,
-          establishment_name: orderData.establishment_name || null,
-          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
         })
         .select()
         .single();
@@ -161,21 +160,21 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
   });
 
   const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
+    mutationFn: async ({ id, ...orderData }: ServiceOrderMutationPayload & { id: string }) => { // Usando o novo tipo
       
       // 1. Criar um payload que contenha APENAS os campos da tabela 'service_orders'
-      const payloadForSupabase = {
+      const payloadForSupabase: ServiceOrderMutationPayload = { // Explicitamente tipado
           client_id: orderData.client_id,
           description: orderData.description,
           status: orderData.status,
           store: orderData.store,
           equipment: orderData.equipment,
-          model: orderData.model || null,
-          serial_number: orderData.serial_number || null,
-          equipment_id: orderData.equipment_id || null,
-          establishment_id: orderData.establishment_id || null,
-          establishment_name: orderData.establishment_name || null,
-          scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
+          model: orderData.model, // Já é string | null
+          serial_number: orderData.serial_number, // Já é string | null
+          equipment_id: orderData.equipment_id, // Já é string | null
+          establishment_id: orderData.establishment_id, // Já é string | null
+          establishment_name: orderData.establishment_name, // Já é string | null
+          scheduled_date: orderData.scheduled_date, // Já é string | null
           updated_at: new Date().toISOString(),
       };
 

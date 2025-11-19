@@ -25,7 +25,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
 import EstablishmentSelector from "./EstablishmentSelector";
-import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
+import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders"; // Importando ServiceOrderMutationPayload
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
@@ -37,7 +37,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format, setHours, setMinutes, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Establishment, useClientEstablishments } from "@/hooks/useClientEstablishments"; // Importar Establishment e useClientEstablishments
+import { Establishment, useClientEstablishments } from "@/hooks/useClientEstablishments";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,7 +74,6 @@ const formSchema = z.object({
   status: z.enum(serviceOrderStatuses),
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
   scheduled_date: z.date().nullable().optional(),
-  // Este campo é apenas para uso no formulário (frontend)
   scheduled_time: z.string().nullable().optional(), 
 });
 
@@ -95,7 +94,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // Extrair a hora inicial se a data agendada existir
   const initialTime = initialData?.scheduled_date 
     ? format(new Date(initialData.scheduled_date), 'HH:mm') 
     : null;
@@ -105,7 +103,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     defaultValues: initialData ? {
         ...initialData,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : null,
-        scheduled_time: initialTime, // Definir a hora inicial
+        scheduled_time: initialTime,
     } : {
       client_id: searchParams.get('clientId') || "",
       equipment_id: "",
@@ -114,7 +112,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       status: "POR INICIAR",
       store: "CALDAS DA RAINHA",
       scheduled_date: null,
-      scheduled_time: null, // Valor padrão para a hora
+      scheduled_time: null,
     },
   });
 
@@ -123,9 +121,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   
   const clientId = form.watch("client_id");
   const equipmentId = form.watch("equipment_id");
-  const establishmentId = form.watch("establishment_id"); // Observar o ID do estabelecimento
-  const scheduledDate = form.watch("scheduled_date"); // Observar a data agendada
-  const scheduledTime = form.watch("scheduled_time"); // Observar a hora agendada
+  const establishmentId = form.watch("establishment_id");
+  const scheduledDate = form.watch("scheduled_date");
+  const scheduledTime = form.watch("scheduled_time");
   
   const [equipmentDetails, setEquipmentDetails] = useState({ name: '', brand: null, model: null, serial_number: null });
   const [establishmentName, setEstablishmentName] = useState<string | null>(initialData?.establishment_name || null);
@@ -145,7 +143,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
   }, [isEditing, singleEquipment]);
 
-  // NOVO: Hook para buscar detalhes do estabelecimento selecionado
   const { establishments } = useClientEstablishments(clientId);
   const selectedEstablishmentDetails = establishments.find(est => est.id === establishmentId);
 
@@ -163,10 +160,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const handleViewClientDetails = () => clientId && navigate(`/clients/${clientId}`);
   const handleViewEquipmentDetails = () => equipmentId && navigate(`/equipments/${equipmentId}`);
   
-  // NOVO: Funções para os botões de ação do estabelecimento
   const handleViewEstablishmentDetails = () => {
     if (clientId && establishmentId) {
-      navigate(`/clients/${clientId}?tab=establishments`); // Navega para a aba de estabelecimentos do cliente
+      navigate(`/clients/${clientId}?tab=establishments`);
     }
   };
 
@@ -184,31 +180,32 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   };
 
   const handleSubmit = async (data: ServiceOrderFormValues) => {
-    // 1. Extrair scheduled_time e scheduled_date
     const { scheduled_time, scheduled_date, ...restOfData } = data;
     
     let scheduledDateWithTime: Date | null = scheduled_date || null;
     
-    // 2. Se houver data, combiná-la com a hora (ou 00:00 se não houver hora)
     if (scheduledDateWithTime) {
         if (scheduled_time) {
             const [hours, minutes] = scheduled_time.split(':').map(Number);
-            // Combine date and time
             scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, hours), minutes);
         } else {
-            // Se houver data, mas não hora, define para 00:00 (meia-noite)
             scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, 0), 0);
         }
     }
 
-    const mutationData = {
-      ...restOfData, // Dados sem scheduled_time
+    const mutationData: ServiceOrderMutationPayload = { // Usando o novo tipo
+      client_id: restOfOfData.client_id,
+      description: restOfOfData.description,
+      status: restOfOfData.status,
+      store: restOfOfData.store,
       equipment: equipmentDetails.name,
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
+      equipment_id: restOfOfData.equipment_id,
+      establishment_id: restOfOfData.establishment_id,
       establishment_name: establishmentName,
-      scheduled_date: scheduledDateWithTime, 
-    } as MutationServiceOrderFormValues;
+      scheduled_date: scheduledDateWithTime ? scheduledDateWithTime.toISOString() : null, 
+    };
 
     try {
       if (isEditing && initialData.id) {
@@ -263,18 +260,25 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
     try {
       const currentFormValues = form.getValues();
-      // Destructure para omitir 'scheduled_time' do payload enviado à mutação
-      const { scheduled_time, ...restOfFormValues } = currentFormValues; 
+      const { scheduled_time, scheduled_date, ...restOfFormValues } = currentFormValues; 
 
-      await updateOrder.mutateAsync({
+      const payload: ServiceOrderMutationPayload & { id: string } = {
         id: initialData.id,
-        ...restOfFormValues, // Passa os valores sem 'scheduled_time'
-        scheduled_date: null, // Define a data como nula
-        equipment: equipmentDetails.name, // Garante que os detalhes do equipamento sejam passados
+        client_id: restOfFormValues.client_id,
+        description: restOfFormValues.description,
+        status: restOfFormValues.status,
+        store: restOfFormValues.store,
+        equipment: equipmentDetails.name,
         model: equipmentDetails.model,
         serial_number: equipmentDetails.serial_number,
+        equipment_id: restOfFormValues.equipment_id,
+        establishment_id: restOfFormValues.establishment_id,
         establishment_name: establishmentName,
-      });
+        scheduled_date: null, // Explicitamente null para cancelamento
+        updated_at: new Date().toISOString(),
+      };
+
+      await updateOrder.mutateAsync(payload);
       form.setValue("scheduled_date", null);
       form.setValue("scheduled_time", null);
       showSuccess("Agendamento cancelado com sucesso!");
@@ -454,7 +458,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
 
-        {/* 2. Equipamento */} {/* MOVIDO PARA CIMA */}
+        {/* 2. Equipamento */}
         <Card>
           <CardHeader className="p-4 pb-0">
             {/* <CardTitle className="text-lg">Equipamento</CardTitle> */}
@@ -524,12 +528,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <AlertDialogTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    size="sm" 
+                    size="icon" 
                     className="text-destructive hover:text-destructive"
                     disabled={updateOrder.isPending}
+                    aria-label="Cancelar Agendamento"
                   >
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Cancelar Agendamento
+                    <XCircle className="h-4 w-4" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
