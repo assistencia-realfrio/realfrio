@@ -36,6 +36,9 @@ export type ServiceOrderFormValues = Omit<ServiceOrder, 'id' | 'created_at' | 'c
     equipment_id?: string;
     scheduled_date?: Date | null;
     establishment_id?: string | null;
+    // Adicionando campos que são usados no ServiceOrderCard mas não estão no Omit
+    equipment: string;
+    establishment_name: string | null;
 };
 
 type ServiceOrderRaw = Omit<ServiceOrder, 'client' | 'notes_count' | 'attachments_count'> & {
@@ -160,21 +163,25 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderFormValues & { id: string }) => {
       
-      // Prepara os dados para a atualização, garantindo que os campos opcionais sejam null se vazios
-      const updatePayload = {
-          ...orderData,
-          updated_at: new Date().toISOString(),
+      // 1. Criar um payload que contenha APENAS os campos da tabela 'service_orders'
+      const payloadForSupabase = {
+          client_id: orderData.client_id,
+          description: orderData.description,
+          status: orderData.status,
+          store: orderData.store,
+          equipment: orderData.equipment,
           model: orderData.model || null,
           serial_number: orderData.serial_number || null,
           equipment_id: orderData.equipment_id || null,
           establishment_id: orderData.establishment_id || null,
           establishment_name: orderData.establishment_name || null,
           scheduled_date: orderData.scheduled_date ? orderData.scheduled_date.toISOString() : null,
+          updated_at: new Date().toISOString(),
       };
 
       const { data, error } = await supabase
         .from('service_orders')
-        .update(updatePayload)
+        .update(payloadForSupabase) // Usar o payload filtrado
         .eq('id', id)
         .select()
         .single();
