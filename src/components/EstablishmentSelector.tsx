@@ -19,9 +19,10 @@ interface EstablishmentSelectorProps {
   value: string | null; // establishment_id
   onChange: (establishmentId: string | null, establishmentName: string | null) => void;
   disabled?: boolean;
+  initialName?: string | null; // NOVO: Nome inicial para exibição
 }
 
-const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId, value, onChange, disabled = false }) => {
+const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId, value, onChange, disabled = false, initialName = null }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { establishments, isLoading } = useClientEstablishments(clientId);
 
@@ -49,10 +50,19 @@ const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId,
     return <Skeleton className="h-10 w-full" />;
   }
 
-  // Alterado o texto padrão
+  // Lógica de exibição:
+  // 1. Se houver um valor (ID), tenta encontrar na lista carregada.
+  // 2. Se não encontrar na lista (ou se a lista ainda estiver vazia, mas o valor existir), usa o initialName.
+  // 3. Caso contrário, usa o placeholder padrão.
   const defaultPlaceholder = "Escolher Estabelecimento";
   const selectedEstablishment = establishments.find(e => e.id === value);
-  const displayValue = selectedEstablishment?.name || defaultPlaceholder;
+  
+  let displayValue = defaultPlaceholder;
+  if (selectedEstablishment) {
+    displayValue = selectedEstablishment.name;
+  } else if (value && initialName) {
+    displayValue = initialName; // Usa o nome inicial se o ID estiver presente mas o objeto ainda não foi carregado/encontrado
+  }
 
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
@@ -65,7 +75,7 @@ const EstablishmentSelector: React.FC<EstablishmentSelectorProps> = ({ clientId,
           disabled={disabled || establishments.length === 0}
         >
           <span className={cn("truncate", value ? "text-foreground" : "text-muted-foreground")}>
-            {establishments.length === 0 ? "Nenhum estabelecimento registado" : displayValue}
+            {establishments.length === 0 && !value ? "Nenhum estabelecimento registado" : displayValue}
           </span>
           <Building className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
