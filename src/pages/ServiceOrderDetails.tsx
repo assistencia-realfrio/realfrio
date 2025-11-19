@@ -54,6 +54,7 @@ const ServiceOrderDetails: React.FC = () => {
     status: order.status,
     store: order.store,
     scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+    establishment_name: order.establishment_name, // Adicionado para preencher o estado no form
   } : undefined;
 
   const handleGoBack = () => {
@@ -90,10 +91,8 @@ const ServiceOrderDetails: React.FC = () => {
     window.print();
   };
 
-  // Função handleShare removida
-
   const displayTitleId = order?.display_id || currentOrderId;
-  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "Detalhes da OS"; // Título simplificado para o cabeçalho
+  const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "Detalhes da OS";
 
   if (!isNew && isLoading) {
     return (
@@ -134,7 +133,6 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {/* Botão de Partilhar/Copiar Link REMOVIDO */}
                 {/* Botão de Imprimir */}
                 {!isNew && (
                     <Button variant="ghost" size="icon" onClick={handlePrint} aria-label="Imprimir OS">
@@ -174,33 +172,31 @@ const ServiceOrderDetails: React.FC = () => {
         </div>
           
         {selectedView === "details" && (
-          <>
-            <Card className="shadow-none border-none">
-              {/* NOVO: Exibição do ID da OS dentro do Card, centralizado e destacado */}
-              {!isNew && (
-                <div className="text-center pt-6 pb-4 border-b border-border/50">
+          <div className="space-y-6">
+            {/* NOVO: Exibição do ID da OS fora do formulário, mas dentro do espaço de detalhes */}
+            {!isNew && (
+              <Card className="shadow-sm">
+                <div className="text-center p-4">
                   <p className="text-sm text-muted-foreground font-medium">Ordem de Serviço</p>
                   <h3 className="text-xl font-extrabold tracking-tight text-primary mt-1">
                     {displayTitleId}
                   </h3>
                 </div>
-              )}
-              <CardContent>
-                <ServiceOrderForm 
-                  initialData={initialData} 
-                  onSubmit={handleSubmit} 
-                  onCancel={isNew ? handleGoBack : undefined}
-                />
-              </CardContent>
-            </Card>
-          </>
+              </Card>
+            )}
+            <ServiceOrderForm 
+              initialData={initialData} 
+              onSubmit={handleSubmit} 
+              onCancel={isNew ? handleGoBack : undefined}
+            />
+          </div>
         )}
 
         {selectedView === "notes" && (
           !canAccessTabs ? (
             <p className="text-center text-muted-foreground py-8">Salve a OS para adicionar notas.</p>
           ) : (
-            <div className="mt-6"> {/* Adicionado margem superior aqui */}
+            <div className="mt-6">
               <ServiceOrderNotes orderId={currentOrderId!} />
             </div>
           )
@@ -213,15 +209,6 @@ const ServiceOrderDetails: React.FC = () => {
             <Attachments orderId={currentOrderId!} />
           )
         )}
-
-        {/* Removido a aba 'equipment' */}
-        {/* {selectedView === "equipment" && (
-          !canAccessTabs || !order?.equipment_id ? (
-            <p className="text-center text-muted-foreground py-8">Salve a OS e selecione um equipamento para ver seus detalhes.</p>
-          ) : (
-            <ServiceOrderEquipmentDetails equipmentId={order.equipment_id!} />
-          )
-        )} */}
 
         {selectedView === "activity" && (
           !canAccessTabs ? (
