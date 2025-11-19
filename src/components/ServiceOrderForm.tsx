@@ -25,7 +25,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import ClientSelector from "./ClientSelector";
 import EquipmentSelector from "./EquipmentSelector";
 import EstablishmentSelector from "./EstablishmentSelector";
-import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders"; // Importando ServiceOrderMutationPayload
+import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
@@ -194,15 +194,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
 
     const mutationData: ServiceOrderMutationPayload = { // Usando o novo tipo
-      client_id: restOfOfData.client_id,
-      description: restOfOfData.description,
-      status: restOfOfData.status,
-      store: restOfOfData.store,
+      client_id: restOfData.client_id, // Corrigido o typo aqui
+      description: restOfData.description,
+      status: restOfData.status,
+      store: restOfData.store,
       equipment: equipmentDetails.name,
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
-      equipment_id: restOfOfData.equipment_id,
-      establishment_id: restOfOfData.establishment_id,
+      equipment_id: restOfData.equipment_id,
+      establishment_id: restOfData.establishment_id,
       establishment_name: establishmentName,
       scheduled_date: scheduledDateWithTime ? scheduledDateWithTime.toISOString() : null, 
     };

@@ -46,12 +46,18 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
         const toastId = showLoading(`Alterando estado para ${newStatus}...`);
         try {
             await updateOrder.mutateAsync({
-                ...order,
+                id: order.id,
+                client_id: order.client_id,
+                description: order.description,
                 status: newStatus,
-                model: order.model || undefined,
-                serial_number: order.serial_number || undefined,
-                equipment_id: order.equipment_id || undefined,
-                scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : null,
+                store: order.store,
+                equipment: order.equipment,
+                model: order.model || null,
+                serial_number: order.serial_number || null,
+                equipment_id: order.equipment_id || null,
+                establishment_id: order.establishment_id || null,
+                establishment_name: order.establishment_name || null,
+                scheduled_date: order.scheduled_date, // Já é string | null
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
