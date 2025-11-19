@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Menu, Users, Calendar as CalendarIcon } from "lucide-react"; // Removido HardDrive
+import { LayoutDashboard, Wrench, Menu, Users, Calendar as CalendarIcon, Plane } from "lucide-react"; // Adicionado Plane para o ícone de férias
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -23,15 +23,15 @@ const navItems = [
     href: "/clients",
     icon: Users,
   },
-  // {
-  //   title: "Equipamentos", // Removido item para a página de Equipamentos
-  //   href: "/equipments",
-  //   icon: HardDrive,
-  // },
   {
     title: "Agendamentos", // NOVO: Item para a página de calendário
     href: "/calendar",
     icon: CalendarIcon, // Adicionado o ícone aqui
+  },
+  {
+    title: "Férias", // NOVO: Item para a página de férias
+    href: "/vacations",
+    icon: Plane, // Ícone de avião para férias
   },
 ];
 

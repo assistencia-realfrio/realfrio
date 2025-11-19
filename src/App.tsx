@@ -15,6 +15,7 @@ import Equipments from "./pages/Equipments";
 import EquipmentDetails from "./pages/EquipmentDetails";
 import Profile from "./pages/Profile"; // Importando a nova página de perfil
 import CalendarView from "./pages/CalendarView"; // NOVO: Importando a página de calendário
+import Vacations from "./pages/Vacations"; // NOVO: Importando a página de férias
 
 const queryClient = new QueryClient();
 
@@ -97,6 +98,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <CalendarView /> {/* NOVO: Rota para o calendário */}
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vacations" 
+            element={
+              <ProtectedRoute>
+                <Vacations /> {/* NOVO: Rota para a página de férias */}
               </ProtectedRoute>
             } 
           />
