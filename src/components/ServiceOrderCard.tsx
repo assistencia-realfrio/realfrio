@@ -67,6 +67,10 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     const cardBackgroundColor = hexToRgba(statusBgColor, 0.05);
     
     const scheduledDate = order.scheduled_date ? new Date(order.scheduled_date) : null;
+    
+    // NOVO: Verifica se a hora é 00:00 local (indicando que apenas a data foi agendada)
+    const isTimeExplicitlySet = scheduledDate && (scheduledDate.getHours() !== 0 || scheduledDate.getMinutes() !== 0);
+
 
     return (
         <div 
@@ -150,10 +154,12 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                                         <CalendarIcon className="h-4 w-4" />
                                         <span>{format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR })}</span>
                                     </div>
-                                    <div className="flex items-center gap-1 text-muted-foreground">
-                                        <Clock className="h-4 w-4" />
-                                        <span>{format(scheduledDate, 'HH:mm', { locale: ptBR })}</span>
-                                    </div>
+                                    {isTimeExplicitlySet && (
+                                        <div className="flex items-center gap-1 text-muted-foreground">
+                                            <Clock className="h-4 w-4" />
+                                            <span>{format(scheduledDate, 'HH:mm', { locale: ptBR })}</span>
+                                        </div>
+                                    )}
                                 </>
                             )}
                         </div>

@@ -148,13 +148,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     
     let scheduledDateWithTime: Date | null = scheduled_date || null;
     
-    // 2. Se houver data e hora, combiná-las
-    if (scheduledDateWithTime && scheduled_time) {
-        const [hours, minutes] = scheduled_time.split(':').map(Number);
-        scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, hours), minutes);
-    } else if (scheduledDateWithTime) {
-        // Se houver data, mas não hora, define para 09:00 por padrão
-        scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, 9), 0);
+    // 2. Se houver data, combiná-la com a hora (ou 00:00 se não houver hora)
+    if (scheduledDateWithTime) {
+        if (scheduled_time) {
+            const [hours, minutes] = scheduled_time.split(':').map(Number);
+            // Combine date and time
+            scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, hours), minutes);
+        } else {
+            // Se houver data, mas não hora, define para 00:00 (meia-noite)
+            scheduledDateWithTime = setMinutes(setHours(scheduledDateWithTime, 0), 0);
+        }
     }
 
     const mutationData = {

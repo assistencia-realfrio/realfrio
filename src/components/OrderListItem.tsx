@@ -38,6 +38,10 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
     const storeColor = getStoreColor(order.store);
     const statusBgColor = statusChartColors[order.status];
     const cardBackgroundColor = hexToRgba(statusBgColor, 0.05);
+    
+    // NOVO: Verifica se a hora é 00:00 local (indicando que apenas a data foi agendada)
+    const isTimeExplicitlySet = scheduledDate && (scheduledDate.getHours() !== 0 || scheduledDate.getMinutes() !== 0);
+
 
     return (
         <div 
@@ -87,10 +91,14 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                                 <span className="font-medium">
                                     {format(scheduledDate, 'dd/MM/yyyy')}
                                 </span>
-                                <Clock className="h-4 w-4 ml-2" />
-                                <span className="font-medium">
-                                    {format(scheduledDate, 'HH:mm')}
-                                </span>
+                                {isTimeExplicitlySet && (
+                                    <>
+                                        <Clock className="h-4 w-4 ml-2" />
+                                        <span className="font-medium">
+                                            {format(scheduledDate, 'HH:mm')}
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>
