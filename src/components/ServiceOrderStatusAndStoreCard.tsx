@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormField, FormItem, FormMessage, FormControl } from "@/components/ui/form";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { ServiceOrderFormValues } from "./ServiceOrderForm"; // Importar o tipo do formulário
@@ -22,11 +22,10 @@ const ServiceOrderStatusAndStoreCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
+                  {/* FormControl removido */}
                     <SelectTrigger>
                       <SelectValue placeholder="Estado *" />
                     </SelectTrigger>
-                  </FormControl>
                   <SelectContent>
                     {serviceOrderStatuses.map((s) => (
                       <SelectItem key={s} value={s}>
@@ -45,11 +44,10 @@ const ServiceOrderStatusAndStoreCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
+                  {/* FormControl removido */}
                     <SelectTrigger>
                       <SelectValue placeholder="Loja *" />
                     </SelectTrigger>
-                  </FormControl>
                   <SelectContent>
                     <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
                     <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
