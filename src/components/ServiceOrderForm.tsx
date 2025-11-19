@@ -219,18 +219,17 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="client_id"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex items-center gap-2"> {/* Alterado para flex items-center gap-2 */}
                   <div className="flex-grow w-full min-w-0">
                     <ClientSelector value={field.value} onChange={field.onChange} disabled={isEditing} />
                   </div>
-                  <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
+                  <div className="flex gap-1 flex-shrink-0"> {/* Ajustado gap para 1 */}
                     <Button 
                         type="button" 
-                        variant="ghost" // Alterado para ghost
+                        variant="ghost" 
                         size="icon"
                         onClick={handleViewClientDetails} 
                         disabled={!field.value}
-                        className="flex-1 sm:flex-none"
                         aria-label="Detalhes do Cliente"
                     >
                         <User className="h-5 w-5 text-muted-foreground hover:text-foreground" />
@@ -243,10 +242,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     >
                         <Button 
                             type="button" 
-                            variant="ghost" // Alterado para ghost
+                            variant="ghost" 
                             size="icon"
                             disabled={!clientHasMapLink}
-                            className="flex-1 sm:flex-none"
                             aria-label="Ver no Mapa do Cliente"
                         >
                             <MapPin className={cn("h-5 w-5", clientHasMapLink ? 'text-blue-600' : 'text-muted-foreground')} />
@@ -258,10 +256,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     >
                         <Button 
                             type="button" 
-                            variant="ghost" // Alterado para ghost
+                            variant="ghost" 
                             size="icon"
                             disabled={!clientHasContact}
-                            className="flex-1 sm:flex-none"
                             aria-label="Ligar para o Cliente"
                         >
                             <Phone className={cn("h-5 w-5", clientHasContact ? 'text-green-600' : 'text-muted-foreground')} />
@@ -280,22 +277,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="establishment_id"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex items-center gap-2">
                   <div className="flex-grow w-full min-w-0">
                     <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
                   </div>
-                  <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                    <Button 
-                        type="button" 
-                        variant="ghost" // Alterado para ghost
-                        size="icon"
-                        onClick={() => clientId && navigate(`/clients/${clientId}?view=establishments`)} 
-                        disabled={!clientId}
-                        className="flex-1 sm:flex-none"
-                        aria-label="Ver Estabelecimentos"
-                    >
-                        <Building className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-                    </Button>
+                  <div className="flex gap-1 flex-shrink-0"> {/* Ajustado gap para 1 */}
                     <a 
                         href={establishmentHasMapLink ? getMapHref(establishmentDetails!.google_maps_link!) : "#"}
                         target="_blank" 
@@ -304,10 +290,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     >
                         <Button 
                             type="button" 
-                            variant="ghost" // Alterado para ghost
+                            variant="ghost" 
                             size="icon"
                             disabled={!establishmentHasMapLink}
-                            className="flex-1 sm:flex-none"
                             aria-label="Ver no Mapa do Estabelecimento"
                         >
                             <MapPin className={cn("h-5 w-5", establishmentHasMapLink ? 'text-blue-600' : 'text-muted-foreground')} />
@@ -319,10 +304,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     >
                         <Button 
                             type="button" 
-                            variant="ghost" // Alterado para ghost
+                            variant="ghost" 
                             size="icon"
                             disabled={!establishmentHasPhone}
-                            className="flex-1 sm:flex-none"
                             aria-label="Ligar para o Estabelecimento"
                         >
                             <Phone className={cn("h-5 w-5", establishmentHasPhone ? 'text-green-600' : 'text-muted-foreground')} />
@@ -346,7 +330,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     </div>
                     <Button 
                         type="button" 
-                        variant="ghost" // Alterado para ghost
+                        variant="ghost" 
                         size="icon" 
                         onClick={handleViewEquipmentDetails} 
                         disabled={!equipmentId}
@@ -431,7 +415,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   {field.value && (
                     <Button 
                         type="button" 
-                        variant="ghost" // Alterado para ghost
+                        variant="ghost" 
                         size="icon" 
                         onClick={() => field.onChange(null)}
                         aria-label="Limpar Data"
