@@ -28,7 +28,7 @@ import EstablishmentSelector from "./EstablishmentSelector";
 import { useServiceOrders, ServiceOrderFormValues as MutationServiceOrderFormValues, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock } from "lucide-react"; // Adicionado Clock
+import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useClients } from "@/hooks/useClients";
 import { isLinkClickable } from "@/lib/utils";
@@ -37,6 +37,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format, setHours, setMinutes, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { Establishment, useClientEstablishments } from "@/hooks/useClientEstablishments"; // Importar Establishment e useClientEstablishments
 
 // Função para gerar intervalos de tempo de 30 minutos, das 08:00 às 18:00
 const generateTimeSlots = (): string[] => {
@@ -111,6 +112,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   
   const clientId = form.watch("client_id");
   const equipmentId = form.watch("equipment_id");
+  const establishmentId = form.watch("establishment_id"); // Observar o ID do estabelecimento
+  
   const [equipmentDetails, setEquipmentDetails] = useState({ name: '', brand: null, model: null, serial_number: null });
   const [establishmentName, setEstablishmentName] = useState<string | null>(initialData?.establishment_name || null);
 
@@ -129,6 +132,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
   }, [isEditing, singleEquipment]);
 
+  // NOVO: Hook para buscar detalhes do estabelecimento selecionado
+  const { establishments } = useClientEstablishments(clientId);
+  const selectedEstablishmentDetails = establishments.find(est => est.id === establishmentId);
+
 
   const handleEquipmentChange = (equipmentId: string, details: any) => {
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
@@ -143,6 +150,26 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const handleViewClientDetails = () => clientId && navigate(`/clients/${clientId}`);
   const handleViewEquipmentDetails = () => equipmentId && navigate(`/equipments/${equipmentId}`);
   
+  // NOVO: Funções para os botões de ação do estabelecimento
+  const handleViewEstablishmentDetails = () => {
+    if (clientId && establishmentId) {
+      navigate(`/clients/${clientId}?tab=establishments`); // Navega para a aba de estabelecimentos do cliente
+    }
+  };
+
+  const handleOpenEstablishmentMap = () => {
+    if (selectedEstablishmentDetails?.google_maps_link && isLinkClickable(selectedEstablishmentDetails.google_maps_link)) {
+        const href = getMapHref(selectedEstablishmentDetails.google_maps_link);
+        window.open(href, '_blank');
+    }
+  };
+  
+  const handleCallEstablishmentPhone = () => {
+    if (selectedEstablishmentDetails?.phone) {
+        window.location.href = `tel:${selectedEstablishmentDetails.phone}`;
+    }
+  };
+
   const handleSubmit = async (data: ServiceOrderFormValues) => {
     // 1. Extrair scheduled_time e scheduled_date
     const { scheduled_time, scheduled_date, ...restOfData } = data;
@@ -186,8 +213,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
   };
 
-  const hasMapLink = selectedClient?.maps_link && isLinkClickable(selectedClient.maps_link);
-  const hasContact = selectedClient?.contact;
+  const hasClientMapLink = selectedClient?.maps_link && isLinkClickable(selectedClient.maps_link);
+  const hasClientContact = selectedClient?.contact;
+
+  const hasEstablishmentMapLink = selectedEstablishmentDetails?.google_maps_link && isLinkClickable(selectedEstablishmentDetails.google_maps_link);
+  const hasEstablishmentPhone = selectedEstablishmentDetails?.phone;
 
   const getMapHref = (mapsLink: string) => {
     if (mapsLink.startsWith("http://") || mapsLink.startsWith("https://")) {
@@ -199,14 +229,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     return "#";
   };
 
-  const handleOpenMap = () => {
+  const handleOpenClientMap = () => {
     if (selectedClient?.maps_link && isLinkClickable(selectedClient.maps_link)) {
         const href = getMapHref(selectedClient.maps_link);
         window.open(href, '_blank');
     }
   };
   
-  const handleCallContact = () => {
+  const handleCallClientContact = () => {
     if (selectedClient?.contact) {
         window.location.href = `tel:${selectedClient.contact}`;
     }
@@ -248,23 +278,23 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           type="button" 
                           variant="outline" 
                           size="icon"
-                          onClick={handleOpenMap}
-                          disabled={!hasMapLink}
+                          onClick={handleOpenClientMap}
+                          disabled={!hasClientMapLink}
                           className="flex-1 sm:flex-none"
                           aria-label="Ver no Mapa"
                       >
-                          <MapPin className={cn("h-4 w-4", hasMapLink ? 'text-blue-600' : '')} />
+                          <MapPin className={cn("h-4 w-4", hasClientMapLink ? 'text-blue-600' : '')} />
                       </Button>
                       <Button 
                           type="button" 
                           variant="outline" 
                           size="icon"
-                          onClick={handleCallContact}
-                          disabled={!hasContact}
+                          onClick={handleCallClientContact}
+                          disabled={!hasClientContact}
                           className="flex-1 sm:flex-none"
                           aria-label="Ligar para o Cliente"
                       >
-                          <Phone className={cn("h-4 w-4", hasContact ? 'text-green-600' : '')} />
+                          <Phone className={cn("h-4 w-4", hasClientContact ? 'text-green-600' : '')} />
                       </Button>
                     </div>
                   </div>
@@ -279,9 +309,46 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Estabelecimento</FormLabel>
-                  <FormControl>
-                    <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
-                  </FormControl>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex-grow w-full min-w-0">
+                      <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
+                      <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon"
+                          onClick={handleViewEstablishmentDetails} 
+                          disabled={!field.value}
+                          className="flex-1 sm:flex-none"
+                          aria-label="Detalhes do Estabelecimento"
+                      >
+                          <Building className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon"
+                          onClick={handleOpenEstablishmentMap}
+                          disabled={!hasEstablishmentMapLink}
+                          className="flex-1 sm:flex-none"
+                          aria-label="Ver no Mapa"
+                      >
+                          <MapPin className={cn("h-4 w-4", hasEstablishmentMapLink ? 'text-blue-600' : '')} />
+                      </Button>
+                      <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="icon"
+                          onClick={handleCallEstablishmentPhone}
+                          disabled={!hasEstablishmentPhone}
+                          className="flex-1 sm:flex-none"
+                          aria-label="Ligar para o Estabelecimento"
+                      >
+                          <Phone className={cn("h-4 w-4", hasEstablishmentPhone ? 'text-green-600' : '')} />
+                      </Button>
+                    </div>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

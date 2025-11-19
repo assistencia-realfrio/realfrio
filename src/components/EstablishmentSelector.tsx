@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Building, Check } from "lucide-react";
-import { useClientEstablishments } from "@/hooks/useClientEstablishments";
+import { useClientEstablishments, Establishment } from "@/hooks/useClientEstablishments";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Command,
