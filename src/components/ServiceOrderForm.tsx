@@ -280,12 +280,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
             name="establishment_id"
             render={({ field }) => (
               <FormItem>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex items-center gap-2"> {/* Alterado para flex items-center gap-2 */}
                   <div className="flex-grow w-full min-w-0">
                     <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
                   </div>
-                  <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                    {/* REMOVIDO: Botão 'Ver Estabelecimentos' */}
+                  <div className="flex gap-2 flex-shrink-0"> {/* Removido w-full sm:w-auto justify-start sm:justify-end */}
                     <a 
                         href={establishmentHasMapLink ? getMapHref(establishmentDetails!.google_maps_link!) : "#"}
                         target="_blank" 
@@ -297,7 +296,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             variant="outline" 
                             size="icon"
                             disabled={!establishmentHasMapLink}
-                            className="flex-1 sm:flex-none"
                             aria-label="Ver no Mapa do Estabelecimento"
                         >
                             <MapPin className={cn("h-4 w-4", establishmentHasMapLink ? 'text-blue-600' : '')} />
@@ -312,7 +310,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             variant="outline" 
                             size="icon"
                             disabled={!establishmentHasPhone}
-                            className="flex-1 sm:flex-none"
                             aria-label="Ligar para o Estabelecimento"
                         >
                             <Phone className={cn("h-4 w-4", establishmentHasPhone ? 'text-green-600' : '')} />
