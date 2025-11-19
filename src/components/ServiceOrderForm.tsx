@@ -193,8 +193,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         }
     }
 
-    const mutationData: ServiceOrderMutationPayload = { // Usando o novo tipo
-      client_id: restOfData.client_id, // Corrigido o typo aqui
+    const mutationData: ServiceOrderMutationPayload = {
+      client_id: restOfData.client_id,
       description: restOfData.description,
       status: restOfData.status,
       store: restOfData.store,
@@ -574,7 +574,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : "Selecione uma data"}
+                          {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : "Data do Agendamento"}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -606,7 +606,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   >
                     <FormControl>
                       <SelectTrigger className="w-full justify-between text-left font-normal">
-                        <SelectValue placeholder="Selecione a hora" />
+                        <SelectValue placeholder="Hora do Agendamento" />
                         <Clock className="ml-auto h-4 w-4 opacity-50" />
                       </SelectTrigger>
                     </FormControl>
