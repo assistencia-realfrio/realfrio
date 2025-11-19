@@ -413,10 +413,8 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Anexos</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+      {/* CardHeader e CardTitle removidos */}
+      <CardContent className="space-y-6 pt-6">
         <div className="space-y-3 border p-4 rounded-md">
           <div className="flex flex-col sm:flex-row gap-3">
             <input 
