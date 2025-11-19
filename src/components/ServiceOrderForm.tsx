@@ -611,7 +611,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="NONE_SELECTED">Nenhuma Hora</SelectItem>
+                      <SelectItem value="NONE_SELECTED"></SelectItem>
                       {timeSlots.map(time => (
                         <SelectItem key={time} value={time}>
                           {time}
