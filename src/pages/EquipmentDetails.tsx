@@ -104,7 +104,7 @@ const EquipmentDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={handleGoBack}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{equipment.name}</h2>
+            {/* Título h2 removido */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
