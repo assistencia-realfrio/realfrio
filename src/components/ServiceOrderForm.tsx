@@ -574,7 +574,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : "Data do Agendamento"}
+                          {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : ""}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
