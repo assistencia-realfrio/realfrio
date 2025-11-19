@@ -167,7 +167,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <DesktopSidebar />
         </aside>
         
-        <main className="flex-grow p-4 sm:p-6 lg:p-8">
+        <main className="flex-grow p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-8rem)]">
           {children}
         </main>
       </div>
