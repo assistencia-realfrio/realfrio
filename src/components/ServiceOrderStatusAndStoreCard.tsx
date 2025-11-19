@@ -22,10 +22,11 @@ const ServiceOrderStatusAndStoreCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  {/* FormControl removido */}
+                  <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Estado *" />
                     </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     {serviceOrderStatuses.map((s) => (
                       <SelectItem key={s} value={s}>
@@ -44,10 +45,11 @@ const ServiceOrderStatusAndStoreCard: React.FC = () => {
             render={({ field }) => (
               <FormItem>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  {/* FormControl removido */}
+                  <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Loja *" />
                     </SelectTrigger>
+                  </FormControl>
                   <SelectContent>
                     <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
                     <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
