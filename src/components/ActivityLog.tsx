@@ -61,8 +61,13 @@ const ActivityLog: React.FC<ActivityLogProps> = ({ entityType, entityId }) => {
 
   return (
     <Card>
-      {/* CardHeader e CardTitle removidos */}
-      <CardContent className="pt-6">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <List className="h-5 w-5" />
+          Histórico de Atividades
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         {activities && activities.length > 0 ? (
           <ul className="space-y-4">
             {activities.map(activity => (
