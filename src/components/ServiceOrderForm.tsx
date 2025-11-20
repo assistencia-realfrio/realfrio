@@ -25,7 +25,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector"; // NOVO SELETOR
 import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
-import { useEquipments } from "@/hooks/useEquipments";
+import { useEquipments } from "@/hooks/useEquipments"; // CORRIGIDO: Adicionado 'from'
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -71,14 +71,9 @@ const formSchema = z.object({
   establishment_id: z.string().uuid().nullable().optional(),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
-  // ALTERADO: Permite string vazia inicialmente, mas exige uma das opções na submissão
-  store: z.union([z.literal(''), z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"])], {
-    errorMap: (issue, ctx) => {
-      if (issue.code === z.ZodIssueCode.invalid_union) {
-        return { message: "Selecione uma loja." };
-      }
-      return { message: ctx.defaultError };
-    },
+  // ALTERADO: 'store' agora é um enum diretamente, tornando-o obrigatório
+  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], {
+    errorMap: () => ({ message: "Selecione uma loja." }),
   }),
   scheduled_date: z.date().nullable().optional(),
   scheduled_time: z.string().nullable().optional(), 
@@ -117,7 +112,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       establishment_id: null,
       description: "",
       status: "POR INICIAR",
-      store: "", // ALTERADO: Valor padrão vazio para novas OS
+      store: undefined, // ALTERADO: Valor padrão undefined para novas OS
       scheduled_date: null,
       scheduled_time: null,
     },
@@ -215,7 +210,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       client_id: restOfData.client_id,
       description: restOfData.description,
       status: restOfData.status,
-      store: restOfData.store as "CALDAS DA RAINHA" | "PORTO DE MÓS", // Cast para garantir o tipo correto
+      store: restOfData.store,
       equipment: equipmentDetails.name,
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
@@ -285,7 +280,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         client_id: restOfFormValues.client_id,
         description: restOfFormValues.description,
         status: restOfFormValues.status,
-        store: restOfFormValues.store as "CALDAS DA RAINHA" | "PORTO DE MÓS",
+        store: restOfFormValues.store,
         equipment: equipmentDetails.name,
         model: equipmentDetails.model,
         serial_number: equipmentDetails.serial_number,
@@ -530,8 +525,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {/* Opção vazia para forçar a seleção */}
-                        <SelectItem value="" disabled>Selecione a loja</SelectItem> 
                         <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
                         <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                       </SelectContent>
