@@ -469,7 +469,10 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0 flex-1 flex items-center justify-between">
-                      {/* AQUI: O nome do arquivo é exibido diretamente, sem um parágrafo extra */}
+                      {/* AQUI: Removido o nome do arquivo, deixando apenas o ícone/miniatura e o botão de exclusão */}
+                      {/* Se você quiser o nome do arquivo, use: <p className="text-sm font-medium truncate pr-2 flex-1 min-w-0">{stripUuidFromFile(att.name)}</p> */}
+                      
+                      {/* Se o objetivo é remover o texto longo, mas manter o nome original (truncado): */}
                       <p className="text-sm font-medium truncate pr-2 flex-1 min-w-0">{stripUuidFromFile(att.name)}</p>
                       
                       {/* Botão de Excluir agora sempre visível */}
