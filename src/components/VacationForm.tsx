@@ -15,13 +15,23 @@ import {
 } from "@/components/ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, User } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Vacation, VacationFormValues } from "@/hooks/useVacations";
+import { Profile } from "@/hooks/useProfile"; // Importar Profile
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const vacationFormSchema = z.object({
+  user_id: z.string().uuid({ message: "Selecione um colaborador válido." }).optional(), // NOVO: Campo para selecionar o utilizador
   start_date: z.date({ required_error: "A data de início é obrigatória." }),
   end_date: z.date({ required_error: "A data de fim é obrigatória." }),
   notes: z.string().max(500, { message: "As notas não podem exceder 500 caracteres." }).optional(),
@@ -32,34 +42,106 @@ const vacationFormSchema = z.object({
 
 interface VacationFormProps {
   initialData?: Vacation;
-  onSubmit: (data: VacationFormValues) => void;
+  onSubmit: (data: VacationFormValues & { userIdForRequest?: string }) => void; // Modificado para incluir userIdForRequest
   onCancel: () => void;
   isPending: boolean;
+  allProfiles: Profile[]; // NOVO: Prop para todos os perfis
+  currentUserId: string; // NOVO: Prop para o ID do utilizador atual
 }
 
-const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCancel, isPending }) => {
-  const form = useForm<VacationFormValues>({
+const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCancel, isPending, allProfiles, currentUserId }) => {
+  const form = useForm<VacationFormValues & { user_id?: string }>({ // Adicionado user_id ao tipo do useForm
     resolver: zodResolver(vacationFormSchema),
     defaultValues: initialData ? {
+      user_id: initialData.user_id, // Preenche com o user_id da férias existente
       start_date: new Date(initialData.start_date),
       end_date: new Date(initialData.end_date),
       notes: initialData.notes || "",
     } : {
+      user_id: currentUserId, // Padrão para o utilizador atual ao criar
       start_date: undefined,
       end_date: undefined,
       notes: "",
     },
   });
 
-  const handleSubmit = (data: VacationFormValues) => {
-    onSubmit(data);
+  const handleSubmit = (data: VacationFormValues & { user_id?: string }) => {
+    onSubmit({
+      start_date: data.start_date,
+      end_date: data.end_date,
+      notes: data.notes,
+      userIdForRequest: data.user_id, // Passa o user_id selecionado
+    });
   };
 
   const startDate = form.watch("start_date"); // Observa a data de início
+  const selectedUserId = form.watch("user_id");
+
+  const selectedProfile = allProfiles.find(p => p.id === selectedUserId);
+  const displayUserName = selectedProfile 
+    ? `${selectedProfile.first_name || ''} ${selectedProfile.last_name || ''}`.trim() || selectedProfile.id
+    : "Selecione um colaborador";
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        {/* NOVO: Campo de seleção de colaborador */}
+        <FormField
+          control={form.control}
+          name="user_id"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Colaborador *</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        !field.value && "text-muted-foreground"
+                      )}
+                      disabled={isPending || !!initialData} // Desabilita se estiver editando uma férias existente
+                    >
+                      {displayUserName}
+                      <User className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                  <Command>
+                    <CommandInput placeholder="Buscar colaborador..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum colaborador encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        {allProfiles.map((profile) => (
+                          <CommandItem
+                            value={`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.id}
+                            key={profile.id}
+                            onSelect={() => {
+                              form.setValue("user_id", profile.id);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                profile.id === field.value ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.id}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="start_date"

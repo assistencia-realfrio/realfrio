@@ -30,12 +30,14 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useSession } from "@/contexts/SessionContext";
 import VacationCalendar from "@/components/VacationCalendar"; // Importar o novo componente de calendário
+import { useAllProfiles } from "@/hooks/useAllProfiles"; // NOVO: Importar useAllProfiles
 
 type ViewMode = 'list' | 'calendar';
 
 const Vacations: React.FC = () => {
   const { user } = useSession();
   const { vacations, isLoading, createVacation, updateVacation, deleteVacation } = useVacations();
+  const { data: allProfiles = [], isLoading: isLoadingProfiles } = useAllProfiles(); // NOVO: Carrega todos os perfis
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingVacation, setEditingVacation] = useState<Vacation | undefined>(undefined);
   const [viewMode, setViewMode] = useState<ViewMode>('list'); // Estado para alternar a visualização
@@ -50,16 +52,24 @@ const Vacations: React.FC = () => {
     setIsFormModalOpen(false);
   };
 
-  const handleSubmit = async (data: VacationFormValues) => {
+  const handleSubmit = async (data: VacationFormValues & { userIdForRequest?: string }) => {
     try {
       const payload = {
+        user_id: data.userIdForRequest, // Usa o user_id selecionado no formulário
         start_date: data.start_date.toISOString().split('T')[0], // Formato 'YYYY-MM-DD'
         end_date: data.end_date.toISOString().split('T')[0],     // Formato 'YYYY-MM-DD'
         notes: data.notes,
       };
 
       if (editingVacation) {
-        await updateVacation.mutateAsync({ id: editingVacation.id, ...payload });
+        // Ao editar, não permitimos mudar o user_id, então removemos do payload
+        const updatePayload = {
+          id: editingVacation.id,
+          start_date: payload.start_date,
+          end_date: payload.end_date,
+          notes: payload.notes,
+        };
+        await updateVacation.mutateAsync(updatePayload);
         showSuccess("Pedido de férias atualizado com sucesso!");
       } else {
         await createVacation.mutateAsync(payload);
@@ -81,6 +91,8 @@ const Vacations: React.FC = () => {
       showError("Erro ao excluir pedido de férias. Tente novamente.");
     }
   };
+
+  const isDataLoading = isLoading || isLoadingProfiles;
 
   return (
     <Layout>
@@ -107,7 +119,6 @@ const Vacations: React.FC = () => {
             >
               <CalendarIcon className="h-4 w-4 mr-2" /> Calendário
             </Button>
-            {/* Botão "Adicionar Férias" removido daqui */}
           </div>
         </div>
 
@@ -122,7 +133,7 @@ const Vacations: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? (
+                {isDataLoading ? (
                   [...Array(5)].map((_, i) => (
                     <TableRow key={i}>
                       <TableCell><Skeleton className="h-6 w-32" /></TableCell>
@@ -185,7 +196,7 @@ const Vacations: React.FC = () => {
             </Table>
           </div>
         ) : (
-          <VacationCalendar vacations={vacations} isLoading={isLoading} />
+          <VacationCalendar vacations={vacations} isLoading={isDataLoading} />
         )}
       </div>
       
@@ -209,6 +220,8 @@ const Vacations: React.FC = () => {
             onSubmit={handleSubmit}
             onCancel={handleCloseForm}
             isPending={createVacation.isPending || updateVacation.isPending}
+            allProfiles={allProfiles} // Passa todos os perfis
+            currentUserId={user?.id || ''} // Passa o ID do utilizador atual
           />
         </DialogContent>
       </Dialog>

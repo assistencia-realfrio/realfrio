@@ -26,6 +26,7 @@ export interface VacationFormValues {
 }
 
 export interface CreateVacationPayload {
+  user_id?: string; // NOVO: user_id opcional para permitir criar férias para outros
   start_date: string; // ISO string
   end_date: string;   // ISO string
   notes?: string;
@@ -84,10 +85,12 @@ export const useVacations = () => {
     mutationFn: async (payload: CreateVacationPayload) => {
       if (!user?.id) throw new Error("Usuário não autenticado.");
 
+      const userIdToInsert = payload.user_id || user.id; // Usa o user_id fornecido ou o do utilizador atual
+
       const { data, error } = await supabase
         .from('vacations')
         .insert({
-          user_id: user.id,
+          user_id: userIdToInsert, // Usa o ID do utilizador determinado
           start_date: payload.start_date,
           end_date: payload.end_date,
           notes: payload.notes,
@@ -102,10 +105,10 @@ export const useVacations = () => {
     onSuccess: (newVacation) => {
       logActivity(user, {
         entity_type: 'profile',
-        entity_id: user?.id || '',
+        entity_id: newVacation.user_id || '', // Loga para o utilizador da solicitação
         action_type: 'created',
         content: `Solicitou férias de ${format(new Date(newVacation.start_date), 'dd/MM/yyyy')} a ${format(new Date(newVacation.end_date), 'dd/MM/yyyy')}.`,
-        details: { vacationId: newVacation.id, status: newVacation.status }
+        details: { vacationId: newVacation.id, status: newVacation.status, requestedBy: user?.email }
       });
       queryClient.invalidateQueries({ queryKey: ['vacations'] });
     },
@@ -124,7 +127,7 @@ export const useVacations = () => {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
-        .eq('user_id', user.id)
+        .eq('user_id', user.id) // Mantém a restrição de que só o próprio utilizador pode atualizar
         .select()
         .single();
 
@@ -134,7 +137,7 @@ export const useVacations = () => {
     onSuccess: (updatedVacation) => {
       logActivity(user, {
         entity_type: 'profile',
-        entity_id: user?.id || '',
+        entity_id: updatedVacation.user_id || '',
         action_type: 'updated',
         content: `Atualizou pedido de férias (ID: ${updatedVacation.id}).`,
         details: { 
@@ -156,7 +159,7 @@ export const useVacations = () => {
         .from('vacations')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id); // Mantém a restrição de que só o próprio utilizador pode excluir
 
       if (error) throw error;
       return id;
