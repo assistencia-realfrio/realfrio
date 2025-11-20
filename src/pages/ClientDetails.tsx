@@ -245,7 +245,7 @@ const ClientDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6 pb-20"> {/* ADICIONADO pb-20 AQUI */}
+      <div className="space-y-6"> {/* Removido pb-20 */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
