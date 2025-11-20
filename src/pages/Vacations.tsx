@@ -141,9 +141,9 @@ const Vacations: React.FC = () => {
               <TableRow>
                 <TableHead>Colaborador</TableHead>
                 <TableHead>Período</TableHead>
-                <TableHead>Notas</TableHead>
-                <TableHead className="text-center">Estado</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                {/* Removido TableHead para Notas */}
+                {/* Removido TableHead para Estado */}
+                {/* Removido TableHead para Ações */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,9 +152,9 @@ const Vacations: React.FC = () => {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-24 mx-auto" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-6 w-16 ml-auto" /></TableCell>
+                    {/* Removido Skeleton para Notas */}
+                    {/* Removido Skeleton para Estado */}
+                    {/* Removido Skeleton para Ações */}
                   </TableRow>
                 ))
               ) : vacations.length > 0 ? (
@@ -165,50 +165,14 @@ const Vacations: React.FC = () => {
                       {format(new Date(vacation.start_date), 'dd/MM/yyyy', { locale: ptBR })} -{" "}
                       {format(new Date(vacation.end_date), 'dd/MM/yyyy', { locale: ptBR })}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-sm max-w-[200px] truncate">
-                      {vacation.notes || 'N/A'}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant={getStatusBadgeVariant(vacation.status)} className="flex items-center justify-center gap-1 mx-auto w-fit">
-                        {getStatusIcon(vacation.status)}
-                        {vacation.status.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {user?.id === vacation.user_id && vacation.status === 'pending' && (
-                        <div className="flex justify-end space-x-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleOpenForm(vacation)} disabled={updateVacation.isPending}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive" disabled={deleteVacation.isPending}>
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Esta ação não pode ser desfeita. Isso excluirá permanentemente o seu pedido de férias.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(vacation.id)} className="bg-destructive hover:bg-destructive/90" disabled={deleteVacation.isPending}>
-                                  Excluir
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      )}
-                    </TableCell>
+                    {/* Removido TableCell para Notas */}
+                    {/* Removido TableCell para Estado */}
+                    {/* Removido TableCell para Ações */}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                  <TableCell colSpan={2} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 2 */}
                     Nenhum pedido de férias encontrado.
                   </TableCell>
                 </TableRow>
