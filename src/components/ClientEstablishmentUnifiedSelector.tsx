@@ -77,13 +77,13 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
   const displayValue = useMemo(() => {
     if (selectedEstablishmentId) {
         const est = establishments.find(e => e.id === selectedEstablishmentId);
-        return est ? `${est.client_name} - ${est.name}` : "Selecionar cliente/estabelecimento";
+        return est ? `${est.client_name} - ${est.name}` : "Selecionar cliente";
     }
     if (selectedClientId) {
         const client = clients.find(c => c.id === selectedClientId);
-        return client ? client.name : "Selecionar cliente/estabelecimento";
+        return client ? client.name : "Selecionar cliente";
     }
-    return "Selecionar cliente/estabelecimento";
+    return "Selecionar cliente";
   }, [selectedClientId, selectedEstablishmentId, clients, establishments]);
 
   const handleNewClientSubmit = async (data: ClientFormValues) => {
