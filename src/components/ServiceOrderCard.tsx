@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building, Clock } from "lucide-react"; // Importando Clock
+import { Check, MoreHorizontal, Calendar as CalendarIcon, User, HardDrive, FileText, MessageSquareText, Paperclip, Building, Clock } from "lucide-react";
 import { showLoading, dismissToast, showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -57,7 +57,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                 equipment_id: order.equipment_id || null,
                 establishment_id: order.establishment_id || null,
                 establishment_name: order.establishment_name || null,
-                scheduled_date: order.scheduled_date, // Já é string | null
+                scheduled_date: order.scheduled_date,
             });
             dismissToast(toastId);
             showSuccess("Estado da OS alterado com sucesso!");
@@ -74,7 +74,6 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
     
     const scheduledDate = order.scheduled_date ? new Date(order.scheduled_date) : null;
     
-    // NOVO: Verifica se a hora é 00:00 local (indicando que apenas a data foi agendada)
     const isTimeExplicitlySet = scheduledDate && (scheduledDate.getHours() !== 0 || scheduledDate.getMinutes() !== 0);
 
 
@@ -98,7 +97,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
                     <div className="flex items-center gap-2">
                         <Badge  
-                            className="whitespace-nowrap text-sm px-2 py-0.5 border-transparent text-black h-6 flex items-center"
+                            className="whitespace-nowrap text-xs px-2 py-0.5 border-transparent text-black h-6 flex items-center"
                             style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                         >
                             {order.status}
@@ -153,7 +152,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t">
-                        <div className="flex items-center gap-2 flex-wrap"> {/* Adicionado flex-wrap */}
+                        <div className="flex items-center gap-2 flex-wrap">
                             {scheduledDate && (
                                 <>
                                     <div className="flex items-center gap-1 text-muted-foreground">
