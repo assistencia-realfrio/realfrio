@@ -107,25 +107,7 @@ const Vacations: React.FC = () => {
             >
               <CalendarIcon className="h-4 w-4 mr-2" /> Calendário
             </Button>
-            <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => handleOpenForm()} className="h-10 px-4 py-2">
-                  <PlusCircle className="h-5 w-5 mr-2" />
-                  Adicionar Férias
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>{editingVacation ? "Editar Pedido de Férias" : "Novo Pedido de Férias"}</DialogTitle>
-                </DialogHeader>
-                <VacationForm
-                  initialData={editingVacation}
-                  onSubmit={handleSubmit}
-                  onCancel={handleCloseForm}
-                  isPending={createVacation.isPending || updateVacation.isPending}
-                />
-              </DialogContent>
-            </Dialog>
+            {/* Botão "Adicionar Férias" removido daqui */}
           </div>
         </div>
 
@@ -206,6 +188,30 @@ const Vacations: React.FC = () => {
           <VacationCalendar vacations={vacations} isLoading={isLoading} />
         )}
       </div>
+      
+      {/* Botão Flutuante para Adicionar Férias */}
+      <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
+        <DialogTrigger asChild>
+          <Button
+            onClick={() => handleOpenForm()} // Garante que o formulário é aberto para um novo item
+            className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+            aria-label="Adicionar Férias"
+          >
+            <PlusCircle className="h-8 w-8" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{editingVacation ? "Editar Pedido de Férias" : "Novo Pedido de Férias"}</DialogTitle>
+          </DialogHeader>
+          <VacationForm
+            initialData={editingVacation}
+            onSubmit={handleSubmit}
+            onCancel={handleCloseForm}
+            isPending={createVacation.isPending || updateVacation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
