@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -8,16 +8,37 @@ import { cn } from "@/lib/utils";
 import { Vacation } from "@/hooks/useVacations";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Profile } from "@/hooks/useProfile"; // Importar Profile
 
 interface VacationCalendarProps {
   vacations: Vacation[];
   isLoading: boolean;
+  allProfiles: Profile[]; // NOVO: Recebe todos os perfis
 }
 
 const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoading }) => {
+// Função para gerar uma cor HSL aleatória e convertê-la para string CSS
+const generateRandomColor = (): string => {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = Math.floor(Math.random() * (70 - 40) + 40); // 40-70% saturation
+  const lightness = Math.floor(Math.random() * (60 - 30) + 30); // 30-60% lightness for darker colors
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
+
+const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoading, allProfiles }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  // Usar useRef para armazenar as cores dos utilizadores e garantir consistência
+  const userColors = useRef<Map<string, string>>(new Map());
+
+  // Gerar cores para cada utilizador uma única vez
+  useMemo(() => {
+    allProfiles.forEach(profile => {
+      if (!userColors.current.has(profile.id)) {
+        userColors.current.set(profile.id, generateRandomColor());
+      }
+    });
+  }, [allProfiles]);
 
   const startOfCurrentMonth = startOfMonth(currentDate);
   const endOfCurrentMonth = endOfMonth(currentDate);
@@ -88,19 +109,23 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                         "h-20 w-full flex flex-col items-center p-1 rounded-md cursor-pointer transition-colors",
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
-                        dayVacations.length > 0 && "bg-blue-100 dark:bg-blue-900/20"
+                        // Removido bg-blue-100 para que a cor do utilizador seja mais visível
                       )}
                     >
                       <span className={cn(
                         "text-sm font-semibold",
                         isCurrentDay && "text-primary",
-                        dayVacations.length > 0 && "text-blue-800 dark:text-blue-200"
+                        dayVacations.length > 0 && "text-foreground" // Ajustado para foreground para melhor contraste
                       )}>
                         {format(day, "d")}
                       </span>
                       <div className="flex flex-wrap justify-center gap-0.5 mt-1 max-h-12 overflow-hidden">
                         {dayVacations.map((vac, i) => (
-                          <span key={vac.id + i} className="text-xs font-medium bg-blue-500 text-white px-1 rounded-sm leading-tight">
+                          <span 
+                            key={vac.id + i} 
+                            className="text-xs font-medium text-white px-1 rounded-sm leading-tight"
+                            style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }} // Usar cor do utilizador
+                          >
                             {vac.user_initials}
                           </span>
                         ))}
@@ -116,13 +141,19 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                       <ScrollArea className="h-48">
                         <ul className="space-y-3 pr-4">
                           {dayVacations.map(vac => (
-                            <li key={vac.id} className="text-sm">
-                              <p className="font-medium">{vac.user_full_name}</p>
-                              <p className="text-muted-foreground text-xs">
-                                {format(new Date(vac.start_date), "dd/MM/yyyy", { locale: ptBR })} -{" "}
-                                {format(new Date(vac.end_date), "dd/MM/yyyy", { locale: ptBR })}
-                              </p>
-                              {vac.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{vac.notes}</p>}
+                            <li key={vac.id} className="text-sm flex items-center gap-2">
+                              <span 
+                                className="h-3 w-3 rounded-full flex-shrink-0" 
+                                style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }}
+                              ></span>
+                              <div>
+                                <p className="font-medium">{vac.user_full_name}</p>
+                                <p className="text-muted-foreground text-xs">
+                                  {format(new Date(vac.start_date), "dd/MM/yyyy", { locale: ptBR })} -{" "}
+                                  {format(new Date(vac.end_date), "dd/MM/yyyy", { locale: ptBR })}
+                                </p>
+                                {vac.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{vac.notes}</p>}
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -134,6 +165,26 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
             })
           )}
         </div>
+
+        {/* NOVO: Legenda de Cores */}
+        {!isLoading && allProfiles.length > 0 && (
+          <div className="mt-6 pt-4 border-t">
+            <h4 className="font-semibold text-md mb-3">Legenda de Colaboradores:</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+              {allProfiles.map(profile => (
+                <div key={profile.id} className="flex items-center gap-2 text-sm">
+                  <span 
+                    className="h-4 w-4 rounded-full flex-shrink-0" 
+                    style={{ backgroundColor: userColors.current.get(profile.id) || '#9ca3af' }}
+                  ></span>
+                  <span className="truncate">
+                    {`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.id}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

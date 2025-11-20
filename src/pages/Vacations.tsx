@@ -196,7 +196,7 @@ const Vacations: React.FC = () => {
             </Table>
           </div>
         ) : (
-          <VacationCalendar vacations={vacations} isLoading={isDataLoading} />
+          <VacationCalendar vacations={vacations} isLoading={isDataLoading} allProfiles={allProfiles} />
         )}
       </div>
       
