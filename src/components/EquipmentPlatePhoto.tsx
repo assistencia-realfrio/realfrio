@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Camera, Trash2, Eye, FileText, ZoomIn, ZoomOut, X } from "lucide-react";
+import { Upload, Camera, Trash2, Eye, FileText } from "lucide-react";
 import { showSuccess, showError } from "@/utils/toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import AttachmentViewerDialog from "./AttachmentViewerDialog"; // Importar o novo componente
 
 interface EquipmentPlatePhotoProps {
   equipmentId: string;
@@ -22,155 +21,6 @@ const getCacheBustedUrl = (url: string): string => {
     const urlObj = new URL(url);
     urlObj.searchParams.set('t', timestamp.toString());
     return urlObj.toString();
-};
-
-const AttachmentPreviewDialog: React.FC<{
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  fileUrl: string;
-  fileName: string;
-}> = ({ isOpen, onOpenChange, fileUrl, fileName }) => {
-  const [zoom, setZoom] = useState(1);
-  const [isPanning, setIsPanning] = useState(false);
-  const [startPanPosition, setStartPanPosition] = useState({ x: 0, y: 0 });
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
-  const initialPinchDistanceRef = useRef(0);
-  const initialZoomRef = useRef(1);
-
-  const getDistance = (touches: React.TouchList) => {
-    return Math.sqrt(
-      Math.pow(touches[0].clientX - touches[1].clientX, 2) +
-      Math.pow(touches[0].clientY - touches[1].clientY, 2)
-    );
-  };
-
-  const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.2, 3));
-  const handleZoomOut = () => {
-    const newZoom = Math.max(zoom - 0.2, 0.5);
-    if (newZoom <= 1) {
-      setImagePosition({ x: 0, y: 0 });
-    }
-    setZoom(newZoom);
-  };
-
-  useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setZoom(1);
-        setImagePosition({ x: 0, y: 0 });
-        setIsPanning(false);
-      }, 150);
-    }
-  }, [isOpen]);
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (zoom <= 1) return;
-    e.preventDefault();
-    setIsPanning(true);
-    setStartPanPosition({
-      x: e.clientX - imagePosition.x,
-      y: e.clientY - imagePosition.y,
-    });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isPanning || zoom <= 1) return;
-    e.preventDefault();
-    setImagePosition({
-      x: e.clientX - startPanPosition.x,
-      y: e.clientY - startPanPosition.y,
-    });
-  };
-
-  const handleMouseUpOrLeave = () => {
-    setIsPanning(false);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLImageElement>) => {
-    if (e.touches.length === 2) {
-      initialPinchDistanceRef.current = getDistance(e.touches);
-      initialZoomRef.current = zoom;
-      setIsPanning(false);
-    } else if (e.touches.length === 1 && zoom > 1) {
-      const touch = e.touches[0];
-      setIsPanning(true);
-      setStartPanPosition({
-        x: touch.clientX - imagePosition.x,
-        y: touch.clientY - imagePosition.y,
-      });
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 2) {
-      if (initialPinchDistanceRef.current <= 0) return;
-      const newDistance = getDistance(e.touches);
-      const scale = newDistance / initialPinchDistanceRef.current;
-      const newZoom = Math.max(0.5, Math.min(initialZoomRef.current * scale, 3));
-      setZoom(newZoom);
-      if (newZoom <= 1) {
-        setImagePosition({ x: 0, y: 0 });
-      }
-    } else if (e.touches.length === 1 && isPanning && zoom > 1) {
-      const touch = e.touches[0];
-      setImagePosition({
-        x: touch.clientX - startPanPosition.x,
-        y: touch.clientY - startPanPosition.y,
-      });
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsPanning(false);
-    initialPinchDistanceRef.current = 0;
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-screen h-screen max-w-none p-0 bg-black/80 flex flex-col items-center justify-center border-none">
-        <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={handleZoomOut} disabled={zoom <= 0.5}>
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon" onClick={handleZoomIn} disabled={zoom >= 3}>
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            aria-label="Fechar"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div 
-          className="w-full h-full flex items-center justify-center overflow-hidden"
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUpOrLeave}
-          onMouseLeave={handleMouseUpOrLeave}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          <img 
-            src={fileUrl} 
-            alt={fileName} 
-            className="object-contain transition-transform duration-200"
-            style={{ 
-              transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${zoom})`,
-              cursor: zoom > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default',
-              touchAction: 'none',
-              maxWidth: '100%', 
-              maxHeight: '100%'
-            }}
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-            draggable="false"
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
 };
 
 const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }) => {
@@ -360,10 +210,11 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
         )}
       </CardContent>
 
-      <AttachmentPreviewDialog
+      <AttachmentViewerDialog
         isOpen={isPreviewModalOpen}
         onOpenChange={setIsPreviewModalOpen}
         fileUrl={photoUrl || ""}
+        fileType="image" // Sempre imagem para foto da chapa
         fileName="Foto da Chapa de Características"
       />
     </Card>
