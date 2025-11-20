@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
-import { PlusCircle, Calendar as CalendarIcon, Edit, Trash2 } from "lucide-react"; // Removido CheckCircle, XCircle, Clock
+import { PlusCircle, Calendar as CalendarIcon, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -23,15 +23,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useVacations, Vacation, VacationFormValues } from "@/hooks/useVacations"; // Removido VacationStatus
+import { useVacations, Vacation, VacationFormValues } from "@/hooks/useVacations";
 import VacationForm from "@/components/VacationForm";
 import { showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useSession } from "@/contexts/SessionContext";
-// import { cn } from "@/lib/utils"; // Não é mais necessário se não houver badges de status
-
-// Funções getStatusBadgeVariant e getStatusIcon removidas
 
 const Vacations: React.FC = () => {
   const { user } = useSession();
@@ -93,7 +90,7 @@ const Vacations: React.FC = () => {
             <DialogTrigger asChild>
               <Button onClick={() => handleOpenForm()} className="h-10 px-4 py-2">
                 <PlusCircle className="h-5 w-5 mr-2" />
-                Solicitar Férias
+                Adicionar Férias
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -116,7 +113,7 @@ const Vacations: React.FC = () => {
               <TableRow>
                 <TableHead>Colaborador</TableHead>
                 <TableHead>Período</TableHead>
-                <TableHead className="text-right">Ações</TableHead> {/* Adicionado de volta para edição/exclusão */}
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -137,7 +134,7 @@ const Vacations: React.FC = () => {
                       {format(new Date(vacation.end_date), 'dd/MM/yyyy', { locale: ptBR })}
                     </TableCell>
                     <TableCell className="text-right">
-                      {user?.id === vacation.user_id && ( // Ações visíveis apenas para o próprio usuário
+                      {user?.id === vacation.user_id && (
                         <div className="flex justify-end space-x-2">
                           <Button variant="ghost" size="icon" onClick={() => handleOpenForm(vacation)} disabled={updateVacation.isPending}>
                             <Edit className="h-4 w-4" />
@@ -174,7 +171,7 @@ const Vacations: React.FC = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 3 */}
+                  <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
                     Nenhum pedido de férias encontrado.
                   </TableCell>
                 </TableRow>
