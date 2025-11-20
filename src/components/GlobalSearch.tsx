@@ -46,7 +46,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
             {clients.map((client) => (
               <CommandItem
                 key={`client-${client.id}`}
-                value={`Cliente ${client.name}`}
+                value={`Cliente ${client.name} ${client.billing_name || ''}`}
                 onSelect={() => runCommand(() => navigate(`/clients/${client.id}`))}
               >
                 <Users className="mr-2 h-4 w-4" />

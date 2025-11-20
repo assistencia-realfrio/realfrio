@@ -56,7 +56,7 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
         clientName: c.name,
         establishmentId: null,
         establishmentName: null,
-        searchKey: `cliente ${c.name} ${c.locality || ''} ${c.contact || ''}`,
+        searchKey: `cliente ${c.name} ${c.billing_name || ''} ${c.locality || ''} ${c.contact || ''}`, // Adicionado billing_name
     }));
 
     const establishmentItems = establishments.map(e => ({
