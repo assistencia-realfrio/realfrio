@@ -25,7 +25,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector"; // NOVO SELETOR
 import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
-import { useEquipments } from "@/hooks/useEquipments";
+import { useEquipments } from "@/hooks/useEquipments"; // CORRIGIDO: Adicionado 'from'
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -379,7 +379,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         <Button 
                             type="button" 
                             variant="outline" 
-                            size="icon" {/* Alterado para size="icon" */}
+                            size="icon"
                             onClick={handleViewEstablishmentDetails} 
                             className="flex-1 sm:flex-none"
                             aria-label="Ver Estabelecimento"
@@ -389,7 +389,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         <Button 
                             type="button" 
                             variant="outline" 
-                            size="icon" {/* Alterado para size="icon" */}
+                            size="icon"
                             onClick={handleOpenEstablishmentMap}
                             disabled={!hasEstablishmentMapLink}
                             className="flex-1 sm:flex-none"
@@ -400,7 +400,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         <Button 
                             type="button" 
                             variant="outline" 
-                            size="icon" {/* Alterado para size="icon" */}
+                            size="icon"
                             onClick={handleCallEstablishmentPhone}
                             disabled={!hasEstablishmentPhone}
                             className="flex-1 sm:flex-none"
