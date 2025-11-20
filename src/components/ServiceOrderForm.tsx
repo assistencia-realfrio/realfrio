@@ -25,7 +25,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector"; // NOVO SELETOR
 import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
-import { useEquipments } from "@/hooks/useEquipments"; // CORRIGIDO: Adicionado 'from'
+import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -71,7 +71,6 @@ const formSchema = z.object({
   establishment_id: z.string().uuid().nullable().optional(),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
-  // ALTERADO: 'store' agora é um enum diretamente, tornando-o obrigatório
   store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"], {
     errorMap: () => ({ message: "Selecione uma loja." }),
   }),
@@ -112,7 +111,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       establishment_id: null,
       description: "",
       status: "POR INICIAR",
-      store: undefined, // ALTERADO: Valor padrão undefined para novas OS
+      store: undefined, // Valor padrão undefined para novas OS
       scheduled_date: null,
       scheduled_time: null,
     },
@@ -380,34 +379,34 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         <Button 
                             type="button" 
                             variant="outline" 
-                            size="sm"
+                            size="icon" {/* Alterado para size="icon" */}
                             onClick={handleViewEstablishmentDetails} 
                             className="flex-1 sm:flex-none"
+                            aria-label="Ver Estabelecimento"
                         >
-                            <Building className="h-4 w-4 mr-2" />
-                            Ver Estabelecimento
+                            <Building className="h-4 w-4" />
                         </Button>
                         <Button 
                             type="button" 
                             variant="outline" 
-                            size="sm"
+                            size="icon" {/* Alterado para size="icon" */}
                             onClick={handleOpenEstablishmentMap}
                             disabled={!hasEstablishmentMapLink}
                             className="flex-1 sm:flex-none"
+                            aria-label="Ver no Mapa"
                         >
-                            <MapPin className={cn("h-4 w-4 mr-2", hasEstablishmentMapLink ? 'text-blue-600' : '')} />
-                            Ver no Mapa
+                            <MapPin className={cn("h-4 w-4", hasEstablishmentMapLink ? 'text-blue-600' : '')} />
                         </Button>
                         <Button 
                             type="button" 
                             variant="outline" 
-                            size="sm"
+                            size="icon" {/* Alterado para size="icon" */}
                             onClick={handleCallEstablishmentPhone}
                             disabled={!hasEstablishmentPhone}
                             className="flex-1 sm:flex-none"
+                            aria-label="Ligar"
                         >
-                            <Phone className={cn("h-4 w-4 mr-2", hasEstablishmentPhone ? 'text-green-600' : '')} />
-                            Ligar
+                            <Phone className={cn("h-4 w-4", hasEstablishmentPhone ? 'text-green-600' : '')} />
                         </Button>
                     </div>
                 </div>
