@@ -55,6 +55,8 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
     onSubmit(data);
   };
 
+  const startDate = form.watch("start_date"); // Observa a data de início
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -124,6 +126,7 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                     onSelect={field.onChange}
                     initialFocus
                     locale={ptBR}
+                    fromDate={startDate || undefined} // NOVO: Define a data mínima selecionável
                   />
                 </PopoverContent>
               </Popover>
