@@ -81,7 +81,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             disabled
             className="w-full justify-between text-muted-foreground"
         >
-            Selecione um cliente primeiro
+            Equipamento {/* ALTERADO: Texto do placeholder */}
             <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
     );
