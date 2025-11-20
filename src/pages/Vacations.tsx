@@ -23,8 +23,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useVacations, Vacation, VacationFormValues } from "@/hooks/useVacations";
-import VacationForm from "@/components/VacationForm";
+import { useVacations, Vacation } from "@/hooks/useVacations"; // Removido VacationFormValues daqui
+import VacationForm, { VacationFormValues } from "@/components/VacationForm"; // CORRIGIDO: Importando VacationFormValues do componente
 import { showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -52,9 +52,10 @@ const Vacations: React.FC = () => {
 
   const handleSubmit = async (data: VacationFormValues) => {
     try {
+      // Extrair start_date e end_date do objeto dateRange
       const payload = {
-        start_date: data.start_date.toISOString().split('T')[0], // Formato 'YYYY-MM-DD'
-        end_date: data.end_date.toISOString().split('T')[0],     // Formato 'YYYY-MM-DD'
+        start_date: data.dateRange.from?.toISOString().split('T')[0] || '', // Formato 'YYYY-MM-DD'
+        end_date: data.dateRange.to?.toISOString().split('T')[0] || '',     // Formato 'YYYY-MM-DD'
         notes: data.notes,
       };
 
