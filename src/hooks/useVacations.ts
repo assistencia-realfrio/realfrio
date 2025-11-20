@@ -4,14 +4,14 @@ import { useSession } from "@/contexts/SessionContext";
 import { logActivity } from "@/utils/activityLogger";
 import { format } from "date-fns";
 
-export type VacationStatus = 'pending' | 'approved' | 'rejected';
+export type VacationStatus = 'pending' | 'approved' | 'rejected'; // Mantido para compatibilidade, mas não será usado ativamente
 
 export interface Vacation {
   id: string;
   user_id: string;
   start_date: string; // ISO string
   end_date: string;   // ISO string
-  status: VacationStatus;
+  status: VacationStatus; // Mantido, mas pode ser ignorado na UI
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -35,12 +35,11 @@ export interface UpdateVacationPayload {
   start_date?: string; // ISO string
   end_date?: string;   // ISO string
   notes?: string;
-  status?: VacationStatus;
+  // status?: VacationStatus; // Removido, pois não haverá atualização de status pela UI
 }
 
-const fetchVacations = async (userId: string | undefined): Promise<Vacation[]> => {
-  if (!userId) return [];
-
+// A função fetchVacations agora busca todas as férias para todos os usuários
+const fetchVacations = async (): Promise<Vacation[]> => {
   const { data, error } = await supabase
     .from('vacations')
     .select(`
@@ -75,9 +74,9 @@ export const useVacations = () => {
   const queryClient = useQueryClient();
 
   const { data: vacations = [], isLoading, error } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations', user?.id],
-    queryFn: () => fetchVacations(user?.id),
-    enabled: !!user?.id,
+    queryKey: ['vacations'], // Chave de query não depende mais do user.id para buscar
+    queryFn: () => fetchVacations(), // Não passa user.id para o fetch
+    enabled: !!user?.id, // Ainda habilita apenas se o usuário estiver logado
   });
 
   const createVacationMutation = useMutation({
@@ -91,7 +90,7 @@ export const useVacations = () => {
           start_date: payload.start_date,
           end_date: payload.end_date,
           notes: payload.notes,
-          status: 'pending',
+          status: 'pending', // Ainda define como 'pending' por padrão no DB
         })
         .select()
         .single();

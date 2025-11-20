@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Layout from "@/components/Layout";
-import { PlusCircle, Calendar as CalendarIcon, Edit, Trash2, CheckCircle, XCircle, Clock } from "lucide-react";
+import { PlusCircle, Calendar as CalendarIcon, Edit, Trash2 } from "lucide-react"; // Removido CheckCircle, XCircle, Clock
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -22,41 +22,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useVacations, Vacation, VacationFormValues, VacationStatus } from "@/hooks/useVacations";
+import { useVacations, Vacation, VacationFormValues } from "@/hooks/useVacations"; // Removido VacationStatus
 import VacationForm from "@/components/VacationForm";
 import { showSuccess, showError } from "@/utils/toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useSession } from "@/contexts/SessionContext";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils"; // Não é mais necessário se não houver badges de status
 
-const getStatusBadgeVariant = (status: VacationStatus): "default" | "secondary" | "destructive" | "outline" => {
-  switch (status) {
-    case "approved":
-      return "default";
-    case "pending":
-      return "secondary";
-    case "rejected":
-      return "destructive";
-    default:
-      return "outline";
-  }
-};
-
-const getStatusIcon = (status: VacationStatus) => {
-  switch (status) {
-    case "approved":
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
-    case "pending":
-      return <Clock className="h-4 w-4 text-yellow-500" />;
-    case "rejected":
-      return <XCircle className="h-4 w-4 text-red-500" />;
-    default:
-      return null;
-  }
-};
+// Funções getStatusBadgeVariant e getStatusIcon removidas
 
 const Vacations: React.FC = () => {
   const { user } = useSession();
@@ -112,7 +87,7 @@ const Vacations: React.FC = () => {
         <div className="flex justify-between items-center gap-4">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             <CalendarIcon className="h-7 w-7" />
-            Gestão de Férias
+            Agenda de Férias
           </h2>
           <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
             <DialogTrigger asChild>
@@ -141,9 +116,7 @@ const Vacations: React.FC = () => {
               <TableRow>
                 <TableHead>Colaborador</TableHead>
                 <TableHead>Período</TableHead>
-                {/* Removido TableHead para Notas */}
-                {/* Removido TableHead para Estado */}
-                {/* Removido TableHead para Ações */}
+                <TableHead className="text-right">Ações</TableHead> {/* Adicionado de volta para edição/exclusão */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,9 +125,7 @@ const Vacations: React.FC = () => {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-40" /></TableCell>
-                    {/* Removido Skeleton para Notas */}
-                    {/* Removido Skeleton para Estado */}
-                    {/* Removido Skeleton para Ações */}
+                    <TableCell className="text-right"><Skeleton className="h-6 w-20 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : vacations.length > 0 ? (
@@ -165,14 +136,45 @@ const Vacations: React.FC = () => {
                       {format(new Date(vacation.start_date), 'dd/MM/yyyy', { locale: ptBR })} -{" "}
                       {format(new Date(vacation.end_date), 'dd/MM/yyyy', { locale: ptBR })}
                     </TableCell>
-                    {/* Removido TableCell para Notas */}
-                    {/* Removido TableCell para Estado */}
-                    {/* Removido TableCell para Ações */}
+                    <TableCell className="text-right">
+                      {user?.id === vacation.user_id && ( // Ações visíveis apenas para o próprio usuário
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenForm(vacation)} disabled={updateVacation.isPending}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="text-destructive" disabled={deleteVacation.isPending}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação não pode ser desfeita. Isso excluirá permanentemente este pedido de férias.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(vacation.id)} 
+                                  className="bg-destructive hover:bg-destructive/90"
+                                  disabled={deleteVacation.isPending}
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={2} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 2 */}
+                  <TableCell colSpan={3} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 3 */}
                     Nenhum pedido de férias encontrado.
                   </TableCell>
                 </TableRow>
