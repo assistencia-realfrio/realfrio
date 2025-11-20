@@ -4,18 +4,19 @@ import { useSession } from "@/contexts/SessionContext";
 import { logActivity } from "@/utils/activityLogger";
 import { format } from "date-fns";
 
-export type VacationStatus = 'pending' | 'approved' | 'rejected'; // Mantido para compatibilidade, mas não será usado ativamente
+export type VacationStatus = 'pending' | 'approved' | 'rejected';
 
 export interface Vacation {
   id: string;
   user_id: string;
   start_date: string; // ISO string
   end_date: string;   // ISO string
-  status: VacationStatus; // Mantido, mas pode ser ignorado na UI
+  status: VacationStatus;
   notes: string | null;
   created_at: string;
   updated_at: string;
   user_full_name: string; // From profiles join
+  user_initials: string; // NOVO: Iniciais do utilizador
 }
 
 export interface VacationFormValues {
@@ -35,10 +36,8 @@ export interface UpdateVacationPayload {
   start_date?: string; // ISO string
   end_date?: string;   // ISO string
   notes?: string;
-  // status?: VacationStatus; // Removido, pois não haverá atualização de status pela UI
 }
 
-// A função fetchVacations agora busca todas as férias para todos os usuários
 const fetchVacations = async (): Promise<Vacation[]> => {
   const { data, error } = await supabase
     .from('vacations')
@@ -54,6 +53,7 @@ const fetchVacations = async (): Promise<Vacation[]> => {
     const firstName = vacation.profiles?.first_name || '';
     const lastName = vacation.profiles?.last_name || '';
     const userFullName = `${firstName} ${lastName}`.trim() || 'Usuário Desconhecido';
+    const userInitials = ((firstName.charAt(0) || '') + (lastName.charAt(0) || '')).toUpperCase(); // Calcula as iniciais
 
     return {
       id: vacation.id,
@@ -65,6 +65,7 @@ const fetchVacations = async (): Promise<Vacation[]> => {
       created_at: vacation.created_at,
       updated_at: vacation.updated_at,
       user_full_name: userFullName,
+      user_initials: userInitials, // Adiciona as iniciais
     };
   });
 };
@@ -74,9 +75,9 @@ export const useVacations = () => {
   const queryClient = useQueryClient();
 
   const { data: vacations = [], isLoading, error } = useQuery<Vacation[], Error>({
-    queryKey: ['vacations'], // Chave de query não depende mais do user.id para buscar
-    queryFn: () => fetchVacations(), // Não passa user.id para o fetch
-    enabled: !!user?.id, // Ainda habilita apenas se o usuário estiver logado
+    queryKey: ['vacations'],
+    queryFn: () => fetchVacations(),
+    enabled: !!user?.id,
   });
 
   const createVacationMutation = useMutation({
@@ -90,7 +91,7 @@ export const useVacations = () => {
           start_date: payload.start_date,
           end_date: payload.end_date,
           notes: payload.notes,
-          status: 'pending', // Ainda define como 'pending' por padrão no DB
+          status: 'pending',
         })
         .select()
         .single();
@@ -100,7 +101,7 @@ export const useVacations = () => {
     },
     onSuccess: (newVacation) => {
       logActivity(user, {
-        entity_type: 'profile', // Log como atividade de perfil
+        entity_type: 'profile',
         entity_id: user?.id || '',
         action_type: 'created',
         content: `Solicitou férias de ${format(new Date(newVacation.start_date), 'dd/MM/yyyy')} a ${format(new Date(newVacation.end_date), 'dd/MM/yyyy')}.`,
@@ -123,7 +124,7 @@ export const useVacations = () => {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
-        .eq('user_id', user.id) // RLS já garante, mas bom ter aqui também
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -132,7 +133,7 @@ export const useVacations = () => {
     },
     onSuccess: (updatedVacation) => {
       logActivity(user, {
-        entity_type: 'profile', // Log como atividade de perfil
+        entity_type: 'profile',
         entity_id: user?.id || '',
         action_type: 'updated',
         content: `Atualizou pedido de férias (ID: ${updatedVacation.id}).`,
@@ -155,14 +156,14 @@ export const useVacations = () => {
         .from('vacations')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id); // RLS já garante, mas bom ter aqui também
+        .eq('user_id', user.id);
 
       if (error) throw error;
       return id;
     },
     onSuccess: (deletedId) => {
       logActivity(user, {
-        entity_type: 'profile', // Log como atividade de perfil
+        entity_type: 'profile',
         entity_id: user?.id || '',
         action_type: 'deleted',
         content: `Removeu pedido de férias (ID: ${deletedId}).`,
