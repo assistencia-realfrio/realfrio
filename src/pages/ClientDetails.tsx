@@ -6,7 +6,7 @@ import { Client, useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench, ArrowRight } from "lucide-react";
+import { ArrowLeft, Edit, Phone, Mail, MapPin, Trash2, FolderOpen, PlusCircle, X, Building, Wrench, ArrowRight, FileText } from "lucide-react";
 import ClientOrdersTab from "@/components/ClientOrdersTab";
 import ClientEquipmentTab from "@/components/ClientEquipmentTab";
 import {
@@ -48,6 +48,16 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     return (
         <Card className="shadow-sm">
             <CardContent className="p-0">
+                {/* Item: Nome de Faturação */}
+                <div className="flex items-center gap-4 py-3 px-4 border-b">
+                    <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <FileText className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{client.billing_name || 'Nome de faturação não definido'}</p>
+                    </div>
+                </div>
+
                 {/* Item: Localização */}
                 <div className="flex items-center gap-4 py-3 px-4 border-b">
                     <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -224,6 +234,7 @@ const ClientDetails: React.FC = () => {
 
   const initialFormData: ClientFormValues = {
     name: client.name,
+    billing_name: client.billing_name || "", // NOVO: Adicionando billing_name
     contact: client.contact || "",
     email: client.email || "",
     store: client.store || "CALDAS DA RAINHA",

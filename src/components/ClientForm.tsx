@@ -24,6 +24,7 @@ import { showSuccess } from "@/utils/toast";
 // Definição do Schema de Validação
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
+  billing_name: z.string().nullable().optional(), // NOVO: Campo para nome de faturação
   // Alterado para permitir null ou string vazia
   contact: z.string().nullable().optional(),
   // Alterado para permitir null ou string vazia, e validação de e-mail
@@ -47,6 +48,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: "",
+      billing_name: "", // Valor padrão para novas criações
       contact: "",
       email: "",
       store: "CALDAS DA RAINHA", // Valor padrão para novas criações
@@ -72,6 +74,25 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
               <FormLabel>Nome do Cliente/Empresa *</FormLabel>
               <FormControl>
                 <Input placeholder="Ex: Empresa XYZ" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* NOVO: Campo para o Nome de Faturação */}
+        <FormField
+          control={form.control}
+          name="billing_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Nome de Faturação (Opcional)</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Ex: Nome para a fatura" 
+                  {...field} 
+                  value={field.value || ""} // Garante que o input receba uma string vazia em vez de null
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

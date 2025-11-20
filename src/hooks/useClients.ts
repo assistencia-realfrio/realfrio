@@ -9,6 +9,7 @@ import { logActivity } from "@/utils/activityLogger";
 export interface Client {
   id: string;
   name: string;
+  billing_name: string | null; // NOVO: Campo para nome de faturação
   contact: string | null; // Pode ser string ou null
   email: string | null; // Pode ser string ou null
   status: "Ativo" | "Inativo";
@@ -27,7 +28,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
   
   const { data, error } = await supabase
     .from('clients')
-    .select('id, name, contact, email, status, created_at, store, maps_link, locality, google_drive_link') // Adicionando 'google_drive_link'
+    .select('id, name, billing_name, contact, email, status, created_at, store, maps_link, locality, google_drive_link') // Adicionando 'billing_name'
     // .eq('created_by', userId) // REMOVIDO: Filtro por created_by
     .order('name', { ascending: true }); // Ordenar por nome alfabeticamente
 
@@ -43,6 +44,7 @@ const fetchClients = async (userId: string | undefined): Promise<Client[]> => {
     maps_link: client.maps_link || null, // Garante que maps_link seja string ou null
     locality: client.locality || null, // Garante que locality seja string ou null
     google_drive_link: client.google_drive_link || null, // Garante que google_drive_link seja string ou null
+    billing_name: client.billing_name || null, // Garante que billing_name seja string ou null
   })) as Client[];
 };
 
@@ -76,6 +78,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
     const lowerCaseSearch = searchTerm.toLowerCase();
     return (
       client.name.toLowerCase().includes(lowerCaseSearch) ||
+      client.billing_name?.toLowerCase().includes(lowerCaseSearch) || // NOVO: Busca por nome de faturação
       client.contact?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para contact
       client.email?.toLowerCase().includes(lowerCaseSearch) || // Adicionado '?' para email
       client.locality?.toLowerCase().includes(lowerCaseSearch) // NOVO: Busca por localidade
@@ -90,6 +93,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .from('clients')
         .insert({
           name: clientData.name,
+          billing_name: clientData.billing_name, // NOVO: Inserindo billing_name
           contact: clientData.contact, // Usando o valor transformado pelo Zod
           email: clientData.email,     // Usando o valor transformado pelo Zod
           created_by: user.id,
@@ -130,6 +134,7 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         .from('clients')
         .update({
           name: clientData.name,
+          billing_name: clientData.billing_name, // NOVO: Atualizando billing_name
           contact: clientData.contact,
           email: clientData.email,
           store: clientData.store,
