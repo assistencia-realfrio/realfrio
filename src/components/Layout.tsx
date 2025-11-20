@@ -67,7 +67,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm"> {/* Alterado aqui */}
+      <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm">
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-4">
             <MobileSidebar />
@@ -109,7 +109,7 @@ const Header = () => {
                         <p className="text-sm text-foreground line-clamp-2">
                           {activity.content}
                         </p>
-                        <p className="text-xs text-muted-foreground"> {/* Removido self-end */}
+                        <p className="text-xs text-muted-foreground">
                           {activity.user_full_name} • {activity.time_ago}
                         </p>
                       </DropdownMenuItem>
@@ -167,7 +167,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <DesktopSidebar />
         </aside>
         
-        <main className="flex-grow p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]"> {/* Ajustado para 4rem */}
+        <main className="flex-grow p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>

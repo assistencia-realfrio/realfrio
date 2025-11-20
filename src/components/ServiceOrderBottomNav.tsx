@@ -31,7 +31,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
 
   // Renderiza o componente usando um portal
   return ReactDOM.createPortal(
-    <div className="flex justify-around items-center h-16 gap-1 px-2 w-full">
+    <div className="fixed top-16 left-0 lg:left-64 w-full bg-card border-b z-50 flex justify-around items-center h-16 gap-1 px-2">
       {navItems.map((item) => {
         const count = getBadgeCount(item.id);
         const isDisabled = !canAccessTabs && item.id !== 'details';
