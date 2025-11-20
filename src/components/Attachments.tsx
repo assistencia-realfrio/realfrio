@@ -469,7 +469,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0 flex-1 flex items-center justify-between">
-                      <p className="text-sm font-medium truncate pr-2">{stripUuidFromFile(att.name)}</p>
+                      <p className="text-sm font-medium truncate pr-2 flex-1 min-w-0">{stripUuidFromFile(att.name)}</p>
                       
                       {/* Botão de Excluir agora sempre visível */}
                       <Button 
