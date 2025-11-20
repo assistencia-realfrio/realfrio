@@ -22,9 +22,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showSuccess, showError } from "@/utils/toast";
-import ClientSelector from "./ClientSelector";
+import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector"; // NOVO SELETOR
 import EquipmentSelector from "./EquipmentSelector";
-import EstablishmentSelector from "./EstablishmentSelector";
 import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -152,9 +151,20 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     setEquipmentDetails(details);
   };
 
-  const handleEstablishmentChange = (id: string | null, name: string | null) => {
-    form.setValue("establishment_id", id, { shouldValidate: true });
-    setEstablishmentName(name);
+  // NOVO: Handler para o seletor unificado
+  const handleClientEstablishmentChange = (result: { clientId: string, clientName: string, establishmentId: string | null, establishmentName: string | null }) => {
+    // 1. Atualiza o cliente
+    form.setValue("client_id", result.clientId, { shouldValidate: true });
+    
+    // 2. Atualiza o estabelecimento
+    form.setValue("establishment_id", result.establishmentId, { shouldValidate: true });
+    setEstablishmentName(result.establishmentName);
+    
+    // 3. Se o cliente mudou, resetamos o equipamento para forçar a re-seleção
+    if (result.clientId !== clientId) {
+        form.setValue("equipment_id", "", { shouldValidate: true });
+        setEquipmentDetails({ name: '', brand: null, model: null, serial_number: null });
+    }
   };
 
   const handleViewClientDetails = () => clientId && navigate(`/clients/${clientId}`);
@@ -294,7 +304,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
-        {/* 1. Cliente e Localização */}
+        {/* 1. Cliente e Localização (UNIFICADO) */}
         <Card>
           <CardHeader className="p-4 pb-0">
             {/* <CardTitle className="text-lg">Cliente e Localização</CardTitle> */}
@@ -305,10 +315,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="client_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cliente *</FormLabel>
+                  <FormLabel>Cliente / Estabelecimento *</FormLabel>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-grow w-full min-w-0">
-                      <ClientSelector value={field.value} onChange={field.onChange} disabled={isEditing} />
+                      <ClientEstablishmentUnifiedSelector 
+                        value={field.value} 
+                        establishmentValue={establishmentId}
+                        onChange={handleClientEstablishmentChange} 
+                        disabled={isEditing} 
+                      />
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
                       <Button 
@@ -351,7 +366,52 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               )}
             />
 
-            <FormField
+            {/* NOVO: Exibição dos detalhes do Estabelecimento selecionado */}
+            {establishmentId && selectedEstablishmentDetails && (
+                <div className="space-y-2 pt-2 border-t mt-4">
+                    <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <p className="font-semibold text-sm">Estabelecimento Selecionado: {selectedEstablishmentDetails.name}</p>
+                    </div>
+                    <div className="flex gap-2 w-full justify-start">
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleViewEstablishmentDetails} 
+                            className="flex-1 sm:flex-none"
+                        >
+                            <Building className="h-4 w-4 mr-2" />
+                            Ver Estabelecimento
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleOpenEstablishmentMap}
+                            disabled={!hasEstablishmentMapLink}
+                            className="flex-1 sm:flex-none"
+                        >
+                            <MapPin className={cn("h-4 w-4 mr-2", hasEstablishmentMapLink ? 'text-blue-600' : '')} />
+                            Ver no Mapa
+                        </Button>
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm"
+                            onClick={handleCallEstablishmentPhone}
+                            disabled={!hasEstablishmentPhone}
+                            className="flex-1 sm:flex-none"
+                        >
+                            <Phone className={cn("h-4 w-4 mr-2", hasEstablishmentPhone ? 'text-green-600' : '')} />
+                            Ligar
+                        </Button>
+                    </div>
+                </div>
+            )}
+            
+            {/* REMOVIDO: O campo EstablishmentSelector separado */}
+            {/* <FormField
               control={form.control}
               name="establishment_id"
               render={({ field }) => (
@@ -400,7 +460,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </CardContent>
         </Card>
 
