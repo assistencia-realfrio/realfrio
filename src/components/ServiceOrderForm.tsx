@@ -373,7 +373,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <div className="space-y-2 pt-2 border-t mt-4">
                     <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <p className="font-semibold text-sm">Estabelecimento Selecionado: {selectedEstablishmentDetails.name}</p>
+                        <p className="font-semibold text-sm">Estabelecimento: {selectedEstablishmentDetails.name}</p>
                     </div>
                     <div className="flex gap-2 w-full justify-start">
                         <Button 
