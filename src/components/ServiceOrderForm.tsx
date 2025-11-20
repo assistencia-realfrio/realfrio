@@ -60,7 +60,7 @@ const generateTimeSlots = (): string[] => {
       slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     }
   }
-  return slots; // CORRIGIDO: Retorna 'slots' em vez de 'timeSlots'
+  return slots;
 };
 
 const timeSlots = generateTimeSlots();
@@ -499,7 +499,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}> {/* Alterado para value={field.value} */}
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
@@ -512,7 +512,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="store"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}> {/* Alterado para value={field.value} */}
                       <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
