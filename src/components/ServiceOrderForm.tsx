@@ -71,7 +71,15 @@ const formSchema = z.object({
   establishment_id: z.string().uuid().nullable().optional(),
   description: z.string().min(1, { message: "A descrição é obrigatória." }),
   status: z.enum(serviceOrderStatuses),
-  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]),
+  // ALTERADO: Permite string vazia inicialmente, mas exige uma das opções na submissão
+  store: z.union([z.literal(''), z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"])], {
+    errorMap: (issue, ctx) => {
+      if (issue.code === z.ZodIssueCode.invalid_union) {
+        return { message: "Selecione uma loja." };
+      }
+      return { message: ctx.defaultError };
+    },
+  }),
   scheduled_date: z.date().nullable().optional(),
   scheduled_time: z.string().nullable().optional(), 
 });
@@ -109,7 +117,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       establishment_id: null,
       description: "",
       status: "POR INICIAR",
-      store: "CALDAS DA RAINHA",
+      store: "", // ALTERADO: Valor padrão vazio para novas OS
       scheduled_date: null,
       scheduled_time: null,
     },
@@ -207,7 +215,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       client_id: restOfData.client_id,
       description: restOfData.description,
       status: restOfData.status,
-      store: restOfData.store,
+      store: restOfData.store as "CALDAS DA RAINHA" | "PORTO DE MÓS", // Cast para garantir o tipo correto
       equipment: equipmentDetails.name,
       model: equipmentDetails.model,
       serial_number: equipmentDetails.serial_number,
@@ -277,7 +285,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         client_id: restOfFormValues.client_id,
         description: restOfFormValues.description,
         status: restOfFormValues.status,
-        store: restOfFormValues.store,
+        store: restOfFormValues.store as "CALDAS DA RAINHA" | "PORTO DE MÓS",
         equipment: equipmentDetails.name,
         model: equipmentDetails.model,
         serial_number: equipmentDetails.serial_number,
@@ -499,7 +507,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value}> {/* Alterado para value={field.value} */}
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
@@ -512,9 +520,18 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="store"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value}> {/* Alterado para value={field.value} */}
-                      <FormControl><SelectTrigger><SelectValue placeholder="Loja *" /></SelectTrigger></FormControl>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value} // Garante que o Select é controlado
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a loja *" /> {/* Placeholder para indicar que é obrigatório */}
+                        </SelectTrigger>
+                      </FormControl>
                       <SelectContent>
+                        {/* Opção vazia para forçar a seleção */}
+                        <SelectItem value="" disabled>Selecione a loja</SelectItem> 
                         <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
                         <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                       </SelectContent>
