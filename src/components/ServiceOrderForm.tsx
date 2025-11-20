@@ -60,7 +60,7 @@ const generateTimeSlots = (): string[] => {
       slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     }
   }
-  return timeSlots;
+  return slots; // CORRIGIDO: Retorna 'slots' em vez de 'timeSlots'
 };
 
 const timeSlots = generateTimeSlots();
@@ -409,58 +409,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     </div>
                 </div>
             )}
-            
-            {/* REMOVIDO: O campo EstablishmentSelector separado */}
-            {/* <FormField
-              control={form.control}
-              name="establishment_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estabelecimento</FormLabel>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                    <div className="flex-grow w-full min-w-0">
-                      <EstablishmentSelector clientId={clientId} value={field.value} onChange={handleEstablishmentChange} />
-                    </div>
-                    <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
-                      <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="icon"
-                          onClick={handleViewEstablishmentDetails} 
-                          disabled={!field.value}
-                          className="flex-1 sm:flex-none"
-                          aria-label="Detalhes do Estabelecimento"
-                      >
-                          <Building className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="icon"
-                          onClick={handleOpenEstablishmentMap}
-                          disabled={!hasEstablishmentMapLink}
-                          className="flex-1 sm:flex-none"
-                          aria-label="Ver no Mapa"
-                      >
-                          <MapPin className={cn("h-4 w-4", hasEstablishmentMapLink ? 'text-blue-600' : '')} />
-                      </Button>
-                      <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="icon"
-                          onClick={handleCallEstablishmentPhone}
-                          disabled={!hasEstablishmentPhone}
-                          className="flex-1 sm:flex-none"
-                          aria-label="Ligar para o Estabelecimento"
-                      >
-                          <Phone className={cn("h-4 w-4", hasEstablishmentPhone ? 'text-green-600' : '')} />
-                      </Button>
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
           </CardContent>
         </Card>
 
