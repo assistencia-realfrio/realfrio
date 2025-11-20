@@ -40,6 +40,7 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
           <TableRow>
             <TableHead>Equipamento / Modelo</TableHead>
             <TableHead>Cliente</TableHead>
+            <TableHead className="hidden sm:table-cell">Estabelecimento</TableHead> {/* NOVO: Coluna Estabelecimento */}
             <TableHead className="hidden sm:table-cell">Marca</TableHead>
             <TableHead className="hidden md:table-cell">Nº Série</TableHead>
           </TableRow>
@@ -57,13 +58,14 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
                   <div className="text-sm text-muted-foreground">{equipment.model || 'N/A'}</div>
                 </TableCell>
                 <TableCell>{equipment.client_name}</TableCell>
+                <TableCell className="hidden sm:table-cell">{equipment.establishment_name || 'Sede / N/A'}</TableCell> {/* NOVO: Exibir nome do estabelecimento */}
                 <TableCell className="hidden sm:table-cell">{equipment.brand || 'N/A'}</TableCell>
                 <TableCell className="hidden md:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 5 */}
                 Nenhum equipamento encontrado.
               </TableCell>
             </TableRow>

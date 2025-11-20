@@ -82,11 +82,11 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
             {equipments.map((equipment) => (
               <CommandItem
                 key={`equipment-${equipment.id}`}
-                value={`Equipamento ${equipment.name} ${equipment.client_name}`}
+                value={`Equipamento ${equipment.name} ${equipment.client_name} ${equipment.establishment_name || ''}`}
                 onSelect={() => runCommand(() => navigate(`/equipments/${equipment.id}`))}
               >
                 <HardDrive className="mr-2 h-4 w-4" />
-                <span>{equipment.name} ({equipment.client_name})</span>
+                <span>{equipment.name} ({equipment.client_name}{equipment.establishment_name ? ` - ${equipment.establishment_name}` : ''})</span>
               </CommandItem>
             ))}
           </CommandGroup>
