@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday, startOfWeek, endOfWeek } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday, startOfWeek, endOfWeek, isWeekend } from "date-fns"; // Adicionado isWeekend
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,10 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
   };
 
   const getVacationsForDay = (day: Date) => {
+    // Se for fim de semana, não exibe as iniciais
+    if (isWeekend(day)) {
+      return [];
+    }
     return vacations.filter(vac => {
       const startDate = new Date(vac.start_date);
       const endDate = new Date(vac.end_date);
@@ -96,7 +100,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
               // Removido o check para `!day` pois `eachDayOfInterval` agora retorna todos os dias
               const dayVacations = getVacationsForDay(day);
               const isCurrentDay = isToday(day);
-              const isWeekend = getDay(day) === 0 || getDay(day) === 6; // 0 = Domingo, 6 = Sábado
+              const isDayWeekend = isWeekend(day); // Usar a função isWeekend
 
               return (
                 <Popover key={format(day, "yyyy-MM-dd")}>
@@ -104,7 +108,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                     <div
                       className={cn(
                         "h-20 w-full flex flex-col items-center p-1 transition-colors",
-                        isWeekend ? "bg-muted" : "bg-background", // Fundo mais escuro para fins de semana
+                        isDayWeekend ? "bg-muted" : "bg-background", // Fundo mais escuro para fins de semana
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
                       )}
