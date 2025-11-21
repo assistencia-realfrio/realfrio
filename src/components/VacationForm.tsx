@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"; // Adicionado useMemo
+import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,11 +16,11 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Check, User } from "lucide-react";
-import { format, eachDayOfInterval, isWeekend } from "date-fns"; // Adicionado eachDayOfInterval, isWeekend
+import { format, eachDayOfInterval, isWeekend } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Vacation, VacationFormValues } from "@/hooks/useVacations";
-import { Profile } from "@/hooks/useProfile"; // Importar Profile
+import { Profile } from "@/hooks/useProfile";
 import {
   Command,
   CommandEmpty,
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/command";
 
 const vacationFormSchema = z.object({
-  user_id: z.string().uuid({ message: "Selecione um colaborador válido." }).optional(), // NOVO: Campo para selecionar o utilizador
+  user_id: z.string().uuid({ message: "Selecione um colaborador válido." }).optional(),
   start_date: z.date({ required_error: "A data de início é obrigatória." }),
   end_date: z.date({ required_error: "A data de fim é obrigatória." }),
   notes: z.string().max(500, { message: "As notas não podem exceder 500 caracteres." }).optional(),
@@ -42,29 +42,28 @@ const vacationFormSchema = z.object({
 
 interface VacationFormProps {
   initialData?: Vacation;
-  onSubmit: (data: VacationFormValues & { userIdForRequest?: string }) => void; // Modificado para incluir userIdForRequest
+  onSubmit: (data: VacationFormValues & { userIdForRequest?: string }) => void;
   onCancel: () => void;
   isPending: boolean;
-  allProfiles: Profile[]; // NOVO: Prop para todos os perfis
-  currentUserId: string; // NOVO: Prop para o ID do utilizador atual
+  allProfiles: Profile[];
+  currentUserId: string;
 }
 
-// Helper function to calculate working days
 const calculateWorkingDays = (startDate: Date, endDate: Date): number => {
   const days = eachDayOfInterval({ start: startDate, end: endDate });
   return days.filter(day => !isWeekend(day)).length;
 };
 
 const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCancel, isPending, allProfiles, currentUserId }) => {
-  const form = useForm<VacationFormValues & { user_id?: string }>({ // Adicionado user_id ao tipo do useForm
+  const form = useForm<VacationFormValues & { user_id?: string }>({
     resolver: zodResolver(vacationFormSchema),
     defaultValues: initialData ? {
-      user_id: initialData.user_id, // Preenche com o user_id da férias existente
+      user_id: initialData.user_id,
       start_date: new Date(initialData.start_date),
       end_date: new Date(initialData.end_date),
       notes: initialData.notes || "",
     } : {
-      user_id: currentUserId, // Padrão para o utilizador atual ao criar
+      user_id: currentUserId,
       start_date: undefined,
       end_date: undefined,
       notes: "",
@@ -76,12 +75,12 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
       start_date: data.start_date,
       end_date: data.end_date,
       notes: data.notes,
-      userIdForRequest: data.user_id, // Passa o user_id selecionado
+      userIdForRequest: data.user_id,
     });
   };
 
-  const startDate = form.watch("start_date"); // Observa a data de início
-  const endDate = form.watch("end_date"); // Observa a data de fim
+  const startDate = form.watch("start_date");
+  const endDate = form.watch("end_date");
   const selectedUserId = form.watch("user_id");
 
   const selectedProfile = allProfiles.find(p => p.id === selectedUserId);
@@ -89,7 +88,6 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
     ? `${selectedProfile.first_name || ''} ${selectedProfile.last_name || ''}`.trim() || selectedProfile.id
     : "Selecione um colaborador";
 
-  // Calcula os dias úteis dinamicamente
   const calculatedWorkingDays = useMemo(() => {
     if (startDate && endDate && endDate >= startDate) {
       return calculateWorkingDays(startDate, endDate);
@@ -100,7 +98,6 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        {/* NOVO: Campo de seleção de colaborador */}
         <FormField
           control={form.control}
           name="user_id"
@@ -117,7 +114,7 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                         "w-full justify-between",
                         !field.value && "text-muted-foreground"
                       )}
-                      disabled={isPending || !!initialData} // Desabilita se estiver editando uma férias existente
+                      disabled={isPending || !!initialData}
                     >
                       {displayUserName}
                       <User className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -186,7 +183,9 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                     onSelect={field.onChange}
                     initialFocus
                     locale={ptBR}
-                    weekStartsOn={1} // NOVO: Começa a semana na segunda-feira
+                    weekStartsOn={1}
+                    // NOVO: Desabilita fins de semana
+                    disabled={(day) => isWeekend(day)} 
                   />
                 </PopoverContent>
               </Popover>
@@ -224,8 +223,10 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                     onSelect={field.onChange}
                     initialFocus
                     locale={ptBR}
-                    fromDate={startDate || undefined} // NOVO: Define a data mínima selecionável
-                    weekStartsOn={1} // NOVO: Começa a semana na segunda-feira
+                    fromDate={startDate || undefined}
+                    weekStartsOn={1}
+                    // NOVO: Desabilita fins de semana
+                    disabled={(day) => isWeekend(day)} 
                   />
                 </PopoverContent>
               </Popover>
@@ -234,7 +235,6 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
           )}
         />
 
-        {/* NOVO: Exibição de Dias Úteis Calculados */}
         {(startDate && endDate && endDate >= startDate) && (
           <FormItem>
             <FormLabel>Dias Úteis</FormLabel>
