@@ -135,8 +135,8 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                     <div
                       className={cn(
                         "h-20 w-full flex flex-col items-center p-1 transition-colors",
-                        isDayWeekend ? "bg-muted" : "bg-background", // Fundo mais escuro para fins de semana
-                        isHoliday && "bg-green-50 dark:bg-green-950", // NOVO: Fundo para feriados
+                        isDayWeekend ? "bg-gray-200 dark:bg-gray-900" : "bg-gray-100 dark:bg-gray-800", // Ajustado para fins de semana mais escuros
+                        isHoliday && "bg-red-50 dark:bg-red-950", // Feriados em vermelho claro
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
                       )}
@@ -174,10 +174,10 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                         <ul className="space-y-3 pr-4">
                           {dayHolidays.length > 0 && (
                             <>
-                              <p className="text-sm font-bold text-green-700 dark:text-green-300 mb-1">Feriados:</p>
+                              <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-1">Feriados:</p>
                               {dayHolidays.map((holiday, hIdx) => (
                                 <li key={`holiday-${hIdx}`} className="text-sm flex items-center gap-2">
-                                  <span className="h-3 w-3 rounded-full flex-shrink-0 bg-green-500"></span>
+                                  <span className="h-3 w-3 rounded-full flex-shrink-0 bg-red-500"></span>
                                   <p className="font-medium">{holiday.name}</p>
                                 </li>
                               ))}
