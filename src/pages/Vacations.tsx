@@ -41,7 +41,7 @@ const Vacations: React.FC = () => {
   const { data: allProfiles = [], isLoading: isLoadingProfiles } = useAllProfiles(); // NOVO: Carrega todos os perfis
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingVacation, setEditingVacation] = useState<Vacation | undefined>(undefined);
-  const [viewMode, setViewMode] = useState<ViewMode>('list'); // Estado para alternar a visualização
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar'); // ALTERADO: Estado inicial para 'calendar'
 
   const handleOpenForm = (vacation?: Vacation) => {
     setEditingVacation(vacation);
