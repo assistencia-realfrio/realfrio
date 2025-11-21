@@ -12,14 +12,23 @@ interface UpcomingVacationsAlertProps {
 }
 
 const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacations, isLoading }) => {
-  const upcomingVacations = useMemo(() => {
-    if (isLoading || !vacations) return [];
-
+  // Calcula as datas da próxima semana uma vez por renderização, se não estiver carregando
+  const { startOfNextWeek, endOfNextWeek } = useMemo(() => {
+    if (isLoading) {
+      return { startOfNextWeek: null, endOfNextWeek: null };
+    }
     const today = new Date();
-    // Define a próxima semana como o período do próximo domingo ao sábado seguinte.
-    // startOfWeek com weekStartsOn: 0 (Domingo)
-    const startOfNextWeek = startOfWeek(addWeeks(today, 1), { locale: ptBR, weekStartsOn: 0 });
-    const endOfNextWeek = endOfWeek(addWeeks(today, 1), { locale: ptBR, weekStartsOn: 0 });
+    const localeOptions = { locale: ptBR, weekStartsOn: 0 as 0 | 1 | 2 | 3 | 4 | 5 | 6 };
+    const s = startOfWeek(addWeeks(today, 1), localeOptions);
+    const e = endOfWeek(addWeeks(today, 1), localeOptions);
+    return { startOfNextWeek: s, endOfNextWeek: e };
+  }, [isLoading]); // Depende apenas de isLoading
+
+  const upcomingVacations = useMemo(() => {
+    // Se estiver carregando ou as datas da próxima semana não estiverem prontas, retorna vazio
+    if (isLoading || !vacations || !startOfNextWeek || !endOfNextWeek) {
+      return [];
+    }
 
     return vacations.filter(vac => {
       const vacStartDate = parseISO(vac.start_date);
@@ -39,13 +48,14 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
       
       return overlaps;
     });
-  }, [vacations, isLoading]);
+  }, [vacations, isLoading, startOfNextWeek, endOfNextWeek]); // Agora depende dessas datas
 
   if (isLoading) {
     return <Skeleton className="h-20 w-full mb-4" />;
   }
 
-  if (upcomingVacations.length === 0) {
+  // Se não houver férias futuras ou as datas da próxima semana não estiverem definidas, não exibe o alerta
+  if (upcomingVacations.length === 0 || !startOfNextWeek || !endOfNextWeek) {
     return null;
   }
 
