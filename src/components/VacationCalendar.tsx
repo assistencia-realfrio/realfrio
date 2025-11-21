@@ -88,7 +88,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
             <div key={day}>{day}</div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-px bg-border border border-border rounded-md overflow-hidden"> {/* Adicionado bg-border e border para a grelha */}
           {isLoading ? (
             Array.from({ length: 35 }).map((_, i) => (
               <div key={i} className="h-20 w-full bg-muted rounded-md animate-pulse"></div>
@@ -96,7 +96,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
           ) : (
             daysInMonth.map((day, index) => {
               if (!day) {
-                return <div key={`empty-${index}`} className="h-20"></div>;
+                return <div key={`empty-${index}`} className="h-20 bg-background"></div>; {/* Fundo para células vazias */}
               }
               const dayVacations = getVacationsForDay(day);
               const isCurrentDay = isToday(day);
@@ -106,16 +106,15 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                   <PopoverTrigger asChild>
                     <div
                       className={cn(
-                        "h-20 w-full flex flex-col items-center p-1 rounded-md cursor-pointer transition-colors",
+                        "h-20 w-full flex flex-col items-center p-1 transition-colors bg-background", // Fundo para células de dia
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
-                        // Removido bg-blue-100 para que a cor do utilizador seja mais visível
                       )}
                     >
                       <span className={cn(
                         "text-sm font-semibold",
                         isCurrentDay && "text-primary",
-                        dayVacations.length > 0 && "text-foreground" // Ajustado para foreground para melhor contraste
+                        dayVacations.length > 0 && "text-foreground"
                       )}>
                         {format(day, "d")}
                       </span>
@@ -124,7 +123,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                           <span 
                             key={vac.id + i} 
                             className="text-xs font-medium text-white px-1 rounded-sm leading-tight"
-                            style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }} // Usar cor do utilizador
+                            style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }}
                           >
                             {vac.user_initials}
                           </span>
