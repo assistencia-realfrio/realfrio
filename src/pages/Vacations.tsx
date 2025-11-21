@@ -31,6 +31,7 @@ import { ptBR } from "date-fns/locale";
 import { useSession } from "@/contexts/SessionContext";
 import VacationCalendar from "@/components/VacationCalendar"; // Importar o novo componente de calendário
 import { useAllProfiles } from "@/hooks/useAllProfiles"; // NOVO: Importar useAllProfiles
+import UpcomingVacationsAlert from "@/components/UpcomingVacationsAlert"; // NOVO: Importar o alerta de férias
 
 type ViewMode = 'list' | 'calendar';
 
@@ -121,6 +122,9 @@ const Vacations: React.FC = () => {
             </Button>
           </div>
         </div>
+
+        {/* NOVO: Alerta de Férias na Próxima Semana */}
+        <UpcomingVacationsAlert vacations={vacations} isLoading={isDataLoading} />
 
         {viewMode === 'list' ? (
           <div className="rounded-md border overflow-x-auto bg-white">
