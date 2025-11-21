@@ -100,13 +100,15 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
               }
               const dayVacations = getVacationsForDay(day);
               const isCurrentDay = isToday(day);
+              const isWeekend = getDay(day) === 0 || getDay(day) === 6; // 0 = Domingo, 6 = Sábado
 
               return (
                 <Popover key={format(day, "yyyy-MM-dd")}>
                   <PopoverTrigger asChild>
                     <div
                       className={cn(
-                        "h-20 w-full flex flex-col items-center p-1 transition-colors bg-background", // Fundo para células de dia
+                        "h-20 w-full flex flex-col items-center p-1 transition-colors",
+                        isWeekend ? "bg-muted" : "bg-background", // Fundo mais escuro para fins de semana
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
                       )}
