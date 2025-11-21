@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday, startOfWeek, endOfWeek, isWeekend } from "date-fns"; // Adicionado isWeekend
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday, startOfWeek, endOfWeek, isWeekend } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,26 @@ interface VacationCalendarProps {
 }
 
 const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]; // ALTERADO: Ordem dos dias da semana
+
+// Interface para um feriado
+interface Holiday {
+  date: string; // "MM-DD" format
+  name: string;
+}
+
+// Lista de feriados nacionais de Portugal (datas fixas)
+const portugueseNationalHolidays: Holiday[] = [
+  { date: "01-01", name: "Ano Novo" },
+  { date: "04-25", name: "Dia da Liberdade" },
+  { date: "05-01", name: "Dia do Trabalhador" },
+  { date: "06-10", name: "Dia de Portugal, de Camões e das Comunidades Portuguesas" },
+  { date: "08-15", name: "Assunção de Nossa Senhora" },
+  { date: "10-05", name: "Implantação da República" },
+  { date: "11-01", name: "Dia de Todos os Santos" },
+  { date: "12-01", name: "Restauração da Independência" },
+  { date: "12-08", name: "Imaculada Conceição" },
+  { date: "12-25", name: "Natal" },
+];
 
 // Função para gerar uma cor HSL aleatória e convertê-la para string CSS
 const generateRandomColor = (): string => {
@@ -71,6 +91,12 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
     });
   };
 
+  // NOVO: Função para obter feriados para um determinado dia
+  const getHolidaysForDay = (day: Date): Holiday[] => {
+    const monthDay = format(day, "MM-dd");
+    return portugueseNationalHolidays.filter(holiday => holiday.date === monthDay);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -97,10 +123,11 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
             ))
           ) : (
             daysInMonth.map((day, index) => {
-              // Removido o check para `!day` pois `eachDayOfInterval` agora retorna todos os dias
               const dayVacations = getVacationsForDay(day);
+              const dayHolidays = getHolidaysForDay(day); // NOVO: Obter feriados para o dia
               const isCurrentDay = isToday(day);
               const isDayWeekend = isWeekend(day); // Usar a função isWeekend
+              const isHoliday = dayHolidays.length > 0; // NOVO: Verificar se é feriado
 
               return (
                 <Popover key={format(day, "yyyy-MM-dd")}>
@@ -109,6 +136,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                       className={cn(
                         "h-20 w-full flex flex-col items-center p-1 transition-colors",
                         isDayWeekend ? "bg-muted" : "bg-background", // Fundo mais escuro para fins de semana
+                        isHoliday && "bg-green-50 dark:bg-green-950", // NOVO: Fundo para feriados
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
                       )}
@@ -136,32 +164,52 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                       </div>
                     </div>
                   </PopoverTrigger>
-                  {dayVacations.length > 0 && (
+                  {/* NOVO: PopoverContent para exibir feriados e férias */}
+                  {dayVacations.length > 0 || dayHolidays.length > 0 ? (
                     <PopoverContent className="w-80 p-4">
-                      <h4 className="font-semibold text-lg mb-2">Férias em {format(day, "dd/MM/yyyy", { locale: ptBR })}</h4>
+                      <h4 className="font-semibold text-lg mb-2">
+                        {format(day, "dd/MM/yyyy", { locale: ptBR })}
+                      </h4>
                       <ScrollArea className="h-48">
                         <ul className="space-y-3 pr-4">
-                          {dayVacations.map(vac => (
-                            <li key={vac.id} className="text-sm flex items-center gap-2">
-                              <span 
-                                className="h-3 w-3 rounded-full flex-shrink-0" 
-                                style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }}
-                              ></span>
-                              <div>
-                                <p className="font-medium">{vac.user_full_name}</p>
-                                <p className="text-muted-foreground text-xs">
-                                  {format(new Date(vac.start_date), "dd/MM/yyyy", { locale: ptBR })} -{" "}
-                                  {format(new Date(vac.end_date), "dd/MM/yyyy", { locale: ptBR })}
-                                  <span className="ml-2 font-semibold">({vac.working_days_count} dias úteis)</span> {/* NOVO: Exibe dias úteis */}
-                                </p>
-                                {vac.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{vac.notes}</p>}
-                              </div>
-                            </li>
-                          ))}
+                          {dayHolidays.length > 0 && (
+                            <>
+                              <p className="text-sm font-bold text-green-700 dark:text-green-300 mb-1">Feriados:</p>
+                              {dayHolidays.map((holiday, hIdx) => (
+                                <li key={`holiday-${hIdx}`} className="text-sm flex items-center gap-2">
+                                  <span className="h-3 w-3 rounded-full flex-shrink-0 bg-green-500"></span>
+                                  <p className="font-medium">{holiday.name}</p>
+                                </li>
+                              ))}
+                              {dayVacations.length > 0 && <div className="my-3 border-t border-dashed"></div>}
+                            </>
+                          )}
+                          {dayVacations.length > 0 && (
+                            <>
+                              <p className="text-sm font-bold text-primary mb-1">Férias:</p>
+                              {dayVacations.map(vac => (
+                                <li key={vac.id} className="text-sm flex items-center gap-2">
+                                  <span
+                                    className="h-3 w-3 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }}
+                                  ></span>
+                                  <div>
+                                    <p className="font-medium">{vac.user_full_name}</p>
+                                    <p className="text-muted-foreground text-xs">
+                                      {format(new Date(vac.start_date), "dd/MM/yyyy", { locale: ptBR })} -{" "}
+                                      {format(new Date(vac.end_date), "dd/MM/yyyy", { locale: ptBR })}
+                                      <span className="ml-2 font-semibold">({vac.working_days_count} dias úteis)</span>
+                                    </p>
+                                    {vac.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{vac.notes}</p>}
+                                  </div>
+                                </li>
+                              ))}
+                            </>
+                          )}
                         </ul>
                       </ScrollArea>
                     </PopoverContent>
-                  )}
+                  ) : null}
                 </Popover>
               );
             })
