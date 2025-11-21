@@ -122,12 +122,14 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
+      queryClient.invalidateQueries({ queryKey: ['allEstablishments'] }); // Invalida estabelecimentos para atualizar nomes de clientes
+      queryClient.invalidateQueries({ queryKey: ['allEquipments'] }); // Invalida equipamentos para atualizar nomes de clientes
     },
   });
 
   const updateClientMutation = useMutation({
     mutationFn: async ({ id, ...clientData }: ClientFormValues & { id: string }) => {
-      // Busca o nome antigo para o log
+      // Busca o cliente antigo para o log
       const oldClient = queryClient.getQueryData<Client[]>(['clients', user?.id])?.find(c => c.id === id);
 
       const { data, error } = await supabase
@@ -151,23 +153,54 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
         console.error("Erro do Supabase na atualização do cliente:", error);
         throw error;
       }
-      return { updatedClient: data as Client, oldClientName: oldClient?.name };
+      return { updatedClient: data as Client, oldClient };
     },
-    onSuccess: ({ updatedClient, oldClientName }) => {
+    onSuccess: ({ updatedClient, oldClient }) => {
+      const changes: Record<string, { oldValue?: any; newValue?: any }> = {};
+
+      // Comparar e registrar alterações
+      if (oldClient?.name !== updatedClient.name) {
+        changes.name = { oldValue: oldClient?.name, newValue: updatedClient.name };
+      }
+      if (oldClient?.billing_name !== updatedClient.billing_name) {
+        changes.billing_name = { oldValue: oldClient?.billing_name, newValue: updatedClient.billing_name };
+      }
+      if (oldClient?.contact !== updatedClient.contact) {
+        changes.contact = { oldValue: oldClient?.contact, newValue: updatedClient.contact };
+      }
+      if (oldClient?.email !== updatedClient.email) {
+        changes.email = { oldValue: oldClient?.email, newValue: updatedClient.email };
+      }
+      if (oldClient?.store !== updatedClient.store) {
+        changes.store = { oldValue: oldClient?.store, newValue: updatedClient.store };
+      }
+      if (oldClient?.maps_link !== updatedClient.maps_link) {
+        changes.maps_link = { oldValue: oldClient?.maps_link, newValue: updatedClient.maps_link };
+      }
+      if (oldClient?.locality !== updatedClient.locality) {
+        changes.locality = { oldValue: oldClient?.locality, newValue: updatedClient.locality };
+      }
+      if (oldClient?.google_drive_link !== updatedClient.google_drive_link) {
+        changes.google_drive_link = { oldValue: oldClient?.google_drive_link, newValue: updatedClient.google_drive_link };
+      }
+
       const clientName = updatedClient.name;
-      const content = oldClientName && oldClientName !== clientName 
-        ? `Cliente "${oldClientName}" foi renomeado para "${clientName}" e atualizado.`
+      const content = oldClient?.name && oldClient.name !== clientName 
+        ? `Cliente "${oldClient.name}" foi renomeado para "${clientName}" e atualizado.`
         : `Cliente "${clientName}" foi atualizado.`;
 
       logActivity(user, {
         entity_type: 'client',
         entity_id: updatedClient.id,
         action_type: 'updated',
-        content: content
+        content: content,
+        details: changes, // Passar os detalhes das alterações
       });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); 
+      queryClient.invalidateQueries({ queryKey: ['allEstablishments'] }); // Invalida estabelecimentos para atualizar nomes de clientes
+      queryClient.invalidateQueries({ queryKey: ['allEquipments'] }); // Invalida equipamentos para atualizar nomes de clientes
     },
   });
 
@@ -193,6 +226,8 @@ export const useClients = (searchTerm: string = "", storeFilter: "ALL" | Client[
       queryClient.invalidateQueries({ queryKey: ['clients'] });
       queryClient.invalidateQueries({ queryKey: ['clientNames'] }); 
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['allEstablishments'] }); // Invalida estabelecimentos para remover os do cliente excluído
+      queryClient.invalidateQueries({ queryKey: ['allEquipments'] }); // Invalida equipamentos para remover os do cliente excluído
     },
   });
 

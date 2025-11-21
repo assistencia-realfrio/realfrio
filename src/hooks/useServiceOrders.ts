@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { format } from "date-fns";
+import { ptBR } from "date-fns/locale"; // Importação adicionada
 import { ServiceOrderStatus, serviceOrderStatuses } from "@/lib/serviceOrderStatus";
 import { logActivity } from "@/utils/activityLogger";
 import { showError } from "@/utils/toast";
@@ -161,6 +162,8 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, ...orderData }: ServiceOrderMutationPayload & { id: string }) => { // Usando o novo tipo
+      // Obter a ordem de serviço antiga antes da atualização
+      const oldOrder = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders', 'ALL', 'ALL', 'all'])?.find(o => o.id === id);
       
       // 1. Criar um payload que contenha APENAS os campos da tabela 'service_orders'
       const payloadForSupabase: ServiceOrderMutationPayload = { // Explicitamente tipado
@@ -189,28 +192,71 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         console.error("[Supabase Error] Failed to update service order:", error);
         throw error;
       }
-      return { updatedOrder: data as ServiceOrder, oldOrder: null }; // Simplificado para evitar fetch extra
+      return { updatedOrder: data as ServiceOrder, oldOrder };
     },
-    onSuccess: ({ updatedOrder }) => {
+    onSuccess: ({ updatedOrder, oldOrder }) => {
+      const changes: Record<string, { oldValue?: any; newValue?: any }> = {};
+
+      // Comparar e registrar alterações
+      if (oldOrder?.description !== updatedOrder.description) {
+        changes.description = { oldValue: oldOrder?.description, newValue: updatedOrder.description };
+      }
+      if (oldOrder?.status !== updatedOrder.status) {
+        changes.status = { oldValue: oldOrder?.status, newValue: updatedOrder.status };
+      }
+      if (oldOrder?.store !== updatedOrder.store) {
+        changes.store = { oldValue: oldOrder?.store, newValue: updatedOrder.store };
+      }
+      if (oldOrder?.equipment !== updatedOrder.equipment) {
+        changes.equipment = { oldValue: oldOrder?.equipment, newValue: updatedOrder.equipment };
+      }
+      if (oldOrder?.model !== updatedOrder.model) {
+        changes.model = { oldValue: oldOrder?.model, newValue: updatedOrder.model };
+      }
+      if (oldOrder?.serial_number !== updatedOrder.serial_number) {
+        changes.serial_number = { oldValue: oldOrder?.serial_number, newValue: updatedOrder.serial_number };
+      }
+      if (oldOrder?.equipment_id !== updatedOrder.equipment_id) {
+        changes.equipment_id = { oldValue: oldOrder?.equipment_id, newValue: updatedOrder.equipment_id };
+      }
+      if (oldOrder?.establishment_id !== updatedOrder.establishment_id) {
+        changes.establishment_id = { oldValue: oldOrder?.establishment_id, newValue: updatedOrder.establishment_id };
+      }
+      if (oldOrder?.establishment_name !== updatedOrder.establishment_name) {
+        changes.establishment_name = { oldValue: oldOrder?.establishment_name, newValue: updatedOrder.establishment_name };
+      }
+      
+      // Formatar datas para exibição no log
+      const oldScheduledDate = oldOrder?.scheduled_date ? format(new Date(oldOrder.scheduled_date), 'dd/MM/yyyy HH:mm', { locale: ptBR }) : null;
+      const newScheduledDate = updatedOrder.scheduled_date ? format(new Date(updatedOrder.scheduled_date), 'dd/MM/yyyy HH:mm', { locale: ptBR }) : null;
+
+      if (oldScheduledDate !== newScheduledDate) {
+        changes.scheduled_date = { oldValue: oldScheduledDate, newValue: newScheduledDate };
+      }
+
       logActivity(user, {
         entity_type: 'service_order',
         entity_id: updatedOrder.id,
         action_type: 'updated',
         content: `OS "${updatedOrder.display_id}" foi atualizada.`,
+        details: changes, // Passar os detalhes das alterações
       });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] }); // Invalida atividades para atualizar
+      queryClient.invalidateQueries({ queryKey: ['vacations'] }); // Invalida férias para atualizar o calendário
     },
   });
   
   const deleteOrderMutation = useMutation({
     mutationFn: async (orderId: string) => {
+      const orders = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders']);
+      const orderToDelete = orders?.find(o => o.id === orderId);
+      
       const { error } = await supabase.from('service_orders').delete().eq('id', orderId);
       if (error) throw error;
-      return orderId;
+      return { orderToDelete };
     },
-    onSuccess: (deletedOrderId) => {
-      const orders = queryClient.getQueryData<ServiceOrder[]>(['serviceOrders']);
-      const orderToDelete = orders?.find(o => o.id === deletedOrderId);
+    onSuccess: ({ orderToDelete }) => {
       if (orderToDelete) {
         logActivity(user, {
           entity_type: 'service_order',
@@ -220,6 +266,7 @@ export const useServiceOrders = (id?: string, storeFilter: ServiceOrder['store']
         });
       }
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['activities'] }); // Invalida atividades para atualizar
     },
   });
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import * as z from "zod"; // Corrigido: de '*s z' para '* as z'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +29,7 @@ export type EquipmentFormData = z.infer<typeof equipmentFormSchema>;
 
 interface EquipmentFormProps {
   clientId: string;
-  onSubmit: (equipment: Equipment) => void;
+  onSubmit: (equipment: Equipment) => void; // Agora aceita um objeto Equipment completo para edição
   onCancel: () => void;
   initialData?: Equipment; // Agora aceita um objeto Equipment completo para edição
 }
@@ -59,7 +59,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
             let resultEquipment: Equipment;
             if (isEditing && initialData?.id) {
                 // Atualizar equipamento existente
-                resultEquipment = await updateEquipment.mutateAsync({
+                const { updatedEquipment } = await updateEquipment.mutateAsync({ // Extraindo updatedEquipment
                     id: initialData.id,
                     client_id: clientId, // client_id é necessário para a mutação, mas não é alterado no form
                     name: data.name,
@@ -68,6 +68,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     serial_number: data.serial_number || undefined,
                     // google_drive_link: data.google_drive_link || undefined, // REMOVIDO: Enviando google_drive_link
                 });
+                resultEquipment = updatedEquipment; // Atribuindo apenas o objeto Equipment
                 showSuccess(`Equipamento '${data.name}' atualizado com sucesso!`);
             } else {
                 // Criar novo equipamento

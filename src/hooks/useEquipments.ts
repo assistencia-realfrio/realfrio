@@ -115,7 +115,7 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
 
   const updateEquipmentMutation = useMutation({
     mutationFn: async ({ id, ...equipmentData }: EquipmentFormValues & { id: string }) => {
-      // Busca o nome antigo para o log
+      // Busca o equipamento antigo para o log
       const oldEquipment = queryClient.getQueryData<Equipment | null>(['equipment', id, user?.id]);
 
       const { data, error } = await supabase
@@ -134,24 +134,32 @@ export const useEquipments = (clientId?: string, equipmentId?: string) => { // c
       if (error) throw error;
       
       // Retorna o objeto Equipment diretamente, que é o que o EquipmentForm espera.
-      return data as Equipment;
+      return { updatedEquipment: data as Equipment, oldEquipment };
     },
-    onSuccess: (updatedEquipment) => {
-      // Para o log, precisamos do nome antigo. Vamos tentar obtê-lo novamente ou usar o nome atual.
-      // Nota: O nome antigo é difícil de obter de forma síncrona aqui sem o objeto de contexto.
-      // Para simplificar, vamos usar o nome atual para o log, assumindo que a invalidação de cache
-      // irá corrigir o estado.
-      const equipmentName = updatedEquipment.name;
-      
-      // Se precisarmos do nome antigo para o log, teríamos que buscá-lo antes da mutação
-      // ou passar o nome antigo como parte do contexto da mutação.
-      // Por enquanto, mantemos o log simples para evitar complexidade desnecessária.
+    onSuccess: ({ updatedEquipment, oldEquipment }) => {
+      const changes: Record<string, { oldValue?: any; newValue?: any }> = {};
+
+      // Comparar e registrar alterações
+      if (oldEquipment?.name !== updatedEquipment.name) {
+        changes.name = { oldValue: oldEquipment?.name, newValue: updatedEquipment.name };
+      }
+      if (oldEquipment?.brand !== updatedEquipment.brand) {
+        changes.brand = { oldValue: oldEquipment?.brand, newValue: updatedEquipment.brand };
+      }
+      if (oldEquipment?.model !== updatedEquipment.model) {
+        changes.model = { oldValue: oldEquipment?.model, newValue: updatedEquipment.model };
+      }
+      if (oldEquipment?.serial_number !== updatedEquipment.serial_number) {
+        changes.serial_number = { oldValue: oldEquipment?.serial_number, newValue: updatedEquipment.serial_number };
+      }
+      // Adicionar outros campos do equipamento que podem ser atualizados, se houver
       
       logActivity(user, {
         entity_type: 'equipment',
         entity_id: updatedEquipment.id,
         action_type: 'updated',
-        content: `Equipamento "${equipmentName}" foi atualizado.`
+        content: `Equipamento "${updatedEquipment.name}" foi atualizado.`,
+        details: changes, // Passar os detalhes das alterações
       });
       
       queryClient.invalidateQueries({ queryKey: ['equipments', updatedEquipment.client_id] });
