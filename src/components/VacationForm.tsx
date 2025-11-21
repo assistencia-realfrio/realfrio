@@ -186,6 +186,7 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                     onSelect={field.onChange}
                     initialFocus
                     locale={ptBR}
+                    weekStartsOn={1} // NOVO: Começa a semana na segunda-feira
                   />
                 </PopoverContent>
               </Popover>
@@ -224,6 +225,7 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                     initialFocus
                     locale={ptBR}
                     fromDate={startDate || undefined} // NOVO: Define a data mínima selecionável
+                    weekStartsOn={1} // NOVO: Começa a semana na segunda-feira
                   />
                 </PopoverContent>
               </Popover>
