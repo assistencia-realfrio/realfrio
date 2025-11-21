@@ -24,45 +24,55 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
     return { startOfNextWeek: s, endOfNextWeek: e };
   }, [isLoading]); // Depende apenas de isLoading
 
-  const upcomingVacations = useMemo(() => {
-    // Se estiver carregando ou as datas da próxima semana não estiverem prontas, retorna vazio
+  const groupedVacations = useMemo(() => {
     if (isLoading || !vacations || !startOfNextWeek || !endOfNextWeek) {
-      return [];
+        return new Map<string, { name: string, periods: { start: string, end: string }[] }>();
     }
 
-    return vacations.filter(vac => {
-      const vacStartDate = parseISO(vac.start_date);
-      const vacEndDate = parseISO(vac.end_date);
+    const grouped = new Map<string, { name: string, periods: { start: string, end: string }[] }>();
 
-      // Considera apenas férias pendentes ou aprovadas
-      if (vac.status === 'rejected') return false;
+    vacations.forEach(vac => {
+        const vacStartDate = parseISO(vac.start_date);
+        const vacEndDate = parseISO(vac.end_date);
 
-      // Uma férias é "na próxima semana" se:
-      // 1. A data de início da férias está dentro da próxima semana
-      // 2. A data de fim da férias está dentro da próxima semana
-      // 3. A próxima semana está completamente contida dentro do período de férias
-      const overlaps = 
-        isWithinInterval(vacStartDate, { start: startOfNextWeek, end: endOfNextWeek }) ||
-        isWithinInterval(vacEndDate, { start: startOfNextWeek, end: endOfNextWeek }) ||
-        isWithinInterval(startOfNextWeek, { start: vacStartDate, end: vacEndDate });
-      
-      return overlaps;
+        // Considera apenas férias pendentes ou aprovadas
+        if (vac.status === 'rejected') return;
+
+        // Uma férias é "na próxima semana" se:
+        // 1. A data de início da férias está dentro da próxima semana
+        // 2. A data de fim da férias está dentro da próxima semana
+        // 3. A próxima semana está completamente contida dentro do período de férias
+        const overlaps = 
+            isWithinInterval(vacStartDate, { start: startOfNextWeek, end: endOfNextWeek }) ||
+            isWithinInterval(vacEndDate, { start: startOfNextWeek, end: endOfNextWeek }) ||
+            isWithinInterval(startOfNextWeek, { start: vacStartDate, end: vacEndDate });
+        
+        if (overlaps) {
+            const employeeId = vac.user_id;
+            const employeeName = vac.user_full_name;
+            const periodStart = format(vacStartDate, "dd/MM", { locale: ptBR });
+            const periodEnd = format(vacEndDate, "dd/MM", { locale: ptBR });
+
+            if (!grouped.has(employeeId)) {
+                grouped.set(employeeId, { name: employeeName, periods: [] });
+            }
+            grouped.get(employeeId)?.periods.push({ start: periodStart, end: periodEnd });
+        }
     });
-  }, [vacations, isLoading, startOfNextWeek, endOfNextWeek]); // Agora depende dessas datas
+
+    return grouped;
+  }, [vacations, isLoading, startOfNextWeek, endOfNextWeek]);
+
+  const displayItems = Array.from(groupedVacations.values());
 
   if (isLoading) {
     return <Skeleton className="h-20 w-full mb-4" />;
   }
 
   // Se não houver férias futuras ou as datas da próxima semana não estiverem definidas, não exibe o alerta
-  if (upcomingVacations.length === 0 || !startOfNextWeek || !endOfNextWeek) {
+  if (displayItems.length === 0 || !startOfNextWeek || !endOfNextWeek) {
     return null;
   }
-
-  const employeeNames = upcomingVacations
-    .map(vac => vac.user_full_name)
-    .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicatas
-    .join(", ");
 
   const formattedStartDate = format(startOfNextWeek, "dd/MM", { locale: ptBR });
   const formattedEndDate = format(endOfNextWeek, "dd/MM", { locale: ptBR });
@@ -72,8 +82,19 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
       <Info className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
       <AlertTitle className="text-yellow-800 dark:text-yellow-200">Férias na Próxima Semana!</AlertTitle>
       <AlertDescription className="text-yellow-700 dark:text-yellow-300">
-        Os seguintes colaboradores estarão de férias entre {formattedStartDate} e {formattedEndDate}:{" "}
-        <span className="font-semibold">{employeeNames}</span>.
+        Os seguintes colaboradores estarão de férias entre {formattedStartDate} e {formattedEndDate}:
+        <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
+            {displayItems.map((employee, index) => (
+                <li key={index}>
+                    <span className="font-semibold">{employee.name}:</span>{" "}
+                    {employee.periods.map((p, pIdx) => (
+                        <span key={pIdx}>
+                            de {p.start} a {p.end}{pIdx < employee.periods.length - 1 ? '; ' : ''}
+                        </span>
+                    ))}
+                </li>
+            ))}
+        </ul>
       </AlertDescription>
     </Alert>
   );
