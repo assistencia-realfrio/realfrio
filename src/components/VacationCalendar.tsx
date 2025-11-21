@@ -144,6 +144,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                       <span className={cn(
                         "text-sm font-semibold",
                         isCurrentDay && "text-primary",
+                        isDayWeekend && "text-muted-foreground", // Torna o número do dia mais claro no fim de semana
                         dayVacations.length > 0 && "text-foreground"
                       )}>
                         {format(day, "d")}
