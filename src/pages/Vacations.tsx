@@ -133,6 +133,7 @@ const Vacations: React.FC = () => {
                 <TableRow>
                   <TableHead>Colaborador</TableHead>
                   <TableHead>Período</TableHead>
+                  <TableHead>Dias Úteis</TableHead> {/* NOVO: Coluna para dias úteis */}
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -142,6 +143,7 @@ const Vacations: React.FC = () => {
                     <TableRow key={i}>
                       <TableCell><Skeleton className="h-6 w-32" /></TableCell>
                       <TableCell><Skeleton className="h-6 w-40" /></TableCell>
+                      <TableCell><Skeleton className="h-6 w-16" /></TableCell> {/* Skeleton para dias úteis */}
                       <TableCell className="text-right"><Skeleton className="h-6 w-20 ml-auto" /></TableCell>
                     </TableRow>
                   ))
@@ -153,6 +155,7 @@ const Vacations: React.FC = () => {
                         {format(new Date(vacation.start_date), 'dd/MM/yyyy', { locale: ptBR })} -{" "}
                         {format(new Date(vacation.end_date), 'dd/MM/yyyy', { locale: ptBR })}
                       </TableCell>
+                      <TableCell>{vacation.working_days_count}</TableCell> {/* Exibe dias úteis */}
                       <TableCell className="text-right">
                         {user?.id === vacation.user_id && (
                           <div className="flex justify-end space-x-2">
@@ -191,7 +194,7 @@ const Vacations: React.FC = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 4 */}
                       Nenhum pedido de férias encontrado.
                     </TableCell>
                   </TableRow>

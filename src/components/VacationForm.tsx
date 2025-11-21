@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react"; // Adicionado useMemo
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -16,7 +16,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Check, User } from "lucide-react";
-import { format } from "date-fns";
+import { format, eachDayOfInterval, isWeekend } from "date-fns"; // Adicionado eachDayOfInterval, isWeekend
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Vacation, VacationFormValues } from "@/hooks/useVacations";
@@ -49,6 +49,12 @@ interface VacationFormProps {
   currentUserId: string; // NOVO: Prop para o ID do utilizador atual
 }
 
+// Helper function to calculate working days
+const calculateWorkingDays = (startDate: Date, endDate: Date): number => {
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
+  return days.filter(day => !isWeekend(day)).length;
+};
+
 const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCancel, isPending, allProfiles, currentUserId }) => {
   const form = useForm<VacationFormValues & { user_id?: string }>({ // Adicionado user_id ao tipo do useForm
     resolver: zodResolver(vacationFormSchema),
@@ -75,12 +81,21 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
   };
 
   const startDate = form.watch("start_date"); // Observa a data de início
+  const endDate = form.watch("end_date"); // Observa a data de fim
   const selectedUserId = form.watch("user_id");
 
   const selectedProfile = allProfiles.find(p => p.id === selectedUserId);
   const displayUserName = selectedProfile 
     ? `${selectedProfile.first_name || ''} ${selectedProfile.last_name || ''}`.trim() || selectedProfile.id
     : "Selecione um colaborador";
+
+  // Calcula os dias úteis dinamicamente
+  const calculatedWorkingDays = useMemo(() => {
+    if (startDate && endDate && endDate >= startDate) {
+      return calculateWorkingDays(startDate, endDate);
+    }
+    return 0;
+  }, [startDate, endDate]);
 
   return (
     <Form {...form}>
@@ -216,6 +231,16 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
             </FormItem>
           )}
         />
+
+        {/* NOVO: Exibição de Dias Úteis Calculados */}
+        {(startDate && endDate && endDate >= startDate) && (
+          <FormItem>
+            <FormLabel>Dias Úteis</FormLabel>
+            <FormControl>
+              <Input value={calculatedWorkingDays} readOnly className="font-bold" />
+            </FormControl>
+          </FormItem>
+        )}
 
         <FormField
           control={form.control}

@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { logActivity } from "@/utils/activityLogger";
-import { format } from "date-fns";
+import { format, eachDayOfInterval, isWeekend } from "date-fns"; // Adicionado eachDayOfInterval, isWeekend
+import { showError } from "@/utils/toast";
 
 export type VacationStatus = 'pending' | 'approved' | 'rejected';
 
@@ -16,7 +17,8 @@ export interface Vacation {
   created_at: string;
   updated_at: string;
   user_full_name: string; // From profiles join
-  user_initials: string; // NOVO: Iniciais do utilizador
+  user_initials: string; // Iniciais do utilizador
+  working_days_count: number; // NOVO: Contagem de dias úteis
 }
 
 export interface VacationFormValues {
@@ -39,6 +41,12 @@ export interface UpdateVacationPayload {
   notes?: string;
 }
 
+// Helper function to calculate working days
+const calculateWorkingDays = (startDate: Date, endDate: Date): number => {
+  const days = eachDayOfInterval({ start: startDate, end: endDate });
+  return days.filter(day => !isWeekend(day)).length;
+};
+
 const fetchVacations = async (): Promise<Vacation[]> => {
   const { data, error } = await supabase
     .from('vacations')
@@ -54,7 +62,11 @@ const fetchVacations = async (): Promise<Vacation[]> => {
     const firstName = vacation.profiles?.first_name || '';
     const lastName = vacation.profiles?.last_name || '';
     const userFullName = `${firstName} ${lastName}`.trim() || 'Usuário Desconhecido';
-    const userInitials = ((firstName.charAt(0) || '') + (lastName.charAt(0) || '')).toUpperCase(); // Calcula as iniciais
+    const userInitials = ((firstName.charAt(0) || '') + (lastName.charAt(0) || '')).toUpperCase();
+
+    const startDateObj = new Date(vacation.start_date);
+    const endDateObj = new Date(vacation.end_date);
+    const workingDays = calculateWorkingDays(startDateObj, endDateObj); // Calculate working days
 
     return {
       id: vacation.id,
@@ -66,7 +78,8 @@ const fetchVacations = async (): Promise<Vacation[]> => {
       created_at: vacation.created_at,
       updated_at: vacation.updated_at,
       user_full_name: userFullName,
-      user_initials: userInitials, // Adiciona as iniciais
+      user_initials: userInitials,
+      working_days_count: workingDays, // Assign calculated value
     };
   });
 };
