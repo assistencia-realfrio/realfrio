@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isWithinInterval, addMonths, subMonths, getDay, isToday, startOfWeek, endOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ interface VacationCalendarProps {
   allProfiles: Profile[]; // NOVO: Recebe todos os perfis
 }
 
-const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]; // ALTERADO: Ordem dos dias da semana
 
 // Função para gerar uma cor HSL aleatória e convertê-la para string CSS
 const generateRandomColor = (): string => {
@@ -44,13 +44,11 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
   const endOfCurrentMonth = endOfMonth(currentDate);
 
   const daysInMonth = useMemo(() => {
-    const startDay = getDay(startOfCurrentMonth); // 0 for Sunday, 1 for Monday, etc.
-    const days = eachDayOfInterval({ start: startOfCurrentMonth, end: endOfCurrentMonth });
+    // ALTERADO: Calcular o primeiro e último dia da grelha para começar na segunda-feira
+    const firstDayOfGrid = startOfWeek(startOfCurrentMonth, { weekStartsOn: 1, locale: ptBR });
+    const lastDayOfGrid = endOfWeek(endOfCurrentMonth, { weekStartsOn: 1, locale: ptBR });
     
-    // Add leading empty days for alignment
-    const leadingEmptyDays = Array.from({ length: startDay }, (_, i) => null);
-    
-    return [...leadingEmptyDays, ...days];
+    return eachDayOfInterval({ start: firstDayOfGrid, end: lastDayOfGrid });
   }, [startOfCurrentMonth, endOfCurrentMonth]);
 
   const handlePreviousMonth = () => {
@@ -95,9 +93,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
             ))
           ) : (
             daysInMonth.map((day, index) => {
-              if (!day) {
-                return <div key={`empty-${index}`} className="h-20 bg-background"></div>; {/* Fundo para células vazias */}
-              }
+              // Removido o check para `!day` pois `eachDayOfInterval` agora retorna todos os dias
               const dayVacations = getVacationsForDay(day);
               const isCurrentDay = isToday(day);
               const isWeekend = getDay(day) === 0 || getDay(day) === 6; // 0 = Domingo, 6 = Sábado

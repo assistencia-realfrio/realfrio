@@ -13,19 +13,20 @@ interface UpcomingVacationsAlertProps {
 
 const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacations, isLoading }) => {
   // Calcula as datas da próxima semana uma vez por renderização, se não estiver carregando
-  const { startOfNextWeek, endOfNextWeek } = useMemo(() => {
+  const { startOfNextWeek, endOfOfNextWeek } = useMemo(() => {
     if (isLoading) {
-      return { startOfNextWeek: null, endOfNextWeek: null };
+      return { startOfNextWeek: null, endOfOfNextWeek: null };
     }
     const today = new Date();
-    const localeOptions = { locale: ptBR, weekStartsOn: 0 as 0 | 1 | 2 | 3 | 4 | 5 | 6 };
+    // ALTERADO: weekStartsOn para 1 (segunda-feira)
+    const localeOptions = { locale: ptBR, weekStartsOn: 1 as 0 | 1 | 2 | 3 | 4 | 5 | 6 }; 
     const s = startOfWeek(addWeeks(today, 1), localeOptions);
     const e = endOfWeek(addWeeks(today, 1), localeOptions);
-    return { startOfNextWeek: s, endOfNextWeek: e };
+    return { startOfNextWeek: s, endOfOfNextWeek: e };
   }, [isLoading]); // Depende apenas de isLoading
 
   const groupedVacations = useMemo(() => {
-    if (isLoading || !vacations || !startOfNextWeek || !endOfNextWeek) {
+    if (isLoading || !vacations || !startOfNextWeek || !endOfOfNextWeek) {
         return new Map<string, { name: string, periods: { start: string, end: string }[] }>();
     }
 
@@ -43,8 +44,8 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
         // 2. A data de fim da férias está dentro da próxima semana
         // 3. A próxima semana está completamente contida dentro do período de férias
         const overlaps = 
-            isWithinInterval(vacStartDate, { start: startOfNextWeek, end: endOfNextWeek }) ||
-            isWithinInterval(vacEndDate, { start: startOfNextWeek, end: endOfNextWeek }) ||
+            isWithinInterval(vacStartDate, { start: startOfNextWeek, end: endOfOfNextWeek }) ||
+            isWithinInterval(vacEndDate, { start: startOfNextWeek, end: endOfOfNextWeek }) ||
             isWithinInterval(startOfNextWeek, { start: vacStartDate, end: vacEndDate });
         
         if (overlaps) {
@@ -61,7 +62,7 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
     });
 
     return grouped;
-  }, [vacations, isLoading, startOfNextWeek, endOfNextWeek]);
+  }, [vacations, isLoading, startOfNextWeek, endOfOfNextWeek]);
 
   const displayItems = Array.from(groupedVacations.values());
 
@@ -70,12 +71,12 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
   }
 
   // Se não houver férias futuras ou as datas da próxima semana não estiverem definidas, não exibe o alerta
-  if (displayItems.length === 0 || !startOfNextWeek || !endOfNextWeek) {
+  if (displayItems.length === 0 || !startOfNextWeek || !endOfOfNextWeek) {
     return null;
   }
 
   const formattedStartDate = format(startOfNextWeek, "dd/MM", { locale: ptBR });
-  const formattedEndDate = format(endOfNextWeek, "dd/MM", { locale: ptBR });
+  const formattedEndDate = format(endOfOfNextWeek, "dd/MM", { locale: ptBR });
 
   return (
     <Alert className="mb-6 bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:border-yellow-800 dark:text-yellow-200">
