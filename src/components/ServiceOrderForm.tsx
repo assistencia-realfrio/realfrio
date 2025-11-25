@@ -121,11 +121,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const { createOrder, updateOrder } = useServiceOrders();
   const isExistingOrder = !!initialData?.id;
   
-  // Inputs should be disabled if it's an existing order AND we are NOT in editing mode.
-  const isFormDisabled = isExistingOrder && !isEditing; 
-  
-  // Client and Equipment selectors should be disabled if it's an existing order, regardless of isEditing state.
-  const isSelectorDisabled = isExistingOrder; 
+  // Client and Equipment selectors are disabled if it's an existing order AND we are NOT in editing mode.
+  const isSelectorDisabled = isExistingOrder && !isEditing; 
 
   const clientId = form.watch("client_id");
   const equipmentId = form.watch("equipment_id");
@@ -331,7 +328,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         value={field.value} 
                         establishmentValue={establishmentId}
                         onChange={handleClientEstablishmentChange} 
-                        disabled={isSelectorDisabled} // Desabilita se for OS existente
+                        disabled={isSelectorDisabled} // Desabilita se for OS existente e não estiver editando
                       />
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
@@ -439,7 +436,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             clientId={clientId} 
                             value={field.value} 
                             onChange={handleEquipmentChange} 
-                            disabled={isSelectorDisabled} // Desabilita se for OS existente
+                            disabled={isSelectorDisabled} // Desabilita se for OS existente e não estiver editando
                           />
                       </div>
                       <Button 
@@ -500,7 +497,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormItem>
                   <FormLabel>Descrição do Serviço *</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} disabled={isFormDisabled} />
+                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -513,7 +510,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={isFormDisabled}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
@@ -528,8 +525,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <FormItem>
                     <Select 
                       onValueChange={field.onChange} 
-                      value={field.value} 
-                      disabled={isFormDisabled}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -553,7 +549,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         <Card>
           <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Agendamento</CardTitle>
-            {hasAppointment && isEditing && (
+            {hasAppointment && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button 
@@ -603,7 +599,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             "w-full justify-between text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
-                          disabled={isFormDisabled}
                         >
                           {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : ""}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -634,7 +629,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <Select 
                     onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
                     value={field.value || "NONE_SELECTED"}
-                    disabled={isFormDisabled}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full justify-between text-left font-normal">
