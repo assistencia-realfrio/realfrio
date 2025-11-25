@@ -52,7 +52,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
               <span className="text-xs mt-1 flex items-center gap-0.5">
                 {item.label}
                 {hasContent && (
-                  <Dot className="h-4 w-4 text-destructive -ml-1" />
+                  <Dot className="h-6 w-6 text-destructive -ml-1" />
                 )}
               </span>
             </Button>
