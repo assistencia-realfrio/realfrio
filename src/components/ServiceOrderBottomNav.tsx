@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom'; // Importar ReactDOM
-import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from 'lucide-react';
+import { FileText, Paperclip, History, List, HardDrive, MessageSquareText, Dot } from 'lucide-react'; // Adicionado Dot
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -24,10 +24,10 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
 
 const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedView, onSelectView, canAccessTabs, notesCount, attachmentsCount }) => {
   
-  const getBadgeCount = (id: View): number => {
-    if (id === 'notes') return notesCount;
-    if (id === 'attachments') return attachmentsCount;
-    return 0;
+  const getHasContent = (id: View): boolean => {
+    if (id === 'notes') return notesCount > 0;
+    if (id === 'attachments') return attachmentsCount > 0;
+    return false;
   };
 
   // Renderiza o componente usando um portal
@@ -35,7 +35,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto"> {/* Adicionado top-auto */}
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => {
-          const count = getBadgeCount(item.id);
+          const hasContent = getHasContent(item.id);
           const isDisabled = !canAccessTabs && item.id !== 'details';
 
           return (
@@ -50,15 +50,13 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
               disabled={isDisabled}
               aria-label={item.label}
             >
-              <div className="flex items-center justify-center gap-1"> {/* Novo div para ícone e badge */}
-                <item.icon className="h-6 w-6" />
-                {count > 0 && (
-                  <span className="h-4 min-w-4 px-1 rounded-full bg-destructive text-white text-[10px] font-bold flex items-center justify-center leading-none">
-                    {count > 99 ? '99+' : count}
-                  </span>
+              <item.icon className="h-6 w-6" />
+              <span className="text-xs mt-1 flex items-center gap-0.5">
+                {item.label}
+                {hasContent && (
+                  <Dot className="h-5 w-5 text-destructive -ml-1" /> {/* Ícone de ponto pequeno */}
                 )}
-              </div>
-              <span className="text-xs mt-1">{item.label}</span>
+              </span>
             </Button>
           );
         })}
