@@ -1,24 +1,23 @@
 import React from 'react';
-import ReactDOM from 'react-dom'; // Importar ReactDOM
-import { FileText, Paperclip, History, List, HardDrive, MessageSquareText, Dot } from 'lucide-react'; // Adicionado Dot
+import ReactDOM from 'react-dom';
+import { FileText, Paperclip, History, List, HardDrive, MessageSquareText, Dot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'attachments' | 'activity' | 'notes'; // 'equipment' removido
+type View = 'details' | 'attachments' | 'activity' | 'notes';
 
 interface ServiceOrderBottomNavProps {
   selectedView: View;
   onSelectView: (view: View) => void;
   canAccessTabs: boolean;
-  notesCount: number; // NOVO: Contagem de notas
-  attachmentsCount: number; // NOVO: Contagem de anexos
+  notesCount: number;
+  attachmentsCount: number;
 }
 
 const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'notes', icon: MessageSquareText, label: 'Notas' },
   { id: 'attachments', icon: Paperclip, label: 'Anexos' },
-  // { id: 'equipment', icon: HardDrive, label: 'Equipamento' }, // Removido
   { id: 'activity', icon: List, label: 'Atividade' },
 ];
 
@@ -32,7 +31,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
 
   // Renderiza o componente usando um portal
   return ReactDOM.createPortal(
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto"> {/* Adicionado top-auto */}
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto">
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => {
           const hasContent = getHasContent(item.id);
@@ -54,7 +53,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
               <span className="text-xs mt-1 flex items-center gap-0.5">
                 {item.label}
                 {hasContent && (
-                  <Dot className="h-5 w-5 text-destructive -ml-1" /> {/* Ícone de ponto pequeno */}
+                  <Dot className="h-5 w-5 text-destructive -ml-1" />
                 )}
               </span>
             </Button>
@@ -62,7 +61,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
         })}
       </div>
     </div>,
-    document.getElementById('bottom-nav-root') as HTMLElement // Onde o portal será renderizado
+    document.getElementById('bottom-nav-root') as HTMLElement
   );
 };
 
