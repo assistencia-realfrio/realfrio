@@ -4,7 +4,7 @@ import Layout from "@/components/Layout";
 import ServiceOrderForm from "@/components/ServiceOrderForm";
 import Attachments from "@/components/Attachments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Trash2, Printer, Share2 } from "lucide-react";
+import { ArrowLeft, Trash2, Edit, X } from "lucide-react"; // Removido Printer, Share2, adicionado Edit, X
 import { Button } from "@/components/ui/button";
 import { useServiceOrders } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,8 +37,8 @@ const ServiceOrderDetails: React.FC = () => {
   const { order, isLoading, deleteOrder } = useServiceOrders(isNew ? undefined : id);
   
   const [newOrderId, setNewOrderId] = useState<string | undefined>(undefined);
-  // Removido 'equipment' do tipo View
   const [selectedView, setSelectedView] = useState<"details" | "attachments" | "activity" | "notes">("details");
+  const [isEditing, setIsEditing] = useState(isNew); // Começa a editar se for uma nova OS
 
   const currentOrderId = newOrderId || id;
 
@@ -70,8 +70,9 @@ const ServiceOrderDetails: React.FC = () => {
     if (isNew && data.id) {
         setNewOrderId(data.id);
         navigate(`/orders/${data.id}`, { replace: true });
+        setIsEditing(false); // Para de editar após a criação
     } else {
-        handleGoBack(); 
+        setIsEditing(false); // Para de editar após a atualização
     }
   };
   
@@ -88,9 +89,7 @@ const ServiceOrderDetails: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  // REMOVIDO: handlePrint
 
   const displayTitleId = order?.display_id || currentOrderId;
   const titlePrefix = isNew ? "Criar Nova Ordem de Serviço" : "Detalhes da OS";
@@ -134,18 +133,45 @@ const ServiceOrderDetails: React.FC = () => {
                 </h2>
             </div>
             <div className="flex flex-shrink-0 space-x-2">
-                {/* Botão de Imprimir */}
-                {!isNew && (
-                    <Button variant="ghost" size="icon" onClick={handlePrint} aria-label="Imprimir OS">
-                        <Printer className="h-5 w-5 text-primary" />
-                    </Button>
+                
+                {/* Botões de Edição/Visualização */}
+                {!isNew && selectedView === 'details' && (
+                    <>
+                        {/* Botão de Edição/Cancelamento (Mobile) */}
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsEditing(prev => !prev)} 
+                            size="icon" 
+                            className="sm:hidden" 
+                            aria-label={isEditing ? "Cancelar Edição" : "Editar"}
+                        >
+                            {isEditing ? <X className="h-4 w-4" /> : <Edit className="h-4 w-4" />}
+                        </Button>
+                        
+                        {/* Botão de Edição/Cancelamento (Desktop) */}
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsEditing(prev => !prev)} 
+                            className="hidden sm:flex"
+                        >
+                            {isEditing ? <X className="h-4 w-4 mr-2" /> : <Edit className="h-4 w-4 mr-2" />}
+                            {isEditing ? "Cancelar" : "Editar"}
+                        </Button>
+                    </>
                 )}
+                
                 {/* Botão de Excluir */}
                 {!isNew && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" disabled={deleteOrder.isPending} aria-label="Excluir OS">
-                                <Trash2 className="h-5 w-5 text-destructive" />
+                            <Button 
+                                variant="destructive" 
+                                disabled={deleteOrder.isPending} 
+                                aria-label="Excluir OS"
+                                className="flex items-center justify-center w-10 h-10 sm:w-auto sm:h-10 sm:px-4"
+                            >
+                                <Trash2 className="h-4 w-4 mr-0 sm:mr-2" />
+                                <span className="hidden sm:inline">Excluir</span>
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -189,6 +215,7 @@ const ServiceOrderDetails: React.FC = () => {
               initialData={initialData} 
               onSubmit={handleSubmit} 
               onCancel={isNew ? handleGoBack : undefined}
+              isEditing={isEditing}
             />
           </div>
         )}
