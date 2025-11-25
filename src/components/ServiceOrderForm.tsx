@@ -156,7 +156,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   // NOVO: Handler para o seletor unificado
   const handleClientEstablishmentChange = (result: { clientId: string, clientName: string, establishmentId: string | null, establishmentName: string | null }) => {
     // 1. Atualiza o cliente
-    const clientChanged = result.clientId !== clientId;
     form.setValue("client_id", result.clientId, { shouldValidate: true });
     
     // 2. Atualiza o estabelecimento
@@ -164,7 +163,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     setEstablishmentName(result.establishmentName);
     
     // 3. Se o cliente mudou, resetamos o equipamento para forçar a re-seleção
-    if (clientChanged) {
+    if (result.clientId !== clientId) {
         form.setValue("equipment_id", "", { shouldValidate: true });
         setEquipmentDetails({ name: '', brand: null, model: null, serial_number: null });
     }
@@ -325,7 +324,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         value={field.value} 
                         establishmentValue={establishmentId}
                         onChange={handleClientEstablishmentChange} 
-                        // Removido disabled={isEditing} para permitir a alteração
+                        disabled={isEditing} 
                       />
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
@@ -429,9 +428,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <FormLabel>Equipamento *</FormLabel>
                   <div className="flex items-center gap-2">
                       <div className="flex-grow">
-                          <EquipmentSelector clientId={clientId} value={field.value} onChange={handleEquipmentChange} 
-                          // Removido disabled={isEditing} para permitir a alteração
-                          />
+                          <EquipmentSelector clientId={clientId} value={field.value} onChange={handleEquipmentChange} disabled={isEditing} />
                       </div>
                       <Button 
                           type="button" 
