@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { showSuccess, showError } from "@/utils/toast";
+import { showSuccess, showError, showLoading, dismissToast } from "@/utils/toast";
 import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector"; // NOVO SELETOR
 import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
@@ -151,6 +151,51 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const { establishments } = useClientEstablishments(clientId);
   const selectedEstablishmentDetails = establishments.find(est => est.id === establishmentId);
 
+  // NOVO: Função para atualizar rapidamente campos específicos
+  const handleQuickUpdate = async (fieldName: keyof ServiceOrderFormValues, newValue: any) => {
+    if (isExistingOrder && initialData?.id) { // Quick update if existing order
+      const currentFormValues = form.getValues();
+      let updatedValues = { ...currentFormValues, [fieldName]: newValue };
+
+      // Special handling for scheduled_date and scheduled_time
+      let finalScheduledDate: Date | null = updatedValues.scheduled_date || null;
+      if (updatedValues.scheduled_date) {
+        if (updatedValues.scheduled_time) {
+          const [hours, minutes] = updatedValues.scheduled_time.split(':').map(Number);
+          finalScheduledDate = setMinutes(setHours(updatedValues.scheduled_date, hours), minutes);
+        } else {
+          finalScheduledDate = setMinutes(setHours(updatedValues.scheduled_date, 0), 0);
+        }
+      } else {
+        finalScheduledDate = null; // If date is null, time must also be null
+      }
+
+      const mutationData: ServiceOrderMutationPayload = {
+        client_id: updatedValues.client_id,
+        description: updatedValues.description,
+        status: updatedValues.status,
+        store: updatedValues.store,
+        equipment: equipmentDetails.name,
+        model: equipmentDetails.model,
+        serial_number: equipmentDetails.serial_number,
+        equipment_id: updatedValues.equipment_id,
+        establishment_id: updatedValues.establishment_id,
+        establishment_name: establishmentName,
+        scheduled_date: finalScheduledDate ? finalScheduledDate.toISOString() : null,
+      };
+
+      const toastId = showLoading("A atualizar...");
+      try {
+        await updateOrder.mutateAsync({ id: initialData.id, ...mutationData });
+        dismissToast(toastId);
+        showSuccess("Atualizado com sucesso!");
+      } catch (error) {
+        dismissToast(toastId);
+        showError("Erro ao atualizar.");
+        console.error("Quick update error:", error);
+      }
+    }
+  };
 
   const handleEquipmentChange = (equipmentId: string, details: any) => {
     form.setValue("equipment_id", equipmentId, { shouldValidate: true });
@@ -511,7 +556,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={!isEditing}>
+                    <Select 
+                      onValueChange={(value) => { 
+                        field.onChange(value); 
+                        handleQuickUpdate(field.name, value); 
+                      }} 
+                      value={field.value}
+                      // Removido disabled={!isEditing}
+                    >
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
@@ -525,9 +577,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 render={({ field }) => (
                   <FormItem>
                     <Select 
-                      onValueChange={field.onChange} 
+                      onValueChange={(value) => { 
+                        field.onChange(value); 
+                        handleQuickUpdate(field.name, value); 
+                      }} 
                       value={field.value}
-                      disabled={!isEditing}
+                      // Removido disabled={!isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -558,7 +613,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     variant="ghost" 
                     size="icon" 
                     className="text-destructive hover:text-destructive"
-                    disabled={updateOrder.isPending || !isEditing} // Desabilita se não estiver editando
+                    disabled={updateOrder.isPending || !hasAppointment} // Habilitado se houver agendamento
                     aria-label="Cancelar Agendamento"
                   >
                     <XCircle className="h-4 w-4" />
@@ -601,7 +656,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             "w-full justify-between text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
-                          disabled={!isEditing} // Desabilita se não estiver editando
+                          // Removido disabled={!isEditing}
                         >
                           {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : ""}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -612,10 +667,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       <Calendar
                         mode="single"
                         selected={field.value || undefined}
-                        onSelect={field.onChange}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          handleQuickUpdate(field.name, date);
+                        }}
                         initialFocus
                         locale={ptBR}
-                        disabled={!isEditing} // Desabilita o calendário se não estiver editando
+                        // Removido disabled={!isEditing}
                       />
                     </PopoverContent>
                   </Popover>
@@ -631,9 +689,13 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormItem className="flex flex-col">
                   <FormLabel>Hora</FormLabel>
                   <Select 
-                    onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
+                    onValueChange={(value) => {
+                      const finalValue = value === "NONE_SELECTED" ? null : value;
+                      field.onChange(finalValue);
+                      handleQuickUpdate(field.name, finalValue);
+                    }} 
                     value={field.value || "NONE_SELECTED"}
-                    disabled={!isEditing} // Desabilita se não estiver editando
+                    // Removido disabled={!isEditing}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full justify-between text-left font-normal">
