@@ -15,25 +15,20 @@ import {
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 
 type StoreFilter = Client['store'] | 'ALL';
 
 const Clients: React.FC = () => {
-  const [isNewClientModalOpen, setIsNewClientModalOpen] = useState(false);
+  const navigate = useNavigate(); // Inicializar useNavigate
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
-  const { createClient } = useClients(searchTerm, selectedStore);
+  // createClient não é mais usado diretamente aqui, mas o hook useClients é necessário para o ClientTable
+  const { createClient } = useClients(searchTerm, selectedStore); 
 
-  const handleNewClientSubmit = async (data: ClientFormValues) => {
-    try {
-        await createClient.mutateAsync(data);
-        showSuccess(`Cliente ${data.name} criado com sucesso!`);
-        setIsNewClientModalOpen(false);
-    } catch (error) {
-        console.error("Erro ao criar cliente:", error);
-        showError("Erro ao criar cliente. Verifique os dados.");
-    }
+  const handleNewClientClick = () => {
+    navigate("/clients/new"); // Navega para a nova página de criação de cliente
   };
 
   return (
@@ -75,25 +70,14 @@ const Clients: React.FC = () => {
 
         <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} />
       </div>
-      <Dialog open={isNewClientModalOpen} onOpenChange={setIsNewClientModalOpen}>
-        <DialogTrigger asChild>
-          <Button
-            className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
-            aria-label="Novo Cliente"
-          >
-            <PlusCircle className="h-8 w-8" />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Criar Novo Cliente</DialogTitle>
-          </DialogHeader>
-          <ClientForm 
-            onSubmit={handleNewClientSubmit} 
-            onCancel={() => setIsNewClientModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Botão flutuante agora navega para a página de criação */}
+      <Button
+        onClick={handleNewClientClick}
+        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+        aria-label="Novo Cliente"
+      >
+        <PlusCircle className="h-8 w-8" />
+      </Button>
     </Layout>
   );
 };

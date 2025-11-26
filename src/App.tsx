@@ -16,6 +16,7 @@ import EquipmentDetails from "./pages/EquipmentDetails";
 import Profile from "./pages/Profile"; // Importando a nova página de perfil
 import CalendarView from "./pages/CalendarView"; // NOVO: Importando a página de calendário
 import Vacations from "./pages/Vacations"; // NOVO: Importando a página de férias
+import NewClient from "./pages/NewClient"; // NOVO: Importando a página de criação de cliente
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Clients /> {/* Nova rota para a página de Clientes */}
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/clients/new" 
+            element={
+              <ProtectedRoute>
+                <NewClient /> {/* NOVO: Rota para a página de criação de cliente */}
               </ProtectedRoute>
             } 
           />

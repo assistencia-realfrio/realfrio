@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { UserPlus, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
@@ -24,31 +25,17 @@ interface ClientSelectorProps {
 }
 
 const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { clients, isLoading: isLoadingClients, createClient } = useClients();
+  const { clients, isLoading: isLoadingClients } = useClients();
+  const navigate = useNavigate(); // Inicializar useNavigate
 
   // Mapeia o ID para o nome para exibir no SelectValue
   const selectedClient = clients.find(c => c.id === value);
   const selectedClientName = selectedClient?.name || "";
 
-  const handleNewClientSubmit = async (data: ClientFormValues) => {
-    try {
-        const newClient = await createClient.mutateAsync(data);
-        
-        onChange(newClient.id);
-        
-        setIsModalOpen(false);
-        showSuccess(`Novo cliente '${data.name}' criado com sucesso!`);
-    } catch (error) {
-        console.error("Erro ao criar cliente:", error);
-        showError("Erro ao criar novo cliente. Tente novamente.");
-    }
-  };
-
   const handleSelectChange = (selectedValue: string) => {
     if (selectedValue === "NEW_CLIENT") {
-      setIsModalOpen(true);
+      navigate("/clients/new"); // Navega para a página de criação de cliente
     } else {
       onChange(selectedValue);
       setIsPopoverOpen(false); // Fecha o popover após a seleção
@@ -90,7 +77,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
           >
             <CommandInput placeholder="Buscar cliente..." />
             <CommandList>
-              <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
               {/* "Adicionar Novo Cliente" sempre visível e primeiro */}
               <CommandGroup>
                 <CommandItem
@@ -105,6 +91,7 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
               </CommandGroup>
               {/* Clientes existentes */}
               <CommandGroup>
+                <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                 {clients.map((client) => (
                   <CommandItem
                     key={client.id}
@@ -125,19 +112,6 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
           </Command>
         </PopoverContent>
       </Popover>
-
-      {/* Modal de Criação de Cliente */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Adicionar Novo Cliente</DialogTitle>
-          </DialogHeader>
-          <ClientForm 
-            onSubmit={handleNewClientSubmit} 
-            onCancel={() => setIsModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </>
   );
 };

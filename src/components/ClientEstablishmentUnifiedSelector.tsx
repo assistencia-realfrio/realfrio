@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { UserPlus, Check, Building } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
@@ -39,10 +40,10 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
     onChange, 
     disabled = false 
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const { clients, isLoading: isLoadingClients, createClient } = useClients();
+  const { clients, isLoading: isLoadingClients } = useClients();
   const { establishments, isLoading: isLoadingEstablishments } = useAllEstablishments();
+  const navigate = useNavigate(); // Inicializar useNavigate
 
   const isLoading = isLoadingClients || isLoadingEstablishments;
 
@@ -86,25 +87,6 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
     return "Selecionar cliente";
   }, [selectedClientId, selectedEstablishmentId, clients, establishments]);
 
-  const handleNewClientSubmit = async (data: ClientFormValues) => {
-    try {
-        const newClient = await createClient.mutateAsync(data);
-        
-        onChange({
-            clientId: newClient.id,
-            clientName: newClient.name,
-            establishmentId: null,
-            establishmentName: null,
-        });
-        
-        setIsModalOpen(false);
-        showSuccess(`Novo cliente '${data.name}' criado com sucesso!`);
-    } catch (error) {
-        console.error("Erro ao criar cliente:", error);
-        showError("Erro ao criar novo cliente. Tente novamente.");
-    }
-  };
-
   const handleSelectChange = (item: typeof searchItems[0]) => {
     onChange({
         clientId: item.clientId,
@@ -113,6 +95,11 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
         establishmentName: item.establishmentName,
     });
     setIsPopoverOpen(false);
+  };
+
+  const handleNewClientClick = () => {
+    setIsPopoverOpen(false); // Fecha o popover
+    navigate("/clients/new"); // Navega para a página de criação de cliente
   };
 
   if (isLoading) {
@@ -155,7 +142,7 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
                 <CommandItem
                   key="NEW_CLIENT"
                   value="Adicionar Novo Cliente"
-                  onSelect={() => setIsModalOpen(true)}
+                  onSelect={handleNewClientClick} // Usa a nova função de navegação
                   className="text-primary font-medium cursor-pointer"
                 >
                   <UserPlus className="mr-2 h-4 w-4" />
@@ -192,19 +179,6 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
           </Command>
         </PopoverContent>
       </Popover>
-
-      {/* Modal de Criação de Cliente */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Adicionar Novo Cliente</DialogTitle>
-          </DialogHeader>
-          <ClientForm 
-            onSubmit={handleNewClientSubmit} 
-            onCancel={() => setIsModalOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
