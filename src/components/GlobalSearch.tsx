@@ -13,8 +13,8 @@ import { useServiceOrders } from '@/hooks/useServiceOrders';
 import { useAllEquipments } from '@/hooks/useAllEquipments';
 import { useAllEstablishments } from '@/hooks/useAllEstablishments';
 import { Users, Wrench, HardDrive, Building } from 'lucide-react';
-import { Badge } from '@/components/ui/badge'; // Importar Badge
-import { getStatusBadgeVariant } from '@/lib/serviceOrderStatus'; // Importar função para variante do badge
+import { Badge } from '@/components/ui/badge';
+import { getStatusBadgeVariant } from '@/lib/serviceOrderStatus';
 
 interface GlobalSearchProps {
   open: boolean;
@@ -39,7 +39,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Pesquisar clientes, OS, equipamentos, estabelecimentos..." />
       <CommandList>
-        <CommandEmpty>{isLoading ? "A carregar..." : "Nenhum resultado encontrado."}</CommandEmpty>
+        <CommandEmpty className="uppercase">{isLoading ? "A carregar..." : "Nenhum resultado encontrado."}</CommandEmpty>
         
         {!isLoadingClients && clients.length > 0 && (
           <CommandGroup heading="Clientes">
@@ -48,6 +48,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
                 key={`client-${client.id}`}
                 value={`Cliente ${client.name} ${client.billing_name || ''}`}
                 onSelect={() => runCommand(() => navigate(`/clients/${client.id}`))}
+                className="uppercase"
               >
                 <Users className="mr-2 h-4 w-4" />
                 <span>{client.name}</span>
@@ -63,6 +64,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
                 key={`establishment-${establishment.id}`}
                 value={`Estabelecimento ${establishment.name} ${establishment.client_name} ${establishment.locality || ''}`}
                 onSelect={() => runCommand(() => navigate(`/clients/${establishment.client_id}?tab=establishments`))}
+                className="uppercase"
               >
                 <Building className="mr-2 h-4 w-4" />
                 <span>{establishment.name} ({establishment.client_name})</span>
@@ -78,7 +80,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
                 key={`order-${order.id}`}
                 value={`OS ${order.display_id} ${order.client} ${order.equipment} ${order.status}`}
                 onSelect={() => runCommand(() => navigate(`/orders/${order.id}`))}
-                className="flex items-center justify-between"
+                className="flex items-center justify-between uppercase"
               >
                 <div className="flex items-center min-w-0 flex-grow">
                   <Wrench className="mr-2 h-4 w-4 flex-shrink-0" />
@@ -86,7 +88,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
                     {order.display_id} - {order.client} ({order.equipment})
                   </span>
                 </div>
-                <Badge variant={getStatusBadgeVariant(order.status)} className="ml-2 flex-shrink-0">
+                <Badge variant={getStatusBadgeVariant(order.status)} className="ml-2 flex-shrink-0 uppercase">
                   {order.status}
                 </Badge>
               </CommandItem>
@@ -101,6 +103,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
                 key={`equipment-${equipment.id}`}
                 value={`Equipamento ${equipment.name} ${equipment.client_name} ${equipment.establishment_name || ''}`}
                 onSelect={() => runCommand(() => navigate(`/equipments/${equipment.id}`))}
+                className="uppercase"
               >
                 <HardDrive className="mr-2 h-4 w-4" />
                 <span>{equipment.name} ({equipment.client_name}{equipment.establishment_name ? ` - ${equipment.establishment_name}` : ''})</span>

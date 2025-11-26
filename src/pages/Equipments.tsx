@@ -11,7 +11,7 @@ const Equipments: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-3xl font-bold tracking-tight">Gestão de Equipamentos</h2>
+          <h2 className="text-3xl font-bold tracking-tight uppercase">Gestão de Equipamentos</h2>
         </div>
 
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">

@@ -23,8 +23,8 @@ import ActivityLog from "@/components/ActivityLog";
 import EquipmentOrdersTab from "@/components/EquipmentOrdersTab";
 import EquipmentDetailsBottomNav from "@/components/EquipmentDetailsBottomNav";
 import EquipmentAttachments from "@/components/EquipmentAttachments";
-import EquipmentDetailsView from "@/components/EquipmentDetailsView"; // Importar o novo componente de visualização
-import EquipmentPlatePhoto from "@/components/EquipmentPlatePhoto"; // Importar o novo componente de foto da chapa
+import EquipmentDetailsView from "@/components/EquipmentDetailsView";
+import EquipmentPlatePhoto from "@/components/EquipmentPlatePhoto";
 
 const EquipmentDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +32,7 @@ const EquipmentDetails: React.FC = () => {
   
   const { singleEquipment: equipment, isLoading, deleteEquipment, updateEquipment } = useEquipments(undefined, id);
   
-  const [isEditing, setIsEditing] = useState(false); // Novo estado para o modo de edição
+  const [isEditing, setIsEditing] = useState(false);
   const [selectedView, setSelectedView] = useState<"details" | "orders" | "attachments">("details");
 
   const handleGoBack = () => navigate(-1);
@@ -52,7 +52,6 @@ const EquipmentDetails: React.FC = () => {
             brand: data.brand || undefined,
             model: data.model || undefined,
             serial_number: data.serial_number || undefined,
-            // google_drive_link: data.google_drive_link || undefined, // REMOVIDO
         });
         handleEditSuccess();
     } catch (error) {
@@ -88,9 +87,9 @@ const EquipmentDetails: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">Equipamento não encontrado</h2>
-          <p className="text-muted-foreground">O equipamento que você está procurando não existe.</p>
-          <Button onClick={handleGoBack} className="mt-4">Voltar</Button>
+          <h2 className="text-2xl font-bold uppercase">Equipamento não encontrado</h2>
+          <p className="text-muted-foreground uppercase">O equipamento que você está procurando não existe.</p>
+          <Button onClick={handleGoBack} className="mt-4 uppercase">Voltar</Button>
         </div>
       </Layout>
     );
@@ -104,7 +103,6 @@ const EquipmentDetails: React.FC = () => {
             <Button variant="outline" size="icon" onClick={handleGoBack}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* Título h2 removido */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -119,12 +117,12 @@ const EquipmentDetails: React.FC = () => {
             )}
             
             {isEditing ? (
-                <Button variant="outline" onClick={() => setIsEditing(false)} className="hidden sm:flex">
+                <Button variant="outline" onClick={() => setIsEditing(false)} className="hidden sm:flex uppercase">
                     <X className="h-4 w-4 mr-2" />
                     Cancelar
                 </Button>
             ) : (
-                <Button variant="outline" onClick={() => setIsEditing(true)} className="hidden sm:flex">
+                <Button variant="outline" onClick={() => setIsEditing(true)} className="hidden sm:flex uppercase">
                     <Edit className="h-4 w-4 mr-2" />
                     Editar
                 </Button>
@@ -136,7 +134,7 @@ const EquipmentDetails: React.FC = () => {
                   <Button variant="destructive" disabled={deleteEquipment.isPending} size="icon" className="sm:hidden" aria-label="Excluir">
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  <Button variant="destructive" disabled={deleteEquipment.isPending} className="hidden sm:flex">
+                  <Button variant="destructive" disabled={deleteEquipment.isPending} className="hidden sm:flex uppercase">
                     <Trash2 className="h-4 w-4 mr-2" />
                     Excluir
                   </Button>
@@ -144,14 +142,14 @@ const EquipmentDetails: React.FC = () => {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                  <AlertDialogTitle className="uppercase">Tem certeza?</AlertDialogTitle>
                   <AlertDialogDescription>
                     Esta ação não pode ser desfeita. O equipamento será excluído permanentemente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                  <AlertDialogCancel className="uppercase">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 uppercase">
                     Excluir
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -165,7 +163,7 @@ const EquipmentDetails: React.FC = () => {
             {isEditing ? (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Editar Detalhes do Equipamento</CardTitle>
+                        <CardTitle className="uppercase">Editar Detalhes do Equipamento</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <EquipmentForm
@@ -180,7 +178,6 @@ const EquipmentDetails: React.FC = () => {
                 <EquipmentDetailsView equipment={equipment} />
             )}
             
-            {/* Novo componente para a foto da chapa */}
             <EquipmentPlatePhoto equipmentId={equipment.id} />
           </div>
         )}

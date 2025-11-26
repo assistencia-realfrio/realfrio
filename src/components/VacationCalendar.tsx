@@ -8,23 +8,21 @@ import { cn } from "@/lib/utils";
 import { Vacation } from "@/hooks/useVacations";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Profile } from "@/hooks/useProfile"; // Importar Profile
+import { Profile } from "@/hooks/useProfile";
 
 interface VacationCalendarProps {
   vacations: Vacation[];
   isLoading: boolean;
-  allProfiles: Profile[]; // NOVO: Recebe todos os perfis
+  allProfiles: Profile[];
 }
 
-const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]; // ALTERADO: Ordem dos dias da semana
+const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
-// Interface para um feriado
 interface Holiday {
-  date: string; // "MM-DD" format
+  date: string;
   name: string;
 }
 
-// Lista de feriados nacionais de Portugal (datas fixas)
 const portugueseNationalHolidays: Holiday[] = [
   { date: "01-01", name: "Ano Novo" },
   { date: "04-25", name: "Dia da Liberdade" },
@@ -38,20 +36,17 @@ const portugueseNationalHolidays: Holiday[] = [
   { date: "12-25", name: "Natal" },
 ];
 
-// Função para gerar uma cor HSL aleatória e convertê-la para string CSS
 const generateRandomColor = (): string => {
   const hue = Math.floor(Math.random() * 360);
-  const saturation = Math.floor(Math.random() * (70 - 40) + 40); // 40-70% saturation
-  const lightness = Math.floor(Math.random() * (60 - 30) + 30); // 30-60% lightness for darker colors
+  const saturation = Math.floor(Math.random() * (70 - 40) + 40);
+  const lightness = Math.floor(Math.random() * (60 - 30) + 30);
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
 const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoading, allProfiles }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  // Usar useRef para armazenar as cores dos utilizadores e garantir consistência
   const userColors = useRef<Map<string, string>>(new Map());
 
-  // Gerar cores para cada utilizador uma única vez
   useMemo(() => {
     allProfiles.forEach(profile => {
       if (!userColors.current.has(profile.id)) {
@@ -64,7 +59,6 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
   const endOfCurrentMonth = endOfMonth(currentDate);
 
   const daysInMonth = useMemo(() => {
-    // ALTERADO: Calcular o primeiro e último dia da grelha para começar na segunda-feira
     const firstDayOfGrid = startOfWeek(startOfCurrentMonth, { weekStartsOn: 1, locale: ptBR });
     const lastDayOfGrid = endOfWeek(endOfCurrentMonth, { weekStartsOn: 1, locale: ptBR });
     
@@ -80,7 +74,6 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
   };
 
   const getVacationsForDay = (day: Date) => {
-    // Se for fim de semana, não exibe as iniciais
     if (isWeekend(day)) {
       return [];
     }
@@ -91,7 +84,6 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
     });
   };
 
-  // NOVO: Função para obter feriados para um determinado dia
   const getHolidaysForDay = (day: Date): Holiday[] => {
     const monthDay = format(day, "MM-dd");
     return portugueseNationalHolidays.filter(holiday => holiday.date === monthDay);
@@ -103,7 +95,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
         <Button variant="ghost" size="icon" onClick={handlePreviousMonth} aria-label="Mês Anterior">
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <CardTitle className="text-xl font-bold">
+        <CardTitle className="text-xl font-bold uppercase">
           {format(currentDate, "MMMM yyyy", { locale: ptBR })}
         </CardTitle>
         <Button variant="ghost" size="icon" onClick={handleNextMonth} aria-label="Próximo Mês">
@@ -111,12 +103,12 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
         </Button>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="grid grid-cols-7 text-center text-sm font-medium text-muted-foreground mb-2">
+        <div className="grid grid-cols-7 text-center text-sm font-medium text-muted-foreground mb-2 uppercase">
           {dayNames.map(day => (
             <div key={day}>{day}</div>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-px bg-border border border-border rounded-md overflow-hidden"> {/* Adicionado bg-border e border para a grelha */}
+        <div className="grid grid-cols-7 gap-px bg-border border border-border rounded-md overflow-hidden">
           {isLoading ? (
             Array.from({ length: 35 }).map((_, i) => (
               <div key={i} className="h-20 w-full bg-muted rounded-md animate-pulse"></div>
@@ -124,10 +116,10 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
           ) : (
             daysInMonth.map((day, index) => {
               const dayVacations = getVacationsForDay(day);
-              const dayHolidays = getHolidaysForDay(day); // NOVO: Obter feriados para o dia
+              const dayHolidays = getHolidaysForDay(day);
               const isCurrentDay = isToday(day);
-              const isDayWeekend = isWeekend(day); // Usar a função isWeekend
-              const isHoliday = dayHolidays.length > 0; // NOVO: Verificar se é feriado
+              const isDayWeekend = isWeekend(day);
+              const isHoliday = dayHolidays.length > 0;
 
               return (
                 <Popover key={format(day, "yyyy-MM-dd")}>
@@ -135,8 +127,8 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                     <div
                       className={cn(
                         "h-20 w-full flex flex-col items-center p-1 transition-colors",
-                        isDayWeekend ? "bg-gray-200 dark:bg-gray-900" : "bg-gray-100 dark:bg-gray-800", // Ajustado para fins de semana mais escuros
-                        isHoliday && "bg-red-50 dark:bg-red-950", // Feriados em vermelho claro
+                        isDayWeekend ? "bg-gray-200 dark:bg-gray-900" : "bg-gray-100 dark:bg-gray-800",
+                        isHoliday && "bg-red-50 dark:bg-red-950",
                         "hover:bg-muted/50",
                         isCurrentDay && "bg-primary/10 border border-primary",
                       )}
@@ -144,7 +136,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                       <span className={cn(
                         "text-sm font-semibold",
                         isCurrentDay && "text-primary",
-                        isDayWeekend && "text-muted-foreground", // Torna o número do dia mais claro no fim de semana
+                        isDayWeekend && "text-muted-foreground",
                         dayVacations.length > 0 && "text-foreground"
                       )}>
                         {format(day, "d")}
@@ -153,33 +145,32 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                         {dayVacations.map((vac, i) => (
                           <span 
                             key={vac.id + i} 
-                            className="text-xs font-medium text-white px-1 rounded-sm leading-tight"
+                            className="text-xs font-medium text-white px-1 rounded-sm leading-tight uppercase"
                             style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }}
                           >
                             {vac.user_initials}
                           </span>
                         ))}
                         {dayVacations.length > 2 && (
-                          <span className="text-xs text-muted-foreground">+{dayVacations.length - 2}</span>
+                          <span className="text-xs text-muted-foreground uppercase">+{dayVacations.length - 2}</span>
                         )}
                       </div>
                     </div>
                   </PopoverTrigger>
-                  {/* NOVO: PopoverContent para exibir feriados e férias */}
                   {dayVacations.length > 0 || dayHolidays.length > 0 ? (
                     <PopoverContent className="w-80 p-4">
-                      <h4 className="font-semibold text-lg mb-2">
+                      <h4 className="font-semibold text-lg mb-2 uppercase">
                         {format(day, "dd/MM/yyyy", { locale: ptBR })}
                       </h4>
                       <ScrollArea className="h-48">
                         <ul className="space-y-3 pr-4">
                           {dayHolidays.length > 0 && (
                             <>
-                              <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-1">Feriados:</p>
+                              <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-1 uppercase">Feriados:</p>
                               {dayHolidays.map((holiday, hIdx) => (
                                 <li key={`holiday-${hIdx}`} className="text-sm flex items-center gap-2">
                                   <span className="h-3 w-3 rounded-full flex-shrink-0 bg-red-500"></span>
-                                  <p className="font-medium">{holiday.name}</p>
+                                  <p className="font-medium uppercase">{holiday.name}</p>
                                 </li>
                               ))}
                               {dayVacations.length > 0 && <div className="my-3 border-t border-dashed"></div>}
@@ -187,7 +178,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                           )}
                           {dayVacations.length > 0 && (
                             <>
-                              <p className="text-sm font-bold text-primary mb-1">Férias:</p>
+                              <p className="text-sm font-bold text-primary mb-1 uppercase">Férias:</p>
                               {dayVacations.map(vac => (
                                 <li key={vac.id} className="text-sm flex items-center gap-2">
                                   <span
@@ -195,8 +186,8 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                                     style={{ backgroundColor: userColors.current.get(vac.user_id) || '#9ca3af' }}
                                   ></span>
                                   <div>
-                                    <p className="font-medium">{vac.user_full_name}</p>
-                                    <p className="text-muted-foreground text-xs">
+                                    <p className="font-medium uppercase">{vac.user_full_name}</p>
+                                    <p className="text-muted-foreground text-xs uppercase">
                                       {format(new Date(vac.start_date), "dd/MM/yyyy", { locale: ptBR })} -{" "}
                                       {format(new Date(vac.end_date), "dd/MM/yyyy", { locale: ptBR })}
                                       <span className="ml-2 font-semibold">({vac.working_days_count} dias úteis)</span>
@@ -217,10 +208,9 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
           )}
         </div>
 
-        {/* NOVO: Legenda de Cores */}
         {!isLoading && allProfiles.length > 0 && (
           <div className="mt-6 pt-4 border-t">
-            <h4 className="font-semibold text-md mb-3">Legenda de Colaboradores:</h4>
+            <h4 className="font-semibold text-md mb-3 uppercase">Legenda de Colaboradores:</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
               {allProfiles.map(profile => (
                 <div key={profile.id} className="flex items-center gap-2 text-sm">
@@ -228,7 +218,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                     className="h-4 w-4 rounded-full flex-shrink-0" 
                     style={{ backgroundColor: userColors.current.get(profile.id) || '#9ca3af' }}
                   ></span>
-                  <span className="truncate">
+                  <span className="truncate uppercase">
                     {`${profile.first_name || ''} ${profile.last_name || ''}`.trim() || profile.id}
                   </span>
                 </div>

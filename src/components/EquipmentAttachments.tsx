@@ -10,7 +10,7 @@ import { useSession } from "@/contexts/SessionContext";
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from "@/components/ui/skeleton";
 import { stripUuidFromFile } from "@/lib/utils";
-import AttachmentViewerDialog from "./AttachmentViewerDialog"; // Importar o novo componente
+import AttachmentViewerDialog from "./AttachmentViewerDialog";
 
 interface Attachment {
   id: string;
@@ -25,8 +25,6 @@ interface Attachment {
 interface EquipmentAttachmentsProps {
   equipmentId: string;
 }
-
-// O componente AttachmentPreviewDialog foi movido para AttachmentViewerDialog.tsx
 
 const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId }) => {
   const { user } = useSession();
@@ -186,7 +184,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Anexos</CardTitle>
+        <CardTitle className="uppercase">Anexos</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3 border p-4 rounded-md">
@@ -204,14 +202,14 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
               variant="outline" 
               onClick={handleTriggerFileInput}
               disabled={isUploading}
-              className="w-full sm:w-auto justify-start"
+              className="w-full sm:w-auto justify-start uppercase"
             >
               <FileText className="h-4 w-4 mr-2" /> {selectedFile ? stripUuidFromFile(selectedFile.name) : "Selecionar Ficheiro"}
             </Button>
             <Button 
               onClick={handleUpload} 
               disabled={!selectedFile || isUploading}
-              className="sm:w-auto w-full"
+              className="sm:w-auto w-full uppercase"
             >
               {isUploading ? "A carregar..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
             </Button>
@@ -219,7 +217,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
         </div>
 
         <div className="space-y-3">
-          <h4 className="text-md font-semibold">Arquivos Anexados:</h4>
+          <h4 className="text-md font-semibold uppercase">Arquivos Anexados:</h4>
           {isLoadingAttachments ? (
             <div className="space-y-2">
               <Skeleton className="h-12 w-full" />
@@ -241,12 +239,11 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0 flex-1 flex items-center justify-end">
-                      {/* Botão de Excluir agora sempre visível */}
                       <Button 
                         variant="ghost" 
                         size="icon" 
                         onClick={(e) => {
-                          e.stopPropagation(); // Previne que o clique abra a visualização
+                          e.stopPropagation();
                           handleDelete(att.id, att.name);
                         }} 
                         aria-label="Remover"
@@ -260,7 +257,7 @@ const EquipmentAttachments: React.FC<EquipmentAttachmentsProps> = ({ equipmentId
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground text-sm">Nenhum anexo encontrado para este equipamento.</p>
+            <p className="text-center text-muted-foreground text-sm uppercase">Nenhum anexo encontrado para este equipamento.</p>
           )}
         </div>
       </CardContent>

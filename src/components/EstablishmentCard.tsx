@@ -28,8 +28,8 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
     <Card>
       <CardContent className="p-4 space-y-3">
         <div className="flex justify-between items-start">
-          <div className="flex items-center"> {/* Removido gap-3 e o ícone Building */}
-            <h3 className="font-semibold text-lg">{establishment.name}</h3>
+          <div className="flex items-center">
+            <h3 className="font-semibold text-lg uppercase">{establishment.name}</h3>
           </div>
           <div className="flex space-x-1">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(establishment)} disabled={isPending}>
@@ -40,11 +40,11 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
             </Button>
           </div>
         </div>
-        <div className="space-y-2 text-sm text-muted-foreground"> {/* Removido pl-8 */}
+        <div className="space-y-2 text-sm text-muted-foreground">
           {establishment.locality && (
             <div className="flex items-center gap-3">
               <MapPin className="h-4 w-4 flex-shrink-0" />
-              <p className="whitespace-pre-wrap">{establishment.locality}</p>
+              <p className="whitespace-pre-wrap uppercase">{establishment.locality}</p>
             </div>
           )}
           {establishment.google_maps_link && isLinkClickable(establishment.google_maps_link) && (
@@ -52,7 +52,7 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
                 href={getMapHref(establishment.google_maps_link)}
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-3 text-blue-600 hover:underline"
+                className="flex items-center gap-3 text-blue-600 hover:underline uppercase"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MapPin className="h-4 w-4" />
@@ -64,7 +64,7 @@ const EstablishmentCard: React.FC<EstablishmentCardProps> = ({ establishment, on
               <Phone className="h-4 w-4 flex-shrink-0" />
               <a 
                 href={`tel:${establishment.phone}`}
-                className="text-blue-600 hover:underline"
+                className="text-blue-600 hover:underline uppercase"
                 onClick={(e) => e.stopPropagation()}
               >
                 {establishment.phone}

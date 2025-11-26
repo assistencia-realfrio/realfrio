@@ -21,7 +21,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
     return (
       <Card className="col-span-1">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 uppercase">
             <Wrench className="h-5 w-5 text-primary" />
             Distribuição de Status das OS
           </CardTitle>
@@ -36,7 +36,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 uppercase">
           <Wrench className="h-5 w-5 text-primary" />
           Distribuição de Status das OS
         </CardTitle>

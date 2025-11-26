@@ -50,15 +50,15 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
   }
 
   return (
-    <div className="rounded-md border overflow-x-auto bg-white"> {/* Adicionado bg-white aqui */}
+    <div className="rounded-md border overflow-x-auto bg-white">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead className="hidden sm:table-cell">Contato</TableHead>
-            <TableHead className="hidden sm:table-cell">Localidade</TableHead>
-            <TableHead className="hidden md:table-cell">OS Totais</TableHead>
-            <TableHead className="hidden md:table-cell">OS Abertas</TableHead>
+            <TableHead className="uppercase">Nome</TableHead>
+            <TableHead className="hidden sm:table-cell uppercase">Contato</TableHead>
+            <TableHead className="hidden sm:table-cell uppercase">Localidade</TableHead>
+            <TableHead className="hidden md:table-cell uppercase">OS Totais</TableHead>
+            <TableHead className="hidden md:table-cell uppercase">OS Abertas</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,7 +70,7 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <TableCell 
-                    className="font-medium text-foreground"
+                    className="font-medium text-foreground uppercase"
                 >
                     <div className="flex items-center gap-2">
                         <Badge 
@@ -80,15 +80,15 @@ const ClientTable: React.FC<ClientTableProps> = ({ searchTerm, storeFilter }) =>
                         {client.name}
                     </div>
                 </TableCell>
-                <TableCell className="hidden sm:table-cell">{client.contact}</TableCell>
-                <TableCell className="hidden sm:table-cell">{client.locality || 'N/A'}</TableCell>
-                <TableCell className="hidden md:table-cell">{client.totalOrders}</TableCell>
-                <TableCell className="hidden md:table-cell">{client.openOrders}</TableCell>
+                <TableCell className="hidden sm:table-cell uppercase">{client.contact}</TableCell>
+                <TableCell className="hidden sm:table-cell uppercase">{client.locality || 'N/A'}</TableCell>
+                <TableCell className="hidden md:table-cell uppercase">{client.totalOrders}</TableCell>
+                <TableCell className="hidden md:table-cell uppercase">{client.openOrders}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground uppercase">
                 Nenhum cliente encontrado.
               </TableCell>
             </TableRow>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod"; // Corrigido: de '*s z' para '* as z'
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,16 +22,15 @@ const equipmentFormSchema = z.object({
   brand: z.string().optional().or(z.literal('')),
   model: z.string().optional().or(z.literal('')),
   serial_number: z.string().optional().or(z.literal('')),
-  // google_drive_link: z.string().optional().or(z.literal('')), // REMOVIDO: Campo para o link do Google Drive
 });
 
 export type EquipmentFormData = z.infer<typeof equipmentFormSchema>;
 
 interface EquipmentFormProps {
   clientId: string;
-  onSubmit: (equipment: Equipment) => void; // Agora aceita um objeto Equipment completo para edição
+  onSubmit: (equipment: Equipment) => void;
   onCancel: () => void;
-  initialData?: Equipment; // Agora aceita um objeto Equipment completo para edição
+  initialData?: Equipment;
 }
 
 const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCancel, initialData }) => {
@@ -42,13 +41,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
             brand: initialData.brand || "",
             model: initialData.model || "",
             serial_number: initialData.serial_number || "",
-            // google_drive_link: initialData.google_drive_link || "", // REMOVIDO: Definindo valor padrão
         } : { 
             name: "", 
             brand: "", 
             model: "", 
             serial_number: "",
-            // google_drive_link: "", // REMOVIDO: Definindo valor padrão
         },
     });
     const { createEquipment, updateEquipment } = useEquipments(clientId);
@@ -58,27 +55,23 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
         try {
             let resultEquipment: Equipment;
             if (isEditing && initialData?.id) {
-                // Atualizar equipamento existente
-                const { updatedEquipment } = await updateEquipment.mutateAsync({ // Extraindo updatedEquipment
+                const { updatedEquipment } = await updateEquipment.mutateAsync({
                     id: initialData.id,
-                    client_id: clientId, // client_id é necessário para a mutação, mas não é alterado no form
+                    client_id: clientId,
                     name: data.name,
                     brand: data.brand || undefined,
                     model: data.model || undefined,
                     serial_number: data.serial_number || undefined,
-                    // google_drive_link: data.google_drive_link || undefined, // REMOVIDO: Enviando google_drive_link
                 });
-                resultEquipment = updatedEquipment; // Atribuindo apenas o objeto Equipment
+                resultEquipment = updatedEquipment;
                 showSuccess(`Equipamento '${data.name}' atualizado com sucesso!`);
             } else {
-                // Criar novo equipamento
                 resultEquipment = await createEquipment.mutateAsync({
                     client_id: clientId,
                     name: data.name,
                     brand: data.brand || undefined,
                     model: data.model || undefined,
                     serial_number: data.serial_number || undefined,
-                    // google_drive_link: data.google_drive_link || undefined, // REMOVIDO: Enviando google_drive_link
                 });
                 showSuccess(`Equipamento '${data.name}' criado com sucesso!`);
             }
@@ -99,7 +92,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     name="name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nome do Equipamento *</FormLabel>
+                            <FormLabel className="uppercase">Nome do Equipamento *</FormLabel>
                             <FormControl>
                                 <Input placeholder="Ex: Notebook, Servidor" {...field} />
                             </FormControl>
@@ -113,7 +106,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     name="brand"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Marca (Opcional)</FormLabel>
+                            <FormLabel className="uppercase">Marca (Opcional)</FormLabel>
                             <FormControl>
                                 <Input placeholder="Ex: Dell, Apple, Samsung" {...field} />
                             </FormControl>
@@ -127,7 +120,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     name="model"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Modelo (Opcional)</FormLabel>
+                            <FormLabel className="uppercase">Modelo (Opcional)</FormLabel>
                             <FormControl>
                                 <Input placeholder="Ex: XPS 13, iPhone 15" {...field} />
                             </FormControl>
@@ -140,7 +133,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                     name="serial_number"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nº de Série (Opcional)</FormLabel>
+                            <FormLabel className="uppercase">Nº de Série (Opcional)</FormLabel>
                             <FormControl>
                                 <Input placeholder="Ex: ABC123XYZ" {...field} />
                             </FormControl>
@@ -148,12 +141,11 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         </FormItem>
                     )}
                 />
-                {/* REMOVIDO: Campo para o link do Google Drive */}
-                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-2"> {/* Ajustado para empilhar em mobile */}
-                    <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} className="w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-2">
+                    <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} className="w-full sm:w-auto uppercase">
                         Cancelar
                     </Button>
-                    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+                    <Button type="submit" disabled={isPending} className="w-full sm:w-auto uppercase">
                         {isEditing ? "Salvar Alterações" : "Criar Equipamento"}
                     </Button>
                 </div>

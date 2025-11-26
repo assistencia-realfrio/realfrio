@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useProfile } from "@/hooks/useProfile"; // Importar useProfile para desabilitar durante o carregamento
+import { useProfile } from "@/hooks/useProfile";
 
 type StoreFilter = ServiceOrder['store'] | 'ALL';
 
@@ -20,14 +20,11 @@ const CalendarView: React.FC = () => {
   const { isLoading: isLoadingProfile } = useProfile();
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
-  // Passar o filtro de loja para useServiceOrders
   const { orders, isLoading } = useServiceOrders(undefined, selectedStore);
 
   const scheduledOrders = useMemo(() => {
-    // 1. Filtrar apenas ordens com data agendada
     const filtered = orders.filter(order => order.scheduled_date);
 
-    // 2. Ordenar pela data de agendamento mais próxima (ascendente)
     filtered.sort((a, b) => {
       const dateA = parseISO(a.scheduled_date!);
       const dateB = parseISO(b.scheduled_date!);
@@ -52,7 +49,7 @@ const CalendarView: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2 uppercase">
             <CalendarIcon className="h-7 w-7" />
             Agendamentos
           </h2>
@@ -62,27 +59,27 @@ const CalendarView: React.FC = () => {
               value={selectedStore}
               disabled={isLoadingProfile}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="bg-white uppercase">
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todas as Lojas</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                <SelectItem value="ALL" className="uppercase">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA" className="uppercase">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS" className="uppercase">Porto de Mós</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Ordens de Serviço Agendadas ({scheduledOrders.length})</h3>
+          <h3 className="text-lg font-semibold uppercase">Ordens de Serviço Agendadas ({scheduledOrders.length})</h3>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {scheduledOrders.length > 0 ? (
               scheduledOrders.map(order => (
                 <ServiceOrderCard key={order.id} order={order} />
               ))
             ) : (
-              <div className="col-span-full text-center py-8 text-muted-foreground">
+              <div className="col-span-full text-center py-8 text-muted-foreground uppercase">
                 Nenhuma Ordem de Serviço agendada encontrada.
               </div>
             )}

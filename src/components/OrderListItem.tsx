@@ -57,14 +57,14 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                 style={{ backgroundColor: storeColor }}
             ></div>
             
-            <Card className="flex-1 border-none shadow-none m-0 p-0 bg-transparent min-w-0"> {/* Adicionado min-w-0 */}
-                <CardContent className="flex flex-col p-3 min-w-0"> {/* Adicionado min-w-0 */}
+            <Card className="flex-1 border-none shadow-none m-0 p-0 bg-transparent min-w-0">
+                <CardContent className="flex flex-col p-3 min-w-0">
                     
                     {/* Container para o cabeçalho e badge */}
                     <div className="flex justify-between items-start w-full mb-2 min-w-0">
-                        <span className="font-medium text-sm truncate pr-2 flex-1 min-w-0">{order.equipment} - {order.model}</span> {/* Adicionado flex-1 e min-w-0 */}
+                        <span className="font-medium text-sm truncate pr-2 flex-1 min-w-0 uppercase">{order.equipment} - {order.model}</span>
                         <Badge 
-                            className="self-start text-sm px-2 py-0.5 border-transparent text-white h-6 flex items-center flex-shrink-0"
+                            className="self-start text-sm px-2 py-0.5 border-transparent text-white h-6 flex items-center flex-shrink-0 uppercase"
                             style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                         >
                             {order.status}
@@ -74,13 +74,13 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                     <div className="flex flex-col flex-grow min-w-0">
                         <div className="flex items-center gap-1 mb-1 min-w-0">
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                            <span className="font-semibold text-base truncate min-w-0">{order.client}</span> {/* Adicionado min-w-0 */}
+                            <span className="font-semibold text-base truncate min-w-0 uppercase">{order.client}</span>
                         </div>
                         
                         <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                             {order.description}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-2 font-semibold truncate"> {/* Adicionado truncate */}
+                        <p className="text-xs text-muted-foreground mt-2 font-semibold truncate uppercase">
                             {order.display_id}
                         </p>
                         
@@ -88,13 +88,13 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                         {scheduledDate && (
                             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 flex-wrap">
                                 <CalendarIcon className="h-4 w-4" />
-                                <span className="font-medium">
+                                <span className="font-medium uppercase">
                                     {format(scheduledDate, 'dd/MM/yyyy')}
                                 </span>
                                 {isTimeExplicitlySet && (
                                     <>
                                         <Clock className="h-4 w-4 ml-2" />
-                                        <span className="font-medium">
+                                        <span className="font-medium uppercase">
                                             {format(scheduledDate, 'HH:mm')}
                                         </span>
                                     </>

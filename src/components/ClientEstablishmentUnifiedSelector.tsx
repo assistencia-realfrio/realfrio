@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom"; // Importar useNavigate
+import { useNavigate } from "react-router-dom";
 import { UserPlus, Check, Building } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
@@ -28,8 +28,8 @@ interface SelectionResult {
 }
 
 interface ClientEstablishmentUnifiedSelectorProps {
-  value: string; // Deve ser o ID do cliente
-  establishmentValue: string | null; // Deve ser o ID do estabelecimento
+  value: string;
+  establishmentValue: string | null;
   onChange: (result: SelectionResult) => void;
   disabled?: boolean;
 }
@@ -43,11 +43,10 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { clients, isLoading: isLoadingClients } = useClients();
   const { establishments, isLoading: isLoadingEstablishments } = useAllEstablishments();
-  const navigate = useNavigate(); // Inicializar useNavigate
+  const navigate = useNavigate();
 
   const isLoading = isLoadingClients || isLoadingEstablishments;
 
-  // Combina clientes e estabelecimentos para a busca
   const searchItems = useMemo(() => {
     const clientItems = clients.map(c => ({
         type: 'client',
@@ -57,7 +56,7 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
         clientName: c.name,
         establishmentId: null,
         establishmentName: null,
-        searchKey: `cliente ${c.name} ${c.billing_name || ''} ${c.locality || ''} ${c.contact || ''}`, // Adicionado billing_name
+        searchKey: `cliente ${c.name} ${c.billing_name || ''} ${c.locality || ''} ${c.contact || ''}`,
     }));
 
     const establishmentItems = establishments.map(e => ({
@@ -74,7 +73,6 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
     return [...clientItems, ...establishmentItems];
   }, [clients, establishments]);
 
-  // Determina o valor de exibição
   const displayValue = useMemo(() => {
     if (selectedEstablishmentId) {
         const est = establishments.find(e => e.id === selectedEstablishmentId);
@@ -98,8 +96,8 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
   };
 
   const handleNewClientClick = () => {
-    setIsPopoverOpen(false); // Fecha o popover
-    navigate("/clients/new"); // Navega para a página de criação de cliente
+    setIsPopoverOpen(false);
+    navigate("/clients/new");
   };
 
   if (isLoading) {
@@ -114,7 +112,7 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
             variant="outline"
             role="combobox"
             aria-expanded={isPopoverOpen}
-            className="w-full justify-between"
+            className="w-full justify-between uppercase"
             disabled={disabled}
           >
             <span className={cn(
@@ -129,34 +127,33 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command
             filter={(itemValue, search) => {
-              // Filtra pelo valor do item (que é a chave de busca)
+              if (itemValue === "Adicionar Novo Cliente") return 1;
               return itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
             }}
           >
             <CommandInput placeholder="Buscar cliente ou estabelecimento..." />
             <CommandList>
-              <CommandEmpty>Nenhum cliente ou estabelecimento encontrado.</CommandEmpty>
+              <CommandEmpty className="uppercase">Nenhum cliente ou estabelecimento encontrado.</CommandEmpty>
               
-              {/* Opção para Adicionar Novo Cliente */}
               <CommandGroup>
                 <CommandItem
                   key="NEW_CLIENT"
                   value="Adicionar Novo Cliente"
-                  onSelect={handleNewClientClick} // Usa a nova função de navegação
-                  className="text-primary font-medium cursor-pointer"
+                  onSelect={handleNewClientClick}
+                  className="text-primary font-medium cursor-pointer uppercase"
                 >
                   <UserPlus className="mr-2 h-4 w-4" />
                   Adicionar Novo Cliente
                 </CommandItem>
               </CommandGroup>
 
-              {/* Clientes e Estabelecimentos existentes */}
               <CommandGroup heading="Resultados">
                 {searchItems.map((item) => (
                   <CommandItem
                     key={`${item.type}-${item.id}`}
                     value={item.searchKey}
                     onSelect={() => handleSelectChange(item)}
+                    className="uppercase"
                   >
                     <Check
                       className={cn(

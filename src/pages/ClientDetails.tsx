@@ -29,7 +29,7 @@ import EquipmentForm from "@/components/EquipmentForm";
 import ClientEstablishmentsTab from "@/components/ClientEstablishmentsTab";
 import EstablishmentForm from "@/components/EstablishmentForm";
 import { useClientEstablishments } from "@/hooks/useClientEstablishments";
-import ClientHeader from "@/components/ClientHeader"; // Importar o novo componente
+import ClientHeader from "@/components/ClientHeader";
 
 const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     const hasGoogleDriveLink = client.google_drive_link && client.google_drive_link.trim() !== '';
@@ -54,7 +54,7 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                         <FileText className="h-5 w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{client.billing_name || 'Nome de faturação não definido'}</p>
+                        <p className="font-medium text-sm truncate uppercase">{client.billing_name || 'Nome de faturação não definido'}</p>
                     </div>
                 </div>
 
@@ -64,13 +64,13 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                         <MapPin className="h-5 w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{client.locality || 'Localidade não definida'}</p>
+                        <p className="font-medium text-sm truncate uppercase">{client.locality || 'Localidade não definida'}</p>
                         {client.maps_link && isLinkClickable(client.maps_link) && (
                             <a 
                                 href={getMapHref(client.maps_link)}
                                 target="_blank" 
                                 rel="noopener noreferrer" 
-                                className="text-blue-600 hover:underline text-xs"
+                                className="text-blue-600 hover:underline text-xs uppercase"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 Ver no Mapa
@@ -89,11 +89,11 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                         {client.contact ? (
-                            <a href={`tel:${client.contact}`} className="font-medium text-sm text-foreground hover:underline" onClick={(e) => e.stopPropagation()}>
+                            <a href={`tel:${client.contact}`} className="font-medium text-sm text-foreground hover:underline uppercase" onClick={(e) => e.stopPropagation()}>
                                 {client.contact}
                             </a>
                         ) : (
-                            <p className="font-medium text-sm text-muted-foreground">N/A</p>
+                            <p className="font-medium text-sm text-muted-foreground uppercase">N/A</p>
                         )}
                     </div>
                     {client.contact && (
@@ -108,11 +108,11 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                         {client.email ? (
-                            <a href={`mailto:${client.email}`} className="font-medium text-sm text-foreground hover:underline" onClick={(e) => e.stopPropagation()}>
+                            <a href={`mailto:${client.email}`} className="font-medium text-sm text-foreground hover:underline uppercase" onClick={(e) => e.stopPropagation()}>
                                 {client.email}
                             </a>
                         ) : (
-                            <p className="font-medium text-sm text-muted-foreground">N/A</p>
+                            <p className="font-medium text-sm text-muted-foreground uppercase">N/A</p>
                         )}
                     </div>
                     {client.email && (
@@ -131,13 +131,13 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                                 href={client.google_drive_link!} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
-                                className="font-medium text-sm text-foreground hover:underline"
+                                className="font-medium text-sm text-foreground hover:underline uppercase"
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 Documentos no Google Drive
                             </a>
                         ) : (
-                            <p className="font-medium text-sm text-muted-foreground">Nenhum documento no Google Drive</p>
+                            <p className="font-medium text-sm text-muted-foreground uppercase">Nenhum documento no Google Drive</p>
                         )}
                     </div>
                     {hasGoogleDriveLink && (
@@ -203,8 +203,6 @@ const ClientDetails: React.FC = () => {
   // Função para navegar para a criação de nova OS, pré-selecionando o cliente
   const handleNewOrder = () => {
     if (client?.id) {
-      // Poderíamos passar o ID do cliente via state ou query params, mas por enquanto,
-      // apenas navegamos para a página de criação. O seletor de cliente será o primeiro campo.
       navigate(`/orders/new?clientId=${client.id}`);
     }
   };
@@ -224,9 +222,9 @@ const ClientDetails: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold">Cliente não encontrado</h2>
-          <p className="text-muted-foreground">O cliente com ID {id} não existe ou você não tem permissão para vê-lo.</p>
-          <Button onClick={() => navigate('/clients')} className="mt-4">Voltar para Clientes</Button>
+          <h2 className="text-2xl font-bold uppercase">Cliente não encontrado</h2>
+          <p className="text-muted-foreground uppercase">O cliente com ID {id} não existe ou você não tem permissão para vê-lo.</p>
+          <Button onClick={() => navigate('/clients')} className="mt-4 uppercase">Voltar para Clientes</Button>
         </div>
       </Layout>
     );
@@ -234,7 +232,7 @@ const ClientDetails: React.FC = () => {
 
   const initialFormData: ClientFormValues = {
     name: client.name,
-    billing_name: client.billing_name || "", // NOVO: Adicionando billing_name
+    billing_name: client.billing_name || "",
     contact: client.contact || "",
     email: client.email || "",
     store: client.store || "CALDAS DA RAINHA",
@@ -245,13 +243,12 @@ const ClientDetails: React.FC = () => {
 
   return (
     <Layout>
-      <div className="space-y-6"> {/* Removido pb-20 */}
+      <div className="space-y-6">
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-1 items-center gap-2 sm:gap-4 min-w-0">
             <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            {/* Título do cliente removido conforme solicitado */}
           </div>
           
           <div className="flex flex-shrink-0 space-x-2">
@@ -268,12 +265,12 @@ const ClientDetails: React.FC = () => {
                 )}
                 
                 {isEditing ? (
-                    <Button variant="outline" onClick={() => setIsEditing(false)} className="hidden sm:flex">
+                    <Button variant="outline" onClick={() => setIsEditing(false)} className="hidden sm:flex uppercase">
                         <X className="h-4 w-4 mr-2" />
                         Cancelar
                     </Button>
                 ) : (
-                    <Button variant="outline" onClick={() => setIsEditing(true)} className="hidden sm:flex">
+                    <Button variant="outline" onClick={() => setIsEditing(true)} className="hidden sm:flex uppercase">
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
                     </Button>
@@ -285,7 +282,7 @@ const ClientDetails: React.FC = () => {
                             variant="destructive" 
                             disabled={deleteClient.isPending}
                             aria-label="Excluir Cliente"
-                            className="flex items-center justify-center w-10 h-10 sm:w-auto sm:h-10 sm:px-4"
+                            className="flex items-center justify-center w-10 h-10 sm:w-auto sm:h-10 sm:px-4 uppercase"
                         >
                             <Trash2 className="h-4 w-4 mr-0 sm:mr-2" />
                             <span className="hidden sm:inline">Excluir</span>
@@ -293,17 +290,17 @@ const ClientDetails: React.FC = () => {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                            <AlertDialogTitle className="uppercase">Tem certeza absoluta?</AlertDialogTitle>
                             <AlertDialogDescription>
                                 Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
                                 <span className="font-semibold"> {client.name}</span> e todos os dados associados.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogCancel className="uppercase">Cancelar</AlertDialogCancel>
                             <AlertDialogAction 
                                 onClick={handleDeleteClient} 
-                                className="bg-destructive hover:bg-destructive/90"
+                                className="bg-destructive hover:bg-destructive/90 uppercase"
                                 disabled={deleteClient.isPending}
                             >
                                 Excluir
@@ -378,7 +375,7 @@ const ClientDetails: React.FC = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
+              <DialogTitle className="uppercase">Adicionar Novo Equipamento</DialogTitle>
             </DialogHeader>
             <EquipmentForm 
               clientId={client.id} 
@@ -402,7 +399,7 @@ const ClientDetails: React.FC = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Adicionar Novo Estabelecimento</DialogTitle>
+              <DialogTitle className="uppercase">Adicionar Novo Estabelecimento</DialogTitle>
             </DialogHeader>
             <EstablishmentForm
               clientId={client.id}

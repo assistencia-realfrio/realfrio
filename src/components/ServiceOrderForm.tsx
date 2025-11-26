@@ -22,10 +22,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { showSuccess, showError, showLoading, dismissToast } from "@/utils/toast";
-import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector"; // NOVO SELETOR
+import ClientEstablishmentUnifiedSelector from "./ClientEstablishmentUnifiedSelector";
 import EquipmentSelector from "./EquipmentSelector";
 import { useServiceOrders, ServiceOrderMutationPayload, serviceOrderStatuses } from "@/hooks/useServiceOrders";
-import { useEquipments } from "@/hooks/useEquipments"; // CORRIGIDO: Adicionado 'from'
+import { useEquipments } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, MapPin, Phone, CalendarIcon, XCircle, HardDrive, Tag, Box, Hash, Clock, Building } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -49,13 +49,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-// Função para gerar intervalos de tempo de 30 minutos, das 08:00 às 18:00
 const generateTimeSlots = (): string[] => {
   const slots: string[] = [];
-  // Começa às 8h (h=8) e vai até 18h (h=18)
   for (let h = 8; h <= 18; h++) {
     for (let m = 0; m < 60; m += 30) {
-      // Se for 18:30, não adiciona, pois o limite é 18:00
       if (h === 18 && m > 0) continue;
       slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
     }
@@ -89,7 +86,7 @@ interface ServiceOrderFormProps {
   initialData?: InitialData;
   onSubmit: (data: ServiceOrderFormValues & { id?: string }) => void;
   onCancel?: () => void;
-  isEditing: boolean; // NOVO: Prop para controlar o modo de edição
+  isEditing: boolean;
 }
 
 const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubmit, onCancel, isEditing }) => {
@@ -112,7 +109,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
       establishment_id: null,
       description: "",
       status: "POR INICIAR",
-      store: undefined, // Valor padrão undefined para novas OS
+      store: undefined,
       scheduled_date: null,
       scheduled_time: null,
     },
@@ -121,7 +118,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const { createOrder, updateOrder } = useServiceOrders();
   const isExistingOrder = !!initialData?.id;
   
-  // Client and Equipment selectors are disabled if it's an existing order AND we are NOT in editing mode.
   const isSelectorDisabled = isExistingOrder && !isEditing; 
 
   const clientId = form.watch("client_id");
@@ -151,13 +147,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
   const { establishments } = useClientEstablishments(clientId);
   const selectedEstablishmentDetails = establishments.find(est => est.id === establishmentId);
 
-  // NOVO: Função para atualizar rapidamente campos específicos
   const handleQuickUpdate = async (fieldName: keyof ServiceOrderFormValues, newValue: any) => {
-    if (isExistingOrder && initialData?.id) { // Quick update if existing order
+    if (isExistingOrder && initialData?.id) {
       const currentFormValues = form.getValues();
       let updatedValues = { ...currentFormValues, [fieldName]: newValue };
 
-      // Special handling for scheduled_date and scheduled_time
       let finalScheduledDate: Date | null = updatedValues.scheduled_date || null;
       if (updatedValues.scheduled_date) {
         if (updatedValues.scheduled_time) {
@@ -167,7 +161,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           finalScheduledDate = setMinutes(setHours(updatedValues.scheduled_date, 0), 0);
         }
       } else {
-        finalScheduledDate = null; // If date is null, time must also be null
+        finalScheduledDate = null;
       }
 
       const mutationData: ServiceOrderMutationPayload = {
@@ -202,16 +196,12 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     setEquipmentDetails(details);
   };
 
-  // NOVO: Handler para o seletor unificado
   const handleClientEstablishmentChange = (result: { clientId: string, clientName: string, establishmentId: string | null, establishmentName: string | null }) => {
-    // 1. Atualiza o cliente
     form.setValue("client_id", result.clientId, { shouldValidate: true });
     
-    // 2. Atualiza o estabelecimento
     form.setValue("establishment_id", result.establishmentId, { shouldValidate: true });
     setEstablishmentName(result.establishmentName);
     
-    // 3. Se o cliente mudou, resetamos o equipamento para forçar a re-seleção
     if (result.clientId !== clientId) {
         form.setValue("equipment_id", "", { shouldValidate: true });
         setEquipmentDetails({ name: '', brand: null, model: null, serial_number: null });
@@ -240,7 +230,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     }
   };
 
-  const handleSubmit = async (data: ServiceOrderFormValues) => {
+  const handleFormSubmit = async (data: ServiceOrderFormValues) => {
     const { scheduled_time, scheduled_date, ...restOfData } = data;
     
     let scheduledDateWithTime: Date | null = scheduled_date || null;
@@ -335,7 +325,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
         equipment_id: restOfFormValues.equipment_id,
         establishment_id: restOfFormValues.establishment_id,
         establishment_name: establishmentName,
-        scheduled_date: null, // Explicitamente null para cancelamento
+        scheduled_date: null,
         updated_at: new Date().toISOString(),
       };
 
@@ -355,10 +345,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         
-        {/* 1. Cliente e Localização (UNIFICADO) */}
         <Card>
           <CardHeader className="p-4 pb-0">
-            {/* <CardTitle className="text-lg">Cliente e Localização</CardTitle> */}
           </CardHeader>
           <CardContent className="space-y-4 p-4 pt-2">
             <FormField
@@ -366,14 +354,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="client_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cliente / Estabelecimento *</FormLabel>
+                  <FormLabel className="uppercase">Cliente / Estabelecimento *</FormLabel>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-grow w-full min-w-0">
                       <ClientEstablishmentUnifiedSelector 
                         value={field.value} 
                         establishmentValue={establishmentId}
                         onChange={handleClientEstablishmentChange} 
-                        disabled={isSelectorDisabled} // Desabilita se for OS existente e não estiver editando
+                        disabled={isSelectorDisabled}
                       />
                     </div>
                     <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
@@ -382,7 +370,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon"
                           onClick={handleViewClientDetails} 
-                          disabled={!field.value || !isEditing} // Desabilita se não estiver editando
+                          disabled={!field.value || !isEditing}
                           className="flex-1 sm:flex-none"
                           aria-label="Detalhes do Cliente"
                       >
@@ -393,7 +381,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon"
                           onClick={handleOpenClientMap}
-                          disabled={!hasClientMapLink || !isEditing} // Desabilita se não estiver editando
+                          disabled={!hasClientMapLink || !isEditing}
                           className="flex-1 sm:flex-none"
                           aria-label="Ver no Mapa"
                       >
@@ -404,7 +392,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon"
                           onClick={handleCallClientContact}
-                          disabled={!hasClientContact || !isEditing} // Desabilita se não estiver editando
+                          disabled={!hasClientContact || !isEditing}
                           className="flex-1 sm:flex-none"
                           aria-label="Ligar para o Cliente"
                       >
@@ -417,12 +405,11 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               )}
             />
 
-            {/* NOVO: Exibição dos detalhes do Estabelecimento selecionado */}
             {establishmentId && selectedEstablishmentDetails && (
                 <div className="space-y-2 pt-2 border-t mt-4">
                     <div className="flex items-center gap-2">
                         <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <p className="font-semibold text-sm">Estabelecimento: {selectedEstablishmentDetails.name}</p>
+                        <p className="font-semibold text-sm uppercase">Estabelecimento: {selectedEstablishmentDetails.name}</p>
                     </div>
                     <div className="flex gap-2 w-full justify-start">
                         <Button 
@@ -431,7 +418,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             size="icon"
                             onClick={handleViewEstablishmentDetails} 
                             className="flex-1 sm:flex-none"
-                            disabled={!isEditing} // Desabilita se não estiver editando
+                            disabled={!isEditing}
                             aria-label="Ver Estabelecimento"
                         >
                             <Building className="h-4 w-4" />
@@ -441,7 +428,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             variant="outline" 
                             size="icon"
                             onClick={handleOpenEstablishmentMap}
-                            disabled={!hasEstablishmentMapLink || !isEditing} // Desabilita se não estiver editando
+                            disabled={!hasEstablishmentMapLink || !isEditing}
                             className="flex-1 sm:flex-none"
                             aria-label="Ver no Mapa"
                         >
@@ -452,7 +439,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             variant="outline" 
                             size="icon"
                             onClick={handleCallEstablishmentPhone}
-                            disabled={!hasEstablishmentPhone || !isEditing} // Desabilita se não estiver editando
+                            disabled={!hasEstablishmentPhone || !isEditing}
                             className="flex-1 sm:flex-none"
                             aria-label="Ligar"
                         >
@@ -464,10 +451,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
 
-        {/* 2. Equipamento */}
         <Card>
           <CardHeader className="p-4 pb-0">
-            {/* <CardTitle className="text-lg">Equipamento</CardTitle> */}
           </CardHeader>
           <CardContent className="space-y-4 p-4 pt-2">
             <FormField
@@ -475,14 +460,14 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="equipment_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Equipamento *</FormLabel>
+                  <FormLabel className="uppercase">Equipamento *</FormLabel>
                   <div className="flex items-center gap-2">
                       <div className="flex-grow">
                           <EquipmentSelector 
                             clientId={clientId} 
                             value={field.value} 
                             onChange={handleEquipmentChange} 
-                            disabled={isSelectorDisabled} // Desabilita se for OS existente e não estiver editando
+                            disabled={isSelectorDisabled}
                           />
                       </div>
                       <Button 
@@ -490,7 +475,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon" 
                           onClick={handleViewEquipmentDetails} 
-                          disabled={!equipmentId || !isEditing} // Desabilita se não estiver editando
+                          disabled={!equipmentId || !isEditing}
                           aria-label="Ver Detalhes do Equipamento"
                       >
                           <HardDrive className="h-4 w-4" />
@@ -501,28 +486,27 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               )}
             />
             
-            {/* Exibir detalhes do equipamento selecionado (apenas leitura) */}
             {equipmentId && (
                 <div className="grid grid-cols-2 gap-4 text-sm pt-2">
                     <div className="flex items-center gap-2">
                         <Tag className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <div>
-                            <p className="text-muted-foreground text-xs">Marca</p>
-                            <p className="font-medium">{equipmentDetails.brand || 'N/A'}</p>
+                            <p className="text-muted-foreground text-xs uppercase">Marca</p>
+                            <p className="font-medium uppercase">{equipmentDetails.brand || 'N/A'}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <Box className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <div>
-                            <p className="text-muted-foreground text-xs">Modelo</p>
-                            <p className="font-medium">{equipmentDetails.model || 'N/A'}</p>
+                            <p className="text-muted-foreground text-xs uppercase">Modelo</p>
+                            <p className="font-medium uppercase">{equipmentDetails.model || 'N/A'}</p>
                         </div>
                     </div>
                     <div className="col-span-2 flex items-center gap-2">
                         <Hash className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <div>
-                            <p className="text-muted-foreground text-xs">Nº de Série</p>
-                            <p className="font-medium">{equipmentDetails.serial_number || 'N/A'}</p>
+                            <p className="text-muted-foreground text-xs uppercase">Nº de Série</p>
+                            <p className="font-medium uppercase">{equipmentDetails.serial_number || 'N/A'}</p>
                         </div>
                     </div>
                 </div>
@@ -530,10 +514,8 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
 
-        {/* 3. Detalhes do Serviço */}
         <Card>
           <CardHeader className="p-4 pb-0">
-            {/* <CardTitle className="text-lg">Detalhes do Serviço e Agendamento</CardTitle> */}
           </CardHeader>
           <CardContent className="space-y-4 p-4 pt-2">
             <FormField
@@ -541,7 +523,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descrição do Serviço *</FormLabel>
+                  <FormLabel className="uppercase">Descrição do Serviço *</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} disabled={!isEditing} />
                   </FormControl>
@@ -562,10 +544,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         handleQuickUpdate(field.name, value); 
                       }} 
                       value={field.value}
-                      // Removido disabled={!isEditing}
                     >
-                      <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
-                      <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      <FormControl><SelectTrigger className="uppercase"><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
+                      <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s} className="uppercase">{s}</SelectItem>)}</SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
@@ -582,16 +563,15 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         handleQuickUpdate(field.name, value); 
                       }} 
                       value={field.value}
-                      // Removido disabled={!isEditing}
                     >
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a loja *" /> {/* Placeholder para indicar que é obrigatório */}
+                        <SelectTrigger className="uppercase">
+                          <SelectValue placeholder="Selecione a loja *" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                        <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                        <SelectItem value="CALDAS DA RAINHA" className="uppercase">Caldas da Rainha</SelectItem>
+                        <SelectItem value="PORTO DE MÓS" className="uppercase">Porto de Mós</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -602,10 +582,9 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
 
-        {/* NOVO: Card de Agendamento */}
         <Card>
           <CardHeader className="p-4 pb-0 flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Agendamento</CardTitle>
+            <CardTitle className="text-lg uppercase">Agendamento</CardTitle>
             {hasAppointment && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -613,7 +592,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     variant="ghost" 
                     size="icon" 
                     className="text-destructive hover:text-destructive"
-                    disabled={updateOrder.isPending || !hasAppointment} // Habilitado se houver agendamento
+                    disabled={updateOrder.isPending || !hasAppointment}
                     aria-label="Cancelar Agendamento"
                   >
                     <XCircle className="h-4 w-4" />
@@ -621,16 +600,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Tem certeza que deseja cancelar?</AlertDialogTitle>
+                    <AlertDialogTitle className="uppercase">Tem certeza que deseja cancelar?</AlertDialogTitle>
                     <AlertDialogDescription>
                       Esta ação removerá a data e hora agendadas para esta Ordem de Serviço.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Não</AlertDialogCancel>
+                    <AlertDialogCancel className="uppercase">Não</AlertDialogCancel>
                     <AlertDialogAction 
                       onClick={handleCancelAppointment} 
-                      className="bg-destructive hover:bg-destructive/90"
+                      className="bg-destructive hover:bg-destructive/90 uppercase"
                       disabled={updateOrder.isPending}
                     >
                       Sim, Cancelar
@@ -646,17 +625,16 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="scheduled_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Data</FormLabel>
+                  <FormLabel className="uppercase">Data</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full justify-between text-left font-normal",
+                            "w-full justify-between text-left font-normal uppercase",
                             !field.value && "text-muted-foreground"
                           )}
-                          // Removido disabled={!isEditing}
                         >
                           {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : ""}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -673,7 +651,6 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         }}
                         initialFocus
                         locale={ptBR}
-                        // Removido disabled={!isEditing}
                       />
                     </PopoverContent>
                   </Popover>
@@ -687,7 +664,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
               name="scheduled_time"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Hora</FormLabel>
+                  <FormLabel className="uppercase">Hora</FormLabel>
                   <Select 
                     onValueChange={(value) => {
                       const finalValue = value === "NONE_SELECTED" ? null : value;
@@ -695,18 +672,17 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                       handleQuickUpdate(field.name, finalValue);
                     }} 
                     value={field.value || "NONE_SELECTED"}
-                    // Removido disabled={!isEditing}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full justify-between text-left font-normal">
+                      <SelectTrigger className="w-full justify-between text-left font-normal uppercase">
                         <SelectValue placeholder="Hora do Agendamento" />
                         <Clock className="ml-auto h-4 w-4 opacity-50" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="NONE_SELECTED"></SelectItem>
+                      <SelectItem value="NONE_SELECTED" className="uppercase"></SelectItem>
                       {timeSlots.map(time => (
-                        <SelectItem key={time} value={time}>
+                        <SelectItem key={time} value={time} className="uppercase">
                           {time}
                         </SelectItem>
                       ))}
@@ -719,11 +695,10 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
           </CardContent>
         </Card>
         
-        {/* Botões de Ação (Salvar/Cancelar) - Visíveis apenas se estiver editando ou for novo */}
         {(isEditing || !isExistingOrder) && (
             <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
-              {onCancel && <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">Cancelar</Button>}
-              <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto">{isExistingOrder ? "Salvar Alterações" : "Criar Ordem de Serviço"}</Button>
+              {onCancel && <Button type="button" variant="outline" onClick={onCancel} disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto uppercase">Cancelar</Button>}
+              <Button type="submit" disabled={createOrder.isPending || updateOrder.isPending} className="w-full sm:w-auto uppercase">{isExistingOrder ? "Salvar Alterações" : "Criar Ordem de Serviço"}</Button>
             </div>
         )}
       </form>

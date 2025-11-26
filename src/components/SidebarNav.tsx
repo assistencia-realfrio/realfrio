@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Wrench, Menu, Users, Calendar as CalendarIcon, Plane } from "lucide-react"; // Adicionado Plane para o ícone de férias
+import { LayoutDashboard, Wrench, Menu, Users, Calendar as CalendarIcon, Plane } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -14,24 +14,24 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Assistências", // Alterado de "Ordens de Serviço" para "Assistências"
+    title: "Assistências",
     href: "/",
     icon: Wrench,
   },
   {
-    title: "Clientes", // Novo item para a página de Clientes
+    title: "Clientes",
     href: "/clients",
     icon: Users,
   },
   {
-    title: "Agendamentos", // NOVO: Item para a página de calendário
+    title: "Agendamentos",
     href: "/calendar",
-    icon: CalendarIcon, // Adicionado o ícone aqui
+    icon: CalendarIcon,
   },
   {
-    title: "Férias", // NOVO: Item para a página de férias
+    title: "Férias",
     href: "/vacations",
-    icon: Plane, // Ícone de avião para férias
+    icon: Plane,
   },
 ];
 
@@ -61,7 +61,7 @@ const NavLink: React.FC<NavLinkProps> = ({ item, isMobile = false, onClick }) =>
     <Link
       to={item.href}
       onClick={onClick}
-      className={cn(baseClasses, isActive ? activeClasses : inactiveClasses)}
+      className={cn(baseClasses, isActive ? activeClasses : inactiveClasses, "uppercase")}
     >
       <Icon className="h-5 w-5" />
       {item.title}

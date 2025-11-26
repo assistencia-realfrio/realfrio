@@ -44,19 +44,20 @@ const Dashboard: React.FC = () => {
     <Layout>
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Gestão</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase">Dashboard de Gestão</h2>
           <div className="w-full sm:w-48">
             <Select 
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
               value={selectedStore}
+              disabled={isLoadingProfile}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger className="bg-white uppercase">
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Todas as Lojas</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
-                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
+                <SelectItem value="ALL" className="uppercase">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA" className="uppercase">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS" className="uppercase">Porto de Mós</SelectItem>
               </SelectContent>
             </Select>
           </div>

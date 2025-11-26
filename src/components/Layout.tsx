@@ -17,7 +17,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useActivities } from "@/hooks/useActivities";
 import { GlobalSearch } from "@/components/GlobalSearch";
-import { useProfile } from "@/hooks/useProfile"; // Importar o hook useProfile
+import { useProfile } from "@/hooks/useProfile";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,7 +25,7 @@ interface LayoutProps {
 
 const Header = () => {
   const { user } = useSession();
-  const { profile, isLoading: isLoadingProfile } = useProfile(); // Usar o hook useProfile
+  const { profile, isLoading: isLoadingProfile } = useProfile();
   const navigate = useNavigate();
   const { data: activities, isLoading: isLoadingActivities } = useActivities();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -59,7 +59,6 @@ const Header = () => {
     navigate(path);
   };
 
-  // Usar o nome do perfil se disponível, caso contrário, o e-mail
   const userName = (profile?.first_name || profile?.last_name) 
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
     : user?.email || "Usuário";
@@ -67,7 +66,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm"> {/* Alterado aqui */}
+      <header className="sticky top-0 z-40 w-full border-b bg-card shadow-sm">
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center space-x-4">
             <MobileSidebar />
@@ -95,10 +94,10 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
-                <DropdownMenuLabel>Atividade Recente</DropdownMenuLabel>
+                <DropdownMenuLabel className="uppercase">Atividade Recente</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {isLoadingActivities ? (
-                  <DropdownMenuItem disabled>Carregando...</DropdownMenuItem>
+                  <DropdownMenuItem disabled className="uppercase">Carregando...</DropdownMenuItem>
                 ) : activities && activities.length > 0 ? (
                   activities.map((activity, index) => (
                     <React.Fragment key={activity.id}>
@@ -106,10 +105,10 @@ const Header = () => {
                         onClick={() => handleNotificationClick(activity.entity_type, activity.entity_id)}
                         className="flex flex-col items-start space-y-1 cursor-pointer py-2"
                       >
-                        <p className="text-sm text-foreground line-clamp-2">
+                        <p className="text-sm text-foreground line-clamp-2 uppercase">
                           {activity.content}
                         </p>
-                        <p className="text-xs text-muted-foreground"> {/* Removido self-end */}
+                        <p className="text-xs text-muted-foreground uppercase">
                           {activity.user_full_name} • {activity.time_ago}
                         </p>
                       </DropdownMenuItem>
@@ -117,7 +116,7 @@ const Header = () => {
                     </React.Fragment>
                   ))
                 ) : (
-                  <DropdownMenuItem disabled>Nenhuma atividade recente.</DropdownMenuItem>
+                  <DropdownMenuItem disabled className="uppercase">Nenhuma atividade recente.</DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
@@ -131,20 +130,20 @@ const Header = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-sm font-medium leading-none uppercase">{userName}</p>
                     {displayEmail && (
-                      <p className="text-xs leading-none text-muted-foreground">
+                      <p className="text-xs leading-none text-muted-foreground uppercase">
                         {displayEmail}
                       </p>
                     )}
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer uppercase">
                   <User className="mr-2 h-4 w-4" />
                   Meu Perfil
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer uppercase">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sair
                 </DropdownMenuItem>
@@ -167,7 +166,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <DesktopSidebar />
         </aside>
         
-        <main className="flex-grow p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]"> {/* Ajustado para 4rem */}
+        <main className="flex-grow p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-4rem)]">
           {children}
         </main>
       </div>

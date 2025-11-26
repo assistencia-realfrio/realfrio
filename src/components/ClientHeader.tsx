@@ -26,9 +26,9 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({ client }) => {
         </AvatarFallback>
       </Avatar>
       <div className="flex flex-col min-w-0">
-        <h1 className="text-xl font-bold truncate">{client.name}</h1>
+        <h1 className="text-xl font-bold truncate uppercase">{client.name}</h1>
         {subtitle && (
-          <p className="text-sm text-muted-foreground truncate">{subtitle}</p>
+          <p className="text-sm text-muted-foreground truncate uppercase">{subtitle}</p>
         )}
       </div>
     </div>

@@ -38,11 +38,11 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Equipamento / Modelo</TableHead>
-            <TableHead>Cliente</TableHead>
-            <TableHead className="hidden sm:table-cell">Estabelecimento</TableHead> {/* NOVO: Coluna Estabelecimento */}
-            <TableHead className="hidden sm:table-cell">Marca</TableHead>
-            <TableHead className="hidden md:table-cell">Nº Série</TableHead>
+            <TableHead className="uppercase">Equipamento / Modelo</TableHead>
+            <TableHead className="uppercase">Cliente</TableHead>
+            <TableHead className="hidden sm:table-cell uppercase">Estabelecimento</TableHead>
+            <TableHead className="hidden sm:table-cell uppercase">Marca</TableHead>
+            <TableHead className="hidden md:table-cell uppercase">Nº Série</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -54,18 +54,18 @@ const EquipmentTable: React.FC<EquipmentTableProps> = ({ searchTerm }) => {
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <TableCell className="font-medium">
-                  <div>{equipment.name}</div>
-                  <div className="text-sm text-muted-foreground">{equipment.model || 'N/A'}</div>
+                  <div className="uppercase">{equipment.name}</div>
+                  <div className="text-sm text-muted-foreground uppercase">{equipment.model || 'N/A'}</div>
                 </TableCell>
-                <TableCell>{equipment.client_name}</TableCell>
-                <TableCell className="hidden sm:table-cell">{equipment.establishment_name || 'Sede / N/A'}</TableCell> {/* NOVO: Exibir nome do estabelecimento */}
-                <TableCell className="hidden sm:table-cell">{equipment.brand || 'N/A'}</TableCell>
-                <TableCell className="hidden md:table-cell">{equipment.serial_number || 'N/A'}</TableCell>
+                <TableCell className="uppercase">{equipment.client_name}</TableCell>
+                <TableCell className="hidden sm:table-cell uppercase">{equipment.establishment_name || 'Sede / N/A'}</TableCell>
+                <TableCell className="hidden sm:table-cell uppercase">{equipment.brand || 'N/A'}</TableCell>
+                <TableCell className="hidden md:table-cell uppercase">{equipment.serial_number || 'N/A'}</TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground"> {/* Colspan ajustado para 5 */}
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground uppercase">
                 Nenhum equipamento encontrado.
               </TableCell>
             </TableRow>
