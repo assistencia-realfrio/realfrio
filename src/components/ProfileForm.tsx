@@ -73,7 +73,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
             <FormItem>
               <FormLabel className="uppercase">Primeiro Nome *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: João" {...field} value={field.value || ""} />
+                <Input placeholder="Ex: João" {...field} value={field.value || ""} className="uppercase" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,7 +86,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
             <FormItem>
               <FormLabel className="uppercase">Último Nome *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Silva" {...field} value={field.value || ""} />
+                <Input placeholder="Ex: Silva" {...field} value={field.value || ""} className="uppercase" />
               </FormControl>
               <FormMessage />
             </FormItem>

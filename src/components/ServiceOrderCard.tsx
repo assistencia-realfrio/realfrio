@@ -148,7 +148,7 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                         </div>
                         <div className="flex items-start gap-2">
                             <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                            <p className="text-sm text-muted-foreground line-clamp-2">{order.description}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-2 uppercase">{order.description}</p>
                         </div>
                     </div>
 

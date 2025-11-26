@@ -1,10 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom'; // Importar ReactDOM
-import { FileText, Wrench, Paperclip } from 'lucide-react'; // Removido History
+import ReactDOM from 'react-dom';
+import { FileText, Wrench, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'orders' | 'attachments'; // 'history' removido do tipo
+type View = 'details' | 'orders' | 'attachments';
 
 interface EquipmentDetailsBottomNavProps {
   selectedView: View;
@@ -14,14 +14,12 @@ interface EquipmentDetailsBottomNavProps {
 const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'orders', icon: Wrench, label: 'Ordens' },
-  { id: 'attachments', icon: Paperclip, label: 'Anexos' }, // Mantido para anexos
-  // { id: 'history', icon: History, label: 'Histórico' }, // Removido
+  { id: 'attachments', icon: Paperclip, label: 'Anexos' },
 ];
 
 const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {
-  // Renderiza o componente usando um portal
   return ReactDOM.createPortal(
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto"> {/* Adicionado top-auto */}
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto">
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
           <Button
@@ -35,12 +33,12 @@ const EquipmentDetailsBottomNav: React.FC<EquipmentDetailsBottomNavProps> = ({ s
             aria-label={item.label}
           >
             <item.icon className="h-6 w-6" />
-            <span className="text-xs mt-1">{item.label}</span>
+            <span className="text-xs mt-1 uppercase">{item.label}</span>
           </Button>
         ))}
       </div>
     </div>,
-    document.getElementById('bottom-nav-root') as HTMLElement // Onde o portal será renderizado
+    document.getElementById('bottom-nav-root') as HTMLElement
   );
 };
 

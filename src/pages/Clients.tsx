@@ -38,18 +38,16 @@ const Clients: React.FC = () => {
         </div>
 
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
-          {/* Campo de Busca */}
           <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
                 placeholder="Buscar por nome ou contato..." 
-                className="pl-10 bg-white" 
+                className="pl-10 bg-white uppercase" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
-          {/* Filtro de Loja */}
           <div className="w-full md:w-48">
             <Select 
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 

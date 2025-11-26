@@ -1,10 +1,10 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Clock } from "lucide-react"; // Manter ícones se forem usados para indicar status
+import { CheckCircle, Clock } from "lucide-react";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
-import OrderListItem from "./OrderListItem"; // Reutilizando o componente
+import OrderListItem from "./OrderListItem";
 
 interface EquipmentOrdersTabProps {
   equipmentId: string;
@@ -13,13 +13,11 @@ interface EquipmentOrdersTabProps {
 const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) => {
   const { orders: allOrders, isLoading } = useServiceOrders();
   
-  // Filtra as ordens pelo ID do equipamento
   const equipmentOrders = allOrders.filter(order => order.equipment_id === equipmentId);
 
   const activeOrders = equipmentOrders.filter(o => isActiveStatus(o.status));
   const completedOrders = equipmentOrders.filter(o => !isActiveStatus(o.status));
 
-  // Combina as ordens, colocando as ativas primeiro
   const combinedOrders = [...activeOrders, ...completedOrders];
 
   const renderOrderList = (orders: ServiceOrder[], emptyMessage: string) => (
@@ -33,7 +31,7 @@ const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) 
       ) : orders.length > 0 ? (
         orders.map(order => <OrderListItem key={order.id} order={order} />)
       ) : (
-        <p className="text-center text-muted-foreground py-8 text-sm">{emptyMessage}</p>
+        <p className="text-center text-muted-foreground py-8 text-sm uppercase">{emptyMessage}</p>
       )}
     </div>
   );
@@ -41,7 +39,7 @@ const EquipmentOrdersTab: React.FC<EquipmentOrdersTabProps> = ({ equipmentId }) 
   return (
     <div className="shadow-none border-none">
       <CardHeader className="p-0 pb-4">
-        <CardTitle className="text-lg">Ordens de Serviço do Equipamento ({combinedOrders.length})</CardTitle>
+        <CardTitle className="text-lg uppercase">Ordens de Serviço do Equipamento ({combinedOrders.length})</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         {renderOrderList(combinedOrders, "Nenhuma Ordem de Serviço encontrada para este equipamento.")}

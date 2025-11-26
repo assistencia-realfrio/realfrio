@@ -23,7 +23,6 @@ const Dashboard: React.FC = () => {
   
   const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
 
-  // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.
   const totalTimeRegistered = "0h"; 
 
   if (isLoading || isLoadingProfile) {
@@ -63,7 +62,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Seção de Métricas */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total de OS"
@@ -95,10 +93,8 @@ const Dashboard: React.FC = () => {
           />
         </div>
 
-        {/* Seção de Gráficos */}
         <div className="grid gap-4 lg:grid-cols-3">
           <StatusChart data={statusChartData} isLoading={isLoading} />
-          {/* Outros gráficos ou listas podem ser adicionados aqui */}
           <div className="lg:col-span-2">
             <MetricCard
                 title="Próximos Passos"

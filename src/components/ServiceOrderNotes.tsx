@@ -231,6 +231,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
             onChange={(e) => setNewNoteContent(e.target.value)}
             rows={3}
             disabled={addNoteMutation.isPending}
+            className="uppercase"
           />
           <Button 
             onClick={handleAddNote} 
@@ -254,7 +255,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                 {notes.map((note) => (
                   <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0 flex justify-between items-start">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground mb-1">{note.content}</p>
+                      <p className="text-sm text-foreground mb-1 uppercase">{note.content}</p>
                       <p className="text-xs text-muted-foreground uppercase">
                         Por <span className="font-medium">{note.user_full_name}</span> •{" "}
                         {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
@@ -282,7 +283,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle className="uppercase">Tem certeza absoluta?</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogDescription className="uppercase">
                                   Esta ação não pode ser desfeita. Isso excluirá permanentemente esta nota.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
@@ -322,6 +323,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
               onChange={(e) => setEditedContent(e.target.value)}
               rows={5}
               disabled={updateNoteMutation.isPending}
+              className="uppercase"
             />
           </div>
           <DialogFooter>

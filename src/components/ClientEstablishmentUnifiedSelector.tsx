@@ -131,7 +131,7 @@ const ClientEstablishmentUnifiedSelector: React.FC<ClientEstablishmentUnifiedSel
               return itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
             }}
           >
-            <CommandInput placeholder="Buscar cliente ou estabelecimento..." />
+            <CommandInput placeholder="Buscar cliente ou estabelecimento..." className="uppercase" />
             <CommandList>
               <CommandEmpty className="uppercase">Nenhum cliente ou estabelecimento encontrado.</CommandEmpty>
               

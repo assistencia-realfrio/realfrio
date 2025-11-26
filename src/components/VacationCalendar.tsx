@@ -192,7 +192,7 @@ const VacationCalendar: React.FC<VacationCalendarProps> = ({ vacations, isLoadin
                                       {format(new Date(vac.end_date), "dd/MM/yyyy", { locale: ptBR })}
                                       <span className="ml-2 font-semibold">({vac.working_days_count} dias úteis)</span>
                                     </p>
-                                    {vac.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2">{vac.notes}</p>}
+                                    {vac.notes && <p className="text-xs text-muted-foreground mt-1 italic line-clamp-2 uppercase">{vac.notes}</p>}
                                   </div>
                                 </li>
                               ))}

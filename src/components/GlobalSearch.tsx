@@ -37,7 +37,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onOpenChange }
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Pesquisar clientes, OS, equipamentos, estabelecimentos..." />
+      <CommandInput placeholder="Pesquisar clientes, OS, equipamentos, estabelecimentos..." className="uppercase" />
       <CommandList>
         <CommandEmpty className="uppercase">{isLoading ? "A carregar..." : "Nenhum resultado encontrado."}</CommandEmpty>
         

@@ -170,7 +170,7 @@ const ServiceOrderDetails: React.FC = () => {
                         <AlertDialogContent>
                             <AlertDialogHeader>
                                 <AlertDialogTitle className="uppercase">Tem certeza absoluta?</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogDescription className="uppercase">
                                     Esta ação não pode ser desfeita. Isso excluirá permanentemente a Ordem de Serviço 
                                     <span className="font-semibold"> {displayTitleId}</span> e todos os dados associados.
                                 </AlertDialogDescription>

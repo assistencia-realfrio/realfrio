@@ -123,7 +123,7 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
                 </PopoverTrigger>
                 <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                   <Command>
-                    <CommandInput placeholder="Buscar colaborador..." />
+                    <CommandInput placeholder="Buscar colaborador..." className="uppercase" />
                     <CommandList>
                       <CommandEmpty className="uppercase">Nenhum colaborador encontrado.</CommandEmpty>
                       <CommandGroup>
@@ -248,7 +248,7 @@ const VacationForm: React.FC<VacationFormProps> = ({ initialData, onSubmit, onCa
             <FormItem>
               <FormLabel className="uppercase">Notas (Opcional)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Adicione quaisquer notas relevantes..." {...field} rows={3} disabled={isPending} />
+                <Textarea placeholder="Adicione quaisquer notas relevantes..." {...field} rows={3} disabled={isPending} className="uppercase" />
               </FormControl>
               <FormMessage />
             </FormItem>

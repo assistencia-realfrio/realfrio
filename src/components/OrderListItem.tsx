@@ -39,7 +39,6 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
     const statusBgColor = statusChartColors[order.status];
     const cardBackgroundColor = hexToRgba(statusBgColor, 0.05);
     
-    // NOVO: Verifica se a hora é 00:00 local (indicando que apenas a data foi agendada)
     const isTimeExplicitlySet = scheduledDate && (scheduledDate.getHours() !== 0 || scheduledDate.getMinutes() !== 0);
 
 
@@ -51,7 +50,6 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
             onClick={handleViewDetails}
             style={{ backgroundColor: cardBackgroundColor }}
         >
-            {/* Barra lateral colorida da loja */}
             <div 
                 className="w-2 flex-shrink-0 rounded-l-lg" 
                 style={{ backgroundColor: storeColor }}
@@ -60,11 +58,10 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
             <Card className="flex-1 border-none shadow-none m-0 p-0 bg-transparent min-w-0">
                 <CardContent className="flex flex-col p-3 min-w-0">
                     
-                    {/* Container para o cabeçalho e badge */}
                     <div className="flex justify-between items-start w-full mb-2 min-w-0">
                         <span className="font-medium text-sm truncate pr-2 flex-1 min-w-0 uppercase">{order.equipment} - {order.model}</span>
                         <Badge 
-                            className="self-start text-sm px-2 py-0.5 border-transparent text-white h-6 flex items-center flex-shrink-0 uppercase"
+                            className="self-start text-sm px-2 py-0.5 border-transparent text-black h-6 flex items-center flex-shrink-0 uppercase"
                             style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                         >
                             {order.status}
@@ -77,14 +74,13 @@ const OrderListItem: React.FC<OrderListItemProps> = ({ order }) => {
                             <span className="font-semibold text-base truncate min-w-0 uppercase">{order.client}</span>
                         </div>
                         
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1 uppercase">
                             {order.description}
                         </p>
                         <p className="text-xs text-muted-foreground mt-2 font-semibold truncate uppercase">
                             {order.display_id}
                         </p>
                         
-                        {/* Exibir data e hora do agendamento */}
                         {scheduledDate && (
                             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 flex-wrap">
                                 <CalendarIcon className="h-4 w-4" />

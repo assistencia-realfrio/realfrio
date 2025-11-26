@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { showSuccess } from "@/utils/toast";
 
-// Definição do Schema de Validação
 const formSchema = z.object({
   name: z.string().min(3, { message: "O nome deve ter pelo menos 3 caracteres." }),
   billing_name: z.string().nullable().optional(),
@@ -71,7 +70,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
             <FormItem>
               <FormLabel className="uppercase">Nome do Cliente/Empresa *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Empresa XYZ" {...field} />
+                <Input placeholder="Ex: Empresa XYZ" {...field} className="uppercase" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -89,6 +88,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Ex: Nome para a fatura" 
                   {...field} 
                   value={field.value || ""}
+                  className="uppercase"
                 />
               </FormControl>
               <FormMessage />
@@ -107,6 +107,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Ex: Caldas da Rainha, Leiria" 
                   {...field} 
                   value={field.value || ""}
+                  className="uppercase"
                 />
               </FormControl>
               <FormMessage />
@@ -125,6 +126,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Link do Google Maps ou coordenadas" 
                   {...field} 
                   value={field.value || ""}
+                  className="uppercase"
                 />
               </FormControl>
               <FormMessage />
@@ -143,6 +145,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="Link da pasta ou arquivo no Google Drive" 
                   {...field} 
                   value={field.value || ""}
+                  className="uppercase"
                 />
               </FormControl>
               <FormMessage />
@@ -161,6 +164,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="(XX) XXXXX-XXXX" 
                   {...field} 
                   value={field.value || ""}
+                  className="uppercase"
                 />
               </FormControl>
               <FormMessage />
@@ -179,6 +183,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSubmit, onCancel
                   placeholder="contato@exemplo.com" 
                   {...field} 
                   value={field.value || ""}
+                  className="uppercase"
                 />
               </FormControl>
               <FormMessage />

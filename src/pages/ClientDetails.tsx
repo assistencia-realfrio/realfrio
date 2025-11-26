@@ -48,7 +48,6 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
     return (
         <Card className="shadow-sm">
             <CardContent className="p-0">
-                {/* Item: Nome de Faturação */}
                 <div className="flex items-center gap-4 py-3 px-4 border-b">
                     <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                         <FileText className="h-5 w-5" />
@@ -58,7 +57,6 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                     </div>
                 </div>
 
-                {/* Item: Localização */}
                 <div className="flex items-center gap-4 py-3 px-4 border-b">
                     <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                         <MapPin className="h-5 w-5" />
@@ -82,7 +80,6 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                     )}
                 </div>
 
-                {/* Item: Contato (Telefone) */}
                 <div className="flex items-center gap-4 py-3 px-4 border-b">
                     <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                         <Phone className="h-5 w-5" />
@@ -101,7 +98,6 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                     )}
                 </div>
 
-                {/* Item: E-mail */}
                 <div className="flex items-center gap-4 py-3 px-4 border-b">
                     <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                         <Mail className="h-5 w-5" />
@@ -120,7 +116,6 @@ const ClientDetailsView: React.FC<{ client: Client }> = ({ client }) => {
                     )}
                 </div>
 
-                {/* Item: Google Drive */}
                 <div className="flex items-center gap-4 py-3 px-4">
                     <div className="w-10 h-10 flex-shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                         <FolderOpen className="h-5 w-5" />
@@ -200,7 +195,6 @@ const ClientDetails: React.FC = () => {
     }
   };
   
-  // Função para navegar para a criação de nova OS, pré-selecionando o cliente
   const handleNewOrder = () => {
     if (client?.id) {
       navigate(`/orders/new?clientId=${client.id}`);
@@ -291,7 +285,7 @@ const ClientDetails: React.FC = () => {
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle className="uppercase">Tem certeza absoluta?</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogDescription className="uppercase">
                                 Esta ação não pode ser desfeita. Isso excluirá permanentemente o cliente 
                                 <span className="font-semibold"> {client.name}</span> e todos os dados associados.
                             </AlertDialogDescription>
@@ -313,7 +307,6 @@ const ClientDetails: React.FC = () => {
           </div>
         </div>
 
-        {/* Novo ClientHeader */}
         <ClientHeader client={client} />
 
         {selectedView === 'details' && (
@@ -351,7 +344,6 @@ const ClientDetails: React.FC = () => {
         onSelectView={setSelectedView}
       />
 
-      {/* Botão Flutuante para Nova OS (Aba Ordens) */}
       {selectedView === 'orders' && (
         <Button
           onClick={handleNewOrder}
@@ -362,7 +354,6 @@ const ClientDetails: React.FC = () => {
         </Button>
       )}
 
-      {/* Botão Flutuante para Adicionar Equipamento (Aba Equipamentos) */}
       {selectedView === 'equipments' && (
         <Dialog open={isAddEquipmentModalOpen} onOpenChange={setIsAddEquipmentModalOpen}>
           <DialogTrigger asChild>
@@ -386,7 +377,6 @@ const ClientDetails: React.FC = () => {
         </Dialog>
       )}
 
-      {/* Botão Flutuante para Adicionar Estabelecimento (Aba Estabelecimentos) */}
       {selectedView === 'establishments' && (
         <Dialog open={isAddEstablishmentModalOpen} onOpenChange={setIsAddEstablishmentModalOpen}>
           <DialogTrigger asChild>

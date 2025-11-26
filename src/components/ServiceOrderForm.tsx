@@ -343,7 +343,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         
         <Card>
           <CardHeader className="p-4 pb-0">
@@ -525,7 +525,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormItem>
                   <FormLabel className="uppercase">Descrição do Serviço *</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} disabled={!isEditing} />
+                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} disabled={!isEditing} className="uppercase" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -601,7 +601,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle className="uppercase">Tem certeza que deseja cancelar?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogDescription className="uppercase">
                       Esta ação removerá a data e hora agendadas para esta Ordem de Serviço.
                     </AlertDialogDescription>
                   </AlertDialogHeader>

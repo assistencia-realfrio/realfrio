@@ -49,7 +49,7 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
               aria-label={item.label}
             >
               <item.icon className="h-10 w-10" />
-              <span className="text-xs mt-1 flex items-center gap-0.5">
+              <span className="text-xs mt-1 flex items-center gap-0.5 uppercase">
                 {item.label}
                 {hasContent && (
                   <Dot className="h-6 w-6 text-destructive -ml-1" />

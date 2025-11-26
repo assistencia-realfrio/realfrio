@@ -20,7 +20,6 @@ const ClientHeader: React.FC<ClientHeaderProps> = ({ client }) => {
   return (
     <div className="flex items-center gap-4 p-4 bg-card rounded-lg shadow-sm mb-6">
       <Avatar className="h-16 w-16">
-        {/* No avatar_url for client, so using a fallback icon */}
         <AvatarFallback className="bg-muted">
           <User className="h-8 w-8 text-muted-foreground" />
         </AvatarFallback>

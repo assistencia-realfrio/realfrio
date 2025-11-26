@@ -143,7 +143,7 @@ const EquipmentDetails: React.FC = () => {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle className="uppercase">Tem certeza?</AlertDialogTitle>
-                  <AlertDialogDescription>
+                  <AlertDialogDescription className="uppercase">
                     Esta ação não pode ser desfeita. O equipamento será excluído permanentemente.
                   </AlertDialogDescription>
                 </AlertDialogHeader>

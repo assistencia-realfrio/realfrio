@@ -103,7 +103,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command>
-            <CommandInput placeholder="Buscar equipamento..." />
+            <CommandInput placeholder="Buscar equipamento..." className="uppercase" />
             <CommandList>
               <CommandEmpty className="uppercase">Nenhum equipamento encontrado.</CommandEmpty>
               <CommandGroup>

@@ -16,7 +16,6 @@ import {
 import { showSuccess, showError } from "@/utils/toast";
 import { useEquipments, Equipment, EquipmentFormValues } from "@/hooks/useEquipments";
 
-// Schema de validação para o formulário de novo equipamento
 const equipmentFormSchema = z.object({
   name: z.string().min(3, { message: "O nome do equipamento é obrigatório." }),
   brand: z.string().optional().or(z.literal('')),
@@ -94,7 +93,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel className="uppercase">Nome do Equipamento *</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: Notebook, Servidor" {...field} />
+                                <Input placeholder="Ex: Notebook, Servidor" {...field} className="uppercase" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -108,7 +107,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel className="uppercase">Marca (Opcional)</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: Dell, Apple, Samsung" {...field} />
+                                <Input placeholder="Ex: Dell, Apple, Samsung" {...field} className="uppercase" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -122,7 +121,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel className="uppercase">Modelo (Opcional)</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: XPS 13, iPhone 15" {...field} />
+                                <Input placeholder="Ex: XPS 13, iPhone 15" {...field} className="uppercase" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -135,7 +134,7 @@ const EquipmentForm: React.FC<EquipmentFormProps> = ({ clientId, onSubmit, onCan
                         <FormItem>
                             <FormLabel className="uppercase">Nº de Série (Opcional)</FormLabel>
                             <FormControl>
-                                <Input placeholder="Ex: ABC123XYZ" {...field} />
+                                <Input placeholder="Ex: ABC123XYZ" {...field} className="uppercase" />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

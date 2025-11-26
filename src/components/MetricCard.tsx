@@ -20,7 +20,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, description, icon
       </CardHeader>
       <CardContent>
         <div className="text-xl sm:text-2xl font-bold uppercase">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-muted-foreground uppercase">{description}</p>
       </CardContent>
     </Card>
   );

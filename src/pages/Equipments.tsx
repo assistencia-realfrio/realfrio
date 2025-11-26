@@ -19,7 +19,7 @@ const Equipments: React.FC = () => {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
                 placeholder="Buscar por nome, marca, modelo, cliente..." 
-                className="pl-10" 
+                className="pl-10 uppercase" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
