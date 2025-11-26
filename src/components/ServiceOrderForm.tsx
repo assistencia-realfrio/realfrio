@@ -337,7 +337,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon"
                           onClick={handleViewClientDetails} 
-                          disabled={!field.value}
+                          disabled={!field.value || !isEditing} // Desabilita se não estiver editando
                           className="flex-1 sm:flex-none"
                           aria-label="Detalhes do Cliente"
                       >
@@ -348,7 +348,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon"
                           onClick={handleOpenClientMap}
-                          disabled={!hasClientMapLink}
+                          disabled={!hasClientMapLink || !isEditing} // Desabilita se não estiver editando
                           className="flex-1 sm:flex-none"
                           aria-label="Ver no Mapa"
                       >
@@ -359,7 +359,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon"
                           onClick={handleCallClientContact}
-                          disabled={!hasClientContact}
+                          disabled={!hasClientContact || !isEditing} // Desabilita se não estiver editando
                           className="flex-1 sm:flex-none"
                           aria-label="Ligar para o Cliente"
                       >
@@ -386,6 +386,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             size="icon"
                             onClick={handleViewEstablishmentDetails} 
                             className="flex-1 sm:flex-none"
+                            disabled={!isEditing} // Desabilita se não estiver editando
                             aria-label="Ver Estabelecimento"
                         >
                             <Building className="h-4 w-4" />
@@ -395,7 +396,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             variant="outline" 
                             size="icon"
                             onClick={handleOpenEstablishmentMap}
-                            disabled={!hasEstablishmentMapLink}
+                            disabled={!hasEstablishmentMapLink || !isEditing} // Desabilita se não estiver editando
                             className="flex-1 sm:flex-none"
                             aria-label="Ver no Mapa"
                         >
@@ -406,7 +407,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             variant="outline" 
                             size="icon"
                             onClick={handleCallEstablishmentPhone}
-                            disabled={!hasEstablishmentPhone}
+                            disabled={!hasEstablishmentPhone || !isEditing} // Desabilita se não estiver editando
                             className="flex-1 sm:flex-none"
                             aria-label="Ligar"
                         >
@@ -444,7 +445,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                           variant="outline" 
                           size="icon" 
                           onClick={handleViewEquipmentDetails} 
-                          disabled={!equipmentId}
+                          disabled={!equipmentId || !isEditing} // Desabilita se não estiver editando
                           aria-label="Ver Detalhes do Equipamento"
                       >
                           <HardDrive className="h-4 w-4" />
@@ -497,7 +498,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 <FormItem>
                   <FormLabel>Descrição do Serviço *</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} />
+                    <Textarea placeholder="Detalhes do serviço..." {...field} rows={5} disabled={!isEditing} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -510,7 +511,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={!isEditing}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Estado *" /></SelectTrigger></FormControl>
                       <SelectContent>{serviceOrderStatuses.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
@@ -526,6 +527,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     <Select 
                       onValueChange={field.onChange} 
                       value={field.value}
+                      disabled={!isEditing}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -556,7 +558,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                     variant="ghost" 
                     size="icon" 
                     className="text-destructive hover:text-destructive"
-                    disabled={updateOrder.isPending}
+                    disabled={updateOrder.isPending || !isEditing} // Desabilita se não estiver editando
                     aria-label="Cancelar Agendamento"
                   >
                     <XCircle className="h-4 w-4" />
@@ -599,6 +601,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                             "w-full justify-between text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
+                          disabled={!isEditing} // Desabilita se não estiver editando
                         >
                           {field.value ? format(field.value, "dd/MM/yyyy", { locale: ptBR }) : ""}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
@@ -612,6 +615,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                         onSelect={field.onChange}
                         initialFocus
                         locale={ptBR}
+                        disabled={!isEditing} // Desabilita o calendário se não estiver editando
                       />
                     </PopoverContent>
                   </Popover>
@@ -629,6 +633,7 @@ const ServiceOrderForm: React.FC<ServiceOrderFormProps> = ({ initialData, onSubm
                   <Select 
                     onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
                     value={field.value || "NONE_SELECTED"}
+                    disabled={!isEditing} // Desabilita se não estiver editando
                   >
                     <FormControl>
                       <SelectTrigger className="w-full justify-between text-left font-normal">
