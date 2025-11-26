@@ -23,6 +23,7 @@ const Dashboard: React.FC = () => {
   
   const { totalOrders, pendingOrders, completedOrders, statusChartData, isLoading } = useDashboardMetrics(selectedStore);
 
+  // Placeholder para Tempo Total Registrado, pois não temos a tabela de tempo ainda.
   const totalTimeRegistered = "0h"; 
 
   if (isLoading || isLoadingProfile) {
@@ -43,25 +44,25 @@ const Dashboard: React.FC = () => {
     <Layout>
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase">Dashboard de Gestão</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard de Gestão</h2>
           <div className="w-full sm:w-48">
             <Select 
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
               value={selectedStore}
-              disabled={isLoadingProfile}
             >
-              <SelectTrigger className="bg-white uppercase">
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL" className="uppercase">Todas as Lojas</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA" className="uppercase">Caldas da Rainha</SelectItem>
-                <SelectItem value="PORTO DE MÓS" className="uppercase">Porto de Mós</SelectItem>
+                <SelectItem value="ALL">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
+        {/* Seção de Métricas */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total de OS"
@@ -93,8 +94,10 @@ const Dashboard: React.FC = () => {
           />
         </div>
 
+        {/* Seção de Gráficos */}
         <div className="grid gap-4 lg:grid-cols-3">
           <StatusChart data={statusChartData} isLoading={isLoading} />
+          {/* Outros gráficos ou listas podem ser adicionados aqui */}
           <div className="lg:col-span-2">
             <MetricCard
                 title="Próximos Passos"

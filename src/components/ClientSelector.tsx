@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import { UserPlus, Check } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm, { ClientFormValues } from "./ClientForm";
@@ -19,25 +19,26 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ClientSelectorProps {
-  value: string;
+  value: string; // Deve ser o ID do cliente
   onChange: (clientId: string) => void;
-  disabled?: boolean;
+  disabled?: boolean; // Adicionando a prop disabled
 }
 
 const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabled = false }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { clients, isLoading: isLoadingClients } = useClients();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Inicializar useNavigate
 
+  // Mapeia o ID para o nome para exibir no SelectValue
   const selectedClient = clients.find(c => c.id === value);
   const selectedClientName = selectedClient?.name || "";
 
   const handleSelectChange = (selectedValue: string) => {
     if (selectedValue === "NEW_CLIENT") {
-      navigate("/clients/new");
+      navigate("/clients/new"); // Navega para a página de criação de cliente
     } else {
       onChange(selectedValue);
-      setIsPopoverOpen(false);
+      setIsPopoverOpen(false); // Fecha o popover após a seleção
     }
   };
 
@@ -53,8 +54,8 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
             variant="outline"
             role="combobox"
             aria-expanded={isPopoverOpen}
-            className="w-full justify-between uppercase"
-            disabled={disabled}
+            className="w-full justify-between"
+            disabled={disabled} // Aplica a prop disabled aqui
           >
             <span className={cn(
                 "truncate",
@@ -68,31 +69,34 @@ const ClientSelector: React.FC<ClientSelectorProps> = ({ value, onChange, disabl
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command
             filter={(itemValue, search) => {
+              // Sempre mostrar "Adicionar Novo Cliente"
               if (itemValue === "Adicionar Novo Cliente") return 1;
+              // Filtragem padrão para outros itens
               return itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
             }}
           >
-            <CommandInput placeholder="Buscar cliente..." className="uppercase" />
+            <CommandInput placeholder="Buscar cliente..." />
             <CommandList>
+              {/* "Adicionar Novo Cliente" sempre visível e primeiro */}
               <CommandGroup>
                 <CommandItem
                   key="NEW_CLIENT"
                   value="Adicionar Novo Cliente"
                   onSelect={() => handleSelectChange("NEW_CLIENT")}
-                  className="text-primary font-medium cursor-pointer uppercase"
+                  className="text-primary font-medium cursor-pointer"
                 >
                   <UserPlus className="mr-2 h-4 w-4" />
                   Adicionar Novo Cliente
                 </CommandItem>
               </CommandGroup>
+              {/* Clientes existentes */}
               <CommandGroup>
-                <CommandEmpty className="uppercase">Nenhum cliente encontrado.</CommandEmpty>
+                <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
                 {clients.map((client) => (
                   <CommandItem
                     key={client.id}
                     value={client.name}
                     onSelect={() => handleSelectChange(client.id)}
-                    className="uppercase"
                   >
                     <Check
                       className={cn(

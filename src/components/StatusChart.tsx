@@ -21,13 +21,13 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
     return (
       <Card className="col-span-1">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 uppercase">
+          <CardTitle className="flex items-center gap-2">
             <Wrench className="h-5 w-5 text-primary" />
             Distribuição de Status das OS
           </CardTitle>
         </CardHeader>
         <CardContent className="h-[250px] sm:h-[300px] flex items-center justify-center">
-          <p className="text-muted-foreground uppercase">Carregando dados...</p>
+          <p className="text-muted-foreground">Carregando dados...</p>
         </CardContent>
       </Card>
     );
@@ -36,7 +36,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 uppercase">
+        <CardTitle className="flex items-center gap-2">
           <Wrench className="h-5 w-5 text-primary" />
           Distribuição de Status das OS
         </CardTitle>
@@ -65,7 +65,7 @@ const StatusChart: React.FC<StatusChartProps> = ({ data, isLoading }) => {
             </PieChart>
           </ResponsiveContainer>
         ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground uppercase">
+          <div className="flex items-center justify-center h-full text-muted-foreground">
             Nenhum dado de status disponível.
           </div>
         )}

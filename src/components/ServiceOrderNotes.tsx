@@ -113,8 +113,8 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
     onSuccess: (newNote) => {
       setNewNoteContent("");
       queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
-      queryClient.invalidateQueries({ queryKey: ['orderNotesCount', orderId] });
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['orderNotesCount', orderId] }); // Invalida a contagem
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida a lista de OS
       logActivity(user, {
         entity_type: 'service_order',
         entity_id: orderId,
@@ -138,7 +138,7 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
         .from('service_order_notes')
         .update({ content: content })
         .eq('id', id)
-        .eq('user_id', user.id)
+        .eq('user_id', user.id) // Garante que apenas o próprio utilizador pode editar
         .select()
         .single();
 
@@ -173,15 +173,15 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
         .from('service_order_notes')
         .delete()
         .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id); // Garante que apenas o próprio utilizador pode excluir
 
       if (error) throw error;
       return id;
     },
     onSuccess: (deletedNoteId) => {
       queryClient.invalidateQueries({ queryKey: ['serviceOrderNotes', orderId] });
-      queryClient.invalidateQueries({ queryKey: ['orderNotesCount', orderId] });
-      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['orderNotesCount', orderId] }); // Invalida a contagem
+      queryClient.invalidateQueries({ queryKey: ['serviceOrders'] }); // Invalida a lista de OS
       logActivity(user, {
         entity_type: 'service_order',
         entity_id: orderId,
@@ -223,7 +223,9 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
 
   return (
     <Card>
-      <CardContent className="space-y-6 pt-6">
+      {/* CardHeader removido conforme solicitado */}
+      <CardContent className="space-y-6 pt-6"> {/* Adicionado pt-6 aqui para padding superior */}
+        {/* Formulário para adicionar nova nota */}
         <div className="space-y-3 border p-4 rounded-md">
           <Textarea
             placeholder="Escreva sua nota aqui..."
@@ -231,19 +233,19 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
             onChange={(e) => setNewNoteContent(e.target.value)}
             rows={3}
             disabled={addNoteMutation.isPending}
-            className="uppercase"
           />
           <Button 
             onClick={handleAddNote} 
             disabled={!newNoteContent.trim() || addNoteMutation.isPending}
-            className="w-full sm:w-auto uppercase"
+            className="w-full sm:w-auto"
           >
             {addNoteMutation.isPending ? "A enviar..." : <><Send className="h-4 w-4 mr-2" /> Enviar Nota</>}
           </Button>
         </div>
 
+        {/* Lista de notas existentes */}
         <div className="space-y-3">
-          <h4 className="text-md font-semibold uppercase">Notas Anteriores:</h4>
+          <h4 className="text-md font-semibold">Notas Anteriores:</h4>
           {isLoadingNotes ? (
             <div className="space-y-2">
               <Skeleton className="h-16 w-full" />
@@ -255,8 +257,8 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                 {notes.map((note) => (
                   <li key={note.id} className="border-b pb-4 last:border-b-0 last:pb-0 flex justify-between items-start">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground mb-1 uppercase">{note.content}</p>
-                      <p className="text-xs text-muted-foreground uppercase">
+                      <p className="text-sm text-foreground mb-1">{note.content}</p>
+                      <p className="text-xs text-muted-foreground">
                         Por <span className="font-medium">{note.user_full_name}</span> •{" "}
                         {formatDistanceToNow(new Date(note.created_at), { addSuffix: true, locale: ptBR })}
                       </p>
@@ -269,29 +271,29 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel className="uppercase">Ações da Nota</DropdownMenuLabel>
+                          <DropdownMenuLabel>Ações da Nota</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleEditClick(note)} className="uppercase">
+                          <DropdownMenuItem onClick={() => handleEditClick(note)}>
                             <Edit className="mr-2 h-4 w-4" /> Editar
                           </DropdownMenuItem>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive uppercase">
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4" /> Excluir
                               </DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle className="uppercase">Tem certeza absoluta?</AlertDialogTitle>
-                                <AlertDialogDescription className="uppercase">
+                                <AlertDialogTitle>Tem certeza absoluta?</AlertDialogTitle>
+                                <AlertDialogDescription>
                                   Esta ação não pode ser desfeita. Isso excluirá permanentemente esta nota.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
-                                <AlertDialogCancel className="uppercase">Cancelar</AlertDialogCancel>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction 
                                   onClick={() => deleteNoteMutation.mutate(note.id)} 
-                                  className="bg-destructive hover:bg-destructive/90 uppercase"
+                                  className="bg-destructive hover:bg-destructive/90"
                                   disabled={deleteNoteMutation.isPending}
                                 >
                                   Excluir
@@ -307,15 +309,16 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
               </ul>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground text-sm uppercase">Nenhuma nota adicionada ainda.</p>
+            <p className="text-center text-muted-foreground text-sm">Nenhuma nota adicionada ainda.</p>
           )}
         </div>
       </CardContent>
 
+      {/* Modal de Edição de Nota */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="uppercase">Editar Nota</DialogTitle>
+            <DialogTitle>Editar Nota</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <Textarea
@@ -323,14 +326,13 @@ const ServiceOrderNotes: React.FC<ServiceOrderNotesProps> = ({ orderId }) => {
               onChange={(e) => setEditedContent(e.target.value)}
               rows={5}
               disabled={updateNoteMutation.isPending}
-              className="uppercase"
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={handleCancelEdit} disabled={updateNoteMutation.isPending} className="uppercase">
+            <Button variant="outline" onClick={handleCancelEdit} disabled={updateNoteMutation.isPending}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveEdit} disabled={!editedContent.trim() || updateNoteMutation.isPending} className="uppercase">
+            <Button onClick={handleSaveEdit} disabled={!editedContent.trim() || updateNoteMutation.isPending}>
               Salvar Alterações
             </Button>
           </DialogFooter>

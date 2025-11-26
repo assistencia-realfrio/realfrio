@@ -25,7 +25,7 @@ import { useProfile, Profile } from "@/hooks/useProfile";
 const profileFormSchema = z.object({
   first_name: z.string().min(1, { message: "O primeiro nome é obrigatório." }).nullable(),
   last_name: z.string().min(1, { message: "O último nome é obrigatório." }).nullable(),
-  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]).nullable(),
+  store: z.enum(["CALDAS DA RAINHA", "PORTO DE MÓS"]).nullable(), // NOVO: Campo de loja
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
@@ -44,7 +44,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
     defaultValues: {
       first_name: initialData.first_name || "",
       last_name: initialData.last_name || "",
-      store: initialData.store || null,
+      store: initialData.store || null, // Definindo valor padrão para a loja
     },
   });
 
@@ -53,7 +53,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
       await updateProfile.mutateAsync({
         first_name: data.first_name || undefined,
         last_name: data.last_name || undefined,
-        store: data.store,
+        store: data.store, // Enviando a loja
       });
       showSuccess("Perfil atualizado com sucesso!");
       onSuccess();
@@ -71,9 +71,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
           name="first_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Primeiro Nome *</FormLabel>
+              <FormLabel>Primeiro Nome *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: João" {...field} value={field.value || ""} className="uppercase" />
+                <Input placeholder="Ex: João" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,34 +84,38 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
           name="last_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Último Nome *</FormLabel>
+              <FormLabel>Último Nome *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Silva" {...field} value={field.value || ""} className="uppercase" />
+                <Input placeholder="Ex: Silva" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         
+        {/* NOVO: Campo de Seleção de Loja Padrão */}
         <FormField
           control={form.control}
           name="store"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Loja Padrão</FormLabel>
+              <FormLabel>Loja Padrão</FormLabel>
               <Select 
+                // Se o valor for 'NONE_SELECTED', define como null. Caso contrário, usa o valor.
                 onValueChange={(value) => field.onChange(value === "NONE_SELECTED" ? null : value)} 
+                // Se o valor for null, usa 'NONE_SELECTED' para o Select, evitando string vazia.
                 value={field.value || "NONE_SELECTED"}
               >
                 <FormControl>
-                  <SelectTrigger className="uppercase">
+                  <SelectTrigger>
                     <SelectValue placeholder="Selecione a loja padrão" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="NONE_SELECTED" className="uppercase">Nenhuma (Ver todas)</SelectItem>
-                  <SelectItem value="CALDAS DA RAINHA" className="uppercase">Caldas da Rainha</SelectItem>
-                  <SelectItem value="PORTO DE MÓS" className="uppercase">Porto de Mós</SelectItem>
+                  {/* Usando um valor não vazio para representar o estado nulo */}
+                  <SelectItem value="NONE_SELECTED">Nenhuma (Ver todas)</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -120,10 +124,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onCan
         />
 
         <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={updateProfile.isPending} className="w-full sm:w-auto uppercase">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={updateProfile.isPending} className="w-full sm:w-auto">
             Cancelar
           </Button>
-          <Button type="submit" disabled={updateProfile.isPending} className="w-full sm:w-auto uppercase">
+          <Button type="submit" disabled={updateProfile.isPending} className="w-full sm:w-auto">
             Salvar Alterações
           </Button>
         </div>

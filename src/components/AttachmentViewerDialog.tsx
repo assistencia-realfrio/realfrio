@@ -37,6 +37,7 @@ const AttachmentViewerDialog: React.FC<AttachmentViewerDialogProps> = ({ isOpen,
 
   useEffect(() => {
     if (!isOpen) {
+      // Resetar estado ao fechar
       setTimeout(() => {
         setZoom(1);
         setImagePosition({ x: 0, y: 0 });
@@ -129,8 +130,8 @@ const AttachmentViewerDialog: React.FC<AttachmentViewerDialogProps> = ({ isOpen,
               maxWidth: '100%', 
               maxHeight: '100%'
             }}
-            onMouseDown={handleMouseDown as any}
-            onTouchStart={handleTouchStart as any}
+            onMouseDown={handleMouseDown as any} // Casting para evitar erro de tipo no mouse down
+            onTouchStart={handleTouchStart as any} // Casting para evitar erro de tipo no touch start
             draggable="false"
           />
         </div>
@@ -140,14 +141,14 @@ const AttachmentViewerDialog: React.FC<AttachmentViewerDialogProps> = ({ isOpen,
     if (fileType === 'document') {
       return (
         <iframe src={fileUrl} className="w-full h-full border-none" title={fileName}>
-          Seu navegador não suporta iframes. Você pode <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="uppercase">baixar o arquivo</a>.
+          Seu navegador não suporta iframes. Você pode <a href={fileUrl} target="_blank" rel="noopener noreferrer">baixar o arquivo</a>.
         </iframe>
       );
     }
 
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground p-4">
-        <p className="uppercase">Este tipo de arquivo não pode ser visualizado diretamente.</p>
+        <p>Este tipo de arquivo não pode ser visualizado diretamente.</p>
       </div>
     );
   };
@@ -177,10 +178,10 @@ const AttachmentViewerDialog: React.FC<AttachmentViewerDialogProps> = ({ isOpen,
         </div>
         
         <div className="absolute top-4 left-4 z-50 text-white max-w-[calc(100%-150px)] truncate">
-            <h3 className="text-lg font-semibold truncate uppercase">{fileName}</h3>
+            <h3 className="text-lg font-semibold truncate">{fileName}</h3>
         </div>
 
-        <div className="w-full h-full pt-16 pb-4">
+        <div className="w-full h-full pt-16 pb-4"> {/* Adicionado padding para o cabeçalho */}
             {renderContent()}
         </div>
       </DialogContent>

@@ -1,10 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { FileText, Wrench, HardDrive, Building } from 'lucide-react';
+import ReactDOM from 'react-dom'; // Importar ReactDOM
+import { FileText, Wrench, HardDrive, Building } from 'lucide-react'; // Adicionado Building
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type View = 'details' | 'orders' | 'equipments' | 'establishments';
+type View = 'details' | 'orders' | 'equipments' | 'establishments'; // Adicionado 'establishments'
 
 interface ClientDetailsBottomNavProps {
   selectedView: View;
@@ -15,12 +15,13 @@ const navItems: { id: View; icon: React.ElementType; label: string }[] = [
   { id: 'details', icon: FileText, label: 'Detalhes' },
   { id: 'orders', icon: Wrench, label: 'Ordens' },
   { id: 'equipments', icon: HardDrive, label: 'Equipamentos' },
-  { id: 'establishments', icon: Building, label: 'Estabelecimentos' },
+  { id: 'establishments', icon: Building, label: 'Estabelecimentos' }, // Novo item
 ];
 
 const ClientDetailsBottomNav: React.FC<ClientDetailsBottomNavProps> = ({ selectedView, onSelectView }) => {
+  // Renderiza o componente usando um portal
   return ReactDOM.createPortal(
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t z-50 lg:left-64 top-auto"> {/* Adicionado top-auto */}
       <div className="flex justify-around items-center h-16 gap-1 px-2">
         {navItems.map((item) => (
           <Button
@@ -34,12 +35,12 @@ const ClientDetailsBottomNav: React.FC<ClientDetailsBottomNavProps> = ({ selecte
             aria-label={item.label}
           >
             <item.icon className="h-6 w-6" />
-            <span className="text-xs mt-1 uppercase">{item.label}</span>
+            <span className="text-xs mt-1">{item.label}</span>
           </Button>
         ))}
       </div>
     </div>,
-    document.getElementById('bottom-nav-root') as HTMLElement
+    document.getElementById('bottom-nav-root') as HTMLElement // Onde o portal será renderizado
   );
 };
 

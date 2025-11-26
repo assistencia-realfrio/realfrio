@@ -18,7 +18,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres." }),
   locality: z.string().optional(),
   google_maps_link: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z.string().optional(), // Novo campo
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -59,9 +59,9 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Nome do Estabelecimento *</FormLabel>
+              <FormLabel>Nome do Estabelecimento *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Loja Principal, Armazém Central" {...field} className="uppercase" />
+                <Input placeholder="Ex: Loja Principal, Armazém Central" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -72,9 +72,9 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
           name="locality"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Localidade (Opcional)</FormLabel>
+              <FormLabel>Localidade (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: Caldas da Rainha, Leiria" {...field} className="uppercase" />
+                <Input placeholder="Ex: Caldas da Rainha, Leiria" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -85,9 +85,9 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
           name="google_maps_link"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Google Maps (Opcional)</FormLabel>
+              <FormLabel>Google Maps (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="Link do Google Maps ou coordenadas" {...field} className="uppercase" />
+                <Input placeholder="Link do Google Maps ou coordenadas" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -98,19 +98,19 @@ const EstablishmentForm: React.FC<EstablishmentFormProps> = ({ clientId, initial
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="uppercase">Telefone (Opcional)</FormLabel>
+              <FormLabel>Telefone (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: 912 345 678" {...field} className="uppercase" />
+                <Input placeholder="Ex: 912 345 678" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex justify-end space-x-2 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isPending} className="uppercase">
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
             Cancelar
           </Button>
-          <Button type="submit" disabled={isPending} className="uppercase">
+          <Button type="submit" disabled={isPending}>
             {initialData ? "Salvar Alterações" : "Criar Estabelecimento"}
           </Button>
         </div>

@@ -15,51 +15,54 @@ import {
 import ClientForm, { ClientFormValues } from "@/components/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import { showSuccess, showError } from "@/utils/toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
 
 type StoreFilter = Client['store'] | 'ALL';
 
 const Clients: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Inicializar useNavigate
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStore, setSelectedStore] = useState<StoreFilter>('ALL');
   
+  // createClient não é mais usado diretamente aqui, mas o hook useClients é necessário para o ClientTable
   const { createClient } = useClients(searchTerm, selectedStore); 
 
   const handleNewClientClick = () => {
-    navigate("/clients/new");
+    navigate("/clients/new"); // Navega para a nova página de criação de cliente
   };
 
   return (
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase">CLIENTES</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">CLIENTES</h2>
         </div>
 
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
+          {/* Campo de Busca */}
           <div className="relative flex-grow w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input 
                 placeholder="Buscar por nome ou contato..." 
-                className="pl-10 bg-white uppercase" 
+                className="pl-10 bg-white" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
+          {/* Filtro de Loja */}
           <div className="w-full md:w-48">
             <Select 
               onValueChange={(value: StoreFilter) => setSelectedStore(value)} 
               defaultValue={selectedStore}
             >
-              <SelectTrigger className="bg-white uppercase"> 
+              <SelectTrigger className="bg-white"> 
                 <SelectValue placeholder="Filtrar por Loja" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL" className="uppercase">Todas as Lojas</SelectItem>
-                <SelectItem value="CALDAS DA RAINHA" className="uppercase">Caldas da Rainha</SelectItem>
-                <SelectItem value="PORTO DE MÓS" className="uppercase">Porto de Mós</SelectItem>
+                <SelectItem value="ALL">Todas as Lojas</SelectItem>
+                <SelectItem value="CALDAS DA RAINHA">Caldas da Rainha</SelectItem>
+                <SelectItem value="PORTO DE MÓS">Porto de Mós</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -67,6 +70,7 @@ const Clients: React.FC = () => {
 
         <ClientTable searchTerm={searchTerm} storeFilter={selectedStore} />
       </div>
+      {/* Botão flutuante agora navega para a página de criação */}
       <Button
         onClick={handleNewClientClick}
         className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"

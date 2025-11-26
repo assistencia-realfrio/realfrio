@@ -15,19 +15,34 @@ import {
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import EquipmentForm from "./EquipmentForm";
+import EquipmentForm from "./EquipmentForm"; // Importando o formulário de equipamento reutilizável
 
 interface EquipmentSelectorProps {
   clientId: string;
-  value: string;
+  value: string; // Deve ser o ID do equipamento
   onChange: (equipmentId: string, equipmentDetails: { name: string, brand: string | null, model: string | null, serial_number: string | null }) => void;
-  disabled?: boolean;
+  disabled?: boolean; // Adicionando a prop disabled
 }
 
 const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, onChange, disabled = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { equipments, isLoading } = useEquipments(clientId);
+
+  // Efeito removido: Não pré-selecionar o equipamento automaticamente.
+  /*
+  useEffect(() => {
+    if (equipments.length > 0 && !value) {
+        const firstEquipment = equipments[0];
+        onChange(firstEquipment.id, { 
+            name: firstEquipment.name, 
+            brand: firstEquipment.brand, // Incluindo a marca
+            model: firstEquipment.model, 
+            serial_number: firstEquipment.serial_number 
+        });
+    }
+  }, [equipments, value, onChange]);
+  */
 
   const handleSelectChange = (selectedValue: string) => {
     if (selectedValue === "NEW_EQUIPMENT") {
@@ -37,34 +52,36 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
       if (selectedEquipment) {
         onChange(selectedEquipment.id, {
             name: selectedEquipment.name,
-            brand: selectedEquipment.brand,
+            brand: selectedEquipment.brand, // Incluindo a marca
             model: selectedEquipment.model,
             serial_number: selectedEquipment.serial_number,
         });
-        setIsPopoverOpen(false);
+        setIsPopoverOpen(false); // Fecha o popover após a seleção
       }
     }
   };
   
   const handleNewEquipmentSubmit = (newEquipment: Equipment) => {
+    // Seleciona o novo equipamento criado
     onChange(newEquipment.id, {
         name: newEquipment.name,
-        brand: newEquipment.brand,
+        brand: newEquipment.brand, // Incluindo a marca
         model: newEquipment.model,
         serial_number: newEquipment.serial_number,
     });
     setIsModalOpen(false);
   };
 
+  // Se o cliente não estiver selecionado, não mostra o seletor
   if (!clientId) {
     return (
         <Button
             variant="outline"
             role="combobox"
             disabled
-            className="w-full justify-between text-muted-foreground uppercase"
+            className="w-full justify-between text-muted-foreground"
         >
-            Equipamento
+            Equipamento {/* ALTERADO: Texto do placeholder */}
             <PlusCircle className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
     );
@@ -77,7 +94,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
   const selectedEquipment = equipments.find(e => e.id === value);
   const displayValue = selectedEquipment 
     ? selectedEquipment.name
-    : "Selecione um equipamento";
+    : "Selecione um equipamento"; // Texto padrão atualizado
     
   const isSelected = !!selectedEquipment;
 
@@ -89,8 +106,8 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
             variant="outline"
             role="combobox"
             aria-expanded={isPopoverOpen}
-            className="w-full justify-between uppercase"
-            disabled={disabled}
+            className="w-full justify-between"
+            disabled={disabled} // Aplica a prop disabled aqui
           >
             <span className={cn(
                 "truncate",
@@ -103,16 +120,16 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
           <Command>
-            <CommandInput placeholder="Buscar equipamento..." className="uppercase" />
+            <CommandInput placeholder="Buscar equipamento..." />
             <CommandList>
-              <CommandEmpty className="uppercase">Nenhum equipamento encontrado.</CommandEmpty>
+              <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
               <CommandGroup>
                 {equipments.map((equipment) => (
                   <CommandItem
                     key={equipment.id}
+                    // Usamos uma string combinada para que a busca funcione em nome, marca e modelo
                     value={`${equipment.name} ${equipment.brand || ''} ${equipment.model || ''}`}
                     onSelect={() => handleSelectChange(equipment.id)}
-                    className="uppercase"
                   >
                     <Check
                       className={cn(
@@ -129,7 +146,7 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
                   key="NEW_EQUIPMENT"
                   value="Adicionar Novo Equipamento"
                   onSelect={() => handleSelectChange("NEW_EQUIPMENT")}
-                  className="text-primary font-medium cursor-pointer uppercase"
+                  className="text-primary font-medium cursor-pointer"
                 >
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Adicionar Novo Equipamento
@@ -140,10 +157,11 @@ const EquipmentSelector: React.FC<EquipmentSelectorProps> = ({ clientId, value, 
         </PopoverContent>
       </Popover>
 
+      {/* Modal de Criação de Equipamento */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="uppercase">Adicionar Novo Equipamento</DialogTitle>
+            <DialogTitle>Adicionar Novo Equipamento</DialogTitle>
           </DialogHeader>
           <EquipmentForm 
             clientId={clientId}

@@ -10,13 +10,13 @@ import { useSession } from "@/contexts/SessionContext";
 import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from "@/components/ui/skeleton";
 import { stripUuidFromFile } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
-import AttachmentViewerDialog from "./AttachmentViewerDialog";
+import { useQueryClient } from "@tanstack/react-query"; // Importar useQueryClient
+import AttachmentViewerDialog from "./AttachmentViewerDialog"; // Importar o novo componente
 
 interface Attachment {
-  id: string;
-  name: string;
-  file_path: string;
+  id: string; // ID do metadado
+  name: string; // Nome original do arquivo
+  file_path: string; // Caminho completo no storage
   type: 'image' | 'document' | 'other';
   size: string;
   uploadedBy: string;
@@ -27,6 +27,8 @@ interface Attachment {
 interface AttachmentsProps {
   orderId: string;
 }
+
+// O componente AttachmentPreviewDialog foi movido para AttachmentViewerDialog.tsx
 
 const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
   const { user } = useSession();
@@ -59,6 +61,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
 
     setIsLoadingAttachments(true);
     try {
+      // 1. Buscar metadados da tabela
       const { data: metadata, error: metadataError } = await supabase
         .from('order_attachments_metadata')
         .select(`
@@ -77,6 +80,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
       const fetched: Attachment[] = metadata.map((meta: any) => {
         const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(meta.file_path);
         
+        // Tentativa de inferir o tipo pelo nome do arquivo, já que o mimeType não está no metadado
         let fileType: 'image' | 'document' | 'other' = 'other';
         if (meta.file_name.match(/\.(jpeg|jpg|png|gif)$/i)) {
           fileType = 'image';
@@ -93,7 +97,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
           name: meta.file_name,
           file_path: meta.file_path,
           type: fileType,
-          size: "N/A",
+          size: "N/A", // Tamanho não está no metadado, mantemos N/A por enquanto
           uploadedBy: userFullName,
           date: new Date(meta.created_at).toLocaleDateString('pt-BR'),
           fileUrl: publicUrlData.publicUrl,
@@ -137,6 +141,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
       const uniqueFileName = `${uuidv4()}-${selectedFile.name}`;
       filePath = `${folderPath}/${uniqueFileName}`;
 
+      // 1. Upload para o Storage
       const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(filePath, selectedFile, {
@@ -146,6 +151,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
 
       if (uploadError) throw uploadError;
 
+      // 2. Inserir metadados na tabela
       const { data: metadata, error: metadataError } = await supabase
         .from('order_attachments_metadata')
         .insert({
@@ -158,10 +164,12 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
         .single();
 
       if (metadataError) {
+        // Se falhar a inserção do metadado, tentamos remover o arquivo do storage para evitar órfãos
         await supabase.storage.from(bucketName).remove([filePath]);
         throw metadataError;
       }
 
+      // 3. Atualizar UI e cache
       const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
       
       const newAttachment: Attachment = {
@@ -170,7 +178,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
         file_path: filePath,
         type: getFileType(selectedFile.type),
         size: (selectedFile.size / 1024 / 1024).toFixed(2) + " MB",
-        uploadedBy: user.email || "Desconhecido",
+        uploadedBy: user.email || "Desconhecido", // O nome completo será carregado no próximo fetch
         date: new Date().toLocaleDateString('pt-BR'),
         fileUrl: publicUrlData.publicUrl,
       };
@@ -178,6 +186,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
       setAttachments((prev) => [newAttachment, ...prev]);
       setSelectedFile(null);
       
+      // Invalida as queries de contagem e lista de OS para atualizar os badges
       queryClient.invalidateQueries({ queryKey: ['orderAttachmentsCount', orderId] });
       queryClient.invalidateQueries({ queryKey: ['serviceOrders'] });
       
@@ -197,20 +206,24 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
     }
 
     try {
+      // 1. Remover metadado da tabela
       const { error: metadataError } = await supabase
         .from('order_attachments_metadata')
         .delete()
         .eq('id', attachmentId)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id); // RLS já deve garantir isso, mas é bom ter um filtro extra
 
       if (metadataError) throw metadataError;
 
+      // 2. Remover arquivo do Storage
       const { error: storageError } = await supabase.storage.from(bucketName).remove([filePath]);
 
       if (storageError) {
+        // Se o storage falhar, logamos, mas a UI já foi atualizada pelo metadado
         console.warn("Aviso: Falha ao remover arquivo do storage, mas metadado removido.", storageError);
       }
 
+      // 3. Atualizar UI e cache
       setAttachments(attachments.filter(att => att.id !== attachmentId));
       
       queryClient.invalidateQueries({ queryKey: ['orderAttachmentsCount', orderId] });
@@ -233,7 +246,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="uppercase">Anexos</CardTitle>
+        <CardTitle>Anexos</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3 border p-4 rounded-md">
@@ -251,14 +264,14 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
               variant="outline" 
               onClick={handleTriggerFileInput}
               disabled={isUploading}
-              className="w-full sm:w-auto justify-start uppercase"
+              className="w-full sm:w-auto justify-start"
             >
               <FileText className="h-4 w-4 mr-2" /> {selectedFile ? stripUuidFromFile(selectedFile.name) : "Selecionar Ficheiro"}
             </Button>
             <Button 
               onClick={handleUpload} 
               disabled={!selectedFile || isUploading}
-              className="sm:w-auto w-full uppercase"
+              className="sm:w-auto w-full"
             >
               {isUploading ? "A carregar..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
             </Button>
@@ -266,7 +279,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
         </div>
 
         <div className="space-y-3">
-          <h4 className="text-md font-semibold uppercase">Arquivos Anexados:</h4>
+          <h4 className="text-md font-semibold">Arquivos Anexados:</h4>
           {isLoadingAttachments ? (
             <div className="space-y-2">
               <Skeleton className="h-12 w-full" />
@@ -288,11 +301,12 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
                       <FileText className="h-8 w-8 flex-shrink-0 text-gray-500" />
                     )}
                     <div className="min-w-0 flex-1 flex items-center justify-end">
+                      {/* Botão de Excluir agora sempre visível */}
                       <Button 
                         variant="ghost" 
                         size="icon" 
                         onClick={(e) => {
-                          e.stopPropagation();
+                          e.stopPropagation(); // Previne que o clique abra a visualização
                           handleDelete(att.id, att.file_path, att.name);
                         }} 
                         aria-label="Remover"
@@ -306,7 +320,7 @@ const Attachments: React.FC<AttachmentsProps> = ({ orderId }) => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground text-sm uppercase">Nenhum anexo encontrado.</p>
+            <p className="text-center text-muted-foreground text-sm">Nenhum anexo encontrado.</p>
           )}
         </div>
       </CardContent>

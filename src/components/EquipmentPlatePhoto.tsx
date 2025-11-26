@@ -6,15 +6,16 @@ import { showSuccess, showError } from "@/utils/toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/contexts/SessionContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import AttachmentViewerDialog from "./AttachmentViewerDialog";
+import AttachmentViewerDialog from "./AttachmentViewerDialog"; // Importar o novo componente
 
 interface EquipmentPlatePhotoProps {
   equipmentId: string;
 }
 
 const BUCKET_NAME = 'equipment_plate_photos';
-const FILE_NAME = 'plate_photo.jpg';
+const FILE_NAME = 'plate_photo.jpg'; // Nome de arquivo fixo, pois só pode haver 1 por equipamento
 
+// Função auxiliar para adicionar cache-busting
 const getCacheBustedUrl = (url: string): string => {
     const timestamp = new Date().getTime();
     const urlObj = new URL(url);
@@ -41,6 +42,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
 
     setIsLoading(true);
     try {
+      // Verifica se o arquivo existe listando o diretório
       const { data: listData, error: listError } = await supabase.storage.from(BUCKET_NAME).list(equipmentId, {
         limit: 1,
         search: FILE_NAME,
@@ -49,6 +51,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
       if (listError) throw listError;
 
       if (listData && listData.length > 0) {
+        // Se o arquivo existir, obtém a URL pública e adiciona cache-busting
         const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
         setPhotoUrl(getCacheBustedUrl(publicUrlData.publicUrl));
       } else {
@@ -92,17 +95,19 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
 
     setIsUploading(true);
     try {
+      // Usa upsert: true para substituir a foto existente
       const { error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(filePath, selectedFile, {
           cacheControl: '3600',
-          upsert: true,
+          upsert: true, // Sobrescreve se existir
         });
 
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(filePath);
       
+      // Atualiza o estado com a URL com cache-busting
       setPhotoUrl(getCacheBustedUrl(publicUrlData.publicUrl));
       
       setSelectedFile(null);
@@ -147,7 +152,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 uppercase">
+        <CardTitle className="flex items-center gap-2">
           <Camera className="h-5 w-5" />
           Foto da Chapa de Características
         </CardTitle>
@@ -157,9 +162,10 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
           <div className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 flex-shrink-0 rounded-md overflow-hidden border">
+                {/* Usando a URL com cache-busting */}
                 <img src={photoUrl} alt="Chapa de Características" className="object-cover w-full h-full" />
               </div>
-              <p className="text-sm font-medium uppercase">Foto da Chapa Anexada</p>
+              <p className="text-sm font-medium">Foto da Chapa Anexada</p>
             </div>
             <div className="flex space-x-2">
               <Button variant="ghost" size="icon" onClick={handlePreview} aria-label="Visualizar">
@@ -172,7 +178,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
           </div>
         ) : (
           <div className="space-y-3 border p-4 rounded-md">
-            <p className="text-sm text-muted-foreground uppercase">Nenhuma foto da chapa anexada.</p>
+            <p className="text-sm text-muted-foreground">Nenhuma foto da chapa anexada.</p>
             <div className="flex flex-col sm:flex-row gap-3">
               <input 
                 id="plate-photo-upload" 
@@ -188,14 +194,14 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
                 variant="outline" 
                 onClick={handleTriggerFileInput}
                 disabled={isUploading}
-                className="w-full sm:w-auto justify-start uppercase"
+                className="w-full sm:w-auto justify-start"
               >
                 <FileText className="h-4 w-4 mr-2" /> {selectedFile ? selectedFile.name : "Selecionar Imagem"}
               </Button>
               <Button 
                 onClick={handleUpload} 
                 disabled={!selectedFile || isUploading}
-                className="sm:w-auto w-full uppercase"
+                className="sm:w-auto w-full"
               >
                 {isUploading ? "A carregar..." : <><Upload className="h-4 w-4 mr-2" /> Upload</>}
               </Button>
@@ -208,7 +214,7 @@ const EquipmentPlatePhoto: React.FC<EquipmentPlatePhotoProps> = ({ equipmentId }
         isOpen={isPreviewModalOpen}
         onOpenChange={setIsPreviewModalOpen}
         fileUrl={photoUrl || ""}
-        fileType="image"
+        fileType="image" // Sempre imagem para foto da chapa
         fileName="Foto da Chapa de Características"
       />
     </Card>

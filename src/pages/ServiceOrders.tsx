@@ -89,7 +89,7 @@ const ServiceOrders: React.FC = () => {
           <ServiceOrderCard key={order.id} order={order} />
         ))}
         {ordersToRender.length === 0 && (
-          <div className="col-span-full text-center py-12 text-muted-foreground uppercase">
+          <div className="col-span-full text-center py-12 text-muted-foreground">
             NENHUMA ASSISTÊNCIA ENCONTRADA PARA OS FILTROS APLICADOS.
           </div>
         )}
@@ -101,7 +101,7 @@ const ServiceOrders: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center gap-4">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight uppercase">ASSISTÊNCIAS</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">ASSISTÊNCIAS</h2>
         </div>
 
         <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4">
@@ -112,13 +112,13 @@ const ServiceOrders: React.FC = () => {
                 value={selectedStore}
                 disabled={isLoadingProfile}
               >
-                <SelectTrigger className="bg-white uppercase">
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="LOJA" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL" className="uppercase">TODAS AS LOJAS ({allOrdersWithoutStatusFilter.length})</SelectItem>
-                  <SelectItem value="CALDAS DA RAINHA" className="uppercase">CALDAS DA RAINHA ({allOrdersWithoutStatusFilter.filter(o => o.store === 'CALDAS DA RAINHA').length})</SelectItem>
-                  <SelectItem value="PORTO DE MÓS" className="uppercase">PORTO DE MÓS ({allOrdersWithoutStatusFilter.filter(o => o.store === 'PORTO DE MÓS').length})</SelectItem>
+                  <SelectItem value="ALL">TODAS AS LOJAS ({allOrdersWithoutStatusFilter.length})</SelectItem>
+                  <SelectItem value="CALDAS DA RAINHA">CALDAS DA RAINHA ({allOrdersWithoutStatusFilter.filter(o => o.store === 'CALDAS DA RAINHA').length})</SelectItem>
+                  <SelectItem value="PORTO DE MÓS">PORTO DE MÓS ({allOrdersWithoutStatusFilter.filter(o => o.store === 'PORTO DE MÓS').length})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -129,13 +129,13 @@ const ServiceOrders: React.FC = () => {
                 value={selectedStatus}
                 disabled={isLoadingProfile}
               >
-                <SelectTrigger className="bg-white uppercase">
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="ESTADOS" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL" className="uppercase">TODOS ({allOrdersWithoutStatusFilter.filter(o => (selectedStore === 'ALL' || o.store === selectedStore) && o.status !== 'CONCLUIDA' && o.status !== 'CANCELADA').length})</SelectItem> {/* NOVO: Contagem ajustada para 'TODOS' */}
+                  <SelectItem value="ALL">TODOS ({allOrdersWithoutStatusFilter.filter(o => (selectedStore === 'ALL' || o.store === selectedStore) && o.status !== 'CONCLUIDA' && o.status !== 'CANCELADA').length})</SelectItem> {/* NOVO: Contagem ajustada para 'TODOS' */}
                   {availableStatuses.map(status => (
-                    <SelectItem key={status} value={status} className="uppercase">
+                    <SelectItem key={status} value={status}>
                       {status.toUpperCase()} ({allOrdersWithoutStatusFilter.filter(o => (selectedStore === 'ALL' || o.store === selectedStore) && o.status === status).length})
                     </SelectItem>
                   ))}

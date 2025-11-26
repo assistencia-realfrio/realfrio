@@ -28,34 +28,39 @@ const ServiceOrderEquipmentDetails: React.FC<ServiceOrderEquipmentDetailsProps> 
   if (!equipment) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-bold uppercase">Equipamento não encontrado</h3>
-        <p className="text-muted-foreground uppercase">Não foi possível carregar os detalhes do equipamento.</p>
+        <h3 className="text-xl font-bold">Equipamento não encontrado</h3>
+        <p className="text-muted-foreground">Não foi possível carregar os detalhes do equipamento.</p>
       </div>
     );
   }
 
   return (
-    <div className="shadow-none border-none">
-      <Tabs defaultValue="details">
-        <TabsList className="grid w-full grid-cols-2 px-4">
-          <TabsTrigger value="details" className="uppercase">
+    <div className="shadow-none border-none"> {/* Removido Card e CardContent */}
+      <Tabs defaultValue="details"> {/* Alterado o defaultValue para 'details' */}
+        <TabsList className="grid w-full grid-cols-2 px-4"> {/* Ajustado para 2 colunas */}
+          <TabsTrigger value="details">
             <FileText className="h-4 w-4 mr-2" />
             Detalhes
           </TabsTrigger>
-          <TabsTrigger value="orders" className="uppercase">
+          <TabsTrigger value="orders">
             <Wrench className="h-4 w-4 mr-2" />
             Ordens
           </TabsTrigger>
+          {/* Removido TabsTrigger para 'Histórico' */}
         </TabsList>
         
-        <TabsContent value="details" className="mt-4 space-y-6">
+        <TabsContent value="details" className="mt-4 space-y-6"> {/* Adicionado space-y-6 para espaçamento */}
+          {/* Usando o componente EquipmentDetailsView para exibir os detalhes */}
           <EquipmentDetailsView equipment={equipment} />
+          {/* Novo componente para a foto da chapa, agora dentro da aba de detalhes */}
           <EquipmentPlatePhoto equipmentId={equipment.id} />
         </TabsContent>
 
         <TabsContent value="orders" className="mt-4">
           <EquipmentOrdersTab equipmentId={equipment.id} />
         </TabsContent>
+
+        {/* Removido TabsContent para 'Histórico' */}
       </Tabs>
     </div>
   );

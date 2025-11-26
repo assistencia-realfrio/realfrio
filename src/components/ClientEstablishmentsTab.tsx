@@ -82,7 +82,7 @@ const ClientEstablishmentsTab: React.FC<ClientEstablishmentsTabProps> = ({ clien
           />
         ))
       ) : (
-        <p className="text-center text-muted-foreground py-8 text-sm uppercase">
+        <p className="text-center text-muted-foreground py-8 text-sm">
           Nenhum estabelecimento associado a este cliente.
         </p>
       )}
@@ -90,7 +90,7 @@ const ClientEstablishmentsTab: React.FC<ClientEstablishmentsTabProps> = ({ clien
       <Dialog open={isFormModalOpen} onOpenChange={setIsFormModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="uppercase">{editingEstablishment ? "Editar" : "Adicionar"} Estabelecimento</DialogTitle>
+            <DialogTitle>{editingEstablishment ? "Editar" : "Adicionar"} Estabelecimento</DialogTitle>
           </DialogHeader>
           <EstablishmentForm
             clientId={clientId}

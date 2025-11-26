@@ -29,9 +29,9 @@ const Profile: React.FC = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold uppercase">Perfil não encontrado</h2>
-          <p className="text-muted-foreground uppercase">Não foi possível carregar os dados do seu perfil.</p>
-          <Button onClick={() => navigate('/')} className="mt-4 uppercase">Voltar para o Início</Button>
+          <h2 className="text-2xl font-bold">Perfil não encontrado</h2>
+          <p className="text-muted-foreground">Não foi possível carregar os dados do seu perfil.</p>
+          <Button onClick={() => navigate('/')} className="mt-4">Voltar para o Início</Button>
         </div>
       </Layout>
     );
@@ -47,14 +47,14 @@ const Profile: React.FC = () => {
           <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-3xl font-bold tracking-tight uppercase">Meu Perfil</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Meu Perfil</h2>
         </div>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-lg uppercase">Informações do Perfil</CardTitle>
+            <CardTitle className="text-lg">Informações do Perfil</CardTitle>
             {!isEditing && (
-              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="uppercase">
+              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Editar Perfil
               </Button>
@@ -70,21 +70,24 @@ const Profile: React.FC = () => {
             ) : (
               <div className="space-y-4 text-sm">
                 <div>
-                  <p className="text-muted-foreground uppercase">Nome Completo</p>
-                  <p className="font-medium uppercase">{fullName || 'Não definido'}</p>
+                  <p className="text-muted-foreground">Nome Completo</p>
+                  <p className="font-medium">{fullName || 'Não definido'}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground uppercase">Email</p>
-                  <p className="font-medium uppercase">{profile.id}</p>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium">{profile.id}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground uppercase">Loja Padrão</p>
-                  <p className="font-medium uppercase">{displayStore}</p>
+                  <p className="text-muted-foreground">Loja Padrão</p>
+                  <p className="font-medium">{displayStore}</p>
                 </div>
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Adicionar ActivityLog para o perfil se desejar */}
+        {/* <ActivityLog entityType="profile" entityId={profile.id} /> */}
       </div>
     </Layout>
   );

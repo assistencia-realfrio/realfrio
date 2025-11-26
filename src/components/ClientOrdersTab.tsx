@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useServiceOrders, ServiceOrder } from "@/hooks/useServiceOrders";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isActiveStatus } from "@/lib/serviceOrderStatus";
-import OrderListItem from "./OrderListItem";
+import OrderListItem from "./OrderListItem"; // Importando o componente reutilizável
 
 interface ClientOrdersTabProps {
   clientId: string;
@@ -12,11 +12,13 @@ interface ClientOrdersTabProps {
 const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
   const { orders: allOrders, isLoading } = useServiceOrders();
   
+  // Filtra as ordens pelo ID do cliente
   const clientOrders = allOrders.filter(order => order.client_id === clientId);
 
   const activeOrders = clientOrders.filter(o => isActiveStatus(o.status));
   const completedOrders = clientOrders.filter(o => !isActiveStatus(o.status));
 
+  // Combina as ordens, colocando as ativas primeiro
   const combinedOrders = [...activeOrders, ...completedOrders];
 
   const renderOrderList = (orders: ServiceOrder[], emptyMessage: string) => (
@@ -30,16 +32,17 @@ const ClientOrdersTab: React.FC<ClientOrdersTabProps> = ({ clientId }) => {
       ) : orders.length > 0 ? (
         orders.map(order => <OrderListItem key={order.id} order={order} />)
       ) : (
-        <p className="text-center text-muted-foreground py-8 text-sm uppercase">{emptyMessage}</p>
+        <p className="text-center text-muted-foreground py-8 text-sm">{emptyMessage}</p>
       )}
     </div>
   );
 
   return (
-    <div className="shadow-none border-none">
-      <div className="p-0 pb-4">
+    <div className="shadow-none border-none"> {/* Mantido o div externo com shadow-none e border-none */}
+      <div className="p-0 pb-4"> {/* Substituído CardHeader por div */}
+        {/* CardTitle removido */}
       </div>
-      <div className="p-0">
+      <div className="p-0"> {/* Substituído CardContent por div */}
         {renderOrderList(combinedOrders, "Nenhuma Ordem de Serviço encontrada para este cliente.")}
       </div>
     </div>

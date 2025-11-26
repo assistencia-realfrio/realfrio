@@ -15,7 +15,7 @@ import { useEquipments, Equipment } from "@/hooks/useEquipments";
 import { Skeleton } from "@/components/ui/skeleton";
 import EquipmentForm from "./EquipmentForm";
 import { useNavigate } from "react-router-dom";
-import EquipmentCard from "./EquipmentCard";
+import EquipmentCard from "./EquipmentCard"; // Importar o novo componente EquipmentCard
 
 interface ClientEquipmentTabProps {
   clientId: string;
@@ -37,16 +37,18 @@ const ClientEquipmentTab: React.FC<ClientEquipmentTabProps> = ({ clientId }) => 
   return (
     <div className="shadow-none border-none">
       <div className="p-0 pb-4 flex flex-row items-center justify-between">
+        {/* Título "Equipamentos Associados" removido */}
+        {/* Botão "Adicionar Equipamento" movido para ClientDetails.tsx */}
       </div>
       <div className="p-0">
         {equipments.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"> {/* Layout de grade para os cartões */}
             {equipments.map((equipment) => (
               <EquipmentCard key={equipment.id} equipment={equipment} />
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-8 text-sm uppercase">
+          <p className="text-center text-muted-foreground py-8 text-sm">
             Nenhum equipamento associado a este cliente.
           </p>
         )}

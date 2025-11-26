@@ -12,16 +12,18 @@ interface UpcomingVacationsAlertProps {
 }
 
 const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacations, isLoading }) => {
+  // Calcula as datas da próxima semana uma vez por renderização, se não estiver carregando
   const { startOfNextWeek, endOfOfNextWeek } = useMemo(() => {
     if (isLoading) {
       return { startOfNextWeek: null, endOfOfNextWeek: null };
     }
     const today = new Date();
+    // ALTERADO: weekStartsOn para 1 (segunda-feira)
     const localeOptions = { locale: ptBR, weekStartsOn: 1 as 0 | 1 | 2 | 3 | 4 | 5 | 6 }; 
     const s = startOfWeek(addWeeks(today, 1), localeOptions);
     const e = endOfWeek(addWeeks(today, 1), localeOptions);
     return { startOfNextWeek: s, endOfOfNextWeek: e };
-  }, [isLoading]);
+  }, [isLoading]); // Depende apenas de isLoading
 
   const groupedVacations = useMemo(() => {
     if (isLoading || !vacations || !startOfNextWeek || !endOfOfNextWeek) {
@@ -34,8 +36,13 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
         const vacStartDate = parseISO(vac.start_date);
         const vacEndDate = parseISO(vac.end_date);
 
+        // Considera apenas férias pendentes ou aprovadas
         if (vac.status === 'rejected') return;
 
+        // Uma férias é "na próxima semana" se:
+        // 1. A data de início da férias está dentro da próxima semana
+        // 2. A data de fim da férias está dentro da próxima semana
+        // 3. A próxima semana está completamente contida dentro do período de férias
         const overlaps = 
             isWithinInterval(vacStartDate, { start: startOfNextWeek, end: endOfOfNextWeek }) ||
             isWithinInterval(vacEndDate, { start: startOfNextWeek, end: endOfOfNextWeek }) ||
@@ -63,6 +70,7 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
     return <Skeleton className="h-20 w-full mb-4" />;
   }
 
+  // Se não houver férias futuras ou as datas da próxima semana não estiverem definidas, não exibe o alerta
   if (displayItems.length === 0 || !startOfNextWeek || !endOfOfNextWeek) {
     return null;
   }
@@ -73,8 +81,8 @@ const UpcomingVacationsAlert: React.FC<UpcomingVacationsAlertProps> = ({ vacatio
   return (
     <Alert className="mb-6 bg-yellow-50 border-yellow-200 text-yellow-800 dark:bg-yellow-950 dark:border-yellow-800 dark:text-yellow-200">
       <Info className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-      <AlertTitle className="text-yellow-800 dark:text-yellow-200 uppercase">Férias na Próxima Semana!</AlertTitle>
-      <AlertDescription className="text-yellow-700 dark:text-yellow-300 uppercase">
+      <AlertTitle className="text-yellow-800 dark:text-yellow-200">Férias na Próxima Semana!</AlertTitle>
+      <AlertDescription className="text-yellow-700 dark:text-yellow-300">
         Os seguintes colaboradores estarão de férias entre {formattedStartDate} e {formattedEndDate}:
         <ul className="list-disc list-inside ml-4 mt-2 space-y-1">
             {displayItems.map((employee, index) => (

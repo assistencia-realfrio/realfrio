@@ -26,26 +26,26 @@ const EquipmentCard: React.FC<EquipmentCardProps> = ({ equipment }) => {
       <div className="flex flex-col flex-grow p-4">
         <div className="flex items-center gap-2 mb-2">
           <HardDrive className="h-5 w-5 text-primary flex-shrink-0" />
-          <h3 className="font-semibold text-lg truncate uppercase">{equipment.name}</h3>
+          <h3 className="font-semibold text-lg truncate">{equipment.name}</h3>
         </div>
 
         <div className="space-y-1 text-sm text-muted-foreground">
           {equipment.brand && (
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 flex-shrink-0" />
-              <p className="truncate uppercase">Marca: {equipment.brand}</p>
+              <p className="truncate">Marca: {equipment.brand}</p>
             </div>
           )}
           {equipment.model && (
             <div className="flex items-center gap-2">
               <Box className="h-4 w-4 flex-shrink-0" />
-              <p className="truncate uppercase">Modelo: {equipment.model}</p>
+              <p className="truncate">Modelo: {equipment.model}</p>
             </div>
           )}
           {equipment.serial_number && (
             <div className="flex items-center gap-2">
               <Hash className="h-4 w-4 flex-shrink-0" />
-              <p className="truncate uppercase">Nº Série: {equipment.serial_number}</p>
+              <p className="truncate">Nº Série: {equipment.serial_number}</p>
             </div>
           )}
         </div>

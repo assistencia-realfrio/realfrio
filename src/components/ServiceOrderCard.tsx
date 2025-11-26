@@ -92,12 +92,12 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
 
             <div className="flex flex-col flex-grow">
                 <div className="flex items-center justify-between px-3 py-1.5">
-                    <div className="font-semibold text-sm text-foreground truncate pr-2 uppercase">
+                    <div className="font-semibold text-sm text-foreground truncate pr-2">
                         {order.display_id}
                     </div>
                     <div className="flex items-center gap-2">
                         <Badge  
-                            className="whitespace-nowrap text-xs px-2 py-0.5 border-transparent text-black h-6 flex items-center uppercase"
+                            className="whitespace-nowrap text-xs px-2 py-0.5 border-transparent text-black h-6 flex items-center"
                             style={{ backgroundColor: hexToRgba(statusBgColor, 0.6) }}
                         >
                             {order.status}
@@ -112,14 +112,13 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenuLabel className="uppercase">Alterar Estado</DropdownMenuLabel>
+                                <DropdownMenuLabel>Alterar Estado</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {serviceOrderStatuses.map((status) => (
                                     <DropdownMenuItem 
                                         key={status} 
                                         onClick={() => handleStatusChange(status)}
                                         disabled={updateOrder.isPending}
-                                        className="uppercase"
                                     >
                                         <Check className={cn("mr-2 h-4 w-4", order.status === status ? "opacity-100" : "opacity-0")} />
                                         {status}
@@ -134,21 +133,21 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                     <div className="flex flex-col space-y-2 flex-grow">
                         <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                            <p className="font-semibold text-base truncate uppercase">{order.client}</p>
+                            <p className="font-semibold text-base truncate">{order.client}</p>
                         </div>
                         {order.establishment_name && (
                             <div className="flex items-center gap-2">
                                 <Building className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                <p className="text-sm font-medium truncate uppercase">{order.establishment_name}</p>
+                                <p className="text-sm font-medium truncate">{order.establishment_name}</p>
                             </div>
                         )}
                         <div className="flex items-center gap-2">
                             <HardDrive className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                            <p className="text-base truncate uppercase">{order.equipment}</p>
+                            <p className="text-base truncate">{order.equipment}</p>
                         </div>
                         <div className="flex items-start gap-2">
                             <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-                            <p className="text-sm text-muted-foreground line-clamp-2 uppercase">{order.description}</p>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{order.description}</p>
                         </div>
                     </div>
 
@@ -158,12 +157,12 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                                 <>
                                     <div className="flex items-center gap-1 text-muted-foreground">
                                         <CalendarIcon className="h-4 w-4" />
-                                        <span className="uppercase">{format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR })}</span>
+                                        <span>{format(scheduledDate, 'dd/MM/yyyy', { locale: ptBR })}</span>
                                     </div>
                                     {isTimeExplicitlySet && (
                                         <div className="flex items-center gap-1 text-muted-foreground">
-                                            <Clock className="h-4 w-4 ml-2" />
-                                            <span className="uppercase">{format(scheduledDate, 'HH:mm', { locale: ptBR })}</span>
+                                            <Clock className="h-4 w-4" />
+                                            <span>{format(scheduledDate, 'HH:mm', { locale: ptBR })}</span>
                                         </div>
                                     )}
                                 </>
@@ -174,13 +173,13 @@ const ServiceOrderCard: React.FC<ServiceOrderCardProps> = ({ order }) => {
                             {order.notes_count > 0 && (
                                 <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
                                     <MessageSquareText className="h-4 w-4" />
-                                    <span className="uppercase">{order.notes_count}</span>
+                                    <span>{order.notes_count}</span>
                                 </div>
                             )}
                             {order.attachments_count > 0 && (
                                 <div className="flex items-center text-xs gap-1 text-muted-foreground hover:text-foreground transition-colors">
                                     <Paperclip className="h-4 w-4" />
-                                    <span className="uppercase">{order.attachments_count}</span>
+                                    <span>{order.attachments_count}</span>
                                 </div>
                             )}
                         </div>

@@ -17,6 +17,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // O toastId retornado por showLoading (sonner) é string | number
     let toastId: string | number | undefined;
 
     const loadSession = async () => {

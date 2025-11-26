@@ -16,7 +16,7 @@ const NewClient: React.FC = () => {
     try {
       const newClient = await createClient.mutateAsync(data);
       showSuccess(`Cliente '${newClient.name}' criado com sucesso!`);
-      navigate(`/clients/${newClient.id}`, { replace: true });
+      navigate(`/clients/${newClient.id}`, { replace: true }); // Redireciona para os detalhes do novo cliente
     } catch (error) {
       console.error("Erro ao criar cliente:", error);
       showError("Erro ao criar novo cliente. Tente novamente.");
@@ -24,7 +24,7 @@ const NewClient: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    navigate(-1); // Volta para a página anterior
   };
 
   return (
@@ -34,12 +34,12 @@ const NewClient: React.FC = () => {
           <Button variant="outline" size="icon" onClick={handleCancel}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h2 className="text-3xl font-bold tracking-tight uppercase">Criar Novo Cliente</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Criar Novo Cliente</h2>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="uppercase">Informações do Novo Cliente</CardTitle>
+            <CardTitle>Informações do Novo Cliente</CardTitle>
           </CardHeader>
           <CardContent>
             <ClientForm 
