@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { FileText, Paperclip, History, List, HardDrive, MessageSquareText, Dot } from 'lucide-react';
+import { FileText, Paperclip, History, List, HardDrive, MessageSquareText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -49,10 +49,10 @@ const ServiceOrderBottomNav: React.FC<ServiceOrderBottomNavProps> = ({ selectedV
               aria-label={item.label}
             >
               <item.icon className="h-10 w-10" />
-              <span className="text-xs mt-1 flex items-center gap-0.5">
+              <span className="text-xs mt-1 relative">
                 {item.label}
                 {hasContent && (
-                  <Dot className="h-6 w-6 text-destructive -ml-1" />
+                  <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
                 )}
               </span>
             </Button>
